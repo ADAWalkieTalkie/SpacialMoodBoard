@@ -16,10 +16,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		186F004A2E8DA1F100193A85 /* Exceptions for "SpacialMoodBoard" folder in "SpacialMoodBoard" target */ = {
+		186F00692E8DACAF00193A85 /* Exceptions for "SpacialMoodBoard" folder in "SpacialMoodBoard" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Resource/Info.plist,
 			);
 			target = 186F00392E8DA1E800193A85 /* SpacialMoodBoard */;
 		};
@@ -29,7 +29,7 @@
 		186F003C2E8DA1E800193A85 /* SpacialMoodBoard */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				186F004A2E8DA1F100193A85 /* Exceptions for "SpacialMoodBoard" folder in "SpacialMoodBoard" target */,
+				186F00692E8DACAF00193A85 /* Exceptions for "SpacialMoodBoard" folder in "SpacialMoodBoard" target */,
 			);
 			path = SpacialMoodBoard;
 			sourceTree = "<group>";
@@ -167,7 +167,7 @@
 				"DEVELOPMENT_TEAM[sdk=xros*]" = 3F2SU69WAB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(TARGET_NAME)/Info.plist";
+				INFOPLIST_FILE = "$(TARGET_NAME)/Resource/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -201,7 +201,7 @@
 				"DEVELOPMENT_TEAM[sdk=xros*]" = 3F2SU69WAB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(TARGET_NAME)/Info.plist";
+				INFOPLIST_FILE = "$(TARGET_NAME)/Resource/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
