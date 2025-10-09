@@ -10,26 +10,29 @@ import SwiftUI
 struct ProjectListView: View {
   let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 3)
   
+  @State private var searchText = ""
+  
+  var filteredProjects: [Project] {
+    if searchText.isEmpty {
+      return Project.mockData
+    } else {
+      return Project.mockData.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
+  }
+  
   var body: some View {
-    VStack {
-      HStack {
-        Text("Projects")
-          .font(.largeTitle)
-          .fontWeight(.semibold)
-
-          Spacer()
-                  
-      }
-      .padding(40)
-      ScrollView {          
+    NavigationStack {
+      ScrollView {
         LazyVGrid(columns: columns, spacing: 40) {
-          ForEach(Project.mockData) { project in
+          ForEach(filteredProjects) { project in
             ProjectItemView(project: project)
               .padding(.horizontal, 30)
           }
         }
         .padding(.horizontal, 60)
       }
+      .navigationTitle(Text("Projects"))
+      .searchable(text: $searchText, prompt: "search")
     }
     .glassBackgroundEffect()
   }
@@ -48,19 +51,19 @@ struct ProjectItemView: View {
           RoundedRectangle(cornerRadius: 12)
             .fill(.ultraThinMaterial)
         )
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .aspectRatio(320/278, contentMode: .fit)
-    .background(.thinMaterial)
-    .cornerRadius(30)
-    Text(project.title)
-      .font(.system(size: 20))
-      .fontWeight(.bold)
-      .multilineTextAlignment(.center)
-      .lineLimit(2)
-  }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .aspectRatio(320/278, contentMode: .fit)
+        .background(.thinMaterial)
+        .cornerRadius(30)
+      Text(project.title)
+        .font(.system(size: 20))
+        .fontWeight(.bold)
+        .multilineTextAlignment(.center)
+        .lineLimit(2)
+    }
   }
 }
 
 #Preview {
-    ProjectListView()
+  ProjectListView()
 }
