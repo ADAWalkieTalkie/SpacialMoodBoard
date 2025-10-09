@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct ProjectModel: Identifiable {
+struct Project: Identifiable {
   let id: UUID
   var title: String
-  var thumbnailImage: String
+  var thumbnailImage: String?
   let createdAt: Date
   var updatedAt: Date
 
   init(
     id: UUID = UUID(),
     title: String,
-    thumbnailImage: String,
+    thumbnailImage: String? = nil,
     createdAt: Date = Date(),
     updatedAt: Date = Date()
   ) {
