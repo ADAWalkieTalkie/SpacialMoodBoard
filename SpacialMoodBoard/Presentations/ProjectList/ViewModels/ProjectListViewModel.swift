@@ -23,4 +23,15 @@ class ProjectListViewModel {
       projects[index].updatedAt = Date()
     }
   }
+  
+  @discardableResult
+  func deleteProject(projectId: Project.ID) -> Bool {
+    guard let index = projects.firstIndex(where: { $0.id == projectId}) else {
+      return false
+    }
+    projects.remove(at: index)
+    return true
+  }
+  
+  
 }

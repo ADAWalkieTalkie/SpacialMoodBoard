@@ -27,10 +27,16 @@ struct ProjectListView: View {
       ScrollView {
         LazyVGrid(columns: columns, spacing: 40) {
           ForEach(filteredProjects) { project in
-            ProjectItemView(project: project) { newTitle in
-              viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
-            }
-              .padding(.horizontal, 30)
+            ProjectItemView(
+              project: project,
+              onTitleChanged: { newTitle in
+                viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
+              },
+              onDelete: {
+                viewModel.deleteProject(projectId: project.id)
+              }
+            )
+            .padding(.horizontal, 30)
           }
         }
         .padding(.horizontal, 60)
@@ -46,10 +52,12 @@ struct ProjectItemView: View {
   let project: Project
   
   let onTitleChanged: (String) -> Void
+  let onDelete: () -> Void
   
   @State private var isEditing = false
   @State private var editedTitle: String = ""
   @FocusState private var isFocused: Bool
+  @State private var showDeleteAlert = false
   
   var body: some View {
     VStack {
@@ -83,15 +91,34 @@ struct ProjectItemView: View {
           }
         
       } else {
-        Text(editedTitle.isEmpty ? project.title : editedTitle)
-          .font(.system(size: 20))
-          .fontWeight(.bold)
-          .multilineTextAlignment(.center)
-          .lineLimit(2)
-          .onTapGesture {
-            editedTitle = project.title
-            isEditing = true
+        HStack {
+          Text(editedTitle.isEmpty ? project.title : editedTitle)
+            .font(.system(size: 20))
+            .fontWeight(.bold)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .onTapGesture {
+              editedTitle = project.title
+              isEditing = true
+            }
+          
+          Button(action: {
+            showDeleteAlert = true
+          }) {
+            Image(systemName: "trash")
+              .font(.system(size: 16))
           }
+          .buttonStyle(.plain)
+        }
+      }
+    }
+    .alert(
+      String(localized: "해당 프로젝트를 삭제하시겠습니까?", comment: "Delete project confirmation"),
+      isPresented: $showDeleteAlert
+    ) {
+      Button(String(localized: "아니오", comment: "Cancel button"), role: .cancel) { }
+      Button(String(localized: "예", comment: "Confirm button"), role: .destructive) {
+        onDelete()
       }
     }
   }
