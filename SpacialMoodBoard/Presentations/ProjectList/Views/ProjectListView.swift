@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct ProjectListView: View {
+  @State private var viewModel = ProjectListViewModel()
+  
   let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 3)
   
   @State private var searchText = ""
   
   var filteredProjects: [Project] {
     if searchText.isEmpty {
-      return Project.mockData
+      return viewModel.projects
     } else {
-      return Project.mockData.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+      return viewModel.projects.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
     }
   }
   
@@ -25,7 +27,9 @@ struct ProjectListView: View {
       ScrollView {
         LazyVGrid(columns: columns, spacing: 40) {
           ForEach(filteredProjects) { project in
-            ProjectItemView(project: project)
+            ProjectItemView(project: project) { newTitle in
+              viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
+            }
               .padding(.horizontal, 30)
           }
         }
@@ -41,6 +45,12 @@ struct ProjectListView: View {
 struct ProjectItemView: View {
   let project: Project
   
+  let onTitleChanged: (String) -> Void
+  
+  @State private var isEditing = false
+  @State private var editedTitle: String = ""
+  @FocusState private var isFocused: Bool
+  
   var body: some View {
     VStack {
       Image(systemName: project.thumbnailImage ?? "cube.transparent")
@@ -55,11 +65,34 @@ struct ProjectItemView: View {
         .aspectRatio(320/278, contentMode: .fit)
         .background(.thinMaterial)
         .cornerRadius(30)
-      Text(project.title)
-        .font(.system(size: 20))
-        .fontWeight(.bold)
-        .multilineTextAlignment(.center)
-        .lineLimit(2)
+      
+      if isEditing {
+        TextField("ProjectTitle", text: $editedTitle)
+          .font(.system(size: 20))
+          .fontWeight(.bold)
+          .multilineTextAlignment(.center)
+          .focused($isFocused)
+          .onSubmit {
+            if !editedTitle.trimmingCharacters(in: .whitespaces).isEmpty {
+              onTitleChanged(editedTitle)
+            }
+            isEditing = false
+          }
+          .onAppear {
+            isFocused = true
+          }
+        
+      } else {
+        Text(editedTitle.isEmpty ? project.title : editedTitle)
+          .font(.system(size: 20))
+          .fontWeight(.bold)
+          .multilineTextAlignment(.center)
+          .lineLimit(2)
+          .onTapGesture {
+            editedTitle = project.title
+            isEditing = true
+          }
+      }
     }
   }
 }

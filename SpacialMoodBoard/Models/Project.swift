@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Project: Identifiable {
+struct Project: Identifiable, Equatable {
   let id: UUID
   var title: String
   var thumbnailImage: String?
@@ -28,3 +28,4 @@ struct Project: Identifiable {
     self.updatedAt = updatedAt
   }
 }
+
