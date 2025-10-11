@@ -22,10 +22,11 @@ struct GroundSizeSelectionView: View {
       HStack(spacing: 40) {
         ForEach(Array(GroundSizePreset.allCases.enumerated()), id: \.element) { index, preset in
           GroundSizeCard(preset: preset, index: index) {
-              onSelect(preset)
+            onSelect(preset)
           }
         }
       }
+      .padding(.horizontal, 62)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .padding(.bottom, 120)
@@ -46,21 +47,29 @@ struct GroundSizeCard: View {
   
   var body: some View {
     Button(action: onTap) {
-      VStack(spacing: 20) {
-        Image(systemName: preset.iconName)
-          .font(.system(size: 80))
-          .foregroundStyle(.primary)
+      ZStack {
+        Color.clear
+          .background(Color(white: 217 / 255).opacity(0.2))
+          .aspectRatio(1, contentMode: .fit)
+          .clipShape(.rect(cornerRadius: 30))
+        VStack {
+          Image(systemName: preset.iconName)
+            .font(.system(size: 120))
+            .foregroundStyle(.primary)
+            .padding(.bottom, 40)
+          
+          Text(preset.rawValue)
+            .font(.system(size: 28, weight: .semibold))
+            .foregroundStyle(.primary)
+          Text("\(preset.dimensions.x)m × \(preset.dimensions.y)m × \(preset.dimensions.z)m")
+            .font(.system(size: 18))
+            .foregroundStyle(.secondary)
+        }
         
-        Text(preset.rawValue)
-          .font(.system(size: 28, weight: .semibold))
-        
-        Text("\(preset.dimensions.x)m × \(preset.dimensions.y)m × \(preset.dimensions.z)m")
-          .font(.system(size: 18))
-          .foregroundStyle(.secondary)
       }
-      .frame(width: 300, height: 300)
-      .background(.ultraThinMaterial)
-      .cornerRadius(30)
+      .clipShape(.rect(cornerRadius: 30))
+      .contentShape(.rect(cornerRadius: 30))
+      .hoverEffect()
       .opacity(appeared ? 1 : 0)
       .offset(y: appeared ? 0 : 30)
     }

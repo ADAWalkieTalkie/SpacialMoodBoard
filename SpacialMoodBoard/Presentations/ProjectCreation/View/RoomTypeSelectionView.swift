@@ -19,13 +19,14 @@ struct RoomTypeSelectionView: View {
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : -20)
       
-      HStack(spacing: 40) {
+      HStack(spacing: 130) {
         ForEach(Array(RoomType.allCases.enumerated()), id: \.element) { index, roomType in
           RoomTypeCard(roomType: roomType, index: index) {
             onSelect(roomType)
           }
         }
       }
+      .padding(.horizontal, 130)
     }
     .padding(.bottom, 120)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -46,17 +47,25 @@ struct RoomTypeCard: View {
   
   var body: some View {
     Button(action: onTap) {
-      VStack(spacing: 20) {
-        Image(systemName: roomType.iconName)
-          .font(.system(size: 80))
-          .foregroundStyle(.primary)
-        
-        Text(roomType.displayName)
-          .font(.system(size: 28, weight: .semibold))
+      ZStack {
+        Color.clear
+          .background(Color(white: 217 / 255).opacity(0.2))
+          .aspectRatio(1, contentMode: .fit)
+          .clipShape(.rect(cornerRadius: 30))
+        VStack {
+          Image(systemName: roomType.iconName)
+            .font(.system(size: 200))
+            .foregroundStyle(.primary)
+            .padding(.bottom, 60)
+          
+          Text(roomType.displayName)
+            .font(.system(size: 28, weight: .semibold))
+            .foregroundStyle(.primary)
+        }
       }
-      .frame(width: 300, height: 300)
-      .background(.ultraThinMaterial)
-      .cornerRadius(30)
+      .clipShape(.rect(cornerRadius: 30))
+      .contentShape(.rect(cornerRadius: 30))
+      .hoverEffect()
       .opacity(appeared ? 1 : 0)
       .offset(y: appeared ? 0 : 30)
     }
