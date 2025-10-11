@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Project: Identifiable, Equatable {
+struct Project: Identifiable, Codable, Equatable {
   let id: UUID
   var title: String
   var thumbnailImage: String?

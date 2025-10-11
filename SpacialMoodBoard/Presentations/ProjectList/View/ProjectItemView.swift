@@ -1,56 +1,14 @@
 //
-//  ProjectListView.swift
+//  ProjectItemView.swift
 //  SpacialMoodBoard
 //
-//  Created by PenguinLand on 10/9/25.
+//  Created by PenguinLand on 10/12/25.
 //
 
 import SwiftUI
 
-struct ProjectListView: View {
-  @State private var viewModel = ProjectListViewModel()
-  
-  let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 3)
-  
-  @State private var searchText = ""
-  
-  var filteredProjects: [Project] {
-    if searchText.isEmpty {
-      return viewModel.projects
-    } else {
-      return viewModel.projects.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
-    }
-  }
-  
-  var body: some View {
-    NavigationStack {
-      ScrollView {
-        LazyVGrid(columns: columns, spacing: 40) {
-          ForEach(filteredProjects) { project in
-            ProjectItemView(
-              project: project,
-              onTitleChanged: { newTitle in
-                viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
-              },
-              onDelete: {
-                viewModel.deleteProject(projectId: project.id)
-              }
-            )
-            .padding(.horizontal, 30)
-          }
-        }
-        .padding(.horizontal, 60)
-      }
-      .navigationTitle(Text("Projects"))
-      .searchable(text: $searchText, prompt: "search")
-    }
-    .glassBackgroundEffect()
-  }
-}
-
 struct ProjectItemView: View {
   let project: Project
-  
   let onTitleChanged: (String) -> Void
   let onDelete: () -> Void
   
@@ -70,7 +28,7 @@ struct ProjectItemView: View {
             .fill(.ultraThinMaterial)
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .aspectRatio(320/278, contentMode: .fit)
+        .aspectRatio(320 / 278, contentMode: .fit)
         .background(.thinMaterial)
         .cornerRadius(30)
       
@@ -113,11 +71,17 @@ struct ProjectItemView: View {
       }
     }
     .alert(
-      String(localized: "해당 프로젝트를 삭제하시겠습니까?", comment: "Delete project confirmation"),
+      String(
+        localized: "해당 프로젝트를 삭제하시겠습니까?",
+        comment: "Delete project confirmation"
+      ),
       isPresented: $showDeleteAlert
     ) {
-      Button(String(localized: "아니오", comment: "Cancel button"), role: .cancel) { }
-      Button(String(localized: "예", comment: "Confirm button"), role: .destructive) {
+      Button(String(localized: "아니오", comment: "Cancel button"), role: .cancel) {}
+      Button(
+        String(localized: "예", comment: "Confirm button"),
+        role: .destructive
+      ) {
         onDelete()
       }
     }
@@ -125,5 +89,9 @@ struct ProjectItemView: View {
 }
 
 #Preview {
-  ProjectListView()
+  ProjectItemView(
+    project: Project(title: "Sample Project"),
+    onTitleChanged: { _ in },
+    onDelete: { }
+  )
 }
