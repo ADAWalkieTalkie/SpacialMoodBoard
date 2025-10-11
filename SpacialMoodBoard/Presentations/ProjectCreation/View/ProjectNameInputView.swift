@@ -29,9 +29,6 @@ struct ProjectNameInputView: View {
         .cornerRadius(20)
         .frame(maxWidth: 600)
         .focused($isFocused)
-        .onSubmit {
-          createProject()
-        }
       
       Button(action: createProject) {
         Text("생성하기")
