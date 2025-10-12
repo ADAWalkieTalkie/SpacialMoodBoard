@@ -14,7 +14,7 @@ struct SpacialMoodBoardApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LibraryView()
                 .environment(appModel)
         }
 
