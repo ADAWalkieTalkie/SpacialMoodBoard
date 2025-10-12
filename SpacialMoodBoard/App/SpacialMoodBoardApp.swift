@@ -18,6 +18,11 @@ struct SpacialMoodBoardApp: App {
                 .environment(appModel)
         }
 
+        WindowGroup(id: "dummy") {
+            DummyView()
+                .environment(appModel)
+        }
+
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()
                 .environment(appModel)
