@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SceneVolume {
+struct VolumeScene {
   let id: UUID
   let projectID: UUID
   var groundSizeX: Int
