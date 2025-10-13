@@ -168,6 +168,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(TARGET_NAME)/Resource/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "카메라 인식을 위해 권한을 허용해주세요.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -202,6 +203,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(TARGET_NAME)/Resource/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "카메라 인식을 위해 권한을 허용해주세요.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
