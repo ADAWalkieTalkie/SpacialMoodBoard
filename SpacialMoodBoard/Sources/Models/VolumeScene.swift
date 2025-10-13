@@ -52,5 +52,4 @@ struct VolumeScene {
       viewMode: viewMode,
     )
   }
-  
 }

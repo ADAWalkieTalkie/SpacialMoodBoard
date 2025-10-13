@@ -29,5 +29,4 @@ enum GroundSizePreset: String, Codable, CaseIterable {
     case .large: return "building.2.fill"
     }
   }
-  
 }
