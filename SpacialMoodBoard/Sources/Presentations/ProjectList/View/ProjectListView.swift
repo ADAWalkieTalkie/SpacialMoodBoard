@@ -13,13 +13,6 @@ struct ProjectListView: View {
   
   private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 3)
   
-  // MARK: - Navigation Step
-    enum CreationStep: Hashable {
-      case roomTypeSelection
-      case groundSizeSelection(roomType: RoomType)
-      case projectNameInput(roomType: RoomType, groundSize: GroundSizePreset)
-    }
-  
   // MARK: - Main View
   var body: some View {
     NavigationStack(path: $path) {
