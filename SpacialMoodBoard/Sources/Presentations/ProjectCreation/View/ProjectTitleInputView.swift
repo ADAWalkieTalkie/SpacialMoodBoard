@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ProjectNameInputView: View {
+struct ProjectTitleInputView: View {
   let onCreate: (String) -> Void
   
   @State private var projectName = ""
@@ -69,7 +69,7 @@ struct ProjectNameInputView: View {
 
 #Preview {
   NavigationStack {
-    ProjectNameInputView { name in
+    ProjectTitleInputView { name in
       print("Project created: \(name)")
     }
   }

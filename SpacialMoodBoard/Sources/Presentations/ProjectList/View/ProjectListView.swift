@@ -63,12 +63,12 @@ struct ProjectListView: View {
       
     case .groundSizeSelection(let roomType):
       GroundSizeSelectionView { groundSize in
-        path.append(CreationStep.projectNameInput(roomType: roomType, groundSize: groundSize))
+        path.append(CreationStep.projectTitleInput(roomType: roomType, groundSize: groundSize))
       }
       
-    case .projectNameInput(let roomType, let groundSize):
-      ProjectNameInputView { projectName in
-        let newProject = viewModel.createProject(name: projectName)
+    case .projectTitleInput(let roomType, let groundSize):
+      ProjectTitleInputView { projectTitle in
+        let newProject = viewModel.createProject(title: projectTitle)
         path.removeLast(path.count)
       }
     }

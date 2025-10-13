@@ -21,9 +21,10 @@ class ProjectListViewModel {
     self.projects = Project.mockData
   }
   
-  func createProject(name: String) -> Project {
-    let newProject = Project(title: name)
+  func createProject(title: String) -> Project {
+    let newProject = Project(title: title)
     addProject(newProject)
+    
     return newProject
   }
   
@@ -62,7 +63,5 @@ class ProjectListViewModel {
     private func sortProjectsByCreatedDate() {
       projects.sort { $0.createdAt > $1.createdAt }
     }
-  
-  
-  
 }
+
