@@ -1,5 +1,5 @@
 //
-//  ProjectListViewModel2.swift
+//  ProjectListViewModel.swift
 //  SpacialMoodBoard
 //
 //  Created by PenguinLand on 10/9/25.
@@ -13,19 +13,34 @@ class ProjectListViewModel {
   var projects: [Project] = []
   var searchText: String = ""
   
+  private let volumeSceneViewModel: VolumeSceneViewModel
+  
   var filteredProjects: [Project] {
     filterProjects(by: searchText)
   }
   
-  init () {
+  init(volumeSceneViewModel: VolumeSceneViewModel) {
+    self.volumeSceneViewModel = volumeSceneViewModel
     self.projects = Project.mockData
   }
   
-  func createProject(title: String) -> Project {
+  @discardableResult
+  func createProject(title: String, roomType: RoomType, groundSizePreset: GroundSizePreset) -> Project {
     let newProject = Project(title: title)
     addProject(newProject)
     
+    volumeSceneViewModel.createScene(
+      projectID: newProject.id,
+      roomType: roomType,
+      preset: groundSizePreset
+    )
+    volumeSceneViewModel.activateScene(for: newProject.id)
+    
     return newProject
+  }
+
+  func selectProject(_ project: Project) {
+    volumeSceneViewModel.activateScene(for: project.id)
   }
   
   func addProject(_ project: Project) {
@@ -47,21 +62,23 @@ class ProjectListViewModel {
       return false
     }
     projects.remove(at: index)
+    
+    volumeSceneViewModel.deleteScene(for: projectId)
+    
     return true
   }
   
   private func filterProjects(by searchText: String) -> [Project] {
-      guard !searchText.isEmpty else {
-        return projects
-      }
-      
-      return projects.filter {
-        $0.title.localizedCaseInsensitiveContains(searchText)
-      }
+    guard !searchText.isEmpty else {
+      return projects
     }
     
-    private func sortProjectsByCreatedDate() {
-      projects.sort { $0.createdAt > $1.createdAt }
+    return projects.filter {
+      $0.title.localizedCaseInsensitiveContains(searchText)
     }
+  }
+  
+  private func sortProjectsByCreatedDate() {
+    projects.sort { $0.createdAt > $1.createdAt }
+  }
 }
-

@@ -11,12 +11,19 @@ import SwiftUI
 struct SpacialMoodBoardApp: App {
 
     @State private var appModel = AppModel()
+    @State private var volumeSceneViewModel = VolumeSceneViewModel()
 
     var body: some Scene {
         WindowGroup {
-            LibraryView()
-                .environment(appModel)
+            ProjectListView()
+                .environment(volumeSceneViewModel)
         }
+
+        WindowGroup(id: VolumeSceneViewModel.volumeWindowID) {
+            VolumeSceneView()
+                .environment(volumeSceneViewModel)
+        }
+        .windowStyle(.volumetric)
 
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()

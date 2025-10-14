@@ -6,30 +6,51 @@
 //
 
 import SwiftUI
+import Observation
 
 struct ProjectListView: View {
-  @State private var viewModel = ProjectListViewModel()
+  @Environment(VolumeSceneViewModel.self) private var volumeSceneViewModel
+  @Environment(\.openWindow) private var openWindow
+  
+  @State private var viewModel: ProjectListViewModel?
   @State private var path = NavigationPath()
   
-  private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 3)
+  init() {}
   
-  // MARK: - Main View
   var body: some View {
-    NavigationStack(path: $path) {
-      projectGridView
-        .navigationTitle("Projects")
-        .searchable(text: $viewModel.searchText, prompt: "search")
-        .navigationDestination(for: CreationStep.self) { step in
-          destinationView(for: step)
-        }
+    Group {
+      if let viewModel {
+        content(viewModel)
+      } else {
+        ProgressView()
+          .task {
+            if viewModel == nil {
+              viewModel = ProjectListViewModel(volumeSceneViewModel: volumeSceneViewModel)
+            }
+          }
+      }
     }
     .glassBackgroundEffect()
   }
   
+  @ViewBuilder
+  private func content(_ viewModel: ProjectListViewModel) -> some View {
+    @Bindable var bindableVM = viewModel
+    
+    NavigationStack(path: $path) {
+      projectGridView(viewModel)
+        .navigationTitle("Projects")
+        .searchable(text: $bindableVM.searchText, prompt: "search")
+        .navigationDestination(for: CreationStep.self) { step in
+          destinationView(for: step, viewModel: viewModel)
+        }
+    }
+  }
+  
   // MARK: - Project Grid View
-  private var projectGridView: some View {
+  private func projectGridView(_ viewModel: ProjectListViewModel) -> some View {
     ScrollView {
-      LazyVGrid(columns: columns, spacing: 40) {
+      LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 40) {
         ProjectCreationButton {
           path.append(CreationStep.roomTypeSelection)
         }
@@ -38,6 +59,10 @@ struct ProjectListView: View {
         ForEach(viewModel.filteredProjects) { project in
           ProjectItemView(
             project: project,
+            onTap: {
+              viewModel.selectProject(project)
+              openWindow(id: VolumeSceneViewModel.volumeWindowID)
+            },
             onTitleChanged: { newTitle in
               viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
             },
@@ -54,7 +79,7 @@ struct ProjectListView: View {
   
   // MARK: - Navigation Destinations
   @ViewBuilder
-  private func destinationView(for step: CreationStep) -> some View {
+  private func destinationView(for step: CreationStep, viewModel: ProjectListViewModel) -> some View {
     switch step {
     case .roomTypeSelection:
       RoomTypeSelectionView { roomType in
@@ -68,7 +93,14 @@ struct ProjectListView: View {
       
     case .projectTitleInput(let roomType, let groundSize):
       ProjectTitleInputView { projectTitle in
-        let newProject = viewModel.createProject(title: projectTitle)
+        _ = viewModel.createProject(
+          title: projectTitle,
+          roomType: roomType,
+          groundSizePreset: groundSize
+        )
+        
+        openWindow(id: VolumeSceneViewModel.volumeWindowID)
+        
         path.removeLast(path.count)
       }
     }
@@ -77,4 +109,5 @@ struct ProjectListView: View {
 
 #Preview {
   ProjectListView()
+    .environment(VolumeSceneViewModel())
 }
