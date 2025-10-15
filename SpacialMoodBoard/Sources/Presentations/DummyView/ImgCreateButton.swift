@@ -1,12 +1,12 @@
 import SwiftUI
 
 struct ImgCreateButton: View {
-    let title: String
-    let imageName: String
+    let asset: Asset
+    let action: () -> Void
     
     var body: some View {
-        Button(title) {
-            // appModel.requestSpawnImage(imageName: "goldfish")
+        Button(asset.filename) {
+            action()
         }
         .buttonStyle(.borderedProminent)
     }
