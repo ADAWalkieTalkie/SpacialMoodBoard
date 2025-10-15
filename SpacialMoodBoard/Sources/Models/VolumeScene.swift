@@ -7,9 +7,8 @@
 
 import Foundation
 
-struct VolumeScene {
+struct VolumeScene: Identifiable, Codable, Equatable {
   let id: UUID
-  let projectID: UUID
   var groundSizeX: Int
   var groundSizeY: Int
   var groundSizeZ: Int
@@ -18,7 +17,6 @@ struct VolumeScene {
   
   init(
     id: UUID = UUID(),
-    projectID: UUID,
     groundSizeX: Int,
     groundSizeY: Int,
     groundSizeZ: Int,
@@ -26,7 +24,6 @@ struct VolumeScene {
     viewMode: Bool = false,
   ) {
     self.id = id
-    self.projectID = projectID
     self.groundSizeX = groundSizeX
     self.groundSizeY = groundSizeY
     self.groundSizeZ = groundSizeZ
@@ -36,7 +33,6 @@ struct VolumeScene {
   
   init(
     id: UUID = UUID(),
-    projectID: UUID,
     preset: GroundSizePreset,
     roomType: RoomType,
     viewMode: Bool = false
@@ -44,7 +40,6 @@ struct VolumeScene {
     let dimensions = preset.dimensions
     self.init(
       id: id,
-      projectID: projectID,
       groundSizeX: dimensions.x,
       groundSizeY: dimensions.y,
       groundSizeZ: dimensions.z,
