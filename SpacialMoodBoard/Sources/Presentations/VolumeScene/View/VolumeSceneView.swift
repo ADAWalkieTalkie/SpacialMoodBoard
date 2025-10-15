@@ -9,7 +9,8 @@ import SwiftUI
 import RealityKit
 
 struct VolumeSceneView: View {
-  @Environment(VolumeSceneViewModel.self) private var viewModel
+  @Environment(VolumeSceneViewModel.self) private var sceneVM
+  @Environment(ProjectListViewModel.self) private var projectVM
   @State private var lastOpacityUpdate: Date = .distantPast
   
   private let opacityUpdateInterval: TimeInterval = 0.2
@@ -17,51 +18,81 @@ struct VolumeSceneView: View {
   var body: some View {
     RealityView { content in
       setupScene(content: content)
-    } update: { content in
-      updateScene(content: content)
+    } update: { [sceneVM, projectVM] content in
+      updateScene(content: content, sceneVM: sceneVM, projectVM: projectVM)
     }
-    .id(viewModel.currentScene?.id)
+    .id(sceneVM.activeProjectID)
     .gesture(
-      DragGesture()
+      DragGesture(minimumDistance: 0.001, coordinateSpace: .local)
         .targetedToAnyEntity()
         .onChanged { value in
           let deltaX = Float(value.translation.width)
           let rotationDelta = deltaX * 0.01
-          viewModel.rotateScene(by: rotationDelta)
+          sceneVM.rotateScene(by: rotationDelta)
         }
     )
   }
   
+  // MARK: - Setup Scene
+  
   private func setupScene(content: RealityViewContent) {
-    guard let scene = viewModel.currentScene else { return }
+    guard let activeProjectID = sceneVM.activeProjectID else {
+      print("⚠️ No active project")
+      return
+    }
     
-    let root = viewModel.makeEntities(for: scene)
-    root.name = "roomRoot"
-    root.transform.rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
+    guard let project = projectVM.projects.first(where: { $0.id == activeProjectID }) else {
+      print("⚠️ Project not found: \(activeProjectID)")
+      return
+    }
+    
+    guard let scene = project.volumeScene else {
+      print("⚠️ VolumeScene not found in project")
+      return
+    }
+    
+    guard let root = sceneVM.getOrCreateEntity(for: project) else {
+      print("⚠️ Failed to create root entity")
+      return
+    }
     
     content.add(root)
     
-    if scene.roomType == .indoor {
-      let estimatedCameraPosition: SIMD3<Float> = [0, 1.6, 2.0]
-      viewModel.updateWallOpacity(root: root, cameraPosition: estimatedCameraPosition)
-      lastOpacityUpdate = Date()
-    }
+    sceneVM.alignRootToWindowBottom(
+      root: root,
+      windowHeight: 1.0,  // default 1m 높이 Volume
+      padding: 0.02       // 2cm 여백
+    )
   }
   
-  private func updateScene(content: RealityViewContent) {
+  // MARK: - Update Scene
+  
+  private func updateScene(
+    content: RealityViewContent,
+    sceneVM: VolumeSceneViewModel,
+    projectVM: ProjectListViewModel
+  ) {
+    // Find root entity by name (now properly set in makeEntities)
     guard let root = content.entities.first(where: { $0.name == "roomRoot" }) else {
       return
     }
     
-    root.transform.rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
+    guard let activeProjectID = sceneVM.activeProjectID else {
+      return
+    }
     
-    if let scene = viewModel.currentScene, scene.roomType == .indoor {
-      let now = Date()
-      if now.timeIntervalSince(lastOpacityUpdate) >= opacityUpdateInterval {
-        let estimatedCameraPosition: SIMD3<Float> = [0, 1.6, 2.0]
-        viewModel.updateWallOpacity(root: root, cameraPosition: estimatedCameraPosition)
-        lastOpacityUpdate = now
-      }
+    guard let project = projectVM.projects.first(where: { $0.id == activeProjectID }) else {
+      return
+    }
+    
+    guard let scene = project.volumeScene else {
+      return
     }
   }
+}
+
+#Preview {
+  VolumeSceneView()
+    .environment(ProjectListViewModel())
+    .environment(VolumeSceneViewModel())
 }

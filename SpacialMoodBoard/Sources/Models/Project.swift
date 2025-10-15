@@ -13,7 +13,7 @@ struct Project: Identifiable, Codable, Equatable {
   var thumbnailImage: String?
   let createdAt: Date
   var updatedAt: Date
-  var volumeEntity: VolumeScene
+  var volumeScene: VolumeScene?
 
   init(
     id: UUID = UUID(),
@@ -21,14 +21,14 @@ struct Project: Identifiable, Codable, Equatable {
     thumbnailImage: String? = nil,
     createdAt: Date = Date(),
     updatedAt: Date = Date(),
-    volumeEntity: VolumeScene
+    volumeScene: VolumeScene? = nil
   ) {
     self.id = id
     self.title = title
     self.thumbnailImage = thumbnailImage
     self.createdAt = createdAt
     self.updatedAt = updatedAt
-    self.volumeEntity = volumeEntity
+    self.volumeScene = volumeScene
   }
 }
 

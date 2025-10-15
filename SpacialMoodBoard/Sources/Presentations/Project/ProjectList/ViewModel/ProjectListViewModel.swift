@@ -23,17 +23,18 @@ class ProjectListViewModel {
   
   @discardableResult
   func createProject(title: String, roomType: RoomType, groundSize: GroundSize) -> Project {
-    let newProject = Project(title: title)
+    let Scene = VolumeScene(roomType: roomType, groundSize: groundSize)
+    let newProject = Project(title: title, volumeScene: Scene)
+    
     addProject(newProject)
     
     return newProject
   }
-
-
   
+  // SwiftData에 저장하는 로직으로 변경(예정)
   func addProject(_ project: Project) {
     projects.append(project)
-    projects.sort { $0.createdAt > $1.createdAt }
+    projects.sort { $0.createdAt > $1.createdAt } // 정렬 순서에 맞춰 정렬 로직 수정(예정)
   }
   
   func updateProjectTitle(projectId: Project.ID, newTitle: String) {
@@ -50,9 +51,7 @@ class ProjectListViewModel {
       return false
     }
     projects.remove(at: index)
-    
-//    volumeSceneViewModel.deleteScene(for: projectId)
-    
+
     return true
   }
   
@@ -68,5 +67,9 @@ class ProjectListViewModel {
   
   private func sortProjectsByCreatedDate() {
     projects.sort { $0.createdAt > $1.createdAt }
+  }
+  
+  private func openProject() {
+    
   }
 }
