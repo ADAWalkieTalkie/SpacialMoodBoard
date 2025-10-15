@@ -19,7 +19,7 @@ final class VolumeSceneViewModel {
   private(set) var scenes: [UUID: VolumeScene] = [:]
   private(set) var activeProjectID: UUID?
   
-  var rotationAngle: Float = 0
+  var rotationAngle: Float = .pi / 4
   
   var currentScene: VolumeScene? {
     guard let activeProjectID else { return nil }
@@ -28,10 +28,15 @@ final class VolumeSceneViewModel {
   
   func activateScene(for projectID: UUID) {
     activeProjectID = projectID
+    rotationAngle = .pi / 4
   }
   
   func rotateScene(by angle: Float) {
     rotationAngle += angle
+  }
+  
+  func rotateBy90Degrees() {
+    rotationAngle += .pi / 2
   }
   
   func getOrCreateEntity(for project: Project) -> Entity? {
@@ -59,18 +64,14 @@ final class VolumeSceneViewModel {
     
     if activeProjectID == projectID {
       activeProjectID = nil
+      rotationAngle = .pi / 4
     }
   }
   
-  func clearEntityCache() {
-    cachedEntities.removeAll()
-    print("🗑️ Entity 캐시 전체 삭제")
-  }
-  
-  // MARK: - Entity Creation
+  // MARK: - Entity 생성
   
   func makeEntities(for scene: VolumeScene) -> Entity {
-    let scaleFactor: Float = 16
+    let scaleFactor: Float = 15
     
     let meterX = Float(scene.groundSize.dimensions.x) / scaleFactor
     let meterY = Float(scene.groundSize.dimensions.y) / scaleFactor
@@ -91,7 +92,21 @@ final class VolumeSceneViewModel {
       walls.forEach { root.addChild($0) }
     }
     
+    applyRotation(to: root, angle: rotationAngle)
+    
     return root
+  }
+  
+  func applyRotation(to entity: Entity, angle: Float, duration: TimeInterval = 0) {
+    let rotation = simd_quatf(angle: angle, axis: [0, 1, 0])
+    
+    if duration > 0 {
+      var transform = entity.transform
+      transform.rotation = rotation
+      entity.move(to: transform, relativeTo: entity.parent, duration: duration)
+    } else {
+      entity.transform.rotation = rotation
+    }
   }
   
   private func createFloor(width: Float, depth: Float) -> ModelEntity {
