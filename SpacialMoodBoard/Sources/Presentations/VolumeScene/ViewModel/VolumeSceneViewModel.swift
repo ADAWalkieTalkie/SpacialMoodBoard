@@ -25,7 +25,7 @@ final class VolumeSceneViewModel {
   var rotationAngle: Float = 0
   
   func createScene(projectID: UUID, roomType: RoomType, groundSize: GroundSize) {
-    let scene = VolumeScene(groundSize: groundSize, roomType: roomType)
+    let scene = VolumeScene(roomType: roomType, groundSize: groundSize)
     scenes[projectID] = scene
   }
   

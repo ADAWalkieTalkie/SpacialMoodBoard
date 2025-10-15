@@ -9,19 +9,19 @@ import Foundation
 
 struct VolumeScene: Identifiable, Codable, Equatable {
   let id: UUID
-  let groundSize: GroundSize
   var roomType: RoomType
+  let groundSize: GroundSize
   var viewMode: Bool
   
   init(
     id: UUID = UUID(),
-    groundSize: GroundSize,
     roomType: RoomType,
+    groundSize: GroundSize,
     viewMode: Bool = false,
   ) {
     self.id = id
-    self.groundSize = groundSize
     self.roomType = roomType
+    self.groundSize = groundSize
     self.viewMode = viewMode
   }
 }

@@ -9,46 +9,25 @@ import SwiftUI
 import Observation
 
 struct ProjectListView: View {
-  @Environment(VolumeSceneViewModel.self) private var volumeSceneViewModel
   @Environment(\.openWindow) private var openWindow
   
-  @State private var viewModel: ProjectListViewModel?
+  @State private var viewModel = ProjectListViewModel()
   @State private var path = NavigationPath()
   
-  init() {}
-  
   var body: some View {
-    Group {
-      if let viewModel {
-        content(viewModel)
-      } else {
-        ProgressView()
-          .task {
-            if viewModel == nil {
-              viewModel = ProjectListViewModel(volumeSceneViewModel: volumeSceneViewModel)
-            }
-          }
-      }
-    }
-    .glassBackgroundEffect()
-  }
-  
-  @ViewBuilder
-  private func content(_ viewModel: ProjectListViewModel) -> some View {
-    @Bindable var bindableVM = viewModel
-    
     NavigationStack(path: $path) {
-      projectGridView(viewModel)
+      projectGridView()
         .navigationTitle("Projects")
-        .searchable(text: $bindableVM.searchText, prompt: "search")
+        .searchable(text: $viewModel.searchText, prompt: "search")
         .navigationDestination(for: CreationStep.self) { step in
           destinationView(for: step, viewModel: viewModel)
         }
     }
+    .glassBackgroundEffect()
   }
   
   // MARK: - Project Grid View
-  private func projectGridView(_ viewModel: ProjectListViewModel) -> some View {
+  private func projectGridView() -> some View {
     ScrollView {
       LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 40) {
         ProjectCreationButton {
@@ -60,7 +39,6 @@ struct ProjectListView: View {
           ProjectItemView(
             project: project,
             onTap: {
-              viewModel.selectProject(project)
               openWindow(id: VolumeSceneViewModel.volumeWindowID)
             },
             onTitleChanged: { newTitle in
@@ -96,7 +74,7 @@ struct ProjectListView: View {
         _ = viewModel.createProject(
           title: projectTitle,
           roomType: roomType,
-          groundSizePreset: groundSize
+          groundSize: groundSize
         )
         
         openWindow(id: VolumeSceneViewModel.volumeWindowID)
@@ -109,5 +87,4 @@ struct ProjectListView: View {
 
 #Preview {
   ProjectListView()
-    .environment(VolumeSceneViewModel())
 }
