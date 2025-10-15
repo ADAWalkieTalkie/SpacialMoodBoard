@@ -37,6 +37,7 @@ struct VolumeSceneView: View {
       )
       rotationButtonView()
     }
+    .preferredWindowClippingMargins(.all, 400)
   }
   
   // volume 회전 버튼(임시)
