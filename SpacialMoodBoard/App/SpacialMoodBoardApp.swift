@@ -11,6 +11,7 @@ import SwiftUI
 struct SpacialMoodBoardApp: App {
 
     @State private var appModel = AppModel()
+    @State private var sceneModel = SceneModel()
 
     var body: some Scene {
         WindowGroup {
@@ -18,9 +19,16 @@ struct SpacialMoodBoardApp: App {
                 .environment(appModel)
         }
 
+        WindowGroup(id: "dummy") {
+            DummyView()
+                .environment(appModel)
+                .environment(sceneModel)
+        }
+
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()
                 .environment(appModel)
+                .environment(sceneModel)
                 .onAppear {
                     appModel.immersiveSpaceState = .open
                 }
