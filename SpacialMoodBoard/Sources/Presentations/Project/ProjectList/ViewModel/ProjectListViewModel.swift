@@ -13,35 +13,23 @@ class ProjectListViewModel {
   var projects: [Project] = []
   var searchText: String = ""
   
-  private let volumeSceneViewModel: VolumeSceneViewModel
-  
   var filteredProjects: [Project] {
     filterProjects(by: searchText)
   }
   
-  init(volumeSceneViewModel: VolumeSceneViewModel) {
-    self.volumeSceneViewModel = volumeSceneViewModel
+  init() {
     self.projects = Project.mockData
   }
   
   @discardableResult
-  func createProject(title: String, roomType: RoomType, groundSizePreset: GroundSizePreset) -> Project {
+  func createProject(title: String, roomType: RoomType, groundSize: GroundSize) -> Project {
     let newProject = Project(title: title)
     addProject(newProject)
-    
-    volumeSceneViewModel.createScene(
-      projectID: newProject.id,
-      roomType: roomType,
-      preset: groundSizePreset
-    )
-    volumeSceneViewModel.activateScene(for: newProject.id)
     
     return newProject
   }
 
-  func selectProject(_ project: Project) {
-    volumeSceneViewModel.activateScene(for: project.id)
-  }
+
   
   func addProject(_ project: Project) {
     projects.append(project)
@@ -63,7 +51,7 @@ class ProjectListViewModel {
     }
     projects.remove(at: index)
     
-    volumeSceneViewModel.deleteScene(for: projectId)
+//    volumeSceneViewModel.deleteScene(for: projectId)
     
     return true
   }

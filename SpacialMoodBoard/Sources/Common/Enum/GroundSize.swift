@@ -1,11 +1,11 @@
 //
-//  GroundSizePreset.swift
+//  GroundSize.swift
 //  SpacialMoodBoard
 //
 //  Created by PenguinLand on 10/13/25.
 //
 
-enum GroundSizePreset: String, Codable, CaseIterable {
+enum GroundSize: String, Codable, CaseIterable {
   case small = "Small"
   case medium = "Medium"
   case large = "Large"

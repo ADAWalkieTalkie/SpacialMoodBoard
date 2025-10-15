@@ -24,8 +24,8 @@ final class VolumeSceneViewModel {
   
   var rotationAngle: Float = 0
   
-  func createScene(projectID: UUID, roomType: RoomType, preset: GroundSizePreset) {
-    let scene = VolumeScene(projectID: projectID, preset: preset, roomType: roomType)
+  func createScene(projectID: UUID, roomType: RoomType, groundSize: GroundSize) {
+    let scene = VolumeScene(groundSize: groundSize, roomType: roomType)
     scenes[projectID] = scene
   }
   
@@ -45,9 +45,9 @@ final class VolumeSceneViewModel {
   }
   
   func makeEntities(for scene: VolumeScene) -> Entity {
-    let meterX = Float(scene.groundSizeX)
-    let meterY = Float(scene.groundSizeY)
-    let meterZ = Float(scene.groundSizeZ)
+    let meterX = Float(scene.groundSize.dimensions.x)
+    let meterY = Float(scene.groundSize.dimensions.y)
+    let meterZ = Float(scene.groundSize.dimensions.z)
     
     let root = Entity()
     
@@ -109,8 +109,8 @@ final class VolumeSceneViewModel {
     let inverseRotation = simd_inverse(simd_quatf(angle: -rotationAngle, axis: [0, 1, 0]))
     let rotatedCameraPos = inverseRotation.act(localCameraPos)
     
-    let meterX = Float(scene.groundSizeX)
-    let meterZ = Float(scene.groundSizeZ)
+    let meterX = Float(scene.groundSize.dimensions.x)
+    let meterZ = Float(scene.groundSize.dimensions.z)
     
     let distToFront = abs(rotatedCameraPos.z - meterZ/2)
     let distToBack = abs(rotatedCameraPos.z + meterZ/2)
