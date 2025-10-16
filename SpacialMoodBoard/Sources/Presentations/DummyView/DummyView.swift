@@ -11,15 +11,30 @@ struct DummyView: View {
             ToggleImmersiveSpaceButton()
             
             if appModel.immersiveSpaceState == .open {
-                HStack(spacing: 15) {
-                    Text("이미지 생성")
-                        .font(.headline)
-                    
-                    ImgCreateButton(asset: assets[0]){
-                        sceneModel.addImageObject(from: assets[0])
+                // ViewMode 토글
+                VStack(spacing: 20) {
+                    Toggle(isOn: Binding(
+                        get: { sceneModel.userSpatialState.viewMode },
+                        set: { _ in sceneModel.toggleViewMode() }
+                    )) {
+                        Text("뷰 모드")
+                            .font(.headline)
                     }
-                    ImgCreateButton(asset: assets[1]){
-                        sceneModel.addImageObject(from: assets[1])
+                    .toggleStyle(.switch)
+                    .tint(sceneModel.userSpatialState.viewMode ? .green : .gray)
+                    .fixedSize()
+                    
+                    // 이미지 생성 버튼
+                    HStack(spacing: 15) {
+                        Text("이미지 생성")
+                            .font(.headline)
+                        
+                        ImgCreateButton(asset: assets[0]){
+                            sceneModel.addImageObject(from: assets[0])
+                        }
+                        ImgCreateButton(asset: assets[1]){
+                            sceneModel.addImageObject(from: assets[1])
+                        }
                     }
                 }
             }
