@@ -14,7 +14,6 @@ struct FilePathProvider {
     /// glayer/projects 루트 폴더(향후 projects 폴더 이외의 폴더가 생성될 경우 수정 필요)
     static var projectstDirectory: URL {
         documentsDirectory
-            .appendingPathComponent("glayer")
             .appendingPathComponent("projects")
     }
     
