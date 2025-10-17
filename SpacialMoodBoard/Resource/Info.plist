@@ -19,5 +19,18 @@
 			</array>
 		</dict>
 	</dict>
+
+	<!-- Files 앱에서 앱 파일 공유 허용 -->
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
+
+	<!-- Documents 폴더 공유 활성화 -->
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+
+	<!-- 파일 공유 허용 (iTunes/Files 앱) -->
+	<key>UIFileSharingEnabled</key>
+	<true/>
+
 </dict>
 </plist>
