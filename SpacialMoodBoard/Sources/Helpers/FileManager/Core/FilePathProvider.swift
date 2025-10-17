@@ -12,7 +12,7 @@ struct FilePathProvider {
     }
     
     /// glayer/projects 루트 폴더(향후 projects 폴더 이외의 폴더가 생성될 경우 수정 필요)
-    static var projectsRootDirectory: URL {
+    static var projectstDirectory: URL {
         documentsDirectory
             .appendingPathComponent("glayer")
             .appendingPathComponent("projects")
@@ -20,7 +20,7 @@ struct FilePathProvider {
     
     // MARK: - 프로젝트별 경로
     static func projectDirectory(projectName: String) -> URL {
-        projectsDirectory.appendingPathComponent(projectName)
+        projectstDirectory.appendingPathComponent(projectName)
     }
     
     // MARK: - 프로젝트 메타데이터 JSON 파일

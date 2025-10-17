@@ -9,6 +9,10 @@ struct SceneObjectFileStorage: FileStorageProtocol {
     
     func save(_ data: [SceneObject], projectName: String) throws {
         let projectDir = FilePathProvider.projectDirectory(projectName: projectName)
+        
+        // ✅ 디렉토리가 없으면 생성
+        try createDirectoryIfNeeded(at: projectDir)
+        
         let fileURL = projectDir.appendingPathComponent("scene_objects.json")
         
         let encoder = JSONEncoder()
@@ -57,5 +61,13 @@ struct SceneObjectFileStorage: FileStorageProtocol {
         let projectDir = FilePathProvider.projectDirectory(projectName: projectName)
         let fileURL = projectDir.appendingPathComponent("scene_objects.json")
         return fileManager.fileExists(atPath: fileURL.path)
+    }
+    
+    // MARK: - Helper
+    
+    private func createDirectoryIfNeeded(at url: URL) throws {
+        if !fileManager.fileExists(atPath: url.path) {
+            try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
+        }
     }
 }

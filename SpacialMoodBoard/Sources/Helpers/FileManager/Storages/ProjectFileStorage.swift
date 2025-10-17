@@ -70,9 +70,3 @@ struct ProjectFileStorage: FileStorageProtocol {
         }
     }
 }
-
-enum FileStorageError: Error {
-    case fileNotFound
-    case invalidData
-    case saveFailed
-}
