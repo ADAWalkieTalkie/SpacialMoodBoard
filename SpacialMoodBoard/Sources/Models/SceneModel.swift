@@ -3,8 +3,20 @@ import SwiftUI
 @MainActor
 @Observable
 class SceneModel {
+    private let sceneObjectStorage = SceneObjectFileStorage()
+    
     // MARK: - SceneObject 관리
-    var sceneObjects: [SceneObject] = []
+    var sceneObjects: [SceneObject] = [] {
+        didSet {
+            saveSceneObjects()  // 변경될 때마다 자동 저장!
+        }
+    }
+
+    init() {
+        loadSceneObjects()
+    }
+
+    var currentProjectName: String = "SampleProject"
     
     // MARK: - 사용자 공간 상태
     var userSpatialState = UserSpatialState(userPosition: [0, 0, 0], viewMode: false)
@@ -36,6 +48,24 @@ class SceneModel {
         if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
             sceneObjects[index].move(to: position)
             print("📍 Object \(id) 위치 업데이트: \(position)")
+        }
+    }
+
+    // MARK: - 파일 저장/로드
+    private func saveSceneObjects() {
+        do {
+            try sceneObjectStorage.save(sceneObjects, projectName: currentProjectName)
+        } catch {
+            print("❌ 저장 실패: \(error)")
+        }
+    }
+
+    private func loadSceneObjects() {
+        do {
+            sceneObjects = try sceneObjectStorage.load(projectName: currentProjectName)
+        } catch {
+            print("❌ 로드 실패: \(error)")
+            sceneObjects = []
         }
     }
 }
