@@ -22,13 +22,23 @@ struct ImmersiveView: View {
 
     var body: some View {
         RealityView { content, attachments in
+            
+            let anchor = AnchorEntity(world: SIMD3<Float>(0, 0, 0))
+            anchor.name = "RootSceneAnchor"
+            content.add(anchor)
+
             // Add the initial RealityKit content
             if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                content.add(immersiveContentEntity)
+                anchor.addChild(immersiveContentEntity)
             }
         } update: { content, attachments in
+
+            guard let anchor = content.entities.first(where: { $0.name == "RootSceneAnchor" }) as? AnchorEntity else {
+                print("❌ AnchorEntity를 찾을 수 없습니다.")
+                return
+            }
             // SceneObject들을 Entity로 변환하여 추가
-            updateEntities(in: content)
+            updateEntities(anchor: anchor)
 
             // Attachment를 선택된 Entity에 연결
             // updateAttachment(in: content, attachments: attachments)
@@ -69,37 +79,31 @@ struct ImmersiveView: View {
     }
     
     /// SceneObject 변경 시 Entity 업데이트
-    private func updateEntities(in content: RealityViewContent) {
+    private func updateEntities(anchor: AnchorEntity) {
         let currentObjectIds = Set(sceneModel.sceneObjects.map { $0.id })
         let existingEntityIds = Set(entityMap.keys)
         
-        // 1. 삭제된 객체의 Entity 제거
+        // 1. 삭제된 객체 제거
         for removedId in existingEntityIds.subtracting(currentObjectIds) {
             if let entity = entityMap[removedId] {
-                content.remove(entity)
-                // Task로 감싸서 비동기로 상태 변경
+                entity.removeFromParent()
                 Task { @MainActor in
                     entityMap.removeValue(forKey: removedId)
                 }
             }
         }
         
-        // 2. 새로운 객체 추가 또는 기존 객체 업데이트
+        // 2. 새로운 객체 추가 또는 업데이트
         for sceneObject in sceneModel.sceneObjects {
-            // Asset 찾기
             guard let asset = assets.first(where: { $0.id == sceneObject.assetId }) else {
-                print("❌ Asset을 찾을 수 없습니다: \(sceneObject.assetId)")
                 continue
             }
             
             if let existingEntity = entityMap[sceneObject.id] {
-                // 기존 Entity 업데이트 (위치만)
                 existingEntity.position = sceneObject.position
             } else {
-                // 새 Entity 생성
                 if let entity = ImageEntity.create(from: sceneObject, with: asset, viewMode: sceneModel.userSpatialState.viewMode) {
-                    content.add(entity)
-                    // Task로 감싸서 비동기로 상태 변경
+                    anchor.addChild(entity)  // ✅ anchor에 추가
                     Task { @MainActor in
                         entityMap[sceneObject.id] = entity
                     }
