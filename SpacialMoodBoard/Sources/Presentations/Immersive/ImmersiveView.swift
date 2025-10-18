@@ -127,13 +127,13 @@ struct ImmersiveView: View {
             rootView: ImageAttachment(
                 objectId: objectId,
                 onDuplicate: {
-                    print("복사")
+                    duplicateObject()
                 },
                 onCrop: {
-                    print("크롭")
+                    cropObject()
                 },
                 onDelete: {
-                    print("삭제")
+                    deleteObject()
                 }
             )
         )
@@ -150,18 +150,21 @@ struct ImmersiveView: View {
     
     // MARK: - Attachment 액선
     
-    /// SceneObject 크롭
-    // private func cropObject() {
-    //     print("✂️ 크롭 기능 - 향후 구현 예정")
-    //     // TODO: 크롭 기능 구현
-    // }
+    private func duplicateObject() {
+        print("복사")
+        // TODO: 복사 기능 구현
+    }
+
+    private func cropObject() {
+        print("✂️ 크롭 기능 - 향후 구현 예정")
+        // TODO: 크롭 기능 구현
+    }
     
-    // /// SceneObject 삭제
-    // private func deleteObject() {
-    //     sceneModel.removeSceneObject(id: selectedEntity.id)
-    //     selectedEntity = nil
-    //     print("🗑️ 삭제 완료: \(selectedEntity.id)")
-    // }
+    /// SceneObject 삭제
+    private func deleteObject() {
+        print("삭제")
+        // TODO: 삭제 기능 구현
+    }
 }
 
 #Preview(immersionStyle: .full) {
