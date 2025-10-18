@@ -21,7 +21,7 @@ struct ImmersiveView: View {
     @State private var selectedEntity: ModelEntity?
 
     var body: some View {
-        RealityView { content, attachments in
+        RealityView { content in
             
             let anchor = AnchorEntity(world: SIMD3<Float>(0, 0, 0))
             anchor.name = "RootSceneAnchor"
@@ -31,7 +31,7 @@ struct ImmersiveView: View {
             if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
                 anchor.addChild(immersiveContentEntity)
             }
-        } update: { content, attachments in
+        } update: { content in
 
             guard let anchor = content.entities.first(where: { $0.name == "RootSceneAnchor" }) as? AnchorEntity else {
                 print("❌ AnchorEntity를 찾을 수 없습니다.")
@@ -41,33 +41,8 @@ struct ImmersiveView: View {
             updateEntities(anchor: anchor)
 
             // Attachment를 선택된 Entity에 연결
-            // updateAttachment(in: content, attachments: attachments)
+            updateAttachmentComponent(selectedEntity: selectedEntity)
 
-        } attachments: {
-            // 선택된 Entity에 대한 Attachment 표시
-            if let selectedEntity = selectedEntity,
-               let objectId = UUID(uuidString: selectedEntity.name) {
-                Attachment(id: "selectedId") {
-                    ImageAttachment(
-                        objectId: objectId,
-                        onDuplicate: {
-                            // duplicateObject(selectedEntity.id)
-                            print("복사")
-                        },
-                        onCrop: {
-                            // cropObject(selectedEntity.id)
-                            print("크롭")
-                        },
-                        onDelete: {
-                            // sceneModel.removeSceneObject(id: selectedEntity.id)
-                            self.selectedEntity = nil
-                        }
-                    )
-                    .onAppear {
-                        print("AttachmentView 추가")
-                    }
-                }
-            }
         }
         // ✨ 모든 제스처를 한 번에 적용
         .immersiveEntityGestures(
@@ -116,26 +91,8 @@ struct ImmersiveView: View {
     private func updateSceneObjectPosition(id: UUID, position: SIMD3<Float>) {
         sceneModel.updateObjectPosition(id: id, position: position)
     }
-
-    // MARK: - Attachment 관리
     
-    /// Attachment를 선택된 Entity에 연결
-    // private func updateAttachment(in content: RealityViewContent, attachments: RealityViewAttachments) {
-    //     if let selected = selectedEntity,
-    //        let attachment = attachments.entity(for: "selectedId") {
-    //         // Entity 상단에 버튼 배치
-    //         let bounds = selected.visualBounds(relativeTo: nil)
-    //         attachment.position = selected.position + SIMD3<Float>(0, bounds.max.y, 0)
-            
-    //         if attachment.parent == nil {
-    //             content.add(attachment)
-    //         }
-    //     } else {
-    //         // 선택 해제되면 attachment 제거
-    //         attachments.entity(for: "selectedId")?.removeFromParent()
-    //     }
-    // }
-
+    // MARK: - DrageGuesture 관련
     /// 드래그 중 처리
     private func handleDragChanged(_ value: EntityTargetValue<DragGesture.Value>) {
         value.entity.position = value.convert(value.location3D, from: .local, to: value.entity.parent!)
@@ -150,21 +107,64 @@ struct ImmersiveView: View {
         sceneModel.updateObjectPosition(id: uuid, position: value.entity.position)
         print("📍 위치 업데이트: \(uuid) → \(value.entity.position)")
     }
+
+    // MARK: - Attachment 관리
+    
+    /// Attachment를 선택된 Entity에 연결
+    private func updateAttachmentComponent(selectedEntity entity: Entity?) {
+
+        for entity in entityMap.values {
+            entity.children
+                .filter { $0.name == "objectAttachment" }  // attachment만 필터링
+                .forEach { $0.removeFromParent() }          // 제거
+        }
+        guard let entity = entity,
+            let objectId = UUID(uuidString: entity.name) else { return }
+
+        let objectAttachment = Entity()
+        objectAttachment.name = "objectAttachment"
+        let attachment = ViewAttachmentComponent(
+            rootView: ImageAttachment(
+                objectId: objectId,
+                onDuplicate: {
+                    duplicateObject()
+                },
+                onCrop: {
+                    cropObject()
+                },
+                onDelete: {
+                    deleteObject()
+                }
+            )
+        )
+        objectAttachment.components.set(attachment)
+        entity.addChild(objectAttachment)
+
+        let objectBounds = entity.visualBounds(relativeTo: entity)
+        let attachmentBounds = objectAttachment.visualBounds(relativeTo: objectAttachment)
+
+        let yOffset = objectBounds.max.y + attachmentBounds.max.y / 2 + 0.05
+        let transform = Transform(translation: SIMD3<Float>(0, yOffset, 0))
+        objectAttachment.transform = transform
+    }
     
     // MARK: - Attachment 액선
     
-    /// SceneObject 크롭
-    // private func cropObject() {
-    //     print("✂️ 크롭 기능 - 향후 구현 예정")
-    //     // TODO: 크롭 기능 구현
-    // }
+    private func duplicateObject() {
+        print("복사")
+        // TODO: 복사 기능 구현
+    }
+
+    private func cropObject() {
+        print("✂️ 크롭 기능 - 향후 구현 예정")
+        // TODO: 크롭 기능 구현
+    }
     
-    // /// SceneObject 삭제
-    // private func deleteObject() {
-    //     sceneModel.removeSceneObject(id: selectedEntity.id)
-    //     selectedEntity = nil
-    //     print("🗑️ 삭제 완료: \(selectedEntity.id)")
-    // }
+    /// SceneObject 삭제
+    private func deleteObject() {
+        print("삭제")
+        // TODO: 삭제 기능 구현
+    }
 }
 
 #Preview(immersionStyle: .full) {
