@@ -5,7 +5,6 @@ import Foundation
 extension SceneObject {
     /// 이미지 객체 생성
     static func createImage(
-        id: UUID = UUID(),
         assetId: UUID,
         position: SIMD3<Float> = [0, 1.5, -2],
         isEditable: Bool = true,
@@ -22,7 +21,7 @@ extension SceneObject {
         )
         
         return SceneObject(
-            id: id,
+            id: UUID(),
             assetId: assetId,
             position: position,
             isEditable: isEditable,
@@ -32,8 +31,6 @@ extension SceneObject {
     
     /// 오디오 객체 생성
     static func createAudio(
-        id: UUID = UUID(),
-        sceneId: UUID,
         assetId: UUID,
         position: SIMD3<Float> = [0, 1.5, -2],
         isEditable: Bool = true,
@@ -42,7 +39,7 @@ extension SceneObject {
         let audioAttrs = AudioAttributes(volume: volume)
         
         return SceneObject(
-            id: id,
+            id: UUID(),
             assetId: assetId,
             position: position,
             isEditable: isEditable,

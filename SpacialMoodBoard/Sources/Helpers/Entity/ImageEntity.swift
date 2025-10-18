@@ -10,7 +10,8 @@ struct ImageEntity {
     /// - Returns: 설정된 ModelEntity
     static func create(
         from sceneObject: SceneObject,
-        with asset: Asset
+        with asset: Asset,
+        viewMode: Bool = false
     ) -> ModelEntity? {
         guard case .image(let imageAttrs) = sceneObject.attributes else {
             print("❌ 이미지 타입이 아닙니다")
@@ -43,8 +44,8 @@ struct ImageEntity {
         
         // 5. ModelEntity 생성 및 설정
         let modelEntity = ModelEntity(mesh: mesh, materials: [material])
-        modelEntity.position = sceneObject.position
         modelEntity.name = sceneObject.id.uuidString
+        modelEntity.position = sceneObject.position
         
         // 6. 회전 적용
         let rotation = imageAttrs.rotation
@@ -57,15 +58,20 @@ struct ImageEntity {
         )
         
         // 7. 충돌 및 입력 처리를 위한 설정
-        // modelEntity.collision = CollisionComponent(
-        //     shapes: [.generateBox(width: width, height: height, depth: 0.01)]
-        // )
-        // modelEntity.components.set(InputTargetComponent())
+         modelEntity.collision = CollisionComponent(
+             shapes: [.generateBox(width: width, height: height, depth: 0.01)]
+         )
+        modelEntity.components.set(InputTargetComponent())
+
+        if !viewMode {
+            modelEntity.components.set(HoverEffectComponent())
+        }
         
         // 8. Billboard 설정
         if imageAttrs.billboardable {
             modelEntity.components.set(BillboardComponent())
         }
+        
         return modelEntity
     }
 }
