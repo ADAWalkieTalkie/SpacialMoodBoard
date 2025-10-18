@@ -13,7 +13,7 @@ struct SceneObjectFileStorage: FileStorageProtocol {
         // ✅ 디렉토리가 없으면 생성
         try createDirectoryIfNeeded(at: projectDir)
         
-        let fileURL = projectDir.appendingPathComponent("scene_objects.json")
+        let fileURL = FilePathProvider.projectMetadataFile(projectName: projectName)
         
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
@@ -26,8 +26,7 @@ struct SceneObjectFileStorage: FileStorageProtocol {
     }
     
     func load(projectName: String) throws -> [SceneObject] {
-        let projectDir = FilePathProvider.projectDirectory(projectName: projectName)
-        let fileURL = projectDir.appendingPathComponent("scene_objects.json")
+        let fileURL = FilePathProvider.projectMetadataFile(projectName: projectName)
         
         guard fileManager.fileExists(atPath: fileURL.path) else {
             print("📂 저장된 SceneObjects 없음 - 빈 배열 반환")
@@ -45,8 +44,7 @@ struct SceneObjectFileStorage: FileStorageProtocol {
     }
     
     func delete(projectName: String) throws {
-        let projectDir = FilePathProvider.projectDirectory(projectName: projectName)
-        let fileURL = projectDir.appendingPathComponent("scene_objects.json")
+        let fileURL = FilePathProvider.projectMetadataFile(projectName: projectName)
         
         guard fileManager.fileExists(atPath: fileURL.path) else {
             print("🗑️ 삭제할 SceneObjects 파일 없음")
@@ -58,8 +56,7 @@ struct SceneObjectFileStorage: FileStorageProtocol {
     }
     
     func exists(projectName: String) -> Bool {
-        let projectDir = FilePathProvider.projectDirectory(projectName: projectName)
-        let fileURL = projectDir.appendingPathComponent("scene_objects.json")
+        let fileURL = FilePathProvider.projectMetadataFile(projectName: projectName)
         return fileManager.fileExists(atPath: fileURL.path)
     }
     

@@ -4,11 +4,39 @@ struct DummyView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(SceneModel.self) private var sceneModel
 
+    private let projects: [Project] = Project.mockData
     private let assets: [Asset] = Asset.assetMockData
+
+    // 3열 그리드 설정
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 3)
+
 
     var body: some View {
         VStack(spacing: 60) {
-            ToggleImmersiveSpaceButton()
+                            
+            // MARK: - Immersive 공간이 닫혀있을 때: 프로젝트 선택
+            if appModel.immersiveSpaceState == .closed {
+                VStack(spacing: 20) {
+                    Text("프로젝트 선택")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    Text("작업할 프로젝트를 선택하세요")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    
+                    // 프로젝트 그리드
+                    LazyVGrid(columns: columns, spacing: 20) {
+                        ForEach(projects) { project in
+                            ProjectSelectionButton(project: project)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .padding(.top, 40)
+            }
+            
+            // MARK: - Immersive 공간이 열려있을 때: 기존 컨트롤들
             
             if appModel.immersiveSpaceState == .open {
                 // ViewMode 토글
@@ -46,7 +74,7 @@ struct DummyView: View {
 #Preview(windowStyle: .plain) {
     let previewModel = AppModel()
     let sceneModel = SceneModel()
-    previewModel.immersiveSpaceState = .open
+    previewModel.immersiveSpaceState = .closed
     
     return DummyView()
         .environment(sceneModel)

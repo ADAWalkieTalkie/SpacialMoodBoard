@@ -14,10 +14,17 @@ class SceneModel {
 
     init() {
         loadSceneObjects()
-    }
+    }   
 
-    var currentProjectName: String = "SampleProject"
-    
+    var currentProject: Project?
+
+    // MARK: - 프로젝트 로드
+    func loadProject(_ project: Project) {
+        currentProject = project
+        loadSceneObjects()
+        print("🎬 프로젝트 로드: \(project.title)")
+    }    
+
     // MARK: - 사용자 공간 상태
     var userSpatialState = UserSpatialState(userPosition: [0, 0, 0], viewMode: false)
 
@@ -27,7 +34,8 @@ class SceneModel {
         print("🔄 ViewMode 변경: \(userSpatialState.viewMode)")
     }
     
-    // MARK: - SceneObject 추가
+    // MARK: - SceneObject 관련 로직
+    /// 이미지 객체 추가
     func addImageObject(from asset: Asset) {
         let sceneObject = SceneObject.createImage(
             assetId: asset.id,
@@ -38,12 +46,12 @@ class SceneModel {
         sceneObjects.append(sceneObject)
     }
 
-    // MARK: - SceneObject 삭제
+    /// SceneObject 삭제
     func removeSceneObject(id: UUID) {
         sceneObjects.removeAll { $0.id == id }
     }
 
-    // MARK: - SceneObject 위치 업데이트
+    /// SceneObject 위치 업데이트
     func updateObjectPosition(id: UUID, position: SIMD3<Float>) {
         if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
             sceneObjects[index].move(to: position)
@@ -54,7 +62,7 @@ class SceneModel {
     // MARK: - 파일 저장/로드
     private func saveSceneObjects() {
         do {
-            try sceneObjectStorage.save(sceneObjects, projectName: currentProjectName)
+            try sceneObjectStorage.save(sceneObjects, projectName: currentProject?.title ?? "")
         } catch {
             print("❌ 저장 실패: \(error)")
         }
@@ -62,7 +70,7 @@ class SceneModel {
 
     private func loadSceneObjects() {
         do {
-            sceneObjects = try sceneObjectStorage.load(projectName: currentProjectName)
+            sceneObjects = try sceneObjectStorage.load(projectName: currentProject?.title ?? "")
         } catch {
             print("❌ 로드 실패: \(error)")
             sceneObjects = []
