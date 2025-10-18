@@ -13,6 +13,7 @@ struct SpacialMoodBoardApp: App {
   @State private var appModel = AppModel()
   @State private var projectListViewModel = ProjectListViewModel()
   @State private var volumeSceneViewModel = VolumeSceneViewModel()
+  @State private var sceneModel = SceneModel()
   
   var body: some Scene {
     WindowGroup {
@@ -27,10 +28,10 @@ struct SpacialMoodBoardApp: App {
         .environment(projectListViewModel)
     }
     .windowStyle(.volumetric)
-    
     ImmersiveSpace(id: appModel.immersiveSpaceID) {
       ImmersiveView()
         .environment(appModel)
+        .environment(sceneModel)
         .onAppear {
           appModel.immersiveSpaceState = .open
         }
@@ -41,3 +42,4 @@ struct SpacialMoodBoardApp: App {
     .immersionStyle(selection: .constant(.full), in: .full)
   }
 }
+
