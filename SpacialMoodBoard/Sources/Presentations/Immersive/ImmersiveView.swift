@@ -133,7 +133,7 @@ struct ImmersiveView: View {
                     cropObject()
                 },
                 onDelete: {
-                    deleteObject()
+                    deleteObject(selectedEntity: selectedEntity)
                 }
             )
         )
@@ -195,15 +195,11 @@ struct ImmersiveView: View {
     }
     
     /// SceneObject 삭제
-    private func deleteObject() {
-        guard let selectedEntity = selectedEntity,
-            let objectId = UUID(uuidString: selectedEntity.name) else {
-            return
-        }
-        
-        sceneModel.removeSceneObject(id: objectId)
+    private func deleteObject(selectedEntity: ModelEntity?) {
+        guard let selectedEntity = selectedEntity else { return }
+        sceneModel.removeSceneObject(id: UUID(uuidString: selectedEntity.name)!)
         self.selectedEntity = nil
-        print("🗑️ 삭제 완료: \(objectId)")
+        print("🗑️ 삭제 완료: \(selectedEntity.name)")
     }
 }
 
