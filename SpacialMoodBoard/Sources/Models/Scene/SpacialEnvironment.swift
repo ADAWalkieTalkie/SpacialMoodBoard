@@ -1,6 +1,6 @@
 import Foundation
 
-struct SpacialEnvironment: Identifiable, Codable, Equatable {
+struct SpacialEnvironmen: Codable, Equatable {
   var roomType: RoomType
   var groundSize: GroundSize
   var immersiveBackground: URL?
