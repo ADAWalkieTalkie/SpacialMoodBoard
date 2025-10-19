@@ -10,18 +10,19 @@ import Observation
 
 struct ProjectListView: View {
   @Environment(\.openWindow) private var openWindow
-  @Environment(VolumeSceneViewModel.self) private var sceneVM
-  @Environment(ProjectListViewModel.self) private var projectVM 
+  @State private var viewModel: ProjectListViewModel
   
   @State private var path = NavigationPath()
   
+  init(viewModel: ProjectListViewModel) {
+    _viewModel = State(wrappedValue: viewModel)
+  }
+  
   var body: some View {
-    @Bindable var projectBinding = projectVM
-    
     NavigationStack(path: $path) {
-      projectGridView()
+      projectGridView
         .navigationTitle("Projects")
-        .searchable(text: $projectBinding.searchText, prompt: "search")
+        .searchable(text: $viewModel.searchText, prompt: "search")
         .navigationDestination(for: CreationStep.self) { step in
           destinationView(for: step)
         }
@@ -30,7 +31,7 @@ struct ProjectListView: View {
   }
   
   // MARK: - Project Grid View
-  private func projectGridView() -> some View {
+  private var projectGridView: some View {
     ScrollView {
       LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 40) {
         ProjectCreationButton {
@@ -38,17 +39,18 @@ struct ProjectListView: View {
         }
         .padding(.horizontal, 30)
         
-        ForEach(projectVM.filteredProjects) { project in
+        ForEach(viewModel.filteredProjects) { project in
           ProjectItemView(
             project: project,
             onTap: {
-              handleProjectSelection(project)
+              viewModel.selectProject(projectID: project.id)
+              openWindow(id: AppSceneState.volumeWindowID)
             },
             onTitleChanged: { newTitle in
-              projectVM.updateProjectTitle(projectId: project.id, newTitle: newTitle)
+              viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
             },
             onDelete: {
-              handleProjectDeletion(project)
+              viewModel.deleteProject(projectId: project.id)
             }
           )
           .padding(.horizontal, 30)
@@ -74,48 +76,14 @@ struct ProjectListView: View {
       
     case .projectTitleInput(let roomType, let groundSize):
       ProjectTitleInputView { projectTitle in
-        handleProjectCreation(
+        viewModel.createProject(
           title: projectTitle,
           roomType: roomType,
           groundSize: groundSize
         )
+        openWindow(id: AppSceneState.volumeWindowID)
+        path.removeLast(path.count)
       }
     }
   }
-  
-  // MARK: - View 관련 Business Logic
-    private func handleProjectCreation(
-      title: String,
-      roomType: RoomType,
-      groundSize: GroundSize
-    ) {
-      let project = projectVM.createProject(
-        title: title,
-        roomType: roomType,
-        groundSize: groundSize
-      )
-      
-      sceneVM.activateScene(for: project.id)
-      
-      openWindow(id: VolumeSceneViewModel.volumeWindowID)
-      path.removeLast(path.count)
-    }
-    
-    private func handleProjectSelection(_ project: Project) {
-      sceneVM.activateScene(for: project.id)
-      
-      openWindow(id: VolumeSceneViewModel.volumeWindowID)
-    }
-    
-    private func handleProjectDeletion(_ project: Project) {
-      projectVM.deleteProject(projectId: project.id)
-      
-      sceneVM.deleteEntityCache(for: project.id)
-    }
-}
-
-#Preview {
-  ProjectListView()
-    .environment(VolumeSceneViewModel())
-    .environment(ProjectListViewModel())
 }

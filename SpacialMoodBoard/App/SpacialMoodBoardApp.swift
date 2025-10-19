@@ -9,25 +9,41 @@ import SwiftUI
 
 @main
 struct SpacialMoodBoardApp: App {
-  
   @State private var appModel = AppModel()
-  @State private var projectListViewModel = ProjectListViewModel()
-  @State private var volumeSceneViewModel = VolumeSceneViewModel()
   @State private var sceneModel = SceneModel()
+  @State private var sceneState = AppSceneState()
+  @State private var projectRepository: ProjectRepository
+  @State private var volumeSceneViewModel: VolumeSceneViewModel
+  
+  init() {
+      let repository = InMemoryProjectRepository()
+      let state = AppSceneState()
+      
+      _projectRepository = State(wrappedValue: repository)
+      _sceneState = State(wrappedValue: state)
+      _volumeSceneViewModel = State(wrappedValue: VolumeSceneViewModel(
+        sceneState: state,
+        projectRepository: repository
+      ))
+    }
   
   var body: some Scene {
     WindowGroup {
-      ProjectListView()
-        .environment(volumeSceneViewModel)
-        .environment(projectListViewModel)
+      ProjectListView(
+        viewModel: ProjectListViewModel(
+          sceneState: sceneState,
+          projectRepository: projectRepository
+        )
+      )
     }
     
-    WindowGroup(id: VolumeSceneViewModel.volumeWindowID) {
-      VolumeSceneView()
-        .environment(volumeSceneViewModel)
-        .environment(projectListViewModel)
+    WindowGroup(id: AppSceneState.volumeWindowID) {
+      VolumeSceneView(
+        viewModel: volumeSceneViewModel
+      )
     }
     .windowStyle(.volumetric)
+    
     ImmersiveSpace(id: appModel.immersiveSpaceID) {
       ImmersiveView()
         .environment(appModel)

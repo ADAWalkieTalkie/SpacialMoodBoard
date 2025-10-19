@@ -9,33 +9,35 @@ import SwiftUI
 import RealityKit
 
 struct VolumeSceneView: View {
-  @Environment(VolumeSceneViewModel.self) private var sceneVM
-  @Environment(ProjectListViewModel.self) private var projectVM
-  
+  @State private var viewModel: VolumeSceneViewModel
   @State private var isAnimating = false
+  
+  init(viewModel: VolumeSceneViewModel) {
+    _viewModel = State(wrappedValue: viewModel)
+  }
   
   var body: some View {
     ZStack(alignment: .bottom) {
       RealityView { content in
         setupScene(content: content)
       }
-      .id(sceneVM.activeProjectID)
+      .id(viewModel.getActiveProjectID())
       
-      rotationButtonView()
+      rotationButton
     }
     .preferredWindowClippingMargins(.all, 400)
     .onDisappear {
-      sceneVM.resetScene()
+      viewModel.resetScene()
     }
   }
   
-  // volume 회전 버튼
-  private func rotationButtonView() -> some View {
+  // MARK: - volume 회전 버튼
+  private var rotationButton: some View {
     VStack {
       Button {
         guard !isAnimating else { return }
         isAnimating = true
-        sceneVM.rotateBy90Degrees()
+        viewModel.rotateBy90Degrees()
         
         Task {
           try? await Task.sleep(nanoseconds: 400_000_000)
@@ -57,40 +59,18 @@ struct VolumeSceneView: View {
   // MARK: - Setup Scene
   
   private func setupScene(content: RealityViewContent) {
-    guard let activeProjectID = sceneVM.activeProjectID else {
-      print("⚠️ No active project")
-      return
-    }
-    
-    guard let project = projectVM.projects.first(where: { $0.id == activeProjectID }) else {
-      print("⚠️ Project not found: \(activeProjectID)")
-      return
-    }
-    
-    guard let scene = project.volumeScene else {
-      print("⚠️ VolumeScene not found in project")
-      return
-    }
-    
-    guard let root = sceneVM.getOrCreateEntity(for: project) else {
-      print("⚠️ Failed to create root entity")
+    guard let root = viewModel.getActiveRootEntity() else {
+      print("활성화된 프로젝트가 없습니다.")
       return
     }
     
     content.add(root)
     
-    sceneVM.alignRootToWindowBottom(
+    viewModel.alignRootToWindowBottom(
       root: root,
       windowHeight: 1.0,
       padding: 0.1
     )
-    
-    sceneVM.applyCurrentOpacity(to: root)
+    viewModel.applyCurrentOpacity(to: root)
   }
-}
-
-#Preview {
-  VolumeSceneView()
-    .environment(ProjectListViewModel())
-    .environment(VolumeSceneViewModel())
 }
