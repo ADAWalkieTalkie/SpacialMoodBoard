@@ -127,7 +127,7 @@ struct ImmersiveView: View {
             rootView: ImageAttachment(
                 objectId: objectId,
                 onDuplicate: {
-                    duplicateObject()
+                    duplicateObject(selectedEntity: selectedEntity)
                 },
                 onCrop: {
                     cropObject()
@@ -149,10 +149,44 @@ struct ImmersiveView: View {
     }
     
     // MARK: - Attachment 액선
-    
-    private func duplicateObject() {
-        print("복사")
-        // TODO: 복사 기능 구현
+
+    private func duplicateObject(selectedEntity: ModelEntity?) {
+        guard let selectedEntity = selectedEntity,
+            let objectId = UUID(uuidString: selectedEntity.name),
+            let originalObject = sceneModel.sceneObjects.first(where: { $0.id == objectId })
+        else {
+            print("❌ 복제할 객체를 찾을 수 없습니다")
+            return
+        }
+        
+        // ✅ 원본 객체의 속성을 가져와서 새 객체 생성
+        guard case .image(let imageAttrs) = originalObject.attributes else {
+            print("❌ 이미지 타입만 복제 가능합니다")
+            return
+        }
+        
+        // ✅ 새로운 위치 계산 (기존 위치 + offset)
+        let newPosition = originalObject.position + SIMD3<Float>(-0.1, 0.1, 0)
+        
+        // ✅ 새로운 SceneObject 생성 (새 UUID 자동 생성)
+        let duplicatedObject = SceneObject.createImage(
+            assetId: originalObject.assetId,
+            position: newPosition,
+            isEditable: originalObject.isEditable,
+            scale: imageAttrs.scale,
+            rotation: imageAttrs.rotation,
+            crop: imageAttrs.crop,
+            billboardable: imageAttrs.billboardable
+        )
+        
+        // ✅ SceneModel에 추가 → updateEntities가 자동으로 Entity 생성
+        sceneModel.sceneObjects.append(duplicatedObject)
+
+        self.selectedEntity = nil
+        
+        print("✅ 복사 완료: \(originalObject.id) → \(duplicatedObject.id)")
+        print("📍 원본 위치: \(originalObject.position)")
+        print("📍 복사본 위치: \(duplicatedObject.position)")
     }
 
     private func cropObject() {
@@ -162,8 +196,14 @@ struct ImmersiveView: View {
     
     /// SceneObject 삭제
     private func deleteObject() {
-        print("삭제")
-        // TODO: 삭제 기능 구현
+        guard let selectedEntity = selectedEntity,
+            let objectId = UUID(uuidString: selectedEntity.name) else {
+            return
+        }
+        
+        sceneModel.removeSceneObject(id: objectId)
+        self.selectedEntity = nil
+        print("🗑️ 삭제 완료: \(objectId)")
     }
 }
 
