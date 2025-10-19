@@ -22,10 +22,10 @@ protocol ProjectRepository {
   /// 모든 프로젝트를 최신순으로 정렬하여 반환
   func fetchProjects() -> [Project]
   
-  /// 특정 ID의 프로젝트 조회
-  /// - Parameter id: 조회할 프로젝트 ID
+  /// 특정 프로젝트 조회
+  /// - Parameter project: 조회할 프로젝트
   /// - Returns: 프로젝트가 존재하면 반환, 없으면 nil
-  func fetchProject(by id: UUID) -> Project?
+  func fetchProject(_ project: Project) -> Project?
   
   /// 새 프로젝트 추가
   /// - Parameter project: 추가할 프로젝트
@@ -37,16 +37,16 @@ protocol ProjectRepository {
   func updateProject(_ project: Project)
   
   /// 프로젝트 삭제
-  /// - Parameter id: 삭제할 프로젝트 ID
-  func deleteProject(id: UUID)
+  /// - Parameter project: 삭제할 프로젝트
+  func deleteProject(_ project: Project)
   
   /// 프로젝트 제목 업데이트
   /// - Parameters:
-  ///   - projectID: 업데이트할 프로젝트 ID
+  ///   - project: 업데이트할 프로젝트
   ///   - newTitle: 새 제목
   /// - Throws: `ProjectRepositoryError.emptyTitle` - 제목이 비어있을 때
   ///          `ProjectRepositoryError.projectNotFound` - 프로젝트를 찾을 수 없을 때
-  func updateProjectTitle(projectID: UUID, newTitle: String) throws
+  func updateProjectTitle(_ project: Project, newTitle: String) throws
   
   /// 검색어로 프로젝트 필터링
   /// - Parameter searchText: 검색어 (빈 문자열이면 전체 반환)

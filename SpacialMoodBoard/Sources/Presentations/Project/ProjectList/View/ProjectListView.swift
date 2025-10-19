@@ -43,14 +43,14 @@ struct ProjectListView: View {
           ProjectItemView(
             project: project,
             onTap: {
-              viewModel.selectProject(projectID: project.id)
-              openWindow(id: AppSceneState.volumeWindowID)
+              viewModel.selectProject(project: project)
+              openWindow(id: AppModel.volumeWindowID)
             },
             onTitleChanged: { newTitle in
-              viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
+              viewModel.updateProjectTitle(project: project, newTitle: newTitle)
             },
             onDelete: {
-              viewModel.deleteProject(projectId: project.id)
+              viewModel.deleteProject(project: project)
             }
           )
           .padding(.horizontal, 30)
@@ -81,7 +81,7 @@ struct ProjectListView: View {
           roomType: roomType,
           groundSize: groundSize
         )
-        openWindow(id: AppSceneState.volumeWindowID)
+        openWindow(id: AppModel.volumeWindowID)
         path.removeLast(path.count)
       }
     }

@@ -16,7 +16,7 @@ final class VolumeSceneViewModel {
   
   // MARK: - Dependencies
   
-  private let sceneState: AppSceneState
+  private let appModel: AppModel
   private let projectRepository: ProjectRepository
   private let entityBuilder: RoomEntityBuilder
   private let opacityAnimator: WallOpacityAnimator
@@ -31,12 +31,12 @@ final class VolumeSceneViewModel {
   // MARK: - Initialization
   
   init(
-    sceneState: AppSceneState,
+    appModel: AppModel,
     projectRepository: ProjectRepository,
     entityBuilder: RoomEntityBuilder = RoomEntityBuilder(),
     opacityAnimator: WallOpacityAnimator = WallOpacityAnimator()
   ) {
-    self.sceneState = sceneState
+    self.appModel = appModel
     self.projectRepository = projectRepository
     self.entityBuilder = entityBuilder
     self.opacityAnimator = opacityAnimator
@@ -45,17 +45,17 @@ final class VolumeSceneViewModel {
   // MARK: - Active Project Management
   
   func getActiveProjectID() -> UUID? {
-    return sceneState.activeProjectID
+    return appModel.activeProjectID
   }
   
-  func activateScene(for projectID: UUID?) {
-    guard let projectID else {
-      sceneState.activeProjectID = nil
+  func activateScene(for project: Project?) {
+    guard let project else {
+      appModel.selectedProject = nil
       return
     }
     
-    if sceneState.activeProjectID != projectID {
-      sceneState.activeProjectID = projectID
+    if appModel.selectedProject?.id != project.id {
+      appModel.selectedProject = project
       resetScene()
     }
   }
@@ -72,17 +72,17 @@ final class VolumeSceneViewModel {
   }
   
   private func getActiveProject() -> Project? {
-    guard let activeProjectID = sceneState.activeProjectID else {
+    guard let activeProject = appModel.selectedProject else {
       return nil
     }
-    return projectRepository.fetchProject(by: activeProjectID)
+    return projectRepository.fetchProject(activeProject)
   }
   
   // MARK: - Scene Control
   
   func resetScene() {
-    guard let activeProjectID = sceneState.activeProjectID,
-          let rootEntity = cachedEntities[activeProjectID] else {
+    guard let activeProject = appModel.selectedProject,
+          let rootEntity = cachedEntities[activeProject.id] else {
       return
     }
     
@@ -96,8 +96,8 @@ final class VolumeSceneViewModel {
   func rotateBy90Degrees() {
     rotationAngle += .pi / 2
     
-    guard let activeProjectID = sceneState.activeProjectID,
-          let rootEntity = cachedEntities[activeProjectID] else {
+    guard let activeProject = appModel.selectedProject,
+          let rootEntity = cachedEntities[activeProject.id] else {
       return
     }
     
@@ -131,12 +131,12 @@ final class VolumeSceneViewModel {
     return entity
   }
   
-  func deleteEntityCache(for projectID: UUID) {
+  func deleteEntityCache(for project: Project) {
     opacityAnimator.reset()
-    cachedEntities.removeValue(forKey: projectID)
+    cachedEntities.removeValue(forKey: project.id)
     
-    if sceneState.activeProjectID == projectID {
-      sceneState.activeProjectID = nil
+    if appModel.selectedProject?.id == project.id {
+      appModel.selectedProject = nil
       rotationAngle = .pi / 4
     }
   }

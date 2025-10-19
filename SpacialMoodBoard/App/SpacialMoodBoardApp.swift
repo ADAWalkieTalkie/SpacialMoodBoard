@@ -11,18 +11,17 @@ import SwiftUI
 struct SpacialMoodBoardApp: App {
   @State private var appModel = AppModel()
   @State private var sceneModel = SceneModel()
-  @State private var sceneState = AppSceneState()
   @State private var projectRepository: ProjectRepository
   @State private var volumeSceneViewModel: VolumeSceneViewModel
   
   init() {
       let repository = InMemoryProjectRepository()
-      let state = AppSceneState()
+      let appModel = AppModel()
       
       _projectRepository = State(wrappedValue: repository)
-      _sceneState = State(wrappedValue: state)
+      _appModel = State(wrappedValue: appModel)
       _volumeSceneViewModel = State(wrappedValue: VolumeSceneViewModel(
-        sceneState: state,
+        appModel: appModel,
         projectRepository: repository
       ))
     }
@@ -31,13 +30,13 @@ struct SpacialMoodBoardApp: App {
     WindowGroup {
       ProjectListView(
         viewModel: ProjectListViewModel(
-          sceneState: sceneState,
+          appModel: appModel,
           projectRepository: projectRepository
         )
       )
     }
     
-    WindowGroup(id: AppSceneState.volumeWindowID) {
+    WindowGroup(id: AppModel.volumeWindowID) {
       VolumeSceneView(
         viewModel: volumeSceneViewModel
       )
