@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GroundSizeSelectionView: View {
-  let onSelect: (GroundSizePreset) -> Void
+  let onSelect: (GroundSize) -> Void
   
   @State private var appeared = false
   
@@ -20,9 +20,9 @@ struct GroundSizeSelectionView: View {
         .offset(y: appeared ? 0 : -20)
       
       HStack(spacing: 40) {
-        ForEach(Array(GroundSizePreset.allCases.enumerated()), id: \.element) { index, preset in
-          GroundSizeCard(preset: preset, index: index) {
-            onSelect(preset)
+        ForEach(Array(GroundSize.allCases.enumerated()), id: \.element) { index, size in
+          GroundSizeCard(size: size, index: index) {
+            onSelect(size)
           }
         }
       }
@@ -39,7 +39,7 @@ struct GroundSizeSelectionView: View {
 }
 
 struct GroundSizeCard: View {
-  let preset: GroundSizePreset
+  let size: GroundSize
   let index: Int
   let onTap: () -> Void
   
@@ -53,15 +53,15 @@ struct GroundSizeCard: View {
           .aspectRatio(1, contentMode: .fit)
           .clipShape(.rect(cornerRadius: 30))
         VStack {
-          Image(systemName: preset.iconName)
+          Image(systemName: size.iconName)
             .font(.system(size: 120))
             .foregroundStyle(.primary)
             .padding(.bottom, 40)
           
-          Text(preset.rawValue)
+          Text(size.rawValue)
             .font(.system(size: 28, weight: .semibold))
             .foregroundStyle(.primary)
-          Text("\(preset.dimensions.x)m × \(preset.dimensions.y)m × \(preset.dimensions.z)m")
+          Text("\(size.dimensions.x)m × \(size.dimensions.y)m × \(size.dimensions.z)m")
             .font(.system(size: 18))
             .foregroundStyle(.secondary)
         }
@@ -84,8 +84,8 @@ struct GroundSizeCard: View {
 
 #Preview {
   NavigationStack {
-    GroundSizeSelectionView { preset in
-      print("Selected: \(preset)")
+    GroundSizeSelectionView { size in
+      print("Selected: \(size)")
     }
   }
 }

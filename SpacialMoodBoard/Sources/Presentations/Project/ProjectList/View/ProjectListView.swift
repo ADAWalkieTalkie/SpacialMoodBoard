@@ -6,21 +6,18 @@
 //
 
 import SwiftUI
+import Observation
 
 struct ProjectListView: View {
-  @State private var viewModel = ProjectListViewModel()
+  @Environment(\.openWindow) private var openWindow
+  @State private var viewModel: ProjectListViewModel
+  
   @State private var path = NavigationPath()
   
-  private let columns: [GridItem] = Array(repeating: GridItem(.flexible()), count: 3)
+  init(viewModel: ProjectListViewModel) {
+    _viewModel = State(wrappedValue: viewModel)
+  }
   
-  // MARK: - Navigation Step
-    enum CreationStep: Hashable {
-      case roomTypeSelection
-      case groundSizeSelection(roomType: RoomType)
-      case projectNameInput(roomType: RoomType, groundSize: GroundSizePreset)
-    }
-  
-  // MARK: - Main View
   var body: some View {
     NavigationStack(path: $path) {
       projectGridView
@@ -36,7 +33,7 @@ struct ProjectListView: View {
   // MARK: - Project Grid View
   private var projectGridView: some View {
     ScrollView {
-      LazyVGrid(columns: columns, spacing: 40) {
+      LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 40) {
         ProjectCreationButton {
           path.append(CreationStep.roomTypeSelection)
         }
@@ -45,6 +42,10 @@ struct ProjectListView: View {
         ForEach(viewModel.filteredProjects) { project in
           ProjectItemView(
             project: project,
+            onTap: {
+              viewModel.selectProject(projectID: project.id)
+              openWindow(id: AppSceneState.volumeWindowID)
+            },
             onTitleChanged: { newTitle in
               viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
             },
@@ -70,18 +71,19 @@ struct ProjectListView: View {
       
     case .groundSizeSelection(let roomType):
       GroundSizeSelectionView { groundSize in
-        path.append(CreationStep.projectNameInput(roomType: roomType, groundSize: groundSize))
+        path.append(CreationStep.projectTitleInput(roomType: roomType, groundSize: groundSize))
       }
       
-    case .projectNameInput(let roomType, let groundSize):
-      ProjectNameInputView { projectName in
-        let newProject = viewModel.createProject(name: projectName)
+    case .projectTitleInput(let roomType, let groundSize):
+      ProjectTitleInputView { projectTitle in
+        viewModel.createProject(
+          title: projectTitle,
+          roomType: roomType,
+          groundSize: groundSize
+        )
+        openWindow(id: AppSceneState.volumeWindowID)
         path.removeLast(path.count)
       }
     }
   }
-}
-
-#Preview {
-  ProjectListView()
 }

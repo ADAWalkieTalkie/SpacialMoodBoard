@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProjectItemView: View {
   let project: Project
+  let onTap: () -> Void
   let onTitleChanged: (String) -> Void
   let onDelete: () -> Void
   
@@ -31,6 +32,9 @@ struct ProjectItemView: View {
         .aspectRatio(320 / 278, contentMode: .fit)
         .background(.thinMaterial)
         .cornerRadius(30)
+        .onTapGesture {
+          onTap()  
+        }
       
       if isEditing {
         TextField("ProjectTitle", text: $editedTitle)
@@ -91,6 +95,7 @@ struct ProjectItemView: View {
 #Preview {
   ProjectItemView(
     project: Project(title: "Sample Project"),
+    onTap: { },
     onTitleChanged: { _ in },
     onDelete: { }
   )

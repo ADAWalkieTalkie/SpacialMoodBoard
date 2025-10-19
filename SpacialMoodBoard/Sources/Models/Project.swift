@@ -14,6 +14,7 @@ struct Project: Identifiable, Codable, Equatable {
   var projectDirectory: URL?
   let createdAt: Date
   var updatedAt: Date
+  var volumeScene: VolumeScene?
 
   init(
     id: UUID = UUID(),
@@ -21,7 +22,8 @@ struct Project: Identifiable, Codable, Equatable {
     thumbnailImage: String? = nil,
     projectDirectory: URL? = nil,
     createdAt: Date = Date(),
-    updatedAt: Date = Date()
+    updatedAt: Date = Date(),
+    volumeScene: VolumeScene? = nil
   ) {
     self.id = id
     self.title = title
@@ -29,6 +31,7 @@ struct Project: Identifiable, Codable, Equatable {
     self.projectDirectory = projectDirectory
     self.createdAt = createdAt
     self.updatedAt = updatedAt
+    self.volumeScene = volumeScene
   }
 }
 
