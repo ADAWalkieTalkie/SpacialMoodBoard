@@ -12,20 +12,33 @@ import Observation
 @Observable
 final class ProjectListViewModel {
   private var appModel: AppModel
-  private var projectRepository: ProjectRepository
+  private let projectRepository: ProjectRepository
   
   var searchText: String = ""
+
+  private(set) var projects: [Project] = []
   
   var filteredProjects: [Project] {
-    projectRepository.filterProjects(by: searchText)
+    guard !searchText.isEmpty else {
+      return projects
+    }
+    return projects
+      .filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+      .sorted { $0.updatedAt > $1.updatedAt }
   }
-  
+
+
   init(appModel: AppModel, projectRepository: ProjectRepository) {
     self.appModel = appModel
     self.projectRepository = projectRepository
     
-    // 해당 코드 없으면 볼륨 재생성 안됨.
-    let activeProjectID = appModel.activeProjectID
+    // 초기 데이터 로드 (향후 Task { await ... } 형태로 변경)
+    projectRepository.loadInitialData()
+    refreshProjects()
+  }
+
+  private func refreshProjects() {
+    projects = projectRepository.fetchProjects()
   }
   
   @discardableResult
@@ -34,10 +47,11 @@ final class ProjectListViewModel {
     roomType: RoomType,
     groundSize: GroundSize
   ) -> Project {
-    let scene = VolumeScene(roomType: roomType, groundSize: groundSize)
-    let newProject = Project(title: title, volumeScene: scene)
+    let spacialEnvironment = SpacialEnvironment(roomType: roomType, groundSize: groundSize)
+    let newProject = Project(title: title, createdAt: Date(), updatedAt: Date())
 
     projectRepository.addProject(newProject)
+    refreshProjects()
     appModel.selectedProject = newProject
     
     return newProject
@@ -73,6 +87,7 @@ final class ProjectListViewModel {
     }
     
     projectRepository.deleteProject(project)
+    refreshProjects()
     
     if appModel.selectedProject?.id == project.id {
       appModel.selectedProject = nil

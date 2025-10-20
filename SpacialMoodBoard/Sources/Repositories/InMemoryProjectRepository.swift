@@ -11,8 +11,12 @@ import Foundation
 /// Swift Data 구현 전 임시 메모리 기반 저장소
 @MainActor
 final class InMemoryProjectRepository: ProjectRepository {
-  private var projects: [Project] = Project.mockData
-  
+  private var projects: [Project] = []
+
+  func loadInitialData() {
+    projects = Project.mockData
+  }
+
   func fetchProjects() -> [Project] {
     return projects.sorted { $0.updatedAt > $1.updatedAt }
   }
