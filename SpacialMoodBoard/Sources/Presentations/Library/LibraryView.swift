@@ -71,7 +71,7 @@ struct LibraryView: View {
            Task { await vm.importFromPhotos(newValue); photoSelection.removeAll() }
        }
        .fullScreenCover(isPresented: $vm.showEditor) {
-           ImageImportEditor(images: vm.editorImages) { urls in
+           ImageEditorView(images: vm.editorImages) { urls in
                for u in urls { vm.appendItem(with: u) }
            }
        }
