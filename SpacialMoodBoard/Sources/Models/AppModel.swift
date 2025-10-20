@@ -11,9 +11,6 @@ import SwiftUI
 @MainActor
 @Observable
 class AppModel {
-    let immersiveSpaceID = "ImmersiveSpace"
-    static let volumeWindowID = "VolumeWindow"
-    
     enum ImmersiveSpaceState {
         case closed
         case inTransition

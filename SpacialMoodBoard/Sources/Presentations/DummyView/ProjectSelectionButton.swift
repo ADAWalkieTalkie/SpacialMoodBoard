@@ -23,7 +23,7 @@
                 
 //                 // 3. Immersive 공간 열기
 //                 appModel.immersiveSpaceState = .inTransition
-//                 switch await openImmersiveSpace(id: appModel.immersiveSpaceID) {
+//                 switch await openImmersiveSpace(id: "ImmersiveScene") {
 //                 case .opened:
 //                     print("✅ Immersive 공간 오픈: \(project.title)")
 //                     break

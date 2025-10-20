@@ -44,7 +44,7 @@ struct ProjectListView: View {
             project: project,
             onTap: {
               viewModel.selectProject(project: project)
-              openWindow(id: AppModel.volumeWindowID)
+              openWindow(id: "ImmersiveVolumeWindow")
             },
             onTitleChanged: { newTitle in
               viewModel.updateProjectTitle(project: project, newTitle: newTitle)
@@ -81,7 +81,7 @@ struct ProjectListView: View {
           roomType: roomType,
           groundSize: groundSize
         )
-        openWindow(id: AppModel.volumeWindowID)
+        openWindow(id: "ImmersiveVolumeWindow")
         path.removeLast(path.count)
       }
     }

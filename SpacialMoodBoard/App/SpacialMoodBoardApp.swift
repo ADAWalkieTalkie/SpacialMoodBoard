@@ -36,14 +36,14 @@ struct SpacialMoodBoardApp: App {
       )
     }
     
-    WindowGroup(id: AppModel.volumeWindowID) {
+    WindowGroup(id: "ImmersiveVolumeWindow") {
       VolumeSceneView(
         viewModel: volumeSceneViewModel
       )
     }
     .windowStyle(.volumetric)
     
-    ImmersiveSpace(id: appModel.immersiveSpaceID) {
+    ImmersiveSpace(id: "ImmersiveScene") {
       ImmersiveSceneView(immersiveSceneViewModel: immersiveSceneViewModel)
         .environment(appModel)
         .onAppear {
