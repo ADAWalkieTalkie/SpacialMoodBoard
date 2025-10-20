@@ -25,16 +25,12 @@ struct AddedAssetsPreview: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            SectionHeader()
+            SectionHeaderView()
             
             if urls.isEmpty {
-                EmptyState()
+                EmptyStateView()
             } else {
-                AssetGrid {
-                    ForEach(Array(urls.enumerated()), id: \.offset) { idx, url in
-                        AssetThumb(url: url, height: 85)
-                    }
-                }
+                AddedAssetGridView(urls: urls)
             }
         }
         .padding(24)
@@ -44,7 +40,7 @@ struct AddedAssetsPreview: View {
 // MARK: - Components
 
 /// 섹션 타이틀 헤더
-private struct SectionHeader: View {
+fileprivate struct SectionHeaderView: View {
     var body: some View {
         Text("추가된 에셋")
             .foregroundStyle(.primary)
@@ -53,7 +49,7 @@ private struct SectionHeader: View {
 }
 
 /// 비어있을 때 문구
-private struct EmptyState: View {
+fileprivate struct EmptyStateView: View {
     var body: some View {
         Text("아직 추가된 에셋이 없어요.")
             .foregroundStyle(.secondary)
@@ -63,21 +59,25 @@ private struct EmptyState: View {
 }
 
 /// 3열 기본 그리드 래퍼
-private struct AssetGrid<Content: View>: View {
-    @ViewBuilder var content: () -> Content
+fileprivate struct AddedAssetGridView: View {
+    let urls: [URL]
+    let thumbHeight: CGFloat = 85
+    
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 3)
     
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 16) {
-                content()
+                ForEach(Array(urls.enumerated()), id: \.offset) { _, url in
+                    AssetThumb(url: url, height: thumbHeight)
+                }
             }
         }
     }
 }
 
 /// URL에서 이미지를 로드해 보여주는 썸네일
-private struct AssetThumb: View {
+fileprivate struct AssetThumb: View {
     let url: URL
     let height: CGFloat
     
