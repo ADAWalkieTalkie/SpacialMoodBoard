@@ -21,9 +21,6 @@ class AppModel {
     }
     var immersiveSpaceState = ImmersiveSpaceState.closed
 
-
     var selectedProject: Project?
-    var activeProjectID: UUID? {
-        selectedProject?.id
-    }
+    var selectedScene: SceneModel?
 }

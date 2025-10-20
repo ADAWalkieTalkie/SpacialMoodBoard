@@ -10,10 +10,9 @@ import SwiftUI
 @main
 struct SpacialMoodBoardApp: App {
   @State private var appModel = AppModel()
-  @State private var sceneModel = SceneModel()
   @State private var projectRepository: ProjectRepository
   @State private var volumeSceneViewModel: VolumeSceneViewModel
-  
+  @State private var immersiveSceneViewModel: ImmersiveSceneViewModel
   init() {
       let repository = InMemoryProjectRepository()
       let appModel = AppModel()
@@ -24,6 +23,7 @@ struct SpacialMoodBoardApp: App {
         appModel: appModel,
         projectRepository: repository
       ))
+      _immersiveSceneViewModel = State(wrappedValue: ImmersiveSceneViewModel())
     }
   
   var body: some Scene {
@@ -44,9 +44,8 @@ struct SpacialMoodBoardApp: App {
     .windowStyle(.volumetric)
     
     ImmersiveSpace(id: appModel.immersiveSpaceID) {
-      ImmersiveView()
+      ImmersiveSceneView(immersiveSceneViewModel: immersiveSceneViewModel)
         .environment(appModel)
-        .environment(sceneModel)
         .onAppear {
           appModel.immersiveSpaceState = .open
         }
