@@ -61,6 +61,24 @@ struct ProjectTitleInputView: View {
   private func createProject() {
     let trimmedName = projectName.trimmingCharacters(in: .whitespaces)
     guard !trimmedName.isEmpty else { return }
+      
+      // TODO: - 임시 코드
+      // 1) Project 모델 구성
+      let project = Project(
+        title: trimmedName,
+        projectDirectory: FilePathProvider.projectDirectory(projectName: trimmedName)
+      )
+      
+      // 2) 디스크 저장 (폴더 생성 + JSON 저장)
+      //    ProjectFileStorage는 인스턴스 메서드이므로 이렇게 호출해야 함
+      let storage = ProjectFileStorage()
+      do {
+        try storage.save(project, projectName: trimmedName)
+        print("✅ 프로젝트 초기 저장 완료")
+      } catch {
+        assertionFailure("프로젝트 저장 실패: \(error)")
+      }
+      
     withAnimation(.interpolatingSpring(stiffness: 100, damping: 15)) {
       onCreate(trimmedName)
     }

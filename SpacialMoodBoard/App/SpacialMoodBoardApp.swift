@@ -28,14 +28,24 @@ struct SpacialMoodBoardApp: App {
     }
   
   var body: some Scene {
-    WindowGroup {
-      ProjectListView(
-        viewModel: ProjectListViewModel(
-          sceneState: sceneState,
-          projectRepository: projectRepository
-        )
-      )
-    }
+      WindowGroup {
+           Group {
+               if appModel.selectedProject  != nil {
+                   LibraryView(
+                    viewModel: LibraryViewModel(
+                        projectName: appModel.selectedProject?.title ?? ""
+                    )
+                   )
+             } else {
+               ProjectListView(
+                 viewModel: ProjectListViewModel(
+                   sceneState: sceneState,
+                   projectRepository: projectRepository
+                 )
+               )
+             }
+           }
+         }
     
     WindowGroup(id: AppSceneState.volumeWindowID) {
       VolumeSceneView(
