@@ -45,15 +45,14 @@ struct ProjectListView: View {
           ProjectItemView(
             project: project,
             onTap: {
-              viewModel.selectProject(projectID: project.id)
-              appModel.selectedProject = project // TODO: - 확인 필요, 통일 필요
-              openWindow(id: AppSceneState.volumeWindowID)
+              viewModel.selectProject(project: project)
+              openWindow(id: "ImmersiveVolumeWindow")
             },
             onTitleChanged: { newTitle in
-              viewModel.updateProjectTitle(projectId: project.id, newTitle: newTitle)
+              viewModel.updateProjectTitle(project: project, newTitle: newTitle)
             },
             onDelete: {
-              viewModel.deleteProject(projectId: project.id)
+              viewModel.deleteProject(project: project)
             }
           )
           .padding(.horizontal, 30)
@@ -84,9 +83,15 @@ struct ProjectListView: View {
           roomType: roomType,
           groundSize: groundSize
         )
-        openWindow(id: AppSceneState.volumeWindowID)
+        openWindow(id: "ImmersiveVolumeWindow")
         path.removeLast(path.count)
       }
     }
   }
+}
+
+
+#Preview {
+  ProjectListView(viewModel: ProjectListViewModel(appModel: AppModel(), projectRepository: InMemoryProjectRepository()))
+    .environment(AppModel())
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 @MainActor
 @Observable
-class SceneModel {
+class ImmersiveSceneViewModel {
     private let sceneObjectStorage = SceneObjectFileStorage()
     
     // MARK: - SceneObject 관리
