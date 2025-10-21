@@ -1,20 +1,20 @@
 import Foundation
 
 struct SceneModel: Codable, Equatable {
-  var id: UUID
-  var SpacialEnvironment: SpacialEnvironment
-  var UserSpatialState: UserSpatialState
-  var SceneObjects: [SceneObject]
+  var projectId: UUID
+  var spacialEnvironment: SpacialEnvironment
+  var userSpatialState: UserSpatialState
+  var sceneObjects: [SceneObject]
 
   init(
-    id: UUID = UUID(),
-    SpacialEnvironment: SpacialEnvironment,
-    UserSpatialState: UserSpatialState,
-    SceneObjects: [SceneObject]
+    projectId: UUID,
+    spacialEnvironment: SpacialEnvironment,
+    userSpatialState: UserSpatialState,
+    sceneObjects: [SceneObject]
   ) {
-    self.id = id
-    self.SpacialEnvironment = SpacialEnvironment
-    self.UserSpatialState = UserSpatialState
-    self.SceneObjects = SceneObjects
+    self.projectId = projectId
+    self.spacialEnvironment = spacialEnvironment
+    self.userSpatialState = userSpatialState
+    self.sceneObjects = sceneObjects
   }
 }

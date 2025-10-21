@@ -81,7 +81,7 @@ struct ImmersiveSceneView: View {
             if let existingEntity = entityMap[sceneObject.id] {
                 existingEntity.position = sceneObject.position
             } else {
-                if let entity = ImageEntity.create(from: sceneObject, with: asset, viewMode: appModel.selectedScene?.UserSpatialState.viewMode ?? false) {
+                if let entity = ImageEntity.create(from: sceneObject, with: asset, viewMode: appModel.selectedScene?.userSpatialState.viewMode ?? false) {
                     anchor.addChild(entity)  // ✅ anchor에 추가
                     Task { @MainActor in
                         entityMap[sceneObject.id] = entity
