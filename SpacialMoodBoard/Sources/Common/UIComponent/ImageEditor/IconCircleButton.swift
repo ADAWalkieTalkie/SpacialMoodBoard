@@ -13,16 +13,13 @@ import SwiftUI
 struct IconCircleButton: View {
     let systemName: String
     let action: () -> Void
+    
     var body: some View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 19, weight: .medium))
-                .frame(width: 44, height: 44)
-                .background(.gray.opacity(0.5), in: Circle())
-                .foregroundStyle(.primary)
         }
-        .buttonStyle(.plain)
-        .hoverEffect(.highlight)
+        .frame(width: 44, height: 44)
     }
 }
 
