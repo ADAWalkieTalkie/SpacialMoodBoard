@@ -16,10 +16,16 @@ import AVFoundation
 final class LibraryViewModel {
     
     // MARK: - Properties
-    
+
+    private var appModel: AppModel
     let projectName: String
-    
-    var items: [Asset] = []
+
+    var storedAssets: [Asset] {
+        get { appModel.storedAssets }
+        set { appModel.storedAssets = newValue }
+    }
+
+
     var searchText = ""
     var assetType: AssetType = .image
     var sort: SortOrder = .recent
@@ -43,13 +49,14 @@ final class LibraryViewModel {
     
     /// Init
     /// - Parameter projectName: 작업할 프로젝트 이름 (프로젝트 루트 디렉터리 식별에 사용)
-    init(projectName: String) {
-        self.projectName = projectName
+    init(appModel: AppModel) {
+        self.appModel = appModel
+        self.projectName = appModel.selectedProject?.title ?? ""  
     }
     
     // MARK: - Methods
     
-    /// 프로젝트 디렉터리에서 이미지/사운드 파일을 불러와 `items`를 구성
+    /// 프로젝트 디렉터리에서 이미지/사운드 파일을 불러와 `storedAssets`를 구성
     /// - Note: 파일 메타데이터(생성일, 파일크기)를 읽어 `Asset`을 만들고, 사운드는 길이/파형도 생성
     func loadAssets() async {
         let imgs = (try? imageStore.listImages(projectName: projectName)) ?? []
@@ -96,7 +103,7 @@ final class LibraryViewModel {
         }
         
         loaded.sort { $0.createdAt > $1.createdAt }
-        items = loaded
+        storedAssets = loaded
     }
     
     /// 드래그 앤 드롭으로 전달된 아이템들을 처리한다. 즉시 `true`를 반환하고 내부에서 비동기로 로딩
@@ -164,7 +171,7 @@ final class LibraryViewModel {
         let now = Date()
         let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
         
-        items.insert(
+        storedAssets.insert(
             Asset(id: id,
                   type: .image,
                   filename: url.lastPathComponent,
@@ -248,7 +255,7 @@ final class LibraryViewModel {
                     image: nil,
                     sound: SoundAsset(channel: .ambient, duration: duration, waveform: waveform)
                 )
-                items.insert(asset, at: 0)
+                storedAssets.insert(asset, at: 0)
             } catch {
                 print("사운드 임포트 실패(\(url.lastPathComponent)): \(error)")
             }
@@ -266,7 +273,7 @@ extension LibraryViewModel {
     /// - Returns: 필터링 + 정렬이 적용된 `Asset` 배열
     func filteredAndSorted(type: AssetType, key: String) -> [Asset] {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
-        let filtered = items
+        let filtered = storedAssets
             .filter { $0.type == type }
             .filter { trimmed.isEmpty ? true : $0.filename.localizedCaseInsensitiveContains(trimmed) }
         return sortAssets(filtered)
@@ -301,8 +308,8 @@ extension LibraryViewModel {
     ///   - id: 이름을 바꿀 에셋의 식별자(UUID)
     ///   - newTitle: 확장자를 제외한 새 파일명(사용자 입력). 불법 문자는 `sanitizedFilename(_:)`로 정제
     func renameAsset(id: String, to newTitle: String) {
-        guard let i = items.firstIndex(where: { $0.id == id }) else { return }
-        let asset = items[i]
+        guard let i = storedAssets.firstIndex(where: { $0.id == id }) else { return }
+        let asset = storedAssets[i]
         
         let ext = asset.url.pathExtension.isEmpty
         ? (asset.type == .image ? "jpg" : "m4a")
@@ -322,8 +329,8 @@ extension LibraryViewModel {
             let finalURL = try uniqueURLIfNeeded(dstURL)
             try FileManager.default.moveItem(at: srcURL, to: finalURL)
             
-            items[i].filename = finalURL.lastPathComponent
-            items[i].url = finalURL
+            storedAssets[i].filename = finalURL.lastPathComponent
+            storedAssets[i].url = finalURL
             
         } catch {
             print("⚠️ rename failed:", error)
@@ -333,8 +340,8 @@ extension LibraryViewModel {
     /// 에셋을 목록과 디스크에서 함께 삭제
     /// - Parameter id: 삭제할 에셋의 식별자(UUID)
     func deleteAsset(id: String) {
-        guard let i = items.firstIndex(where: { $0.id == id }) else { return }
-        let asset = items.remove(at: i)
+        guard let i = storedAssets.firstIndex(where: { $0.id == id }) else { return }
+        let asset = storedAssets.remove(at: i)
         
         do {
             switch asset.type {

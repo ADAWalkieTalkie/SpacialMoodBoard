@@ -36,10 +36,10 @@ struct SpacialMoodBoardApp: App {
   var body: some Scene {
       WindowGroup {
           Group {
-              if appModel.selectedProject  != nil {
+              if appModel.selectedProject != nil {
                   LibraryView (
                     viewModel: LibraryViewModel(
-                        projectName: appModel.selectedProject?.title ?? ""
+                      appModel: appModel
                     )
                   )
                   .environment(appModel)
