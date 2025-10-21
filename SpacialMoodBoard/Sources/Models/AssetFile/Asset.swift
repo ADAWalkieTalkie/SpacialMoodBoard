@@ -8,7 +8,7 @@
 import Foundation
 
 struct Asset: Identifiable, Hashable, Codable {
-    var id: UUID
+    var id: String
     var type: AssetType
     var filename: String              // 초기 원본 파일명 -> 사용자 변경 가능
     var filesize: Int?                // byte

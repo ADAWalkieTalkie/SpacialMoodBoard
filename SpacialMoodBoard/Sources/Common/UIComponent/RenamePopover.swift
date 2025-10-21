@@ -12,10 +12,10 @@ struct RenamePopover: View {
     
     // MARK: - Properties
     
-    private let id: UUID
-    private let onRename: ((_ id: UUID, _ newTitle: String) -> Void)?
-    private let onDelete: ((_ id: UUID) -> Void)?
-    private let onDuplicate: ((_ id: UUID, _ newTitle: String) -> Void)?
+    private let id: String
+    private let onRename: ((_ id: String, _ newTitle: String) -> Void)?
+    private let onDelete: ((_ id: String) -> Void)?
+    private let onDuplicate: ((_ id: String, _ newTitle: String) -> Void)?
     private let onCancel: () -> Void
     
     @Binding private var title: String
@@ -32,11 +32,11 @@ struct RenamePopover: View {
     ///   - onDuplicate: 복제 콜백. 전달되지 않으면 해당 메뉴를 숨김
     ///   - onCancel: 팝오버를 닫을 때 호출되는 콜백
     init(
-        id: UUID,
+        id: String,
         title: Binding<String>,
-        onRename: ((_ id: UUID, _ newTitle: String) -> Void)? = nil,
-        onDelete: ((_ id: UUID) -> Void)? = nil,
-        onDuplicate: ((_ id: UUID, _ newTitle: String) -> Void)? = nil,
+        onRename: ((_ id: String, _ newTitle: String) -> Void)? = nil,
+        onDelete: ((_ id: String) -> Void)? = nil,
+        onDuplicate: ((_ id: String, _ newTitle: String) -> Void)? = nil,
         onCancel: @escaping () -> Void
     ) {
         self.id = id

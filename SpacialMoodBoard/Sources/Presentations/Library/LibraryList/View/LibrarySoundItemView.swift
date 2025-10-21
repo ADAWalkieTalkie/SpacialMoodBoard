@@ -107,7 +107,6 @@ struct LibrarySoundItemView: View {
                     if player.currentURL == asset.url { player.stop() }
                     viewModel.deleteAsset(id: id)
                 },
-                onDuplicate: { id, newTitle in viewModel.duplicateAsset(id: id, as: newTitle) },
                 onCancel: { showRename = false }
             )
         }

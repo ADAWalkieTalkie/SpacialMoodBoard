@@ -61,9 +61,10 @@ final class LibraryViewModel {
         for name in imgs {
             let url = FilePathProvider.imageFile(projectName: projectName, filename: name)
             let meta = (try? url.resourceValues(forKeys: [.fileSizeKey, .creationDateKey, .contentTypeKey])) ?? .init()
+            let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
             
             loaded.append(
-                Asset(id: UUID(),
+                Asset(id: id,
                       type: .image,
                       filename: name,
                       filesize: meta.fileSize ?? 0,
@@ -76,13 +77,14 @@ final class LibraryViewModel {
         for name in snds {
             let url = FilePathProvider.soundFile(projectName: projectName, filename: name)
             let meta = (try? url.resourceValues(forKeys: [.fileSizeKey, .creationDateKey, .contentTypeKey])) ?? .init()
+            let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
             
             let f = try? AVAudioFile(forReading: url)
             let duration = f.map { Double($0.length) / $0.processingFormat.sampleRate } ?? 0
             let waveform = (try? makeWaveform(url: url, targetSamples: 120, method: .peak)) ?? []
             
             loaded.append(
-                Asset(id: UUID(),
+                Asset(id: id,
                       type: .sound,
                       filename: name,
                       filesize: meta.fileSize ?? 0,
@@ -160,8 +162,10 @@ final class LibraryViewModel {
     /// - Parameter url: 저장된 이미지 파일 URL
     func appendItem(with url: URL) {
         let now = Date()
+        let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
+        
         items.insert(
-            Asset(id: UUID(),
+            Asset(id: id,
                   type: .image,
                   filename: url.lastPathComponent,
                   filesize: 0,
@@ -222,6 +226,7 @@ final class LibraryViewModel {
             
             do {
                 let data = try Data(contentsOf: url)
+                let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
                 let filename = url.lastPathComponent
                 
                 try soundStore.save(data, projectName: projectName, filename: filename)
@@ -234,7 +239,7 @@ final class LibraryViewModel {
                 let waveform = (try? makeWaveform(url: dest, targetSamples: 120, method: .peak)) ?? []
                 
                 let asset = Asset(
-                    id: UUID(),
+                    id: id,
                     type: .sound,
                     filename: filename,
                     filesize: meta?.fileSize ?? 0,
@@ -295,7 +300,7 @@ extension LibraryViewModel {
     /// - Parameters:
     ///   - id: 이름을 바꿀 에셋의 식별자(UUID)
     ///   - newTitle: 확장자를 제외한 새 파일명(사용자 입력). 불법 문자는 `sanitizedFilename(_:)`로 정제
-    func renameAsset(id: UUID, to newTitle: String) {
+    func renameAsset(id: String, to newTitle: String) {
         guard let i = items.firstIndex(where: { $0.id == id }) else { return }
         let asset = items[i]
         
@@ -327,7 +332,7 @@ extension LibraryViewModel {
     
     /// 에셋을 목록과 디스크에서 함께 삭제
     /// - Parameter id: 삭제할 에셋의 식별자(UUID)
-    func deleteAsset(id: UUID) {
+    func deleteAsset(id: String) {
         guard let i = items.firstIndex(where: { $0.id == id }) else { return }
         let asset = items.remove(at: i)
         
@@ -340,47 +345,6 @@ extension LibraryViewModel {
             }
         } catch {
             print("⚠️ delete failed:", error)
-        }
-    }
-    
-    /// 에셋을 복제하여 새 파일명으로 저장하고, 목록에 추가
-    /// - Parameters:
-    ///   - id: 복제할 원본 에셋의 식별자(UUID)
-    ///   - newTitle: 새 파일명(확장자 제외). 비어 있으면 "Copy"를 기본 사용
-    func duplicateAsset(id: UUID, as newTitle: String) {
-        guard let i = items.firstIndex(where: { $0.id == id }) else { return }
-        let src = items[i]
-        
-        let ext = src.url.pathExtension
-        let base = sanitizedFilename(newTitle)
-        var dstFilename = base.isEmpty ? "Copy" : base
-        if !ext.isEmpty { dstFilename += ".\(ext)" }
-        
-        do {
-            let dstURL = (src.type == .image)
-            ? FilePathProvider.imageFile(projectName: projectName, filename: dstFilename)
-            : FilePathProvider.soundFile(projectName: projectName, filename: dstFilename)
-            
-            let finalURL = try uniqueURLIfNeeded(dstURL)
-            try FileManager.default.copyItem(at: src.url, to: finalURL)
-            
-            var dup = src
-            dup.id = UUID()
-            dup.filename = finalURL.lastPathComponent
-            dup.url = finalURL
-            dup.createdAt = Date()
-            
-            if dup.type == .sound {
-                if let f = try? AVAudioFile(forReading: finalURL) {
-                    dup.sound?.duration = Double(f.length) / f.processingFormat.sampleRate
-                }
-                dup.sound?.waveform = (try? makeWaveform(url: finalURL, targetSamples: 120, method: .peak)) ?? []
-            }
-            
-            items.insert(dup, at: 0)
-            
-        } catch {
-            print("⚠️ duplicate failed:", error)
         }
     }
     

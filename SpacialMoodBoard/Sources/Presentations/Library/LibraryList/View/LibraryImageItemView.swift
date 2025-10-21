@@ -73,7 +73,6 @@ struct LibraryImageItemView: View {
                 title: $draftTitle,
                 onRename: { id, newTitle in viewModel.renameAsset(id: id, to: newTitle) },
                 onDelete: { id in viewModel.deleteAsset(id: id) },
-                onDuplicate: { id, newTitle in viewModel.duplicateAsset(id: id, as: newTitle) },
                 onCancel: { showRename = false }
             )
         }
@@ -98,7 +97,7 @@ struct LibraryImageItemView: View {
 #Preview {
     LibraryImageItemView(
         asset: Asset(
-            id: UUID(),
+            id: UUID().uuidString,
             type: .image,
             filename: "Astronaut",
             url: URL(string: "https://i.ibb.co/0yhHJbfK/image-23.png")!,

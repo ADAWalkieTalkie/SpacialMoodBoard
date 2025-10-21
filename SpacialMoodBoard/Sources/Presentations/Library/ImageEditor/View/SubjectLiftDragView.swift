@@ -44,11 +44,14 @@ struct SubjectLiftDragView: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let container = UIView()
         container.backgroundColor = .clear
+        container.isOpaque = false
         
         let iv = UIImageView(image: image)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFit
         iv.isUserInteractionEnabled = true
+        iv.backgroundColor = .clear
+        iv.isOpaque = false
         container.addSubview(iv)
         
         NSLayoutConstraint.activate([
@@ -83,6 +86,8 @@ struct SubjectLiftDragView: UIViewRepresentable {
     ///   - context: 컨텍스트(코디네이터 등)
     func updateUIView(_ container: UIView, context: Context) {
         context.coordinator.imageView?.image = image
+        container.backgroundColor = .clear
+        container.isOpaque = false
 #if !targetEnvironment(simulator)
         if #available(iOS 17.0, visionOS 1.0, *) {
             context.coordinator.runSubjectLiftAnalysis(for: image)

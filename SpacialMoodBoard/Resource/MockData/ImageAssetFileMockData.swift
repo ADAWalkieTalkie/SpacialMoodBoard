@@ -5,7 +5,7 @@ import Foundation
 extension Asset {
     static let assetMockData: [Asset] = [
         Asset(
-            id: UUID(), 
+            id: UUID().uuidString,
             type: .image,
             filename: "JackJump",
             filesize: 1000,
@@ -14,7 +14,7 @@ extension Asset {
             image: ImageAsset(width: 1024, height: 1267)
         ),
 
-        Asset(id: UUID(),
+        Asset(id: UUID().uuidString,
             type: .image,
             filename: "goldfish",
             filesize: 1000,

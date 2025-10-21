@@ -122,7 +122,7 @@ final class ImageEditorViewModel {
     /// - Parameter image: 저장할 `UIImage`.
     /// - Returns: 저장에 성공하면 `Documents/projects/<projectName>/images/<uuid>.jpg`의 파일 URL, 실패 시 `nil`
     private func saveToProject(image: UIImage) -> URL? {
-        let filename = UUID().uuidString + ".jpg"
+        let filename = UUID().uuidString + ".png"
         do {
             try imageStore.save(image,
                                 projectName: projectName,
