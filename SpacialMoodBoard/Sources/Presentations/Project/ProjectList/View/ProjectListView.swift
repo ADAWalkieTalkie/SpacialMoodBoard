@@ -10,6 +10,8 @@ import Observation
 
 struct ProjectListView: View {
   @Environment(\.openWindow) private var openWindow
+  @Environment(AppModel.self) private var appModel
+    
   @State private var viewModel: ProjectListViewModel
   
   @State private var path = NavigationPath()
@@ -44,6 +46,7 @@ struct ProjectListView: View {
             project: project,
             onTap: {
               viewModel.selectProject(projectID: project.id)
+              appModel.selectedProject = project // TODO: - 확인 필요, 통일 필요
               openWindow(id: AppSceneState.volumeWindowID)
             },
             onTitleChanged: { newTitle in

@@ -62,7 +62,7 @@ struct ProjectTitleInputView: View {
     let trimmedName = projectName.trimmingCharacters(in: .whitespaces)
     guard !trimmedName.isEmpty else { return }
       
-      // TODO: - 임시 코드
+      // TODO: - 확인 필요, 생성하자마자 이동할려면 appModel.selectedProject에 저장 추가 필요
       // 1) Project 모델 구성
       let project = Project(
         title: trimmedName,
