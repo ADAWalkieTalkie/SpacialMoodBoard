@@ -38,11 +38,10 @@ struct SpacialMoodBoardApp: App {
                   .environment(appModel)
               } else {
                   ProjectListView(
-          
-        viewModel: ProjectListViewModel(
-            appModel: appModel,
-          projectRepository: projectRepository
-      )
+                    viewModel: ProjectListViewModel(
+                        appModel: appModel,
+                        projectRepository: projectRepository
+                    )
                   )
                   .environment(appModel)
               }
