@@ -11,20 +11,27 @@ import SwiftUI
 struct SpacialMoodBoardApp: App {
   @State private var appModel = AppModel()
   @State private var projectRepository: ProjectRepository
-  @State private var volumeSceneViewModel: VolumeSceneViewModel
-  @State private var immersiveSceneViewModel: ImmersiveSceneViewModel
+  @State private var volumeSceneViewModel: SceneViewModel
+  @State private var immersiveSceneViewModel: SceneViewModel
+  
   init() {
-      let repository = InMemoryProjectRepository()
-      let appModel = AppModel()
-      
-      _projectRepository = State(wrappedValue: repository)
-      _appModel = State(wrappedValue: appModel)
-      _volumeSceneViewModel = State(wrappedValue: VolumeSceneViewModel(
-        appModel: appModel,
-        projectRepository: repository
-      ))
-      _immersiveSceneViewModel = State(wrappedValue: ImmersiveSceneViewModel())
-    }
+    let repository = InMemoryProjectRepository()
+    let appModel = AppModel()
+    
+    _projectRepository = State(wrappedValue: repository)
+    _appModel = State(wrappedValue: appModel)
+    
+    // Volume Scene용 ViewModel
+    _volumeSceneViewModel = State(wrappedValue: SceneViewModel(
+      appModel: appModel,
+      projectRepository: repository
+    ))
+    
+    // Immersive Scene용 ViewModel
+    _immersiveSceneViewModel = State(wrappedValue: SceneViewModel(
+      appModel: appModel
+    ))
+  }
   
   var body: some Scene {
       WindowGroup {
@@ -49,15 +56,17 @@ struct SpacialMoodBoardApp: App {
       }
        
     
+    // Volume Scene (Room 미리보기)
     WindowGroup(id: "ImmersiveVolumeWindow") {
-      VolumeSceneView(
-        viewModel: volumeSceneViewModel
-      )
+      VolumeSceneView(viewModel: volumeSceneViewModel)
+        .environment(appModel)
     }
     .windowStyle(.volumetric)
+    .defaultSize(width: 1.5, height: 1.5, depth: 1.5, in: .meters)
     
+    // Immersive Space (전체 몰입)
     ImmersiveSpace(id: "ImmersiveScene") {
-      ImmersiveSceneView(immersiveSceneViewModel: immersiveSceneViewModel)
+      ImmersiveSceneView(viewModel: immersiveSceneViewModel)
         .environment(appModel)
         .onAppear {
           appModel.immersiveSpaceState = .open
@@ -67,5 +76,6 @@ struct SpacialMoodBoardApp: App {
         }
     }
     .immersionStyle(selection: .constant(.full), in: .full)
-  }}
+  }
+}
 

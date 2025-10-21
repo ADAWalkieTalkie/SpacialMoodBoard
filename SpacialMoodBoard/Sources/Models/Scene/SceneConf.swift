@@ -1,0 +1,30 @@
+import Foundation
+
+struct SceneConfig {
+var showRotationButton: Bool = false
+var enableGestures: Bool = true
+var enableAttachments: Bool = true
+var applyWallOpacity: Bool = false
+var alignToWindowBottom: Bool = false
+var scale: Float = 1.0
+
+static let immersive = SceneConfig(
+    enableGestures: true,
+    enableAttachments: true
+)
+
+static let volume = SceneConfig(
+    showRotationButton: true,
+    enableGestures: true,
+    enableAttachments: true,
+    applyWallOpacity: true,
+    alignToWindowBottom: true
+)
+
+static let minimap = SceneConfig(
+    showRotationButton: false,
+    enableGestures: false,
+    enableAttachments: false,
+    scale: 0.3 
+)
+}

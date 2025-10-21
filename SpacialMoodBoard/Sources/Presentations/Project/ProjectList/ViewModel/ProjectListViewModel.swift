@@ -53,6 +53,7 @@ final class ProjectListViewModel {
     projectRepository.addProject(newProject)
     refreshProjects()
     appModel.selectedProject = newProject
+    appModel.selectedScene = SceneModel(projectId: newProject.id, spacialEnvironment: spacialEnvironment, userSpatialState: UserSpatialState(), sceneObjects: [])
     
     return newProject
   }
