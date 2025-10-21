@@ -11,25 +11,27 @@ import Observation
 
 @Observable
 final class ImageEditorViewModel {
-
+    
     // MARK: - Properties
     var images: [UIImage]
+    private let projectName: String
+    private let imageStore = ImageFileStorage()
     private var onAddToLibrary: (_ exported: [URL]) -> Void
-
+    
     // 사이드바 상태/폭
     var showSidebar: Bool = true
     var sidebarWidth: CGFloat = 320
     let sidebarMinWidth: CGFloat = 0
     let sidebarMaxWidth: CGFloat = 540
     let sidebarFallbackWidth: CGFloat = 320
-
+    
     // 선택 상태/알림 등
     var selectedIndex: Int = 0
     var showSavedAlert: Bool = false
     var isAddTargeted: Bool = false
     var showAddedPopover: Bool = false
     private(set) var addedURLs: [URL] = []
-
+    
     var dropTypes: [UTType] { [.image, .png, .jpeg, .heic] }
     var isFirst: Bool { selectedIndex <= 0 }
     var isLast:  Bool { selectedIndex >= max(0, images.count - 1) }
@@ -37,57 +39,58 @@ final class ImageEditorViewModel {
         guard images.indices.contains(selectedIndex) else { return nil }
         return images[selectedIndex]
     }
-
+    
     // MARK: - Init
-    init(images: [UIImage], onAddToLibrary: @escaping ([URL]) -> Void) {
+    init(images: [UIImage], projectName: String, onAddToLibrary: @escaping ([URL]) -> Void) {
         self.images = images
+        self.projectName = projectName
         self.onAddToLibrary = onAddToLibrary
         if !images.isEmpty { selectedIndex = 0 }
     }
-
+    
     // MARK: - Methods
     func prevImage() {
         guard !isFirst else { return }
         withAnimation(.snappy) { selectedIndex -= 1 }
     }
-
+    
     func nextImage() {
         guard !isLast else { return }
         withAnimation(.snappy) { selectedIndex += 1 }
     }
-
+    
     /// 사이드바 열기 시, 폭이 0이면 기본 폭으로 복원
     func willOpenSidebarIfNeeded() {
         if sidebarWidth <= sidebarMinWidth {
             sidebarWidth = sidebarFallbackWidth
         }
     }
-
+    
     /// 사이드바를 즉시 접는다 (폭=0, 표시=false)
     func collapseSidebar() {
         sidebarWidth = 0
         showSidebar = false
     }
-
+    
     /// 현재 선택 이미지를 PNG로 캐시 저장 후 라이브러리에 등록
     func addCurrentToLibrary() {
-        guard let img = selectedImage,
-              let url = exportPNG(img) else { return }
+        guard let img = selectedImage else { return }
+        guard let url = saveToProject(image: img) else { return }
         onAddToLibrary([url])
         addedURLs.append(url)
         showSavedAlert = true
     }
-
+    
     /// 드롭된 아이템 처리
     func handleDropToAdd(providers: [NSItemProvider]) -> Bool {
         var handled = false
         let imageUTIs = [UTType.png.identifier, UTType.jpeg.identifier,
                          UTType.heic.identifier, UTType.image.identifier]
-
+        
         for provider in providers {
             if provider.canLoadObject(ofClass: UIImage.self) {
                 provider.loadObject(ofClass: UIImage.self) { obj, _ in
-                    if let img = obj as? UIImage, let url = self.exportPNG(img) {
+                    if let img = obj as? UIImage, let url = self.saveToProject(image: img) {
                         DispatchQueue.main.async {
                             self.onAddToLibrary([url])
                             self.addedURLs.append(url)
@@ -98,11 +101,11 @@ final class ImageEditorViewModel {
                 handled = true
                 continue
             }
-
+            
             if let t = imageUTIs.first(where: { provider.hasItemConformingToTypeIdentifier($0) }) {
                 provider.loadDataRepresentation(forTypeIdentifier: t) { data, _ in
                     guard let data, let img = UIImage(data: data),
-                          let url = self.exportPNG(img) else { return }
+                          let url = self.saveToProject(image: img) else { return }
                     DispatchQueue.main.async {
                         self.onAddToLibrary([url])
                         self.addedURLs.append(url)
@@ -114,21 +117,21 @@ final class ImageEditorViewModel {
         }
         return handled
     }
-
-    // MARK: - Helpers
-    private func exportPNG(_ image: UIImage) -> URL? {
+    
+    /// 편집 중인 이미지를 현재 프로젝트의 `/images` 폴더에 JPEG로 저장하고, 저장된 파일의 URL을 반환합니다.
+    /// - Parameter image: 저장할 `UIImage`.
+    /// - Returns: 저장에 성공하면 `Documents/projects/<projectName>/images/<uuid>.jpg`의 파일 URL, 실패 시 `nil`
+    private func saveToProject(image: UIImage) -> URL? {
         let filename = UUID().uuidString + ".png"
         do {
-            let dir = try FileManager.default.url(for: .cachesDirectory,
-                                                  in: .userDomainMask,
-                                                  appropriateFor: nil,
-                                                  create: true)
-            let url = dir.appendingPathComponent(filename)
-            if let data = image.pngData() {
-                try data.write(to: url, options: .atomic)
-                return url
-            }
-        } catch { }
-        return nil
+            try imageStore.save(image,
+                                projectName: projectName,
+                                filename: filename,
+                                quality: 0.9)
+            return FilePathProvider.imageFile(projectName: projectName, filename: filename)
+        } catch {
+            print("🖼️ 이미지 저장 실패: \(error)")
+            return nil
+        }
     }
 }

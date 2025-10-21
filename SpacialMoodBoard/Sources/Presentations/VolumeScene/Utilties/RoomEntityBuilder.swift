@@ -25,27 +25,27 @@ struct RoomEntityBuilder {
   // MARK: - Public Methods
   
   @MainActor
-  func buildRoomEntity(from scene: VolumeScene, rotationAngle: Float) -> Entity {
-    let dimensions = calculateDimensions(from: scene.groundSize)
+  func buildRoomEntity(from environment: SpacialEnvironment, rotationAngle: Float) -> Entity {
+    let dimensions = calculateDimensions(from: environment.groundSize)
     
-    let root = Entity()
-    root.name = "roomRoot"
+    let room = Entity()
+    room.name = "roomRoot"
     
     let floor = createFloor(width: dimensions.x, depth: dimensions.z)
-    root.addChild(floor)
+    room.addChild(floor)
     
-    if scene.roomType == .indoor {
+    if environment.roomType == .indoor {
       let walls = createWalls(
         width: dimensions.x,
         height: dimensions.y,
         depth: dimensions.z
       )
-      walls.forEach { root.addChild($0) }
+      walls.forEach { room.addChild($0) }
     }
     
-    applyRotation(to: root, angle: rotationAngle)
+    applyRotation(to: room, angle: rotationAngle)
     
-    return root
+    return room
   }
   
   // MARK: - Private Methods - Dimensions
