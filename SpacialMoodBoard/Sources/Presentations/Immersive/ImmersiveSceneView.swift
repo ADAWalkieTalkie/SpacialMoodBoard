@@ -9,16 +9,20 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
-struct ImmersiveView: View {
-    @Environment(SceneModel.self) private var sceneModel
-
+struct ImmersiveSceneView: View {
+    @Environment(AppModel.self) private var appModel
     private let assets: [Asset] = Asset.assetMockData
+    @State private var immersiveSceneViewModel: ImmersiveSceneViewModel
 
     // Entity 추적을 위한 딕셔너리 (State로 관리)
     @State private var entityMap: [UUID: ModelEntity] = [:]
 
     // 선택된 Entity ID를 추적
     @State private var selectedEntity: ModelEntity?
+
+    init(immersiveSceneViewModel: ImmersiveSceneViewModel) {
+        _immersiveSceneViewModel = State(initialValue: immersiveSceneViewModel)
+    }
 
     var body: some View {
         RealityView { content in
@@ -28,7 +32,7 @@ struct ImmersiveView: View {
             content.add(anchor)
 
             // Add the initial RealityKit content
-            if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
+            if let immersiveContentEntity = try? await Entity(named: "ImmersiveScene", in: realityKitContentBundle) {
                 anchor.addChild(immersiveContentEntity)
             }
         } update: { content in
@@ -48,14 +52,14 @@ struct ImmersiveView: View {
         .immersiveEntityGestures(
             selectedEntity: $selectedEntity,
             onPositionUpdate: { uuid, position in
-                sceneModel.updateObjectPosition(id: uuid, position: position)
+                immersiveSceneViewModel.updateObjectPosition(id: uuid, position: position)
             }
         )
     }
     
     /// SceneObject 변경 시 Entity 업데이트
     private func updateEntities(anchor: AnchorEntity) {
-        let currentObjectIds = Set(sceneModel.sceneObjects.map { $0.id })
+        let currentObjectIds = Set(immersiveSceneViewModel.sceneObjects.map { $0.id })
         let existingEntityIds = Set(entityMap.keys)
         
         // 1. 삭제된 객체 제거
@@ -69,7 +73,7 @@ struct ImmersiveView: View {
         }
         
         // 2. 새로운 객체 추가 또는 업데이트
-        for sceneObject in sceneModel.sceneObjects {
+        for sceneObject in immersiveSceneViewModel.sceneObjects {
             guard let asset = assets.first(where: { $0.id == sceneObject.assetId }) else {
                 continue
             }
@@ -77,7 +81,7 @@ struct ImmersiveView: View {
             if let existingEntity = entityMap[sceneObject.id] {
                 existingEntity.position = sceneObject.position
             } else {
-                if let entity = ImageEntity.create(from: sceneObject, with: asset, viewMode: sceneModel.userSpatialState.viewMode) {
+                if let entity = ImageEntity.create(from: sceneObject, with: asset, viewMode: appModel.selectedScene?.userSpatialState.viewMode ?? false) {
                     anchor.addChild(entity)  // ✅ anchor에 추가
                     Task { @MainActor in
                         entityMap[sceneObject.id] = entity
@@ -89,7 +93,7 @@ struct ImmersiveView: View {
     
     /// SceneObject의 위치를 SceneModel에 업데이트
     private func updateSceneObjectPosition(id: UUID, position: SIMD3<Float>) {
-        sceneModel.updateObjectPosition(id: id, position: position)
+        immersiveSceneViewModel.updateObjectPosition(id: id, position: position)
     }
     
     // MARK: - DrageGuesture 관련
@@ -104,7 +108,7 @@ struct ImmersiveView: View {
             return
         }
         
-        sceneModel.updateObjectPosition(id: uuid, position: value.entity.position)
+        immersiveSceneViewModel.updateObjectPosition(id: uuid, position: value.entity.position)
         print("📍 위치 업데이트: \(uuid) → \(value.entity.position)")
     }
 
@@ -153,7 +157,7 @@ struct ImmersiveView: View {
     private func duplicateObject(selectedEntity: ModelEntity?) {
         guard let selectedEntity = selectedEntity,
             let objectId = UUID(uuidString: selectedEntity.name),
-            let originalObject = sceneModel.sceneObjects.first(where: { $0.id == objectId })
+            let originalObject = immersiveSceneViewModel.sceneObjects.first(where: { $0.id == objectId })
         else {
             print("❌ 복제할 객체를 찾을 수 없습니다")
             return
@@ -180,7 +184,7 @@ struct ImmersiveView: View {
         )
         
         // ✅ SceneModel에 추가 → updateEntities가 자동으로 Entity 생성
-        sceneModel.sceneObjects.append(duplicatedObject)
+        immersiveSceneViewModel.sceneObjects.append(duplicatedObject)
 
         self.selectedEntity = nil
         
@@ -197,13 +201,13 @@ struct ImmersiveView: View {
     /// SceneObject 삭제
     private func deleteObject(selectedEntity: ModelEntity?) {
         guard let selectedEntity = selectedEntity else { return }
-        sceneModel.removeSceneObject(id: UUID(uuidString: selectedEntity.name)!)
+        immersiveSceneViewModel.removeSceneObject(id: UUID(uuidString: selectedEntity.name)!)
         self.selectedEntity = nil
         print("🗑️ 삭제 완료: \(selectedEntity.name)")
     }
 }
 
 #Preview(immersionStyle: .full) {
-    ImmersiveView()
-        .environment(SceneModel())
+    ImmersiveSceneView(immersiveSceneViewModel: ImmersiveSceneViewModel())
+        .environment(AppModel())
 }

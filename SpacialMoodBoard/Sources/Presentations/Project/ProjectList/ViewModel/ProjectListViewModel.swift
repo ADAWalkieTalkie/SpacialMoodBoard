@@ -11,21 +11,34 @@ import Observation
 @MainActor
 @Observable
 final class ProjectListViewModel {
-  private var sceneState: AppSceneState
-  private var projectRepository: ProjectRepository
+  private var appModel: AppModel
+  private let projectRepository: ProjectRepository
   
   var searchText: String = ""
+
+  private(set) var projects: [Project] = []
   
   var filteredProjects: [Project] {
-    projectRepository.filterProjects(by: searchText)
+    guard !searchText.isEmpty else {
+      return projects
+    }
+    return projects
+      .filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+      .sorted { $0.updatedAt > $1.updatedAt }
   }
-  
-  init(sceneState: AppSceneState, projectRepository: ProjectRepository) {
-    self.sceneState = sceneState
+
+
+  init(appModel: AppModel, projectRepository: ProjectRepository) {
+    self.appModel = appModel
     self.projectRepository = projectRepository
     
-    // 해당 코드 없으면 볼륨 재생성 안됨.
-    let activeProjectID = sceneState.activeProjectID
+    // 초기 데이터 로드 (향후 Task { await ... } 형태로 변경)
+    projectRepository.loadInitialData()
+    refreshProjects()
+  }
+
+  private func refreshProjects() {
+    projects = projectRepository.fetchProjects()
   }
   
   @discardableResult
@@ -34,29 +47,29 @@ final class ProjectListViewModel {
     roomType: RoomType,
     groundSize: GroundSize
   ) -> Project {
-    let scene = VolumeScene(roomType: roomType, groundSize: groundSize)
-    let newProject = Project(title: title, volumeScene: scene)
-    
+    let spacialEnvironment = SpacialEnvironment(roomType: roomType, groundSize: groundSize)
+    let newProject = Project(title: title, createdAt: Date(), updatedAt: Date())
+
     projectRepository.addProject(newProject)
-    sceneState.activeProjectID = newProject.id
+    refreshProjects()
+    appModel.selectedProject = newProject
     
     return newProject
   }
   
-  func selectProject(projectID: Project.ID) {
-    guard projectRepository.fetchProject(by: projectID) != nil else {
+  func selectProject(project: Project) {
+    guard projectRepository.fetchProject(project) != nil else {
 #if DEBUG
-      print("[ProjectListVM] selectProject - ⚠️ Project not found: \(projectID)")
+      print("[ProjectListVM] selectProject - ⚠️ Project not found: \(project.id)")
 #endif
       return
     }
-    
-    sceneState.activeProjectID = projectID
+    appModel.selectedProject = project
   }
   
-  func updateProjectTitle(projectId: Project.ID, newTitle: String) {
+  func updateProjectTitle(project: Project, newTitle: String) {
     do {
-      try projectRepository.updateProjectTitle(projectID: projectId, newTitle: newTitle)
+      try projectRepository.updateProjectTitle(project, newTitle: newTitle)
     } catch {
 #if DEBUG
       print("[ProjectListVM] updateProjectTitle - ❌ Error: \(error)")
@@ -65,18 +78,19 @@ final class ProjectListViewModel {
   }
   
   @discardableResult
-  func deleteProject(projectId: Project.ID) -> Bool {
-    guard projectRepository.fetchProject(by: projectId) != nil else {
+  func deleteProject(project: Project) -> Bool {
+    guard projectRepository.fetchProject(project) != nil else {
 #if DEBUG
-      print("[ProjectListVM] deleteProject - ⚠️ Project not found: \(projectId)")
+      print("[ProjectListVM] deleteProject - ⚠️ Project not found: \(project.id)")
 #endif
       return false
     }
     
-    projectRepository.deleteProject(id: projectId)
+    projectRepository.deleteProject(project)
+    refreshProjects()
     
-    if sceneState.activeProjectID == projectId {
-      sceneState.activeProjectID = nil
+    if appModel.selectedProject?.id == project.id {
+      appModel.selectedProject = nil
     }
     
     return true
