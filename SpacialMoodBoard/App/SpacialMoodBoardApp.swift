@@ -27,14 +27,27 @@ struct SpacialMoodBoardApp: App {
     }
   
   var body: some Scene {
-    WindowGroup {
-      ProjectListView(
-        viewModel: ProjectListViewModel(
-          appModel: appModel,
-          projectRepository: projectRepository
-        )
-      )
-    }
+      WindowGroup {
+          Group {
+              if appModel.selectedProject  != nil {
+                  LibraryView (
+                    viewModel: LibraryViewModel(
+                        projectName: appModel.selectedProject?.title ?? ""
+                    )
+                  )
+                  .environment(appModel)
+              } else {
+                  ProjectListView(
+                    viewModel: ProjectListViewModel(
+                        appModel: appModel,
+                        projectRepository: projectRepository
+                    )
+                  )
+                  .environment(appModel)
+              }
+          }
+      }
+       
     
     WindowGroup(id: "ImmersiveVolumeWindow") {
       VolumeSceneView(
@@ -54,6 +67,5 @@ struct SpacialMoodBoardApp: App {
         }
     }
     .immersionStyle(selection: .constant(.full), in: .full)
-  }
-}
+  }}
 

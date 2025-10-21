@@ -5,20 +5,18 @@ import Foundation
 extension Asset {
     static let assetMockData: [Asset] = [
         Asset(
-            id: UUID(), 
+            id: UUID().uuidString,
             type: .image,
             filename: "JackJump",
-            mime: "image/png",
             filesize: 1000,
             url: URL(string: "https://example.com/image1.png")!,
             createdAt: Date(),
             image: ImageAsset(width: 1024, height: 1267)
         ),
 
-        Asset(id: UUID(),
+        Asset(id: UUID().uuidString,
             type: .image,
             filename: "goldfish",
-            mime: "image/png",
             filesize: 1000,
             url: URL(string: "https://example.com/image2.png")!,
             createdAt: Date(),
