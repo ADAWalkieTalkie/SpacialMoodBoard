@@ -96,9 +96,13 @@ struct SceneRealityView: View {
         // Attachment (옵션)
         if config.enableAttachments {
             viewModel.updateAttachment(
-                onDuplicate: { /* handle */ },
+                onDuplicate: { _ = viewModel.duplicateObject() },
                 onCrop: { /* handle */ },
-                onDelete: { /* handle */ }
+                onDelete: {
+                    guard let entity = viewModel.selectedEntity,
+                          let objectId = UUID(uuidString: entity.name) else { return }
+                    viewModel.removeSceneObject(id: objectId)
+                }
             )
         }
     }
