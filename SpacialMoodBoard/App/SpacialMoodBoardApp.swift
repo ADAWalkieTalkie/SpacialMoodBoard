@@ -5,31 +5,44 @@
 //  Created by apple on 10/2/25.
 //
 
+import SwiftData
 import SwiftUI
 
 @main
 struct SpacialMoodBoardApp: App {
+    let modelContainer: ModelContainer
     @State private var appModel = AppModel()
     @State private var projectRepository: ProjectRepository
     @State private var volumeSceneViewModel: VolumeSceneViewModel
     @State private var immersiveSceneViewModel: ImmersiveSceneViewModel
+    
     init() {
-        let repository = InMemoryProjectRepository()
-        let appModel = AppModel()
-
-        _projectRepository = State(wrappedValue: repository)
-        _appModel = State(wrappedValue: appModel)
-        _volumeSceneViewModel = State(
-            wrappedValue: VolumeSceneViewModel(
-                appModel: appModel,
+        do {
+            let container = try ModelContainer(
+                for: Project.self,
+                configurations: ModelConfiguration(
+                    isStoredInMemoryOnly: false
+                )
+            )
+            self.modelContainer = container
+            let repository = SwiftDataProjectRepository(
+                modelContext: container.mainContext
+            )
+            self.projectRepository = repository
+            
+            let model = AppModel()
+            self.appModel = model
+            self.volumeSceneViewModel = VolumeSceneViewModel(
+                appModel: model,
                 projectRepository: repository
             )
-        )
-        _immersiveSceneViewModel = State(
-            wrappedValue: ImmersiveSceneViewModel()
-        )
+            self.immersiveSceneViewModel = ImmersiveSceneViewModel()
+            
+        } catch {
+            fatalError("❌ Failed to initialize ModelContainer: \(error)")
+        }
     }
-
+    
     var body: some Scene {
         WindowGroup {
             Group {
@@ -48,17 +61,18 @@ struct SpacialMoodBoardApp: App {
                         )
                     )
                     .environment(appModel)
+                    .modelContainer(modelContainer)
                 }
             }
         }
-
+        
         WindowGroup(id: "ImmersiveVolumeWindow") {
             VolumeSceneView(
                 viewModel: volumeSceneViewModel
             )
         }
         .windowStyle(.volumetric)
-
+        
         ImmersiveSpace(id: "ImmersiveScene") {
             ImmersiveSceneView(immersiveSceneViewModel: immersiveSceneViewModel)
                 .environment(appModel)
