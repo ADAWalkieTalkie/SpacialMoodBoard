@@ -11,74 +11,84 @@ import Foundation
 /// Swift Data 구현 전 임시 메모리 기반 저장소
 @MainActor
 final class InMemoryProjectRepository: ProjectRepository {
-  private var projects: [Project] = []
 
-  func loadInitialData() {
-    projects = Project.mockData
-  }
+    private var projects: [Project] = []
 
-  func fetchProjects() -> [Project] {
-    return projects.sorted { $0.updatedAt > $1.updatedAt }
-  }
-  
-  func fetchProject(_ project: Project) -> Project? {
-    return projects.first { $0.id == project.id }
-  }
-  
-  func addProject(_ project: Project) {
-    guard !projects.contains(where: { $0.id == project.id }) else {
-#if DEBUG
-      print("[Repo] addProject - ⚠️ Project already exists: \(project.id)")
-#endif
-      return
+    func loadInitialData() {
+        projects = Project.mockData
     }
-    projects.append(project)
-  }
-  
-  func updateProject(_ project: Project) {
-    guard let index = projects.firstIndex(where: { $0.id == project.id }) else {
-#if DEBUG
-      print("[Repo] updateProject - ⚠️ Project not found: \(project.id)")
-#endif
-      return
+
+    func fetchProjects() -> [Project] {
+        return projects.sorted { $0.updatedAt > $1.updatedAt }
     }
-    projects[index] = project
-  }
-  
-  func deleteProject(_ project: Project) {
-    let initialCount = projects.count
-    projects.removeAll { $0.id == project.id }
-    
-#if DEBUG
-    if projects.count < initialCount {
-      print("[Repo] deleteProject - ✅ Deleted project: \(project.id)")
-    } else {
-      print("[Repo] deleteProject - ⚠️ Project not found: \(project.id)")
+
+    func fetchProject(_ project: Project) -> Project? {
+        return projects.first { $0.id == project.id }
     }
-#endif
-  }
-  
-  func updateProjectTitle(_ project: Project, newTitle: String) throws {
-    let trimmedTitle = newTitle.trimmingCharacters(in: .whitespaces)
-    guard !trimmedTitle.isEmpty else {
-      throw ProjectRepositoryError.emptyTitle
+
+    func addProject(_ project: Project) {
+        guard !projects.contains(where: { $0.id == project.id }) else {
+            #if DEBUG
+                print(
+                    "[Repo] addProject - ⚠️ Project already exists: \(project.id)"
+                )
+            #endif
+            return
+        }
+        projects.append(project)
     }
-    
-    guard let index = projects.firstIndex(where: { $0.id == project.id }) else {
-      throw ProjectRepositoryError.projectNotFound
+
+    func updateProject(_ project: Project) {
+        guard let index = projects.firstIndex(where: { $0.id == project.id })
+        else {
+            #if DEBUG
+                print(
+                    "[Repo] updateProject - ⚠️ Project not found: \(project.id)"
+                )
+            #endif
+            return
+        }
+        projects[index] = project
     }
-    
-    projects[index].title = trimmedTitle
-    projects[index].updatedAt = Date()
-  }
-  
-  func filterProjects(by searchText: String) -> [Project] {
-    guard !searchText.isEmpty else {
-      return fetchProjects()
+
+    func deleteProject(_ project: Project) {
+        let initialCount = projects.count
+        projects.removeAll { $0.id == project.id }
+
+        #if DEBUG
+            if projects.count < initialCount {
+                print("[Repo] deleteProject - ✅ Deleted project: \(project.id)")
+            } else {
+                print(
+                    "[Repo] deleteProject - ⚠️ Project not found: \(project.id)"
+                )
+            }
+        #endif
     }
-    
-    return projects
-      .filter { $0.title.localizedCaseInsensitiveContains(searchText) }
-      .sorted { $0.updatedAt > $1.updatedAt }
-  }
+
+    func updateProjectTitle(_ project: Project, newTitle: String) throws {
+        let trimmedTitle = newTitle.trimmingCharacters(in: .whitespaces)
+        guard !trimmedTitle.isEmpty else {
+            throw ProjectRepositoryError.emptyTitle
+        }
+
+        guard let index = projects.firstIndex(where: { $0.id == project.id })
+        else {
+            throw ProjectRepositoryError.projectNotFound
+        }
+
+        projects[index].title = trimmedTitle
+        projects[index].updatedAt = Date()
+    }
+
+    func filterProjects(by searchText: String) -> [Project] {
+        guard !searchText.isEmpty else {
+            return fetchProjects()
+        }
+
+        return
+            projects
+            .filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+            .sorted { $0.updatedAt > $1.updatedAt }
+    }
 }
