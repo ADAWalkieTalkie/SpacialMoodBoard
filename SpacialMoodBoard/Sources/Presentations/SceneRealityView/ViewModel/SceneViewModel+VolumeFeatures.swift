@@ -10,8 +10,8 @@ extension SceneViewModel {
   func rotateBy90Degrees() {
     rotationAngle += .pi / 2
     
-    guard let project = getActiveProject(),
-          let roomEntity = cachedRoomEntities[project.id] else {
+    guard let projectId = appModel.selectedProject?.id,
+          let roomEntity = roomEntities[projectId] else {
       return
     }
     
@@ -22,8 +22,8 @@ extension SceneViewModel {
   func resetRotation() {
     rotationAngle = .pi / 4
     
-    guard let project = getActiveProject(),
-          let roomEntity = cachedRoomEntities[project.id] else {
+    guard let projectId = appModel.selectedProject?.id,
+          let roomEntity = roomEntities[projectId] else {
       return
     }
     

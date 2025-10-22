@@ -4,6 +4,27 @@ import RealityKit
 // MARK: - Immersive 전용 기능 (SceneObject CRUD)
 
 extension SceneViewModel {
+
+
+  func toggleViewMode() {
+      userSpatialState.viewMode.toggle()
+  }
+
+  // MARK: - Add Image Object
+
+  func addImageObject(from asset: Asset) {
+      let newObject = SceneObject.createImage(
+          assetId: asset.id,
+          position: SIMD3<Float>(0, 1.5, -2),  // 기본 위치
+          isEditable: true,
+          scale: 1.0,
+          rotation: SIMD3<Float>(0, 0, 0), 
+          crop: SIMD4<Float>(0, 0, 1, 1),
+          billboardable: false
+      )
+      
+      sceneObjects.append(newObject)
+  }
   
   // MARK: - 위치 업데이트
   

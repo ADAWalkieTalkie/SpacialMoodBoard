@@ -17,7 +17,7 @@ struct SceneModelFileStorage {
         let sceneObjects: [SavedSceneObject]
     }
 
-        private struct SavedSceneObject: Codable {
+    private struct SavedSceneObject: Codable {
         let assetId: String
         let position: SIMD3<Float>
         let isEditable: Bool

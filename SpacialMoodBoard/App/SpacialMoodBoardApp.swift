@@ -23,8 +23,7 @@ struct SpacialMoodBoardApp: App {
     
     // Volume Scene용 ViewModel
     _volumeSceneViewModel = State(wrappedValue: SceneViewModel(
-      appModel: appModel,
-      projectRepository: repository
+      appModel: appModel
     ))
     
     // Immersive Scene용 ViewModel
@@ -37,18 +36,25 @@ struct SpacialMoodBoardApp: App {
       WindowGroup {
           Group {
               if appModel.selectedProject != nil {
-                  LibraryView (
-                    viewModel: LibraryViewModel(
-                      appModel: appModel
-                    )
-                  )
+                  VStack {
+                      LibraryView(
+                          viewModel: LibraryViewModel(
+                              appModel: appModel
+                          )
+                      )
+                      
+                      Divider()
+                      
+                      DummyView(viewModel: volumeSceneViewModel)
+                          .frame(height: 200)
+                  }
                   .environment(appModel)
               } else {
                   ProjectListView(
-                    viewModel: ProjectListViewModel(
-                        appModel: appModel,
-                        projectRepository: projectRepository
-                    )
+                      viewModel: ProjectListViewModel(
+                          appModel: appModel,
+                          projectRepository: projectRepository
+                      )
                   )
                   .environment(appModel)
               }

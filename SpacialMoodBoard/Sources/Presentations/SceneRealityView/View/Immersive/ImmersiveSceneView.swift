@@ -3,6 +3,9 @@ import RealityKit
 
 struct ImmersiveSceneView: View {
   @Environment(AppModel.self) private var appModel
+  @Environment(\.openWindow) private var openWindow
+  @Environment(\.dismissWindow) private var dismissWindow 
+
   @State private var viewModel: SceneViewModel
   @State private var showMinimap: Bool = true
   
@@ -22,10 +25,10 @@ struct ImmersiveSceneView: View {
       if showMinimap {
         VStack {
           HStack {
-            minimapView
-              .frame(width: 300, height: 300)
-              .padding()
-            Spacer()
+            // minimapView
+            //   .frame(width: 300, height: 300)
+            //   .padding()
+            // Spacer()
           }
           Spacer()
         }
@@ -33,10 +36,12 @@ struct ImmersiveSceneView: View {
     }
     .onAppear {
       appModel.immersiveSpaceState = .open
+      dismissWindow(id: "ImmersiveVolumeWindow")
     }
     .onDisappear {
       appModel.immersiveSpaceState = .closed
       viewModel.reset()
+      openWindow(id: "ImmersiveVolumeWindow")
     }
   }
   
