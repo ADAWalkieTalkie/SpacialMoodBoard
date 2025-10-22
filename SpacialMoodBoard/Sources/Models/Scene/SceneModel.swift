@@ -1,5 +1,6 @@
 import Foundation
 
+// MARK: - SceneModel (SceneRealityView이 구성될때 필요한 정보)
 struct SceneModel: Codable, Equatable {
   var projectId: UUID
   var spacialEnvironment: SpacialEnvironment

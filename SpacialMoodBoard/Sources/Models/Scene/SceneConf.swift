@@ -1,5 +1,6 @@
 import Foundation
 
+// MARK: - SceneConfig (SceneRealityView의 설정 옵션)
 struct SceneConfig {
 var showRotationButton: Bool = false
 var enableGestures: Bool = true
