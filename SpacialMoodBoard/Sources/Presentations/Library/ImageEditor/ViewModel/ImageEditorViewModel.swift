@@ -118,7 +118,7 @@ final class ImageEditorViewModel {
         return handled
     }
     
-    /// 편집 중인 이미지를 현재 프로젝트의 `/images` 폴더에 JPEG로 저장하고, 저장된 파일의 URL을 반환합니다.
+    /// 편집 중인 이미지를 현재 프로젝트의 `/images` 폴더에 png로 저장하고, 저장된 파일의 URL을 반환합니다.
     /// - Parameter image: 저장할 `UIImage`.
     /// - Returns: 저장에 성공하면 `Documents/projects/<projectName>/images/<uuid>.jpg`의 파일 URL, 실패 시 `nil`
     private func saveToProject(image: UIImage) -> URL? {
@@ -126,8 +126,7 @@ final class ImageEditorViewModel {
         do {
             try imageStore.save(image,
                                 projectName: projectName,
-                                filename: filename,
-                                quality: 0.9)
+                                filename: filename)
             return FilePathProvider.imageFile(projectName: projectName, filename: filename)
         } catch {
             print("🖼️ 이미지 저장 실패: \(error)")

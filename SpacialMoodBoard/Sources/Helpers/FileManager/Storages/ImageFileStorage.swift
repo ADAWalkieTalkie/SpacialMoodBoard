@@ -20,8 +20,8 @@ struct ImageFileStorage {
     
     /// 이미지 저장 (UIImage 기반) - iOS/visionOS
     #if canImport(UIKit)
-    func save(_ image: UIImage, projectName: String, filename: String, quality: CGFloat = 0.8) throws {
-        guard let imageData = image.jpegData(compressionQuality: quality) else {
+    func save(_ image: UIImage, projectName: String, filename: String) throws {
+        guard let imageData = image.pngData() else {
             throw FileStorageError.invalidData
         }
         try save(imageData, projectName: projectName, filename: filename)
