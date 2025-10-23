@@ -23,6 +23,7 @@ struct FilePathProvider {
     }
     
     // MARK: - 프로젝트 메타데이터 JSON 파일
+    // SceneModel 저장용 - Project 객체는 인메모리 DB에 저장
     static func projectMetadataFile(projectName: String) -> URL {
         projectDirectory(projectName: projectName)
             .appendingPathComponent("\(projectName)_project.json")

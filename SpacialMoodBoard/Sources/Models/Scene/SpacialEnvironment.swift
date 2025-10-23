@@ -1,5 +1,6 @@
 import Foundation
 
+// MARK: - SpacialEnvironment (SceneRealityView의 배경)
 struct SpacialEnvironment: Codable, Equatable {
   var roomType: RoomType
   var groundSize: GroundSize
