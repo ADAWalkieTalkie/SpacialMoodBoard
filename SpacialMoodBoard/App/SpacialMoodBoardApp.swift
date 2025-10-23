@@ -31,15 +31,18 @@ struct SpacialMoodBoardApp: App {
             let appModel = AppModel()
             _appModel = State(wrappedValue: appModel)
             // Volume Scene용 ViewModel
-            _volumeSceneViewModel = State(wrappedValue: SceneViewModel(
-                appModel: appModel
-            ))
-            
-            
+            _volumeSceneViewModel = State(
+                wrappedValue: SceneViewModel(
+                    appModel: appModel
+                )
+            )
+
             // Immersive Scene용 ViewModel
-            _immersiveSceneViewModel = State(wrappedValue: SceneViewModel(
-                appModel: appModel
-            ))
+            _immersiveSceneViewModel = State(
+                wrappedValue: SceneViewModel(
+                    appModel: appModel
+                )
+            )
         } catch {
             fatalError("❌ Failed to initialize ModelContainer: \(error)")
         }
@@ -54,9 +57,9 @@ struct SpacialMoodBoardApp: App {
                                 appModel: appModel
                             )
                         )
-                        
+
                         Divider()
-                        
+
                         DummyView(viewModel: volumeSceneViewModel)
                             .frame(height: 200)
                     }
@@ -73,33 +76,18 @@ struct SpacialMoodBoardApp: App {
                 }
             }
         }
-        
-        
+
         // Volume Scene (Room 미리보기)
-        WindowGroup(id: "ImmersiveVolumeWindow") {
-            VolumeSceneView(viewModel: volumeSceneViewModel)
-                .environment(appModel)
-        }
-        .windowStyle(.volumetric)
-        .defaultSize(width: 1.5, height: 1.5, depth: 1.5, in: .meters)
-        
-        // Immersive Space (전체 몰입)
-        ImmersiveSpace(id: "ImmersiveScene") {
-            ImmersiveSceneView(viewModel: immersiveSceneViewModel)
-                .environment(appModel)
-                .onAppear {
-                    appModel.immersiveSpaceState = .open
-                }
-        }
-        
-        
         WindowGroup(id: "ImmersiveVolumeWindow") {
             VolumeSceneView(
                 viewModel: volumeSceneViewModel
             )
+            .environment(appModel)
         }
         .windowStyle(.volumetric)
-        
+        .defaultSize(width: 1.5, height: 1.5, depth: 1.5, in: .meters)
+
+        // Immersive Space (전체 몰입)
         ImmersiveSpace(id: "ImmersiveScene") {
             ImmersiveSceneView(viewModel: immersiveSceneViewModel)
                 .environment(appModel)
@@ -113,4 +101,3 @@ struct SpacialMoodBoardApp: App {
         .immersionStyle(selection: .constant(.full), in: .full)
     }
 }
-
