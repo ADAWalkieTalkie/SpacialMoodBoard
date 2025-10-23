@@ -5,7 +5,6 @@ struct SceneConfig {
 var showRotationButton: Bool = false
 var enableGestures: Bool = true
 var enableAttachments: Bool = true
-var applyWallOpacity: Bool = false
 var alignToWindowBottom: Bool = false
 var scale: Float = 1.0
 
@@ -18,7 +17,6 @@ static let volume = SceneConfig(
     showRotationButton: true,
     enableGestures: true,
     enableAttachments: true,
-    applyWallOpacity: true,
     alignToWindowBottom: true
 )
 

@@ -9,35 +9,26 @@ extension SceneViewModel {
   
   func rotateBy90Degrees() {
     rotationAngle += .pi / 2
-    
+
     guard let projectId = appModel.selectedProject?.id,
           let roomEntity = roomEntities[projectId] else {
       return
     }
-    
+
     applyRotation(to: roomEntity, angle: rotationAngle, animated: true)
-    opacityAnimator.animateOpacity(for: roomEntity, rotationAngle: rotationAngle)
   }
   
   func resetRotation() {
     rotationAngle = .pi / 4
-    
+
     guard let projectId = appModel.selectedProject?.id,
           let roomEntity = roomEntities[projectId] else {
       return
     }
-    
-    opacityAnimator.cancelAllAnimations()
+
     applyRotation(to: roomEntity, angle: rotationAngle, animated: false)
-    opacityAnimator.applyInitialOpacity(to: roomEntity, rotationAngle: rotationAngle)
   }
-  
-  // MARK: - 벽면 투명도
-  
-  func applyOpacity(to room: Entity) {
-    opacityAnimator.applyInitialOpacity(to: room, rotationAngle: rotationAngle)
-  }
-  
+
   // MARK: - 위치 조정
   
   func alignRoomToWindowBottom(

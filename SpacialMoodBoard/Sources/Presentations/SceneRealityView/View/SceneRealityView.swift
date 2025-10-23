@@ -66,14 +66,9 @@ struct SceneRealityView: View {
         if config.alignToWindowBottom {
             viewModel.alignRoomToWindowBottom(room: room)
         }
-        
-        // Volume 전용: 벽면 투명도
-        if config.applyWallOpacity {
-            viewModel.applyOpacity(to: room)
-        }
-        
+
         // Immersive 전용: RealityKit Content
-        if !config.applyWallOpacity {  // immersive 또는 minimap
+        if config.alignToWindowBottom == false {  // immersive 또는 minimap
             if let immersiveContent = try? await Entity(named: "ImmersiveScene", in: RealityKitContent.realityKitContentBundle) {
                 room.addChild(immersiveContent)
             }
