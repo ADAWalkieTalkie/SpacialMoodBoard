@@ -30,10 +30,10 @@ extension SceneViewModel {
   }
 
   // MARK: - 위치 조정
-  
+
   func alignRoomToWindowBottom(
     room: Entity,
-    windowHeight: Float = 1.0,
+    windowHeight: Float = 1.5,
     padding: Float = 0.02
   ) {
     let bounds = room.visualBounds(relativeTo: room)
