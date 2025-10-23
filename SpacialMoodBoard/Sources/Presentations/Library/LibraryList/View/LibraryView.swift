@@ -13,6 +13,7 @@ struct LibraryView: View {
     // MARK: - Properties
     
     @State private var viewModel: LibraryViewModel
+    @State private var sceneViewModel: SceneViewModel
     @State private var photoSelection: [PhotosPickerItem] = []
     @Environment(AppModel.self) private var appModel
     
@@ -20,8 +21,9 @@ struct LibraryView: View {
     
     /// Init
     /// - Parameter viewModel: LibraryViewModel
-    init(viewModel: LibraryViewModel) {
+    init(viewModel: LibraryViewModel, sceneViewModel: SceneViewModel) {
         _viewModel = State(wrappedValue: viewModel)
+        _sceneViewModel = State(wrappedValue: sceneViewModel)
     }
     
     // MARK: - Body
@@ -86,6 +88,7 @@ struct LibraryView: View {
         }
         .task { await viewModel.loadAssets() }
         .environment(viewModel)
+        .environment(sceneViewModel)
     }
     
     // MARK: - Sub View
@@ -139,6 +142,7 @@ struct LibraryView: View {
 
 fileprivate struct ImageTabGridView: View {
     let assets: [Asset]
+    @Environment(SceneViewModel.self) private var sceneViewModel
     
     var body: some View {
         ScrollView {
@@ -147,15 +151,25 @@ fileprivate struct ImageTabGridView: View {
                 ForEach(assets) { asset in
                     LibraryImageItemView(asset: asset)
                         .frame(width: 220, height: 272)
+                        .contentShape(RoundedRectangle(cornerRadius: 20))
+                        .hoverEffect(.highlight)
+                        .simultaneousGesture(
+                           
+                            TapGesture().onEnded {
+                                print("클릭됨")
+                                sceneViewModel.addImageObject(from: asset)   // ✅ 사운드는 sound 쪽으로
+                            }
+                        )
                 }
+                .padding(.horizontal, 26)
             }
-            .padding(.horizontal, 26)
         }
     }
 }
 
 fileprivate struct SoundTabListView: View {
     let assets: [Asset]
+    @Environment(SceneViewModel.self) private var sceneViewModel
     
     var body: some View {
         ScrollView {
@@ -163,6 +177,11 @@ fileprivate struct SoundTabListView: View {
                 ForEach(assets) { asset in
                     LibrarySoundItemView(asset: asset)
                         .frame(height: 56)
+                        .contentShape(RoundedRectangle(cornerRadius: 16))
+                        .hoverEffect(.highlight)
+                        .onTapGesture {
+                            sceneViewModel.addSoundObject(from: asset)
+                        }
                 }
             }
             .padding(.horizontal, 26)
@@ -172,14 +191,14 @@ fileprivate struct SoundTabListView: View {
 
 // MARK: - Preview
 
-#Preview(windowStyle: .plain) {
-    LibraryView(viewModel: LibraryViewModel(
-        assetRepository: AssetRepository(
-            project: "",
-            imageService: ImageAssetService(),
-            soundService: SoundAssetService()
-        )
-    )
-    )
-    .environment(AppModel())
-}
+//#Preview(windowStyle: .plain) {
+//    LibraryView(viewModel: LibraryViewModel(
+//        assetRepository: AssetRepository(
+//            project: "",
+//            imageService: ImageAssetService(),
+//            soundService: SoundAssetService()
+//        )
+//    )
+//    )
+//    .environment(AppModel())
+//}

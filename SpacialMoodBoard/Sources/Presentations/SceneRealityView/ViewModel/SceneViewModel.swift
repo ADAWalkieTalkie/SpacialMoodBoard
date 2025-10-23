@@ -10,13 +10,15 @@ final class SceneViewModel {
     // MARK: - Dependencies
     let appModel: AppModel
     let sceneModelFileStorage: SceneModelFileStorage
+    let sceneRepository: SceneRepositoryInterface
     let entityBuilder: RoomEntityBuilder
     let opacityAnimator: WallOpacityAnimator
     
     // MARK: - Initialization
-    init(appModel: AppModel) {
+    init(appModel: AppModel, sceneRepository: SceneRepositoryInterface) {
         self.appModel = appModel
         self.sceneModelFileStorage = SceneModelFileStorage()
+        self.sceneRepository = sceneRepository
         self.entityBuilder = RoomEntityBuilder()
         self.opacityAnimator = WallOpacityAnimator()
     }

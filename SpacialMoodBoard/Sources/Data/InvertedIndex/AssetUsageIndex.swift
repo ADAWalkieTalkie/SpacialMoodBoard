@@ -16,7 +16,7 @@ protocol AssetUsageIndexProtocol: AnyObject {
 
 @MainActor
 final class AssetUsageIndex: AssetUsageIndexProtocol {
-    private var map: [String: Set<UUID>] = [:]  // assetId → objectIds
+    private var map: [String: Set<UUID>] = [:]
     
     func register(objectId: UUID, assetId: String) {
         map[assetId, default: []].insert(objectId)

@@ -33,7 +33,10 @@ struct SpacialMoodBoardApp: App {
             // Volume Scene용 ViewModel
             _sceneViewModel = State(
                 wrappedValue: SceneViewModel(
-                    appModel: appModel
+                    appModel: appModel,
+                    sceneRepository: SceneRepository(
+                        usageIndex: AssetUsageIndex()
+                    )
                 )
             )
         } catch {
@@ -47,8 +50,14 @@ struct SpacialMoodBoardApp: App {
                     VStack {
                         LibraryView(
                             viewModel: LibraryViewModel(
-                                appModel: appModel
-                            )
+                                assetRepository: AssetRepository(
+                                    project: appModel.selectedProject?.title ?? "",
+                                    imageService: ImageAssetService(),
+                                    soundService: SoundAssetService()
+                                )
+                            ),
+                            // TODO: - 리팩토링 필요
+                            sceneViewModel: sceneViewModel
                         )
 
                         Divider()
