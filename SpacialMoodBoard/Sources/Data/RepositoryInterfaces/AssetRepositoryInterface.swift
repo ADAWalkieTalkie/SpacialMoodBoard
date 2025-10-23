@@ -41,4 +41,9 @@ protocol AssetRepositoryInterface: AnyObject {
     func registerReference(objectId: UUID, assetId: String)
     func unregisterReference(objectId: UUID, assetId: String)
     func dependents(of assetId: String) -> [UUID]
+    
+    // 옵저버
+    @discardableResult
+    func addChangeHandler(_ f: @escaping () -> Void) -> UUID
+    func removeChangeHandler(_ id: UUID)
 }

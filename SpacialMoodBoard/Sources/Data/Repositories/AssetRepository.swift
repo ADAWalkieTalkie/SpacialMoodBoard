@@ -22,7 +22,7 @@ import AVFoundation
 
 @MainActor
 final class AssetRepository: AssetRepositoryInterface {
-    let project: String
+    private(set) var project: String
     private let imageService: ImageAssetServiceProtocol
     private let soundService: SoundAssetServiceProtocol
     private let waveformProvider: WaveformProviderProtocol
@@ -32,6 +32,12 @@ final class AssetRepository: AssetRepositoryInterface {
     
     /// assetId → Set<SceneObject.id>
     private var references: [String: Set<UUID>] = [:]
+    
+    private var observers: [UUID: () -> Void] = [:]
+    @discardableResult
+    func addChangeHandler(_ f: @escaping () -> Void) -> UUID { let id = UUID(); observers[id] = f; return id }
+    func removeChangeHandler(_ id: UUID) { observers[id] = nil }
+    private func notify() { observers.values.forEach { $0() } }
     
     init(project: String,
          imageService: ImageAssetServiceProtocol,
@@ -52,6 +58,14 @@ final class AssetRepository: AssetRepositoryInterface {
                   imageService: imageService,
                   soundService: soundService,
                   waveformProvider: WaveformProvider())
+    }
+    
+    func switchProject(to new: String) async {
+        guard project != new else { return }
+        project = new
+        assets = []
+        notify()
+        await reload()
     }
     
     // MARK: - Load
@@ -92,6 +106,7 @@ final class AssetRepository: AssetRepositoryInterface {
         loaded.sort { $0.createdAt > $1.createdAt }
         self.assets = loaded
         await fillWaveformsIfNeeded()
+        notify()
     }
     
     // MARK: - Query
@@ -105,6 +120,7 @@ final class AssetRepository: AssetRepositoryInterface {
     func addImage(_ image: UIImage, filename: String) async throws -> Asset {
         let safe = Self.sanitizedFilename(filename)
         try imageService.save(image, project: project, filename: safe)
+        notify()
         return try addImageByURL(filename: safe)
     }
 #endif
@@ -112,6 +128,7 @@ final class AssetRepository: AssetRepositoryInterface {
     func addImageData(_ data: Data, filename: String) async throws -> Asset {
         let safe = Self.sanitizedFilename(filename)
         try imageService.save(data, project: project, filename: safe)
+        notify()
         return try addImageByURL(filename: safe)
     }
     
@@ -134,6 +151,7 @@ final class AssetRepository: AssetRepositoryInterface {
         )
 
         assets.insert(asset, at: 0)
+        notify()
         return asset
     }
 
@@ -149,6 +167,7 @@ final class AssetRepository: AssetRepositoryInterface {
             sound: nil
         )
         assets.insert(asset, at: 0)
+        notify()
         return asset
     }
     
@@ -205,6 +224,7 @@ final class AssetRepository: AssetRepositoryInterface {
                             image: ImageAsset(width: meta.pixelWidth, height: meta.pixelHeight),
                             sound: nil)
             assets.insert(dup, at: 0)
+            notify()
             return dup
             
         case .sound:
@@ -224,6 +244,7 @@ final class AssetRepository: AssetRepositoryInterface {
                 sound: SoundAsset(channel: .ambient, duration: meta.duration, waveform: wf)
             )
             assets.insert(dup, at: 0)
+            notify()
             return dup
         }
     }
@@ -239,6 +260,7 @@ final class AssetRepository: AssetRepositoryInterface {
         // 참조 반환(상층에서 오브젝트 일괄 제거)
         let deps = Array(references[id] ?? [])
         references[id] = nil
+        notify()
         return deps
     }
     

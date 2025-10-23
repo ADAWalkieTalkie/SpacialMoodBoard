@@ -13,6 +13,7 @@ struct SpacialMoodBoardApp: App {
     let modelContainer: ModelContainer
     @State private var appModel = AppModel()
     @State private var projectRepository: ProjectRepository
+    @State private var assetRepository: AssetRepository
     @State private var sceneViewModel: SceneViewModel
 
     init() {
@@ -28,17 +29,24 @@ struct SpacialMoodBoardApp: App {
                 modelContext: container.mainContext
             )
             _projectRepository = State(wrappedValue: repository)
+            
             let appModel = AppModel()
             _appModel = State(wrappedValue: appModel)
-            // Volume Scene용 ViewModel
-            _sceneViewModel = State(
-                wrappedValue: SceneViewModel(
-                    appModel: appModel,
-                    sceneRepository: SceneRepository(
-                        usageIndex: AssetUsageIndex()
-                    )
-                )
+            
+            let assetRepository = AssetRepository(
+                project: appModel.selectedProject?.title ?? "",
+                imageService: ImageAssetService(),
+                soundService: SoundAssetService()
             )
+            _assetRepository = State(wrappedValue: assetRepository)
+
+            // Volume Scene용 ViewModel
+            let sceneVM = SceneViewModel(
+                appModel: appModel,
+                sceneRepository: SceneRepository(usageIndex: AssetUsageIndex()),
+                assetRepository: assetRepository
+            )
+            _sceneViewModel = State(wrappedValue: sceneVM)
         } catch {
             fatalError("❌ Failed to initialize ModelContainer: \(error)")
         }
@@ -50,22 +58,24 @@ struct SpacialMoodBoardApp: App {
                     VStack {
                         LibraryView(
                             viewModel: LibraryViewModel(
-                                assetRepository: AssetRepository(
-                                    project: appModel.selectedProject?.title ?? "",
-                                    imageService: ImageAssetService(),
-                                    soundService: SoundAssetService()
-                                )
+                                assetRepository: assetRepository
                             ),
                             // TODO: - 리팩토링 필요
                             sceneViewModel: sceneViewModel
                         )
-
+                        
                         Divider()
-
+                        
                         DummyView(viewModel: sceneViewModel)
                             .frame(height: 200)
                     }
                     .environment(appModel)
+                    .task {
+                        await assetRepository.switchProject(to: appModel.selectedProject?.title ?? "")
+                    }
+                    .onChange(of: appModel.selectedProject?.title ?? "") { _, newTitle in
+                        Task { await assetRepository.switchProject(to: newTitle) }
+                    }
                 } else {
                     ProjectListView(
                         viewModel: ProjectListViewModel(

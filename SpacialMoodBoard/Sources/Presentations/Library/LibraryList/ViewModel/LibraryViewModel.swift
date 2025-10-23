@@ -19,8 +19,8 @@ final class LibraryViewModel {
     
     @ObservationIgnored
     private let assetRepository: AssetRepositoryInterface
-    
-    let projectName: String
+    private var token: UUID?
+    var projectName: String { assetRepository.project }
     var assets: [Asset] = []
     
     var searchText = ""
@@ -46,8 +46,12 @@ final class LibraryViewModel {
     /// - Parameter assetRepository: AssetRepositoryInterface
     init(assetRepository: AssetRepositoryInterface) {
         self.assetRepository = assetRepository
-        self.projectName = assetRepository.project
+        self.assets = assetRepository.assets
+        token = assetRepository.addChangeHandler { [weak self] in
+            self?.assets = assetRepository.assets
+        }
     }
+//    deinit { if let token { assetRepository.removeChangeHandler(token) } }
     
     // MARK: - Methods
     

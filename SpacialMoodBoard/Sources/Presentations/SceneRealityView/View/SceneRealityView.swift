@@ -11,8 +11,6 @@ struct SceneRealityView: View {
     
     let config: SceneConfig
     
-    private let assets: [Asset] = Asset.assetMockData
-    
     var body: some View {
         ZStack(alignment: .bottom) {
             RealityView { content in
@@ -89,8 +87,7 @@ struct SceneRealityView: View {
         
         viewModel.updateEntities(
             sceneObjects: sceneObjects,
-            anchor: room,
-            assets: assets
+            anchor: room
         )
         
         // Attachment (옵션)

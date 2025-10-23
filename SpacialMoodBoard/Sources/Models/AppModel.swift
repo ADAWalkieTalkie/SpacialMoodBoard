@@ -20,5 +20,5 @@ class AppModel {
     
     var selectedProject: Project?
     var selectedScene: SceneModel?
-    var storedAssets: [Asset] = []
+//    var storedAssets: [Asset] = []
 }
