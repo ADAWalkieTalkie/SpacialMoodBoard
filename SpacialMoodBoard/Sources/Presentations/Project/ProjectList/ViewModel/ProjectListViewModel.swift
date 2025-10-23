@@ -11,10 +11,9 @@ import Observation
 @MainActor
 @Observable
 final class ProjectListViewModel {
-  private var appModel: AppModel
-  private let projectRepository: ProjectRepository
-  private let sceneModelStorage = SceneModelFileStorage()
-  
+    private var appModel: AppModel
+    private let projectRepository: ProjectRepository
+    private let sceneModelStorage = SceneModelFileStorage()
 
     var searchText: String = ""
 
@@ -39,115 +38,132 @@ final class ProjectListViewModel {
         refreshProjects()
     }
 
-  private func refreshProjects() {
-    projects = projectRepository.fetchProjects()
-  }
-  
-  
-  func selectProject(project: Project) {
-    guard projectRepository.fetchProject(project) != nil else {
-#if DEBUG
-      print("[ProjectListVM] selectProject - ⚠️ Project not found: \(project.id)")
-#endif
-      return
+    private func refreshProjects() {
+        projects = projectRepository.fetchProjects()
     }
-    
-    // 1. Project 선흑
-    appModel.selectedProject = project
-    
-    // 2. SceneModel 로드 (파일이 있으면 로드, 없으면 기본값 생성)
-    loadSceneModel(for: project)
-  }
-  
-  // SceneModel 로드 또는 생성
-  private func loadSceneModel(for project: Project) {
-    do {
-      // 파일이 있으면 로드
-      if sceneModelStorage.exists(projectName: project.title) {
-        let sceneModel = try sceneModelStorage.load(
-          projectName: project.title,
-          projectId: project.id
-        )
-        appModel.selectedScene = sceneModel
-        print("📂 기존 SceneModel 로드 완료")
-      } else {
-        // 파일이 없으면 기본값 생성
-        let defaultScene = SceneModel(
-          projectId: project.id,
-          spacialEnvironment: SpacialEnvironment(roomType: .indoor, groundSize: .medium),
-          userSpatialState: UserSpatialState(),
-          sceneObjects: []
-        )
-        appModel.selectedScene = defaultScene
-        print("✨ 새 SceneModel 생성")
-      }
-    } catch {
-      print("❌ SceneModel 로드 실패: \(error)")
-      // 실패 시 기본값 생성
-      appModel.selectedScene = SceneModel(
-        projectId: project.id,
-        spacialEnvironment: SpacialEnvironment(roomType: .indoor, groundSize: .medium),
-        userSpatialState: UserSpatialState(),
-        sceneObjects: []
-      )
-    }
-  }
-  
-  @discardableResult
-  func createProject(
-    title: String,
-    roomType: RoomType,
-    groundSize: GroundSize
-  ) -> Project {
-    let spacialEnvironment = SpacialEnvironment(roomType: roomType, groundSize: groundSize)
-    let newProject = Project(title: title, createdAt: Date(), updatedAt: Date())
 
-    projectRepository.addProject(newProject)
-    refreshProjects()
-    
-    appModel.selectedProject = newProject
-    
-    // 새 SceneModel 생성
-    appModel.selectedScene = SceneModel(
-      projectId: newProject.id,
-      spacialEnvironment: spacialEnvironment,
-      userSpatialState: UserSpatialState(),
-      sceneObjects: []
-    )
-    
-    return newProject
-  }
+    func selectProject(project: Project) {
+        guard projectRepository.fetchProject(project) != nil else {
+            #if DEBUG
+                print(
+                    "[ProjectListVM] selectProject - ⚠️ Project not found: \(project.id)"
+                )
+            #endif
+            return
+        }
 
-  func updateProjectTitle(project: Project, newTitle: String) {
-    do {
-      try projectRepository.updateProjectTitle(project, newTitle: newTitle)
-      refreshProjects()
-      
-      // 선택된 프로젝트의 제목이 변경되면 AppModel도 업데이트
-      if appModel.selectedProject?.id == project.id {
-        appModel.selectedProject?.title = newTitle
-      }
-    } catch {
-#if DEBUG
-      print("[ProjectListVM] updateProjectTitle - ❌ Error: \(error)")
-#endif
+        // 1. Project 선흑
+        appModel.selectedProject = project
+
+        // 2. SceneModel 로드 (파일이 있으면 로드, 없으면 기본값 생성)
+        loadSceneModel(for: project)
     }
-  }
-  
-  @discardableResult
-  func deleteProject(project: Project) -> Bool {
-    guard projectRepository.fetchProject(project) != nil else {
-      return false
+
+    // SceneModel 로드 또는 생성
+    private func loadSceneModel(for project: Project) {
+        do {
+            // 파일이 있으면 로드
+            if sceneModelStorage.exists(projectName: project.title) {
+                let sceneModel = try sceneModelStorage.load(
+                    projectName: project.title,
+                    projectId: project.id
+                )
+                appModel.selectedScene = sceneModel
+                print("📂 기존 SceneModel 로드 완료")
+            } else {
+                // 파일이 없으면 기본값 생성
+                let defaultScene = SceneModel(
+                    projectId: project.id,
+                    spacialEnvironment: SpacialEnvironment(
+                        roomType: .indoor,
+                        groundSize: .medium
+                    ),
+                    userSpatialState: UserSpatialState(),
+                    sceneObjects: []
+                )
+                appModel.selectedScene = defaultScene
+                print("✨ 새 SceneModel 생성")
+            }
+        } catch {
+            print("❌ SceneModel 로드 실패: \(error)")
+            // 실패 시 기본값 생성
+            appModel.selectedScene = SceneModel(
+                projectId: project.id,
+                spacialEnvironment: SpacialEnvironment(
+                    roomType: .indoor,
+                    groundSize: .medium
+                ),
+                userSpatialState: UserSpatialState(),
+                sceneObjects: []
+            )
+        }
     }
-    
-    // SceneModel 파일도 함께 삭제
-    try? sceneModelStorage.delete(projectName: project.title)
-    
-    projectRepository.deleteProject(project)
-    refreshProjects()
-    
-    if appModel.selectedProject?.id == project.id {
-      appModel.selectedProject = nil
-      appModel.selectedScene = nil
+
+    @discardableResult
+    func createProject(
+        title: String,
+        roomType: RoomType,
+        groundSize: GroundSize
+    ) -> Project {
+        let spacialEnvironment = SpacialEnvironment(
+            roomType: roomType,
+            groundSize: groundSize
+        )
+        let newProject = Project(
+            title: title,
+            createdAt: Date(),
+            updatedAt: Date()
+        )
+
+        projectRepository.addProject(newProject)
+        refreshProjects()
+
+        appModel.selectedProject = newProject
+
+        // 새 SceneModel 생성
+        appModel.selectedScene = SceneModel(
+            projectId: newProject.id,
+            spacialEnvironment: spacialEnvironment,
+            userSpatialState: UserSpatialState(),
+            sceneObjects: []
+        )
+
+        return newProject
+    }
+
+    func updateProjectTitle(project: Project, newTitle: String) {
+        do {
+            try projectRepository.updateProjectTitle(
+                project,
+                newTitle: newTitle
+            )
+            refreshProjects()
+
+            // 선택된 프로젝트의 제목이 변경되면 AppModel도 업데이트
+            if appModel.selectedProject?.id == project.id {
+                appModel.selectedProject?.title = newTitle
+            }
+        } catch {
+            #if DEBUG
+                print("[ProjectListVM] updateProjectTitle - ❌ Error: \(error)")
+            #endif
+        }
+    }
+
+    func deleteProject(project: Project) {
+        guard projectRepository.fetchProject(project) != nil else {
+            return
+        }
+
+        // SceneModel 파일도 함께 삭제
+        try? sceneModelStorage.delete(projectName: project.title)
+
+        projectRepository.deleteProject(project)
+        refreshProjects()
+
+        if appModel.selectedProject?.id == project.id {
+            appModel.selectedProject = nil
+            appModel.selectedScene = nil
+        }
     }
 }
