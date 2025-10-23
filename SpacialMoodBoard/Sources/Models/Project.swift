@@ -14,7 +14,7 @@ final class Project {
     var title: String
     var thumbnailImage: String?
     var projectDirectory: URL?
-    var createdAt: Date
+    private(set) var createdAt: Date
     var updatedAt: Date
 
     init(
