@@ -11,10 +11,10 @@ import SwiftUI
 @main
 struct SpacialMoodBoardApp: App {
     let modelContainer: ModelContainer
-  @State private var appModel = AppModel()
-  @State private var projectRepository: ProjectRepository
-  @State private var volumeSceneViewModel: SceneViewModel
-  @State private var immersiveSceneViewModel: SceneViewModel
+    @State private var appModel = AppModel()
+    @State private var projectRepository: ProjectRepository
+    @State private var volumeSceneViewModel: SceneViewModel
+    @State private var immersiveSceneViewModel: SceneViewModel
     init() {
         do {
             let container = try ModelContainer(
@@ -27,63 +27,71 @@ struct SpacialMoodBoardApp: App {
             let repository = SwiftDataProjectRepository(
                 modelContext: container.mainContext
             )
-    _projectRepository = State(wrappedValue: repository)
-    let appModel = AppModel()
-    _appModel = State(wrappedValue: appModel)
-    _volumeSceneViewModel = State(wrappedValue: SceneViewModel(
-  init() {
-      appModel: appModel
-    ))
-    // Immersive Scene용 ViewModel
-    _immersiveSceneViewModel = State(wrappedValue: SceneViewModel(
-      appModel: appModel
-    ))
-  }
-  var body: some Scene {
-      WindowGroup {
-          Group {
-              if appModel.selectedProject != nil {
-                  VStack {
-                      LibraryView(
-                          viewModel: LibraryViewModel(
-                              appModel: appModel
-                          )
-                      )
-                      
-                      Divider()
-                      
-                      DummyView(viewModel: volumeSceneViewModel)
-                          .frame(height: 200)
-                  }
-                  .environment(appModel)
-              } else {
-                  ProjectListView(
-                      viewModel: ProjectListViewModel(
-                          appModel: appModel,
-                          projectRepository: projectRepository
-                      )
-                  )
-                  .environment(appModel)
-              }
-          }
-      }
-       
-    
-    // Volume Scene (Room 미리보기)
-    WindowGroup(id: "ImmersiveVolumeWindow") {
-      VolumeSceneView(viewModel: volumeSceneViewModel)
-        .environment(appModel)
-    }
-    .windowStyle(.volumetric)
-    .defaultSize(width: 1.5, height: 1.5, depth: 1.5, in: .meters)
-    
-    // Immersive Space (전체 몰입)
-    ImmersiveSpace(id: "ImmersiveScene") {
-      ImmersiveSceneView(viewModel: immersiveSceneViewModel)
-        .environment(appModel)
-        .onAppear {
-          appModel.immersiveSpaceState = .open
+            _projectRepository = State(wrappedValue: repository)
+            let appModel = AppModel()
+            _appModel = State(wrappedValue: appModel)
+            // Volume Scene용 ViewModel
+            _volumeSceneViewModel = State(wrappedValue: SceneViewModel(
+                appModel: appModel
+            ))
+            
+            
+            // Immersive Scene용 ViewModel
+            _immersiveSceneViewModel = State(wrappedValue: SceneViewModel(
+                appModel: appModel
+            ))
+        } catch {
+            fatalError("❌ Failed to initialize ModelContainer: \(error)")
         }
+    }
+    var body: some Scene {
+        WindowGroup {
+            Group {
+                if appModel.selectedProject != nil {
+                    VStack {
+                        LibraryView(
+                            viewModel: LibraryViewModel(
+                                appModel: appModel
+                            )
+                        )
+                        
+                        Divider()
+                        
+                        DummyView(viewModel: volumeSceneViewModel)
+                            .frame(height: 200)
+                    }
+                    .environment(appModel)
+                } else {
+                    ProjectListView(
+                        viewModel: ProjectListViewModel(
+                            appModel: appModel,
+                            projectRepository: projectRepository
+                        )
+                    )
+                    .environment(appModel)
+                    .modelContainer(modelContainer)
+                }
+            }
+        }
+        
+        
+        // Volume Scene (Room 미리보기)
+        WindowGroup(id: "ImmersiveVolumeWindow") {
+            VolumeSceneView(viewModel: volumeSceneViewModel)
+                .environment(appModel)
+        }
+        .windowStyle(.volumetric)
+        .defaultSize(width: 1.5, height: 1.5, depth: 1.5, in: .meters)
+        
+        // Immersive Space (전체 몰입)
+        ImmersiveSpace(id: "ImmersiveScene") {
+            ImmersiveSceneView(viewModel: immersiveSceneViewModel)
+                .environment(appModel)
+                .onAppear {
+                    appModel.immersiveSpaceState = .open
+                }
+        }
+        
         
         WindowGroup(id: "ImmersiveVolumeWindow") {
             VolumeSceneView(
@@ -93,7 +101,7 @@ struct SpacialMoodBoardApp: App {
         .windowStyle(.volumetric)
         
         ImmersiveSpace(id: "ImmersiveScene") {
-            ImmersiveSceneView(immersiveSceneViewModel: immersiveSceneViewModel)
+            ImmersiveSceneView(viewModel: immersiveSceneViewModel)
                 .environment(appModel)
                 .onAppear {
                     appModel.immersiveSpaceState = .open
@@ -104,6 +112,5 @@ struct SpacialMoodBoardApp: App {
         }
         .immersionStyle(selection: .constant(.full), in: .full)
     }
-    .immersionStyle(selection: .constant(.full), in: .full)
-  }
 }
+
