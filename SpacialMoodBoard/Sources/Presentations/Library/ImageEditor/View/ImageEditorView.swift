@@ -115,8 +115,6 @@ fileprivate struct EditorToolbarView: View {
 
     var body: some View {
         HStack(alignment: .center) {
-            IconCircleButton(systemName: "chevron.left", action: dismiss)
-
             HiddenOrSpace(show: !viewModel.showSidebar, size: 44) {
                 IconCircleButton(systemName: "square.split.2x1") {
                     withAnimation(.easeInOut(duration: 0.22)) { viewModel.showSidebar = true }
@@ -204,15 +202,26 @@ fileprivate struct AddToLibraryButton: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 15)
         }
-        .buttonStyle(CapsuleButtonStyle(materialOpacity: 0.3))
+        .buttonStyle(.plain)
+        .background(Color(red: 0.37, green: 0.37, blue: 0.37).opacity(0.18))
+        .background {
+            if viewModel.isAddTargeted {
+                LinearGradient(
+                    stops: [
+                        .init(color: .white, location: 0),
+                        .init(color: Color(red: 0.6, green: 0.6, blue: 0.6), location: 1),
+                    ],
+                    startPoint: .leading, endPoint: .trailing
+                )
+            } else {
+                Color.white.opacity(0.06)
+            }
+        }
         .onDrop(of: viewModel.dropTypes, isTargeted: $viewModel.isAddTargeted) { providers in
             viewModel.handleDropToAdd(providers: providers)
         }
-        .overlay {
-            Capsule()
-                .stroke(viewModel.isAddTargeted ? .white.opacity(0.45) : .white.opacity(0.12), lineWidth: 2)
-                .shadow(color: .white.opacity(viewModel.isAddTargeted ? 0.25 : 0), radius: 10)
-        }
+        .clipShape(Capsule())
+
     }
 }
 
