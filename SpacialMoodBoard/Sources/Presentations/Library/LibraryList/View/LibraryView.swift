@@ -173,6 +173,6 @@ fileprivate struct SoundTabListView: View {
 // MARK: - Preview
 
 #Preview(windowStyle: .plain) {
-    LibraryView(viewModel: LibraryViewModel(projectName: ""))
+    LibraryView(viewModel: LibraryViewModel(appModel: AppModel()))
         .environment(AppModel())
 }

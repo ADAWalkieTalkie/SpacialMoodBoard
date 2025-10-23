@@ -16,33 +16,11 @@ struct ProjectFileStorage: FileStorageProtocol {
         try createDirectoryIfNeeded(at: FilePathProvider.imagesDirectory(projectName: projectName))
         try createDirectoryIfNeeded(at: FilePathProvider.soundsDirectory(projectName: projectName))
         
-        // JSON 저장
-        let fileURL = FilePathProvider.projectMetadataFile(projectName: projectName)
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        encoder.dateEncodingStrategy = .iso8601
-        
-        let jsonData = try encoder.encode(data)
-        try jsonData.write(to: fileURL, options: [.atomic, .completeFileProtection])
-        
-        print("📁 프로젝트 저장 완료: \(fileURL.path)")
+        print("📁 프로젝트 저장 완료: \(projectDir.path)")
     }
     
     func load(projectName: String) throws -> Project {
-        let fileURL = FilePathProvider.projectMetadataFile(projectName: projectName)
-        
-        guard fileManager.fileExists(atPath: fileURL.path) else {
-            throw FileStorageError.fileNotFound
-        }
-        
-        let data = try Data(contentsOf: fileURL)
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        
-        let project = try decoder.decode(Project.self, from: data)
-        print("📂 프로젝트 로드 완료: \(projectName)")
-        
-        return project
+        throw FileStorageError.fileNotFound
     }
     
     func delete(projectName: String) throws {
