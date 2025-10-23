@@ -13,9 +13,9 @@ import Observation
 final class ImageEditorViewModel {
     
     // MARK: - Properties
+    private let assetRepository: AssetRepositoryInterface
+    
     var images: [UIImage]
-    private let projectName: String
-    private let imageStore = ImageFileStorage()
     private var onAddToLibrary: (_ exported: [URL]) -> Void
     
     // 사이드바 상태/폭
@@ -41,9 +41,13 @@ final class ImageEditorViewModel {
     }
     
     // MARK: - Init
-    init(images: [UIImage], projectName: String, onAddToLibrary: @escaping ([URL]) -> Void) {
+    init(
+        images: [UIImage],
+        assetRepository: AssetRepositoryInterface,
+        onAddToLibrary: @escaping ([URL]) -> Void
+    ) {
         self.images = images
-        self.projectName = projectName
+        self.assetRepository = assetRepository
         self.onAddToLibrary = onAddToLibrary
         if !images.isEmpty { selectedIndex = 0 }
     }
@@ -75,10 +79,13 @@ final class ImageEditorViewModel {
     /// 현재 선택 이미지를 PNG로 캐시 저장 후 라이브러리에 등록
     func addCurrentToLibrary() {
         guard let img = selectedImage else { return }
-        guard let url = saveToProject(image: img) else { return }
-        onAddToLibrary([url])
-        addedURLs.append(url)
-        showSavedAlert = true
+        Task { @MainActor in
+            if let url = await saveToProject(image: img) {
+                onAddToLibrary([url])
+                addedURLs.append(url)
+                showSavedAlert = true
+            }
+        }
     }
     
     /// 드롭된 아이템 처리
@@ -90,8 +97,9 @@ final class ImageEditorViewModel {
         for provider in providers {
             if provider.canLoadObject(ofClass: UIImage.self) {
                 provider.loadObject(ofClass: UIImage.self) { obj, _ in
-                    if let img = obj as? UIImage, let url = self.saveToProject(image: img) {
-                        DispatchQueue.main.async {
+                    guard let img = obj as? UIImage else { return }
+                    Task { @MainActor in
+                        if let url = await self.saveToProject(image: img) {
                             self.onAddToLibrary([url])
                             self.addedURLs.append(url)
                             self.showSavedAlert = true
@@ -104,12 +112,13 @@ final class ImageEditorViewModel {
             
             if let t = imageUTIs.first(where: { provider.hasItemConformingToTypeIdentifier($0) }) {
                 provider.loadDataRepresentation(forTypeIdentifier: t) { data, _ in
-                    guard let data, let img = UIImage(data: data),
-                          let url = self.saveToProject(image: img) else { return }
-                    DispatchQueue.main.async {
-                        self.onAddToLibrary([url])
-                        self.addedURLs.append(url)
-                        self.showSavedAlert = true
+                    guard let data, let img = UIImage(data: data) else { return }
+                    Task { @MainActor in
+                        if let url = await self.saveToProject(image: img) {
+                            self.onAddToLibrary([url])
+                            self.addedURLs.append(url)
+                            self.showSavedAlert = true
+                        }
                     }
                 }
                 handled = true
@@ -121,14 +130,11 @@ final class ImageEditorViewModel {
     /// 편집 중인 이미지를 현재 프로젝트의 `/images` 폴더에 JPEG로 저장하고, 저장된 파일의 URL을 반환합니다.
     /// - Parameter image: 저장할 `UIImage`.
     /// - Returns: 저장에 성공하면 `Documents/projects/<projectName>/images/<uuid>.jpg`의 파일 URL, 실패 시 `nil`
-    private func saveToProject(image: UIImage) -> URL? {
-        let filename = UUID().uuidString + ".png"
+    private func saveToProject(image: UIImage) async -> URL? {
         do {
-            try imageStore.save(image,
-                                projectName: projectName,
-                                filename: filename,
-                                quality: 0.9)
-            return FilePathProvider.imageFile(projectName: projectName, filename: filename)
+            let filename = UUID().uuidString + ".png"
+            let asset = try await assetRepository.addImage(image, filename: filename)
+            return asset.url
         } catch {
             print("🖼️ 이미지 저장 실패: \(error)")
             return nil

@@ -81,7 +81,7 @@ struct LibraryView: View {
                 images: viewModel.editorImages,
                 projectName: viewModel.projectName
             ) { urls in
-                for u in urls { viewModel.appendItem(with: u) }
+                for u in urls { Task { await viewModel.appendItem(with: u) } }
             }
         }
         .task { await viewModel.loadAssets() }
@@ -173,6 +173,13 @@ fileprivate struct SoundTabListView: View {
 // MARK: - Preview
 
 #Preview(windowStyle: .plain) {
-    LibraryView(viewModel: LibraryViewModel(appModel: AppModel()))
-        .environment(AppModel())
+    LibraryView(viewModel: LibraryViewModel(
+        assetRepository: AssetRepository(
+            project: "",
+            imageService: ImageAssetService(),
+            soundService: SoundAssetService()
+        )
+    )
+    )
+    .environment(AppModel())
 }
