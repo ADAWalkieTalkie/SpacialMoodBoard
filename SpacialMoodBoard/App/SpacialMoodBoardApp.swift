@@ -13,8 +13,8 @@ struct SpacialMoodBoardApp: App {
     let modelContainer: ModelContainer
     @State private var appModel = AppModel()
     @State private var projectRepository: ProjectRepository
-    @State private var volumeSceneViewModel: SceneViewModel
-    @State private var immersiveSceneViewModel: SceneViewModel
+    @State private var sceneViewModel: SceneViewModel
+
     init() {
         do {
             let container = try ModelContainer(
@@ -31,14 +31,7 @@ struct SpacialMoodBoardApp: App {
             let appModel = AppModel()
             _appModel = State(wrappedValue: appModel)
             // Volume Scene용 ViewModel
-            _volumeSceneViewModel = State(
-                wrappedValue: SceneViewModel(
-                    appModel: appModel
-                )
-            )
-
-            // Immersive Scene용 ViewModel
-            _immersiveSceneViewModel = State(
+            _sceneViewModel = State(
                 wrappedValue: SceneViewModel(
                     appModel: appModel
                 )
@@ -60,7 +53,7 @@ struct SpacialMoodBoardApp: App {
 
                         Divider()
 
-                        DummyView(viewModel: volumeSceneViewModel)
+                        DummyView(viewModel: sceneViewModel)
                             .frame(height: 200)
                     }
                     .environment(appModel)
@@ -80,7 +73,7 @@ struct SpacialMoodBoardApp: App {
         // Volume Scene (Room 미리보기)
         WindowGroup(id: "ImmersiveVolumeWindow") {
             VolumeSceneView(
-                viewModel: volumeSceneViewModel
+                viewModel: sceneViewModel
             )
             .environment(appModel)
         }
@@ -89,7 +82,7 @@ struct SpacialMoodBoardApp: App {
 
         // Immersive Space (전체 몰입)
         ImmersiveSpace(id: "ImmersiveScene") {
-            ImmersiveSceneView(viewModel: immersiveSceneViewModel)
+            ImmersiveSceneView(viewModel: sceneViewModel)
                 .environment(appModel)
                 .onAppear {
                     appModel.immersiveSpaceState = .open
