@@ -51,7 +51,7 @@ extension SceneViewModel {
     
     // ViewAttachmentComponent 생성
     let attachment = ViewAttachmentComponent(
-      rootView: ImageAttachment(
+      rootView: EditBarAttachment(
         objectId: objectId,
         onDuplicate: onDuplicate,
         onCrop: onCrop,

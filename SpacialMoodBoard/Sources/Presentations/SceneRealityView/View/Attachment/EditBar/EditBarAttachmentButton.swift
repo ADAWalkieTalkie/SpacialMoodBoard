@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ImageAttachmentButton: View {
+struct EditBarAttachmentButton: View {
     let systemName: String
     let action: () -> Void
 
