@@ -16,6 +16,7 @@ struct LibraryImageItemView: View {
     @Environment(LibraryViewModel.self) private var viewModel
     @State private var showRename = false
     @State private var draftTitle: String
+    @State private var isFlashing = false
     @FocusState private var renameFocused: Bool
     
     // MARK: - Init
@@ -31,42 +32,54 @@ struct LibraryImageItemView: View {
     // MARK: - Body
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            URLImageView(url: asset.url)
-                .scaledToFit()
-                .frame(maxWidth: .infinity)
-                .frame(maxHeight: .infinity)
-                .aspectRatio(1, contentMode: .fit)
-                .background(.black.opacity(0.3))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+        ZStack {
+            if isFlashing {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(.clear)
+                    .glassBackgroundEffect(
+                        in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    )
+                    .transition(.opacity)
+                    .zIndex(-1)
+            }
             
-            VStack(alignment: .leading, spacing: 2) {
-                if showRename {
-                    TextField("이름", text: $draftTitle)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .focused($renameFocused)
-                        .submitLabel(.done)
-                        .onAppear { renameFocused = true }
-                        .frame(maxWidth: .infinity)
-                } else {
-                    Text(asset.filename.deletingPathExtension)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 12) {
+                URLImageView(url: asset.url)
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: .infinity)
+                    .aspectRatio(1, contentMode: .fit)
+                    .background(.black.opacity(0.3))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    if showRename {
+                        TextField("이름", text: $draftTitle)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .focused($renameFocused)
+                            .submitLabel(.done)
+                            .onAppear { renameFocused = true }
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text(asset.filename.deletingPathExtension)
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                    }
+                    
+                    Text(Self.formatDate(asset.createdAt))
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
-                
-                Text(Self.formatDate(asset.createdAt))
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
             }
+            .padding(12)
         }
-        .padding(12)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .onLongPressGesture(minimumDuration: 0.35) { showRename = true }
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+
         .popover(isPresented: $showRename, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
             RenamePopover(
                 id: asset.id,

@@ -10,12 +10,19 @@ final class SceneViewModel {
     // MARK: - Dependencies
     let appModel: AppModel
     let sceneModelFileStorage: SceneModelFileStorage
+    let sceneRepository: SceneRepositoryInterface
+    let assetRepository: AssetRepositoryInterface
     let entityBuilder: RoomEntityBuilder
 
     // MARK: - Initialization
-    init(appModel: AppModel) {
+    init(appModel: AppModel,
+         sceneRepository: SceneRepositoryInterface,
+         assetRepository: AssetRepositoryInterface
+    ) {
         self.appModel = appModel
         self.sceneModelFileStorage = SceneModelFileStorage()
+        self.sceneRepository = sceneRepository
+        self.assetRepository = assetRepository
         self.entityBuilder = RoomEntityBuilder()
     }
     
@@ -41,9 +48,30 @@ final class SceneViewModel {
             appModel.selectedScene?.sceneObjects ?? []
         }
         set {
-            appModel.selectedScene?.sceneObjects = newValue
+            // 1) 이전/이후 id 집합 비교
+            let oldIDs = Set((appModel.selectedScene?.sceneObjects ?? []).map(\.id))
+            let newIDs = Set(newValue.map(\.id))
+            let added = newIDs.subtracting(oldIDs)
+            let removed = oldIDs.subtracting(newIDs)
+
+            if !added.isEmpty {
+                print("🆕 Added SceneObject id(s):", added.map(\.uuidString).joined(separator: ", "))
+            }
+            if !removed.isEmpty {
+                print("🗑️ Removed SceneObject id(s):", removed.map(\.uuidString).joined(separator: ", "))
+            }
+
+            // 2) 값 타입일 때 변화 전파를 위해 통째로 재대입
+            if var s = appModel.selectedScene {
+                s.sceneObjects = newValue
+                appModel.selectedScene = s
+            } else {
+                // nil-safe fallback
+                appModel.selectedScene?.sceneObjects = newValue
+            }
         }
     }
+
     
     // UserSpatialState (computed property)
     var userSpatialState: UserSpatialState {
