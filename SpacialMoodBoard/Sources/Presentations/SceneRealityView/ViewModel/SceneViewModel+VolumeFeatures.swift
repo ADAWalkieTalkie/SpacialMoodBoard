@@ -19,7 +19,7 @@ extension SceneViewModel {
   }
   
   func resetRotation() {
-    rotationAngle = .pi / 4
+    rotationAngle = 0
 
     guard let projectId = appModel.selectedProject?.id,
           let roomEntity = roomEntities[projectId] else {
