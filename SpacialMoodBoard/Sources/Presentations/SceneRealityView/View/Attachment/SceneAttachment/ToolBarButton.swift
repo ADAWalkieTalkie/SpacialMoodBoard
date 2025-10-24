@@ -10,9 +10,9 @@ struct ToolBarButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 28))
+                .font(.system(size: 19))
                 .foregroundStyle(isEnabled ? .black : .white)
-                .frame(width: 60, height: 60)
+                .frame(width: 44, height: 44)
                 .background(isEnabled ? Color.white : Color.clear)
                 .clipShape(Circle())
         }
