@@ -15,7 +15,6 @@ struct RoomEntityBuilder {
     // MARK: - Constants
 
     private static let scaleFactor: Float = 15
-    private static let wallThickness: Float = 0.01
     private static let floorThickness: Float = 0.01
 
     // MARK: - Initialization
@@ -36,15 +35,6 @@ struct RoomEntityBuilder {
 
         let floor = createFloor(width: dimensions.x, depth: dimensions.z)
         room.addChild(floor)
-
-        if environment.roomType == .indoor {
-            let walls = createWalls(
-                width: dimensions.x,
-                height: dimensions.y,
-                depth: dimensions.z
-            )
-            walls.forEach { room.addChild($0) }
-        }
 
         applyRotation(to: room, angle: rotationAngle)
 
@@ -79,70 +69,6 @@ struct RoomEntityBuilder {
         floor.name = "floor"
 
         return floor
-    }
-
-    // MARK: - Private Methods - Walls
-
-    @MainActor
-    private func createWalls(width: Float, height: Float, depth: Float)
-        -> [ModelEntity]
-    {
-        let halfHeight = height / 2
-        let halfWidth = width / 2
-        let halfDepth = depth / 2
-        let halfThickness = Self.wallThickness / 2
-
-        let wallConfigs:
-            [(name: String, scale: SIMD3<Float>, position: SIMD3<Float>)] = [
-                (
-                    name: "frontWall",
-                    scale: [width, height, Self.wallThickness],
-                    position: [0, halfHeight, halfDepth - halfThickness]
-                ),
-                (
-                    name: "backWall",
-                    scale: [width, height, Self.wallThickness],
-                    position: [0, halfHeight, -halfDepth + halfThickness]
-                ),
-                (
-                    name: "leftWall",
-                    scale: [Self.wallThickness, height, depth],
-                    position: [-halfWidth + halfThickness, halfHeight, 0]
-                ),
-                (
-                    name: "rightWall",
-                    scale: [Self.wallThickness, height, depth],
-                    position: [halfWidth - halfThickness, halfHeight, 0]
-                ),
-            ]
-
-        return wallConfigs.map { config in
-            createWall(
-                name: config.name,
-                scale: config.scale,
-                position: config.position
-            )
-        }
-    }
-
-    @MainActor
-    private func createWall(
-        name: String,
-        scale: SIMD3<Float>,
-        position: SIMD3<Float>
-    ) -> ModelEntity {
-        var material = createBaseMaterial()
-        material.blending = .transparent(opacity: 1.0)
-
-        let wall = ModelEntity(
-            mesh: .generateBox(size: 1),
-            materials: [material]
-        )
-        wall.scale = scale
-        wall.position = position
-        wall.name = name
-
-        return wall
     }
 
     // MARK: - Private Methods - Material

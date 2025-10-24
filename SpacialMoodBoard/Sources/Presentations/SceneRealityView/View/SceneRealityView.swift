@@ -70,12 +70,9 @@ struct SceneRealityView: View {
         if config.alignToWindowBottom {
             viewModel.alignRoomToWindowBottom(room: room)
         }
-        
-        if config.applyWallOpacity {
-            viewModel.applyOpacity(to: room)
-        }
-        
-        if !config.applyWallOpacity {
+
+        // Immersive 전용: RealityKit Content
+        if config.alignToWindowBottom == false {  // immersive 또는 minimap
             if let immersiveContent = try? await Entity(named: "ImmersiveScene", in: RealityKitContent.realityKitContentBundle) {
                 room.addChild(immersiveContent)
             }

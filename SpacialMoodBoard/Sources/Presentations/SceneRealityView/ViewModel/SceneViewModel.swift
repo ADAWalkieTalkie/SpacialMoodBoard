@@ -11,14 +11,12 @@ final class SceneViewModel {
     let appModel: AppModel
     let sceneModelFileStorage: SceneModelFileStorage
     let entityBuilder: RoomEntityBuilder
-    let opacityAnimator: WallOpacityAnimator
-    
+
     // MARK: - Initialization
     init(appModel: AppModel) {
         self.appModel = appModel
         self.sceneModelFileStorage = SceneModelFileStorage()
         self.entityBuilder = RoomEntityBuilder()
-        self.opacityAnimator = WallOpacityAnimator()
     }
     
     
@@ -77,7 +75,6 @@ final class SceneViewModel {
         entityMap.removeAll()
         selectedEntity = nil
         roomEntities.removeAll()
-        opacityAnimator.reset()
         rotationAngle = .pi / 4
     }
 }

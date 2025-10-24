@@ -28,9 +28,8 @@ extension SceneViewModel {
   }
   
   func deleteEntityCache(for project: Project) {
-    opacityAnimator.reset()
     roomEntities.removeValue(forKey: project.id)
-    
+
     if appModel.selectedProject?.id == project.id {
       appModel.selectedProject = nil
       rotationAngle = .pi / 4
