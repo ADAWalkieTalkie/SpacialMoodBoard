@@ -34,6 +34,12 @@ struct SceneRealityView: View {
                     selectedEntity: $viewModel.selectedEntity,
                     onPositionUpdate: { uuid, position in
                         viewModel.updateObjectPosition(id: uuid, position: position)
+                    },
+                    onRotationUpdate: { uuid, rotation in
+                        viewModel.updateObjectRotation(id: uuid, rotation: rotation)
+                    },
+                    onScaleUpdate: { uuid, scale in
+                        viewModel.updateObjectScale(id: uuid, scale: scale)
                     }
                 )
             }
