@@ -93,6 +93,12 @@ struct SceneRealityView: View {
             )
             .environment(appModel)
         )
+        
+        // Mark - 향후 삭제. 버튼이 클릭 되는지 확인을 위한 더미 attachment
+        // let attachment = ViewAttachmentComponent(
+        //     rootView: DummyAttachment()
+        // )
+
         toolbarEntity.components.set(attachment)
         toolbarEntity.position = SIMD3<Float>(0, -0.3, -0.8)
         
@@ -149,7 +155,8 @@ struct SceneRealityView: View {
             .buttonStyle(.plain)
             .opacity(isAnimating ? 0.5 : 1.0)
             .padding(.horizontal)
-
+            
+            DummyAttachment()
             ToolBarAttachment(
                 isSoundEnabled: $isSoundEnabled,
                 onToggleImmersive: handleToggleImmersive
