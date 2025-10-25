@@ -20,7 +20,7 @@ extension SceneViewModel {
           scale: 1.0,
           rotation: SIMD3<Float>(0, 0, 0), 
           crop: SIMD4<Float>(0, 0, 1, 1),
-          billboardable: false
+          billboardable: true
       )
       
       sceneObjects.append(newObject)

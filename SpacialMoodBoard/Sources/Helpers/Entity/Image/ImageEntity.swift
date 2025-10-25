@@ -60,14 +60,7 @@ struct ImageEntity {
          )
         modelEntity.components.set(InputTargetComponent())
 
-        if !viewMode {
-            modelEntity.components.set(HoverEffectComponent())
-        }
-        
-        // 8. Billboard 설정
-        if imageAttrs.billboardable {
-            modelEntity.components.set(BillboardComponent())
-        }
+        modelEntity.components.set(HoverEffectComponent())
         
         return modelEntity
     }
