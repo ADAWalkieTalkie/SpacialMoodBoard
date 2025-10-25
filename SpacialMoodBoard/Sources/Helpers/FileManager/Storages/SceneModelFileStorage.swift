@@ -80,8 +80,9 @@ struct SceneModelFileStorage {
             // sceneModel.projectId로 Project 조회 후 updateProject 호출
             let tempProject = Project(id: sceneModel.projectId, title: "")
             if let existingProject = repository.fetchProject(tempProject) {
-                repository.updateProject(existingProject)
-                print("📁 Project updatedAt 갱신 완료")
+                Task { @MainActor in
+                    repository.updateProject(existingProject)
+                }
             }
         }
     }
