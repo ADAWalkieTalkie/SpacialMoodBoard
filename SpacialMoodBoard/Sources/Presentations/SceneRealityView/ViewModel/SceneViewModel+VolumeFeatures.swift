@@ -19,7 +19,7 @@ extension SceneViewModel {
   }
   
   func resetRotation() {
-    rotationAngle = .pi / 4
+    rotationAngle = 0
 
     guard let projectId = appModel.selectedProject?.id,
           let roomEntity = roomEntities[projectId] else {
@@ -30,10 +30,10 @@ extension SceneViewModel {
   }
 
   // MARK: - 위치 조정
-  
+
   func alignRoomToWindowBottom(
     room: Entity,
-    windowHeight: Float = 1.0,
+    windowHeight: Float = 1.5,
     padding: Float = 0.02
   ) {
     let bounds = room.visualBounds(relativeTo: room)
