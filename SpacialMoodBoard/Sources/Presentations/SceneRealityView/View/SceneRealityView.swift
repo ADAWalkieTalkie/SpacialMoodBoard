@@ -1,5 +1,3 @@
-// SceneRealityView.swift
-
 import SwiftUI
 import RealityKit
 import RealityKitContent
@@ -7,10 +5,13 @@ import RealityKitContent
 /// 재사용 가능한 핵심 Scene RealityView
 struct SceneRealityView: View {
     @Environment(AppModel.self) private var appModel
-    @Binding var viewModel: SceneViewModel
+    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     
+    @Binding var viewModel: SceneViewModel
     let config: SceneConfig
     
+    @State private var isSoundEnabled = false
     var body: some View {
         ZStack(alignment: .bottom) {
             RealityView { content in
@@ -20,9 +21,14 @@ struct SceneRealityView: View {
                 anchor.name = "RootSceneAnchor"
                 content.add(anchor)
 
-                // Add the initial RealityKit content
                 if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
                     anchor.addChild(immersiveContentEntity)
+                }
+                
+                // Head-anchored Toolbar (Immersive 전용)
+                if config.useHeadAnchoredToolbar,
+                   #available(visionOS 26, *) {
+                    setupHeadAnchoredToolbar(content: content)
                 }
                 
             } update: { content in
@@ -38,7 +44,7 @@ struct SceneRealityView: View {
                 )
             }
             
-            // 회전 버튼 (옵션)
+            // 회전 버튼과 Toolbar (Volume용)
             if config.showRotationButton {
                 rotationButton
             }
@@ -73,7 +79,7 @@ struct SceneRealityView: View {
             viewModel.alignRoomToWindowBottom(room: room, windowHeight: volumeSize)
         } else {
             // Immersive/Minimap 모드: 기존 방식
-            room.scale = [config.scale, config.scale, config.scale]
+            room.scale = [config.roomScale, config.roomScale, config.roomScale]
             content.add(room)
 
             if config.alignToWindowBottom {
@@ -89,6 +95,35 @@ struct SceneRealityView: View {
         }
     }
     
+    // MARK: - Head-anchored Toolbar Setup
+    
+    @available(visionOS 26, *)
+    private func setupHeadAnchoredToolbar(content: RealityViewContent) {
+        let headAnchor = AnchorEntity(.head)
+        content.add(headAnchor)
+        
+        let toolbarEntity = Entity()
+        toolbarEntity.name = "headToolbar"
+        
+        let attachment = ViewAttachmentComponent(
+            rootView: ToolBarAttachment(
+                isSoundEnabled: $isSoundEnabled,
+                onToggleImmersive: handleToggleImmersive
+            )
+            .environment(appModel)
+        )
+        
+        // Mark - 향후 삭제. 버튼이 클릭 되는지 확인을 위한 더미 attachment
+        // let attachment = ViewAttachmentComponent(
+        //     rootView: DummyAttachment()
+        // )
+
+        toolbarEntity.components.set(attachment)
+        toolbarEntity.position = SIMD3<Float>(0, -0.3, -0.8)
+        
+        headAnchor.addChild(toolbarEntity)
+    }
+    
     // MARK: - Update Scene
     
     private func updateScene(content: RealityViewContent) {
@@ -101,7 +136,6 @@ struct SceneRealityView: View {
             anchor: room
         )
         
-        // Attachment (옵션)
         if config.enableAttachments {
             viewModel.updateAttachment(
                 onDuplicate: { _ = viewModel.duplicateObject() },
@@ -115,12 +149,12 @@ struct SceneRealityView: View {
         }
     }
     
-    // MARK: - 회전 버튼
+    // MARK: - 회전 버튼과 Toolbar (Volume용)
     
     @State private var isAnimating = false
     
     private var rotationButton: some View {
-        VStack {
+        VStack(spacing: 12) {
             Button {
                 guard !isAnimating else { return }
                 isAnimating = true
@@ -139,7 +173,27 @@ struct SceneRealityView: View {
             }
             .buttonStyle(.plain)
             .opacity(isAnimating ? 0.5 : 1.0)
-            .padding()
+            .padding(.horizontal)
+            
+            DummyAttachment()
+            ToolBarAttachment(
+                isSoundEnabled: $isSoundEnabled,
+                onToggleImmersive: handleToggleImmersive
+            )
+            .environment(appModel)
+        }
+        .padding(.bottom, 20)
+    }
+    
+    // MARK: - Actions
+    
+    private func handleToggleImmersive() {
+        Task { @MainActor in
+            await viewModel.toggleImmersiveSpace(
+                appModel: appModel,
+                dismissImmersiveSpace: dismissImmersiveSpace,
+                openImmersiveSpace: openImmersiveSpace
+            )
         }
     }
 }

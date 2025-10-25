@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ImageAttachment: View {
+struct EditBarAttachment: View {
     let objectId: UUID
     let onDuplicate: () -> Void
     let onCrop: () -> Void
@@ -9,13 +9,13 @@ struct ImageAttachment: View {
     var body: some View {
         HStack(spacing: 20) {
             // 복사 버튼
-            ImageAttachmentButton(systemName: "doc.on.doc", action: onDuplicate)
+            EditBarAttachmentButton(systemName: "doc.on.doc", action: onDuplicate)
             
             // 크롭 버튼
-            ImageAttachmentButton(systemName: "crop", action: onCrop)
+            EditBarAttachmentButton(systemName: "crop", action: onCrop)
             
             // 삭제 버튼
-            ImageAttachmentButton(systemName: "trash", action: onDelete)
+            EditBarAttachmentButton(systemName: "trash", action: onDelete)
         }
         .padding(16)
         .glassBackgroundEffect()
@@ -23,7 +23,7 @@ struct ImageAttachment: View {
 }
 
 #Preview {
-    ImageAttachment(
+    EditBarAttachment(
         objectId: UUID(),
         onDuplicate: { print("복사") },
         onCrop: { print("크롭") },
