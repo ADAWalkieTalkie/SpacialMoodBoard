@@ -20,7 +20,7 @@ extension SceneViewModel {
           scale: 1.0,
           rotation: SIMD3<Float>(0, 0, 0), 
           crop: SIMD4<Float>(0, 0, 1, 1),
-          billboardable: false
+          billboardable: true
       )
       
       sceneObjects.append(newObject)
@@ -40,11 +40,25 @@ extension SceneViewModel {
         sceneRepository.didAppend(soundObj)
     }
   
-  // MARK: - 위치 업데이트
-  
+  // MARK: - Gesture 관련
+  /// 위치 업데이트
   func updateObjectPosition(id: UUID, position: SIMD3<Float>) {
     if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
-      sceneObjects[index].position = position
+      sceneObjects[index].move(to: position)
+    }
+  }
+
+  /// 회전 업데이트
+  func updateObjectRotation(id: UUID, rotation: SIMD3<Float>) {
+    if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
+      sceneObjects[index].setRotation(rotation)
+    }
+  }
+
+  /// 크기 업데이트
+  func updateObjectScale(id: UUID, scale: Float) {
+    if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
+      sceneObjects[index].setScale(scale)
     }
   }
   
@@ -86,5 +100,22 @@ extension SceneViewModel {
     }
     
     selectedEntity = nil
+  }
+
+  /// Billboardable 상태 조회
+func getBillboardableState(id: UUID) -> Bool {
+    guard let object = sceneObjects.first(where: { $0.id == id }),
+          case .image(let attrs) = object.attributes else {
+        return false
+    }
+    return attrs.billboardable
+}
+
+  /// Billboardable 상태 변경
+  func updateBillboardable(id: UUID, billboardable: Bool) {
+      if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
+          sceneObjects[index].setBillboardable(billboardable)
+          print("🔄 Billboardable 변경: \(id) - \(billboardable)")
+      }
   }
 }
