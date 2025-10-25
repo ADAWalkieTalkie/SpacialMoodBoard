@@ -40,6 +40,12 @@ struct SceneRealityView: View {
                     },
                     onScaleUpdate: { uuid, scale in
                         viewModel.updateObjectScale(id: uuid, scale: scale)
+                    },
+                    onBillboardableChange: { uuid, billboardable in
+                        viewModel.updateBillboardable(id: uuid, billboardable: billboardable)
+                    },
+                    getBillboardableState: { uuid in
+                        viewModel.getBillboardableState(id: uuid)
                     }
                 )
             }

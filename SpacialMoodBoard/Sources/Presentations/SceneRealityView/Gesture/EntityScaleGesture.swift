@@ -34,8 +34,6 @@ struct EntityScaleGesture: ViewModifier {
                         onScaleUpdate(uuid, finalScale)
                         
                         initialScale = nil
-                        
-                        print("📏 Scale 업데이트: \(uuid) - scale: \(finalScale)")
                     }
             )
     }

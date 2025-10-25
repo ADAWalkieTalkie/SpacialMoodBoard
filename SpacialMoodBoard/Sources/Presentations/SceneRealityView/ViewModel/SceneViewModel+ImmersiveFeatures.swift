@@ -101,4 +101,21 @@ extension SceneViewModel {
     
     selectedEntity = nil
   }
+
+  /// Billboardable 상태 조회
+func getBillboardableState(id: UUID) -> Bool {
+    guard let object = sceneObjects.first(where: { $0.id == id }),
+          case .image(let attrs) = object.attributes else {
+        return false
+    }
+    return attrs.billboardable
+}
+
+  /// Billboardable 상태 변경
+  func updateBillboardable(id: UUID, billboardable: Bool) {
+      if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
+          sceneObjects[index].setBillboardable(billboardable)
+          print("🔄 Billboardable 변경: \(id) - \(billboardable)")
+      }
+  }
 }

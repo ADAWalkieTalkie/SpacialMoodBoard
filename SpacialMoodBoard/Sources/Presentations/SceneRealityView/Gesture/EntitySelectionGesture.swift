@@ -14,7 +14,6 @@ struct EntitySelectionGesture: ViewModifier {
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onEnded { value in
                         selectedEntity = value.entity as? ModelEntity
-                        print("👆 탭 선택: \(value.entity.name)")
                     }
             )
             .gesture(
