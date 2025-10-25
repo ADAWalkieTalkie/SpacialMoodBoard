@@ -40,11 +40,25 @@ extension SceneViewModel {
         sceneRepository.didAppend(soundObj)
     }
   
-  // MARK: - 위치 업데이트
-  
+  // MARK: - Gesture 관련
+  /// 위치 업데이트
   func updateObjectPosition(id: UUID, position: SIMD3<Float>) {
     if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
-      sceneObjects[index].position = position
+      sceneObjects[index].move(to: position)
+    }
+  }
+
+  /// 회전 업데이트
+  func updateObjectRotation(id: UUID, rotation: SIMD3<Float>) {
+    if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
+      sceneObjects[index].setRotation(rotation)
+    }
+  }
+
+  /// 크기 업데이트
+  func updateObjectScale(id: UUID, scale: Float) {
+    if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
+      sceneObjects[index].setScale(scale)
     }
   }
   
