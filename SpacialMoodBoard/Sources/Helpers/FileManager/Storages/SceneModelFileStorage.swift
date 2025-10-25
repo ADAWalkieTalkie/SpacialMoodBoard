@@ -6,9 +6,14 @@ import Foundation
 
 struct SceneModelFileStorage {
     typealias DataType = SceneModel
-    
+
     private let fileManager = FileManager.default
-    
+    private let projectRepository: ProjectRepository?
+
+    init(projectRepository: ProjectRepository? = nil) {
+        self.projectRepository = projectRepository
+    }
+
     // MARK: - 저장용 구조체 (userSpatialState 제외, SceneObject의 id 제외)
     
     private struct SavedSceneModel: Codable {
@@ -44,30 +49,41 @@ struct SceneModelFileStorage {
     }
     
     // MARK: - Save
-    
+
+    @MainActor
     func save(_ sceneModel: SceneModel, projectName: String) throws {
         let projectDir = FilePathProvider.projectDirectory(projectName: projectName)
-        
+
         // 디렉토리가 없으면 생성
         try createDirectoryIfNeeded(at: projectDir)
-        
+
         let fileURL = FilePathProvider.projectMetadataFile(projectName: projectName)
-        
+
         // userSpatialState와 projectId 제외하고 저장
         let savedModel = SavedSceneModel(
             projectId: sceneModel.projectId,
             spacialEnvironment: sceneModel.spacialEnvironment,
             sceneObjects: sceneModel.sceneObjects.map { SavedSceneObject(from: $0) }
         )
-        
+
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
-        
+
         let jsonData = try encoder.encode(savedModel)
         try jsonData.write(to: fileURL, options: [.atomic, .completeFileProtection])
-        
+
         print("📁 SceneModel 저장 완료: \(fileURL.path)")
+
+        // Project의 updatedAt 갱신
+        if let repository = projectRepository {
+            // sceneModel.projectId로 Project 조회 후 updateProject 호출
+            let tempProject = Project(id: sceneModel.projectId, title: "")
+            if let existingProject = repository.fetchProject(tempProject) {
+                repository.updateProject(existingProject)
+                print("📁 Project updatedAt 갱신 완료")
+            }
+        }
     }
     
     // MARK: - Load
