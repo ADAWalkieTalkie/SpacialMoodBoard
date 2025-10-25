@@ -27,7 +27,7 @@ struct SceneRealityView: View {
                 
                 // Head-anchored Toolbar (Immersive 전용)
                 if config.useHeadAnchoredToolbar,
-                   #available(visionOS 2.6, *) {
+                   #available(visionOS 26, *) {
                     setupHeadAnchoredToolbar(content: content)
                 }
                 
@@ -95,33 +95,144 @@ struct SceneRealityView: View {
         }
     }
     
-    // MARK: - Head-anchored Toolbar Setup
-    
-    @available(visionOS 2.6, *)
+    // MARK: - Head-anchored Toolbar Setup (GestureComponent)
+
+    @available(visionOS 26, *)
     private func setupHeadAnchoredToolbar(content: RealityViewContent) {
         let headAnchor = AnchorEntity(.head)
         content.add(headAnchor)
-        
-        let toolbarEntity = Entity()
-        toolbarEntity.name = "headToolbar"
-        
-        let attachment = ViewAttachmentComponent(
-            rootView: ToolBarAttachment(
-                isSoundEnabled: $isSoundEnabled,
-                onToggleImmersive: handleToggleImmersive
-            )
-            .environment(appModel)
-        )
-        
-        // Mark - 향후 삭제. 버튼이 클릭 되는지 확인을 위한 더미 attachment
-        // let attachment = ViewAttachmentComponent(
-        //     rootView: DummyAttachment()
-        // )
 
-        toolbarEntity.components.set(attachment)
-        toolbarEntity.position = SIMD3<Float>(0, -0.3, -0.8)
-        
-        headAnchor.addChild(toolbarEntity)
+        let buttonSpacing: Float = 0.08
+        let startX: Float = -buttonSpacing
+        let baseY: Float = -0.3
+        let baseZ: Float = -0.8
+
+        // 버튼 1: View Mode 토글
+        let viewModeButton = createToolbarButton(
+            icon: "eye",
+            position: SIMD3<Float>(startX, baseY, baseZ),
+            isActive: appModel.selectedScene?.userSpatialState.viewMode ?? false
+        ) { [self] in
+            toggleViewMode()
+        }
+        headAnchor.addChild(viewModeButton)
+
+        // 버튼 2: Immersive Space 토글
+        let immersiveButton = createToolbarButton(
+            icon: "person.and.background.dotted",
+            position: SIMD3<Float>(startX + buttonSpacing, baseY, baseZ),
+            isActive: appModel.immersiveSpaceState == .open
+        ) { [self] in
+            handleToggleImmersive()
+        }
+        headAnchor.addChild(immersiveButton)
+
+        // 버튼 3: Sound 토글
+        let soundButton = createToolbarButton(
+            icon: isSoundEnabled ? "speaker.slash" : "speaker",
+            position: SIMD3<Float>(startX + buttonSpacing * 2, baseY, baseZ),
+            isActive: isSoundEnabled
+        ) { [self] in
+            isSoundEnabled.toggle()
+            // TODO: Sound 버튼 재생성하여 아이콘 업데이트 필요
+        }
+        headAnchor.addChild(soundButton)
+    }
+
+    @available(visionOS 26, *)
+    private func createToolbarButton(
+        icon: String,
+        position: SIMD3<Float>,
+        isActive: Bool,
+        action: @escaping () -> Void
+    ) -> Entity {
+        let entity = Entity()
+        entity.name = "toolbarButton_\(icon)"
+
+        // 버튼 배경 (원형)
+        let buttonRadius: Float = 0.035
+        let buttonMesh = MeshResource.generatePlane(
+            width: buttonRadius * 2,
+            height: buttonRadius * 2,
+            cornerRadius: buttonRadius
+        )
+
+        // 배경 색상 (활성화 상태에 따라)
+        let backgroundColor = isActive ? UIColor.white : UIColor.clear
+        var backgroundMaterial = UnlitMaterial()
+        backgroundMaterial.color = .init(tint: backgroundColor)
+        backgroundMaterial.blending = .transparent(opacity: isActive ? 1.0 : 0.3)
+
+        let backgroundModel = ModelEntity(mesh: buttonMesh, materials: [backgroundMaterial])
+        entity.addChild(backgroundModel)
+
+        // 아이콘 (SF Symbol 텍스처)
+        if let iconTexture = createSFSymbolTexture(systemName: icon, pointSize: 50, color: isActive ? .black : .white) {
+            let iconMesh = MeshResource.generatePlane(
+                width: buttonRadius * 1.5,
+                height: buttonRadius * 1.5
+            )
+            var iconMaterial = UnlitMaterial()
+            iconMaterial.color = .init(texture: .init(iconTexture))
+            iconMaterial.blending = .transparent(opacity: 1.0)
+
+            let iconModel = ModelEntity(mesh: iconMesh, materials: [iconMaterial])
+            iconModel.position = SIMD3<Float>(0, 0, 0.001)  // 배경보다 약간 앞
+            entity.addChild(iconModel)
+        }
+
+        entity.position = position
+
+        // 상호작용 컴포넌트 추가
+        entity.components.set(InputTargetComponent())
+        entity.components.set(CollisionComponent(
+            shapes: [.generateBox(width: buttonRadius * 2, height: buttonRadius * 2, depth: 0.01)],
+            mode: .trigger
+        ))
+
+        // Hover Effect
+        entity.components.set(HoverEffectComponent())
+
+        // GestureComponent로 탭 제스처 추가
+        let tapGesture = TapGesture()
+            .onEnded { _ in
+                action()
+            }
+        entity.components.set(GestureComponent(tapGesture))
+
+        return entity
+    }
+
+    // SF Symbol 텍스처 생성 헬퍼
+    private func createSFSymbolTexture(
+        systemName: String,
+        pointSize: CGFloat,
+        color: UIColor
+    ) -> TextureResource? {
+        let config = UIImage.SymbolConfiguration(pointSize: pointSize, weight: .medium)
+        guard let image = UIImage(systemName: systemName, withConfiguration: config)?
+            .withTintColor(color, renderingMode: .alwaysOriginal),
+              let cgImage = image.cgImage else {
+            return nil
+        }
+
+        do {
+            let texture = try TextureResource.generate(
+                from: cgImage,
+                options: .init(semantic: .color, mipmapsMode: .allocateAndGenerateAll)
+            )
+            return texture
+        } catch {
+            print("Failed to create SF Symbol texture: \(error)")
+            return nil
+        }
+    }
+
+    // View Mode 토글 액션
+    private func toggleViewMode() {
+        guard var scene = appModel.selectedScene else { return }
+        scene.userSpatialState.viewMode.toggle()
+        appModel.selectedScene = scene
     }
     
     // MARK: - Update Scene
@@ -174,8 +285,7 @@ struct SceneRealityView: View {
             .buttonStyle(.plain)
             .opacity(isAnimating ? 0.5 : 1.0)
             .padding(.horizontal)
-            
-            DummyAttachment()
+
             ToolBarAttachment(
                 isSoundEnabled: $isSoundEnabled,
                 onToggleImmersive: handleToggleImmersive
