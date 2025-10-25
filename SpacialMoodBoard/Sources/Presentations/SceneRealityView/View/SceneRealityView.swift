@@ -46,7 +46,7 @@ struct SceneRealityView: View {
     }
     
     // MARK: - Setup Scene
-    
+
     private func setupScene(content: RealityViewContent) async {
         guard let room = viewModel.getRoomEntity(
             for: appModel.selectedProject,
@@ -54,21 +54,37 @@ struct SceneRealityView: View {
         ) else {
             return
         }
-        
-        // 스케일 적용 (미니맵용)
-        room.scale = [config.scale, config.scale, config.scale]
-        
-        content.add(room)
-        
-        // Volume 전용: 위치 조정
-        if config.alignToWindowBottom {
-            viewModel.alignRoomToWindowBottom(room: room)
-        }
 
-        // Immersive 전용: RealityKit Content
-        if config.alignToWindowBottom == false {  // immersive 또는 minimap
-            if let immersiveContent = try? await Entity(named: "ImmersiveScene", in: RealityKitContent.realityKitContentBundle) {
-                room.addChild(immersiveContent)
+        if let volumeSize = config.volumeSize {
+            // Volume 모드: 자동 scale 계산 및 content 직접 추가
+            // 최종 크기를 0.6m로 고정 (RealityKit volumetric window 렌더링 보장)
+            let roomDimensions = viewModel.spacialEnvironment.groundSize.dimensions
+            let roomWidth = Float(roomDimensions.x)
+            let roomDepth = Float(roomDimensions.z)
+            let roomHeight = Float(roomDimensions.y)
+
+            let maxDimension = max(roomWidth, roomDepth, roomHeight)
+            let autoScale = 0.6 / maxDimension
+
+            room.scale = [autoScale, autoScale, autoScale]
+            content.add(room)
+
+            // Floor 하단 정렬
+            viewModel.alignRoomToWindowBottom(room: room, windowHeight: volumeSize)
+        } else {
+            // Immersive/Minimap 모드: 기존 방식
+            room.scale = [config.scale, config.scale, config.scale]
+            content.add(room)
+
+            if config.alignToWindowBottom {
+                viewModel.alignRoomToWindowBottom(room: room)
+            }
+
+            // Immersive 전용: RealityKit Content
+            if config.alignToWindowBottom == false {  // immersive 또는 minimap
+                if let immersiveContent = try? await Entity(named: "ImmersiveScene", in: RealityKitContent.realityKitContentBundle) {
+                    room.addChild(immersiveContent)
+                }
             }
         }
     }

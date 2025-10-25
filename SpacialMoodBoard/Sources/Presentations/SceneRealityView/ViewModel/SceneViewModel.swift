@@ -40,7 +40,7 @@ final class SceneViewModel {
     var selectedEntity: ModelEntity?
     
     // 회전 각도 (Volume용)
-    var rotationAngle: Float = .pi / 4
+    var rotationAngle: Float = 0
 
     // SceneObjects (computed property)
     var sceneObjects: [SceneObject] {
@@ -98,11 +98,11 @@ final class SceneViewModel {
     
     
     // MARK: - Cleanup
-    
+
     func reset() {
         entityMap.removeAll()
         selectedEntity = nil
         roomEntities.removeAll()
-        rotationAngle = .pi / 4
+        rotationAngle = 0
     }
 }

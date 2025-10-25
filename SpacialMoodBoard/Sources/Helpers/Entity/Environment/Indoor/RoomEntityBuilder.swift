@@ -14,7 +14,6 @@ struct RoomEntityBuilder {
 
     // MARK: - Constants
 
-    private static let scaleFactor: Float = 15
     private static let floorThickness: Float = 0.01
 
     // MARK: - Initialization
@@ -48,9 +47,9 @@ struct RoomEntityBuilder {
     > {
         let dimensions = groundSize.dimensions
         return SIMD3<Float>(
-            Float(dimensions.x) / Self.scaleFactor,
-            Float(dimensions.y) / Self.scaleFactor,
-            Float(dimensions.z) / Self.scaleFactor
+            Float(dimensions.x),
+            Float(dimensions.y),
+            Float(dimensions.z)
         )
     }
 
