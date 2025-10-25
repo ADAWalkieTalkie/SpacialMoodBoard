@@ -6,6 +6,11 @@
 //
 
 struct ImageAsset: Codable, Hashable {
-    var width: Double
-    var height: Double
+    let width: Int
+    let height: Int
+    
+    var aspectRatio: Double {
+        guard height > 0 else { return 0 }
+        return Double(width) / Double(height)
+    }
 }

@@ -20,15 +20,19 @@ struct ImageEditorView: View {
         ///   - images: 편집 대상 이미지들
         ///   - projectName: 저장 대상 프로젝트 이름 (환경에서 읽지 말고 외부에서 주입)
         ///   - onAddToLibrary: 내보낸 파일 URL 배열 콜백
-        init(images: [UIImage], projectName: String, onAddToLibrary: @escaping ([URL]) -> Void) {
-            _viewModel = State(
-                initialValue: ImageEditorViewModel(
-                    images: images,
-                    projectName: projectName,
-                    onAddToLibrary: onAddToLibrary
-                )
+    init(images: [UIImage], projectName: String, onAddToLibrary: @escaping ([URL]) -> Void) {
+        _viewModel = State(
+            initialValue: ImageEditorViewModel(
+                images: images,
+                assetRepository: AssetRepository(
+                    project: projectName,
+                    imageService: ImageAssetService(),
+                    soundService: SoundAssetService()
+                ),
+                onAddToLibrary: onAddToLibrary
             )
-        }
+        )
+    }
 
     // MARK: - Body
     
@@ -196,7 +200,7 @@ fileprivate struct ImageStageView: View {
 /// 라이브러리 추가 버튼
 fileprivate struct AddToLibraryButton: View {
     @Bindable var viewModel: ImageEditorViewModel
-
+    
     var body: some View {
         Button(action: viewModel.addCurrentToLibrary) {
             Label("라이브러리에 추가", systemImage: "folder")

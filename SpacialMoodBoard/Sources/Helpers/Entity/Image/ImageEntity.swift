@@ -19,10 +19,7 @@ struct ImageEntity {
         }
         
         // 1. 이미지를 로드하여 TextureResource로 변환
-        guard let texture = try? TextureResource.load(named: asset.filename) else {
-            print("❌ 이미지 로드 실패: \(asset.filename)")
-            return nil
-        }
+        guard let texture = try? TextureResource.load(contentsOf: asset.url) else { return nil }
         
         // 2. PhysicallyBasedMaterial 생성 및 텍스처 적용
         var material = PhysicallyBasedMaterial()

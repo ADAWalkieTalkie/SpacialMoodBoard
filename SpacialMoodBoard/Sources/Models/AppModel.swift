@@ -17,8 +17,8 @@ class AppModel {
         case open
     }
     var immersiveSpaceState = ImmersiveSpaceState.closed
-
+    
     var selectedProject: Project?
     var selectedScene: SceneModel?
-    var storedAssets: [Asset] = []
+//    var storedAssets: [Asset] = []
 }

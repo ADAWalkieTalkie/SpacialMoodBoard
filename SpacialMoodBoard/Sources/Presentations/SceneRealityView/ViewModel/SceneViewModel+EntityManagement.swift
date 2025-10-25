@@ -7,24 +7,22 @@ extension SceneViewModel {
   
   func updateEntities(
     sceneObjects: [SceneObject],
-    anchor: Entity,
-    assets: [Asset]
+    anchor: Entity
   ) {
-    let currentObjectIds = Set(sceneObjects.map { $0.id })
-    let existingEntityIds = Set(entityMap.keys)
-    
-    // 1. 삭제된 객체 제거
-    removeDeletedEntities(
-      currentIds: currentObjectIds,
-      existingIds: existingEntityIds
-    )
-    
-    // 2. 새로운 객체 추가 또는 업데이트
-    updateOrCreateEntities(
-      sceneObjects: sceneObjects,
-      anchor: anchor,
-      assets: assets
-    )
+      let currentObjectIds = Set(sceneObjects.map { $0.id })
+      let existingEntityIds = Set(entityMap.keys)
+      
+      // 1. 삭제된 객체 제거
+      removeDeletedEntities(
+        currentIds: currentObjectIds,
+        existingIds: existingEntityIds
+      )
+      
+      // 2. 새로운 객체 추가 또는 업데이트
+      updateOrCreateEntities(
+        sceneObjects: sceneObjects,
+        anchor: anchor
+      )
   }
   
   // MARK: - Private Helpers
@@ -43,22 +41,19 @@ extension SceneViewModel {
   
   private func updateOrCreateEntities(
     sceneObjects: [SceneObject],
-    anchor: Entity,
-    assets: [Asset]
+    anchor: Entity
   ) {
-    for sceneObject in sceneObjects {
-      guard let asset = assets.first(where: { $0.id == sceneObject.assetId }) else {
-        continue
+      for sceneObject in sceneObjects {
+          guard let asset = assetRepository.asset(withId: sceneObject.assetId) else { continue }
+          
+          if let existingEntity = entityMap[sceneObject.id] {
+              // 기존 Entity 위치 업데이트
+              existingEntity.position = sceneObject.position
+          } else {
+              // 새로운 Entity 생성
+              createAndAddEntity(sceneObject: sceneObject, asset: asset, anchor: anchor)
+          }
       }
-      
-      if let existingEntity = entityMap[sceneObject.id] {
-        // 기존 Entity 위치 업데이트
-        existingEntity.position = sceneObject.position
-      } else {
-        // 새로운 Entity 생성
-        createAndAddEntity(sceneObject: sceneObject, asset: asset, anchor: anchor)
-      }
-    }
   }
   
   private func createAndAddEntity(

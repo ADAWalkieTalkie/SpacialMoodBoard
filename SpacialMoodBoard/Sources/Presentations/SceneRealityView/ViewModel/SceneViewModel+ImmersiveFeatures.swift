@@ -25,6 +25,20 @@ extension SceneViewModel {
       
       sceneObjects.append(newObject)
   }
+    
+    // MARK: - Add Sound Object
+    
+    func addSoundObject(from asset: Asset) {
+        let soundObj = SceneObject.createAudio(
+            assetId: asset.id,
+            position: SIMD3<Float>(0, 1.5, -2),
+            isEditable: true,
+            volume: 1.0
+        )
+        
+        sceneObjects.append(soundObj)
+        sceneRepository.didAppend(soundObj)
+    }
   
   // MARK: - 위치 업데이트
   

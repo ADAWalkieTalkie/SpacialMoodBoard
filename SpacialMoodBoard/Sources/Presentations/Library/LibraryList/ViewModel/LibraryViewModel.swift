@@ -16,16 +16,13 @@ import AVFoundation
 final class LibraryViewModel {
     
     // MARK: - Properties
-
-    private var appModel: AppModel
-    let projectName: String
-
-    var storedAssets: [Asset] {
-        get { appModel.storedAssets }
-        set { appModel.storedAssets = newValue }
-    }
-
-
+    
+    @ObservationIgnored
+    private let assetRepository: AssetRepositoryInterface
+    private var token: UUID?
+    var projectName: String { assetRepository.project }
+    var assets: [Asset] = []
+    
     var searchText = ""
     var assetType: AssetType = .image
     var sort: SortOrder = .recent
@@ -42,68 +39,25 @@ final class LibraryViewModel {
     var editorImages: [UIImage] = []
     var showEditor = false
     
-    private let imageStore = ImageFileStorage()
-    private let soundStore = SoundFileStorage()
-    
     // MARK: - Init
     
     /// Init
     /// - Parameter projectName: 작업할 프로젝트 이름 (프로젝트 루트 디렉터리 식별에 사용)
-    init(appModel: AppModel) {
-        self.appModel = appModel
-        self.projectName = appModel.selectedProject?.title ?? ""  
+    /// - Parameter assetRepository: AssetRepositoryInterface
+    init(assetRepository: AssetRepositoryInterface) {
+        self.assetRepository = assetRepository
+        self.assets = assetRepository.assets
+        token = assetRepository.addChangeHandler { [weak self] in
+            self?.assets = assetRepository.assets
+        }
     }
+//    deinit { if let token { assetRepository.removeChangeHandler(token) } }
     
     // MARK: - Methods
     
-    /// 프로젝트 디렉터리에서 이미지/사운드 파일을 불러와 `storedAssets`를 구성
-    /// - Note: 파일 메타데이터(생성일, 파일크기)를 읽어 `Asset`을 만들고, 사운드는 길이/파형도 생성
     func loadAssets() async {
-        let imgs = (try? imageStore.listImages(projectName: projectName)) ?? []
-        let snds = (try? soundStore.listSounds(projectName: projectName)) ?? []
-        
-        var loaded: [Asset] = []
-        loaded.reserveCapacity(imgs.count + snds.count)
-        
-        for name in imgs {
-            let url = FilePathProvider.imageFile(projectName: projectName, filename: name)
-            let meta = (try? url.resourceValues(forKeys: [.fileSizeKey, .creationDateKey, .contentTypeKey])) ?? .init()
-            let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
-            
-            loaded.append(
-                Asset(id: id,
-                      type: .image,
-                      filename: name,
-                      filesize: meta.fileSize ?? 0,
-                      url: url,
-                      createdAt: meta.creationDate ?? Date(),
-                      image: ImageAsset(width: 0, height: 0))
-            )
-        }
-        
-        for name in snds {
-            let url = FilePathProvider.soundFile(projectName: projectName, filename: name)
-            let meta = (try? url.resourceValues(forKeys: [.fileSizeKey, .creationDateKey, .contentTypeKey])) ?? .init()
-            let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
-            
-            let f = try? AVAudioFile(forReading: url)
-            let duration = f.map { Double($0.length) / $0.processingFormat.sampleRate } ?? 0
-            let waveform = (try? makeWaveform(url: url, targetSamples: 120, method: .peak)) ?? []
-            
-            loaded.append(
-                Asset(id: id,
-                      type: .sound,
-                      filename: name,
-                      filesize: meta.fileSize ?? 0,
-                      url: url,
-                      createdAt: meta.creationDate ?? Date(),
-                      image: nil,
-                      sound: SoundAsset(channel: .ambient, duration: duration, waveform: waveform))
-            )
-        }
-        
-        loaded.sort { $0.createdAt > $1.createdAt }
-        storedAssets = loaded
+        await assetRepository.reload()
+        syncFromRepo()
     }
     
     /// 드래그 앤 드롭으로 전달된 아이템들을 처리한다. 즉시 `true`를 반환하고 내부에서 비동기로 로딩
@@ -165,22 +119,14 @@ final class LibraryViewModel {
         showEditor = true
     }
     
-    /// 에디터 저장 결과(생성된 파일 URL)를 라이브러리 목록 맨 앞에 추가
-    /// - Parameter url: 저장된 이미지 파일 URL
-    func appendItem(with url: URL) {
-        let now = Date()
-        let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
-        
-        storedAssets.insert(
-            Asset(id: id,
-                  type: .image,
-                  filename: url.lastPathComponent,
-                  filesize: 0,
-                  url: url,
-                  createdAt: now,
-                  image: ImageAsset(width: 0, height: 0)),
-            at: 0
-        )
+    func appendItem(with url: URL) async {
+        do {
+            let data = try Data(contentsOf: url)
+            _ = try await assetRepository.addImageData(data, filename: url.lastPathComponent)
+            syncFromRepo()
+        } catch {
+            print("⚠️ appendItem failed: \(error)")
+        }
     }
     
     // MARK: - Provider loaders (async helpers)
@@ -226,40 +172,22 @@ final class LibraryViewModel {
     /// - Parameter urls: [URL]
     func importSoundFiles(urls: [URL]) async {
         guard !urls.isEmpty else { return }
-        
         for url in urls {
             let needsSecurity = url.startAccessingSecurityScopedResource()
             defer { if needsSecurity { url.stopAccessingSecurityScopedResource() } }
-            
             do {
                 let data = try Data(contentsOf: url)
-                let id = (try? FileHash.sha256Hex(url: url)) ?? UUID().uuidString
-                let filename = url.lastPathComponent
-                
-                try soundStore.save(data, projectName: projectName, filename: filename)
-
-                let dest = FilePathProvider.soundFile(projectName: projectName, filename: filename)
-
-                let meta = try? dest.resourceValues(forKeys: [.fileSizeKey, .creationDateKey])
-                let avf  = try? AVAudioFile(forReading: dest)
-                let duration = avf.map { Double($0.length) / $0.processingFormat.sampleRate } ?? 0
-                let waveform = (try? makeWaveform(url: dest, targetSamples: 120, method: .peak)) ?? []
-                
-                let asset = Asset(
-                    id: id,
-                    type: .sound,
-                    filename: filename,
-                    filesize: meta?.fileSize ?? 0,
-                    url: dest,
-                    createdAt: meta?.creationDate ?? Date(),
-                    image: nil,
-                    sound: SoundAsset(channel: .ambient, duration: duration, waveform: waveform)
-                )
-                storedAssets.insert(asset, at: 0)
+                _ = try await assetRepository.addSoundData(data, filename: url.lastPathComponent)
             } catch {
                 print("사운드 임포트 실패(\(url.lastPathComponent)): \(error)")
             }
         }
+        syncFromRepo()
+    }
+    
+    private func syncFromRepo() {
+        let all = assetRepository.assets
+        self.assets = all.sorted { $0.createdAt > $1.createdAt }
     }
 }
 
@@ -273,7 +201,7 @@ extension LibraryViewModel {
     /// - Returns: 필터링 + 정렬이 적용된 `Asset` 배열
     func filteredAndSorted(type: AssetType, key: String) -> [Asset] {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
-        let filtered = storedAssets
+        let filtered = assets
             .filter { $0.type == type }
             .filter { trimmed.isEmpty ? true : $0.filename.localizedCaseInsensitiveContains(trimmed) }
         return sortAssets(filtered)
@@ -308,81 +236,21 @@ extension LibraryViewModel {
     ///   - id: 이름을 바꿀 에셋의 식별자(UUID)
     ///   - newTitle: 확장자를 제외한 새 파일명(사용자 입력). 불법 문자는 `sanitizedFilename(_:)`로 정제
     func renameAsset(id: String, to newTitle: String) {
-        guard let i = storedAssets.firstIndex(where: { $0.id == id }) else { return }
-        let asset = storedAssets[i]
-        
-        let ext = asset.url.pathExtension.isEmpty
-        ? (asset.type == .image ? "jpg" : "m4a")
-        : asset.url.pathExtension
-        
-        let base = sanitizedFilename(newTitle)
-        let newFilename = base + "." + ext
-        
         do {
-            let srcURL = asset.url
-            let dstURL = (asset.type == .image)
-            ? FilePathProvider.imageFile(projectName: projectName, filename: newFilename)
-            : FilePathProvider.soundFile(projectName: projectName, filename: newFilename)
-            
-            if srcURL == dstURL { return }
-            
-            let finalURL = try uniqueURLIfNeeded(dstURL)
-            try FileManager.default.moveItem(at: srcURL, to: finalURL)
-            
-            storedAssets[i].filename = finalURL.lastPathComponent
-            storedAssets[i].url = finalURL
-            
+            try assetRepository.renameAsset(id: id, to: newTitle)
+            syncFromRepo()
         } catch {
             print("⚠️ rename failed:", error)
         }
     }
-    
     /// 에셋을 목록과 디스크에서 함께 삭제
     /// - Parameter id: 삭제할 에셋의 식별자(UUID)
     func deleteAsset(id: String) {
-        guard let i = storedAssets.firstIndex(where: { $0.id == id }) else { return }
-        let asset = storedAssets.remove(at: i)
-        
         do {
-            switch asset.type {
-            case .image:
-                try imageStore.delete(projectName: projectName, filename: asset.filename)
-            case .sound:
-                try soundStore.delete(projectName: projectName, filename: asset.filename)
-            }
+            _ = try assetRepository.deleteAsset(id: id)
+            syncFromRepo()
         } catch {
             print("⚠️ delete failed:", error)
-        }
-    }
-    
-    /// 사용자 입력 파일명에서 파일 시스템에 부적합한 문자를 제거/치환하고 앞뒤 공백 정리
-    /// - Parameter s: 원본 파일명 텍스트
-    /// - Returns: 정제된 파일명(비어 있으면 `"Untitled"` 반환)
-    private func sanitizedFilename(_ s: String) -> String {
-        let bad = CharacterSet(charactersIn: "/:\\?%*|\"<>")
-        let cleaned = s.components(separatedBy: bad).joined(separator: " ")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        return cleaned.isEmpty ? "Untitled" : cleaned
-    }
-    
-    /// 지정한 URL 경로가 이미 존재할 경우, 뒤에 번호를 붙여 고유한 URL을 만들어 반환
-    /// - Parameter url: 희망하는 대상 경로
-    /// - Returns: 충돌이 없으면 원본 `url`, 충돌이 있으면 `-1`, `-2`…가 붙은 새 URL
-    /// - Throws: 내부 반복 한도를 초과하거나 파일 시스템 오류가 발생하면 에러
-    private func uniqueURLIfNeeded(_ url: URL) throws -> URL {
-        let fm = FileManager.default
-        guard fm.fileExists(atPath: url.path) else { return url }
-        
-        let noExt = url.deletingPathExtension().lastPathComponent
-        let ext = url.pathExtension
-        let dir = url.deletingLastPathComponent()
-        
-        var n = 1
-        while true {
-            let candidate = dir.appendingPathComponent("\(noExt)-\(n)\(ext.isEmpty ? "" : ".\(ext)")")
-            if !fm.fileExists(atPath: candidate.path) { return candidate }
-            n += 1
-            if n > 10_000 { throw NSError(domain: "UniqueURL", code: -1) }
         }
     }
 }
