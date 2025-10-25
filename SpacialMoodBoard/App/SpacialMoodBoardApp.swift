@@ -44,7 +44,8 @@ struct SpacialMoodBoardApp: App {
             let sceneVM = SceneViewModel(
                 appModel: appModel,
                 sceneRepository: SceneRepository(usageIndex: AssetUsageIndex()),
-                assetRepository: assetRepository
+                assetRepository: assetRepository,
+                projectRepository: repository
             )
             _sceneViewModel = State(wrappedValue: sceneVM)
         } catch {

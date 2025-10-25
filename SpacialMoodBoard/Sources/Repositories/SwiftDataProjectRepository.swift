@@ -298,27 +298,6 @@ extension SwiftDataProjectRepository {
     }
   }
   
-  /// 모든 프로젝트 삭제 (개발/테스트용)
-  func deleteAllProjects() {
-    let descriptor = FetchDescriptor<Project>()
-    
-    do {
-      let allProjects = try modelContext.fetch(descriptor)
-      for project in allProjects {
-        modelContext.delete(project)
-      }
-      try modelContext.save()
-      
-#if DEBUG
-      print("[SwiftData] ✅ All projects deleted")
-#endif
-    } catch {
-#if DEBUG
-      print("[SwiftData] ❌ Failed to delete all projects: \(error)")
-#endif
-    }
-  }
-  
   /// 프로젝트 개수 반환
   /// - Returns: 저장된 프로젝트 개수, 에러 시 0 반환
   func projectCount() -> Int {

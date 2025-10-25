@@ -102,13 +102,3 @@ struct ProjectListView: View {
         }
     }
 }
-
-#Preview {
-    ProjectListView(
-        viewModel: ProjectListViewModel(
-            appModel: AppModel(),
-            projectRepository: InMemoryProjectRepository()
-        )
-    )
-    .environment(AppModel())
-}
