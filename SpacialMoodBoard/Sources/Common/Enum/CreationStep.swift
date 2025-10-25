@@ -6,7 +6,7 @@
 //
 
 enum CreationStep: Hashable {
-  case roomTypeSelection
-  case groundSizeSelection(roomType: RoomType)
-  case projectTitleInput(roomType: RoomType, groundSize: GroundSize)
+    case roomTypeSelection
+    case groundSizeSelection(roomType: RoomType)
+    case projectTitleInput(roomType: RoomType, groundSize: GroundSize)
 }

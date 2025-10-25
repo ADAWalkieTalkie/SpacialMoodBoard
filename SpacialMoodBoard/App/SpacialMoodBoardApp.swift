@@ -29,10 +29,10 @@ struct SpacialMoodBoardApp: App {
                 modelContext: container.mainContext
             )
             _projectRepository = State(wrappedValue: repository)
-            
+
             let appModel = AppModel()
             _appModel = State(wrappedValue: appModel)
-            
+
             let assetRepository = AssetRepository(
                 project: appModel.selectedProject?.title ?? "",
                 imageService: ImageAssetService(),
@@ -64,18 +64,24 @@ struct SpacialMoodBoardApp: App {
                             // TODO: - 리팩토링 필요
                             sceneViewModel: sceneViewModel
                         )
-                        
+
                         Divider()
-                        
+
                         DummyView(viewModel: sceneViewModel)
                             .frame(height: 200)
                     }
                     .environment(appModel)
                     .task {
-                        await assetRepository.switchProject(to: appModel.selectedProject?.title ?? "")
+                        await assetRepository.switchProject(
+                            to: appModel.selectedProject?.title ?? ""
+                        )
                     }
-                    .onChange(of: appModel.selectedProject?.title ?? "") { _, newTitle in
-                        Task { await assetRepository.switchProject(to: newTitle) }
+                    .onChange(of: appModel.selectedProject?.title ?? "") {
+                        _,
+                        newTitle in
+                        Task {
+                            await assetRepository.switchProject(to: newTitle)
+                        }
                     }
                 } else {
                     ProjectListView(
