@@ -27,7 +27,7 @@ struct SceneRealityView: View {
                 
                 // Head-anchored Toolbar (Immersive 전용)
                 if config.useHeadAnchoredToolbar,
-                   #available(visionOS 2.6, *) {
+                   #available(visionOS 26, *) {
                     setupHeadAnchoredToolbar(content: content)
                 }
                 
@@ -79,7 +79,7 @@ struct SceneRealityView: View {
             viewModel.alignRoomToWindowBottom(room: room, windowHeight: volumeSize)
         } else {
             // Immersive/Minimap 모드: 기존 방식
-            room.scale = [config.scale, config.scale, config.scale]
+            room.scale = [config.roomScale, config.roomScale, config.roomScale]
             content.add(room)
 
             if config.alignToWindowBottom {
@@ -97,7 +97,7 @@ struct SceneRealityView: View {
     
     // MARK: - Head-anchored Toolbar Setup
     
-    @available(visionOS 2.6, *)
+    @available(visionOS 26, *)
     private func setupHeadAnchoredToolbar(content: RealityViewContent) {
         let headAnchor = AnchorEntity(.head)
         content.add(headAnchor)
