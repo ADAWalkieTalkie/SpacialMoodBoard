@@ -14,6 +14,8 @@ struct SceneRealityView: View {
     let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.3, -0.8)
     
     @State private var isSoundEnabled = false
+    @State private var headAnchor: AnchorEntity?
+
     var body: some View {
         ZStack(alignment: .bottom) {
             RealityView { content, attachments in
@@ -27,17 +29,18 @@ struct SceneRealityView: View {
                     anchor.addChild(immersiveContentEntity)
                 }
 
-                let headAnchor = AnchorEntity(.head)
+                let newHeadAnchor = AnchorEntity(.head) 
+                headAnchor = newHeadAnchor
 
                 if config.useHeadAnchoredToolbar {
                     if let toolbar = attachments.entity(for: "headToolbar") {
                         // y: -0.3 = 시선보다 약간 아래
                         // z: -0.8 = 앞쪽으로 80cm
                         toolbar.position = toolbarPosition
-                        headAnchor.addChild(toolbar)
+                        newHeadAnchor.addChild(toolbar)
                     }
                     
-                    content.add(headAnchor)
+                    content.add(newHeadAnchor)
                 }
                 
             } update: { content, attachments in
@@ -68,6 +71,9 @@ struct SceneRealityView: View {
                     },
                     getBillboardableState: { uuid in
                         viewModel.getBillboardableState(id: uuid)
+                    },
+                    getHeadPosition: {
+                        return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
                     }
                 )
             }
@@ -173,7 +179,7 @@ struct SceneRealityView: View {
             .buttonStyle(.plain)
             .opacity(isAnimating ? 0.5 : 1.0)
             .padding(.horizontal)
-            
+
             ToolBarAttachment(
                 isSoundEnabled: $isSoundEnabled,
                 onToggleImmersive: handleToggleImmersive
