@@ -1,5 +1,6 @@
 import Foundation
 import RealityKit
+import UIKit
 
 struct ImageEntity {
     
@@ -22,10 +23,10 @@ struct ImageEntity {
         guard let texture = try? TextureResource.load(contentsOf: asset.url) else { return nil }
         
         // 2. PhysicallyBasedMaterial 생성 및 텍스처 적용
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(texture: .init(texture))
-        material.opacityThreshold = 0.0
+        var material = UnlitMaterial(color: .white)
+        material.color = .init(texture: .init(texture))
         material.blending = .transparent(opacity: 1.0)
+        material.opacityThreshold = 0.0
         
         // 3. 크기 계산 (scale 적용)
         let baseSize: Float = 0.5
