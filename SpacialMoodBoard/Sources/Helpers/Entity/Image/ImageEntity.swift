@@ -26,7 +26,7 @@ struct ImageEntity {
         var material = UnlitMaterial(color: .white)
         material.color = .init(texture: .init(texture))
         material.blending = .transparent(opacity: 1.0)
-        material.opacityThreshold = 0.0
+        material.opacityThreshold = 0.01
         
         // 3. 크기 계산 (scale 적용)
         let baseSize: Float = 0.5
