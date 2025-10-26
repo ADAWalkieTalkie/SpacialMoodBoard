@@ -10,11 +10,13 @@ struct SceneRealityView: View {
     
     @Binding var viewModel: SceneViewModel
     let config: SceneConfig
+
+    let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.3, -0.8)
     
     @State private var isSoundEnabled = false
     var body: some View {
         ZStack(alignment: .bottom) {
-            RealityView { content in
+            RealityView { content, attachments in
                 await setupScene(content: content)
             
                 let anchor = AnchorEntity(world: SIMD3<Float>(0, 0, 0))
@@ -24,15 +26,29 @@ struct SceneRealityView: View {
                 if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
                     anchor.addChild(immersiveContentEntity)
                 }
-                
-                // Head-anchored Toolbar (Immersive 전용)
-                if config.useHeadAnchoredToolbar,
-                   #available(visionOS 26, *) {
-                    setupHeadAnchoredToolbar(content: content)
+
+                let headAnchor = AnchorEntity(.head)
+
+                if config.useHeadAnchoredToolbar {
+                    if let toolbar = attachments.entity(for: "headToolbar") {
+                        // y: -0.3 = 시선보다 약간 아래
+                        // z: -0.8 = 앞쪽으로 80cm
+                        toolbar.position = toolbarPosition
+                        headAnchor.addChild(toolbar)
+                    }
+                    
+                    content.add(headAnchor)
                 }
                 
-            } update: { content in
+            } update: { content, attachments in
                 updateScene(content: content)
+            } attachments: {
+                Attachment(id: "headToolbar"){
+                    ToolBarAttachment(
+                        isSoundEnabled: $isSoundEnabled,
+                        onToggleImmersive: handleToggleImmersive
+                    )
+                }
             }
             .id(appModel.selectedProject?.id)
             .if(config.enableGestures) { view in
@@ -107,35 +123,6 @@ struct SceneRealityView: View {
         }
     }
     
-    // MARK: - Head-anchored Toolbar Setup
-    
-    @available(visionOS 26, *)
-    private func setupHeadAnchoredToolbar(content: RealityViewContent) {
-        let headAnchor = AnchorEntity(.head)
-        content.add(headAnchor)
-        
-        let toolbarEntity = Entity()
-        toolbarEntity.name = "headToolbar"
-        
-        let attachment = ViewAttachmentComponent(
-            rootView: ToolBarAttachment(
-                isSoundEnabled: $isSoundEnabled,
-                onToggleImmersive: handleToggleImmersive
-            )
-            .environment(appModel)
-        )
-        
-        // Mark - 향후 삭제. 버튼이 클릭 되는지 확인을 위한 더미 attachment
-        // let attachment = ViewAttachmentComponent(
-        //     rootView: DummyAttachment()
-        // )
-
-        toolbarEntity.components.set(attachment)
-        toolbarEntity.position = SIMD3<Float>(0, -0.3, -0.8)
-        
-        headAnchor.addChild(toolbarEntity)
-    }
-    
     // MARK: - Update Scene
     
     private func updateScene(content: RealityViewContent) {
@@ -187,7 +174,6 @@ struct SceneRealityView: View {
             .opacity(isAnimating ? 0.5 : 1.0)
             .padding(.horizontal)
             
-            DummyAttachment()
             ToolBarAttachment(
                 isSoundEnabled: $isSoundEnabled,
                 onToggleImmersive: handleToggleImmersive
