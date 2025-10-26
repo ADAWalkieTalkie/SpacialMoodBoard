@@ -54,8 +54,6 @@ struct EntityDragGesture: ViewModifier {
                         initialPosition = nil
                         
                         let isBillboardable = getBillboardableState(uuid)
-                        print("📍 위치 업데이트: \(uuid)")
-                        print("🔄 회전 저장: \(eulerRotation) - billboardable: \(isBillboardable)")
                     }
             )
     }

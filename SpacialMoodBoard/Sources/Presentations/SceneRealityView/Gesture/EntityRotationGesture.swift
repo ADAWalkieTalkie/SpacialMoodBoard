@@ -51,8 +51,6 @@ struct EntityRotationGesture: ViewModifier {
                         onBillboardableChange(uuid, false)
                         
                         initialOrientation = nil
-                        
-                        print("🔄 Rotation 업데이트: \(uuid) - rotation: \(finalRotation)")
                     }
             )
     }

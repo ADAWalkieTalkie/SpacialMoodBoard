@@ -156,8 +156,7 @@ fileprivate struct ImageTabGridView: View {
                         .simultaneousGesture(
                            
                             TapGesture().onEnded {
-                                print("클릭됨")
-                                sceneViewModel.addImageObject(from: asset)   // ✅ 사운드는 sound 쪽으로
+                                sceneViewModel.addImageObject(from: asset)   // 사운드는 sound 쪽으로
                             }
                         )
                 }
