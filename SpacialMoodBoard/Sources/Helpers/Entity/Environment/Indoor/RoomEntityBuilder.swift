@@ -66,11 +66,7 @@ struct RoomEntityBuilder {
         if let imageURL = materialImageURL,
            let texture = try? TextureResource.load(contentsOf: imageURL) {
             print("✅ Floor texture loaded: \(imageURL.lastPathComponent)")
-            material = createTextureMaterial(
-                texture: texture,
-                floorWidth: width,
-                floorDepth: depth
-            )
+            material = createTextureMaterial(texture: texture)
         } else {
             if materialImageURL != nil {
                 print("❌ Failed to load floor texture from URL")
@@ -100,23 +96,11 @@ struct RoomEntityBuilder {
     }
 
     @MainActor
-    private func createTextureMaterial(
-        texture: TextureResource,
-        floorWidth: Float,
-        floorDepth: Float
-    ) -> PhysicallyBasedMaterial {
+    private func createTextureMaterial(texture: TextureResource) -> PhysicallyBasedMaterial {
         var material = PhysicallyBasedMaterial()
-
-        // Texture를 baseColor에 적용
-        // RealityKit은 기본적으로 texture를 0-1 UV 범위에 매핑하며
-        // 이미지가 floor 전체를 덮도록 자동으로 스트레치됩니다
         material.baseColor = .init(texture: .init(texture))
         material.metallic = 0.0
         material.roughness = 0.8
-
-        print("📐 Floor dimensions: \(floorWidth) x \(floorDepth)")
-        print("🖼️ Texture dimensions: \(texture.width) x \(texture.height)")
-
         return material
     }
 

@@ -16,6 +16,12 @@ struct SceneRealityView: View {
     @State private var isSoundEnabled = false
     @State private var showFloorImageAlert = false
 
+    private var sceneViewIdentifier: String {
+        let projectID = appModel.selectedProject?.id.uuidString ?? ""
+        let floorImageURL = viewModel.spacialEnvironment.floorMaterialImageURL?.absoluteString ?? ""
+        return "\(projectID)-\(floorImageURL)"
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             RealityView { content, attachments in
@@ -70,7 +76,7 @@ struct SceneRealityView: View {
                     }
                 }
             }
-            .id("\(appModel.selectedProject?.id.uuidString ?? "")-\(viewModel.spacialEnvironment.floorMaterialImageURL?.absoluteString ?? "")")
+            .id(sceneViewIdentifier)
             .if(config.enableGestures) { view in
                 view.immersiveEntityGestures(
                     selectedEntity: $viewModel.selectedEntity,
@@ -176,28 +182,14 @@ struct SceneRealityView: View {
     // MARK: - Floor Attachment Positioning
 
     private func positionFloorAttachment(_ attachment: Entity, on floor: Entity, room: Entity) {
-        // floor가 room의 child이므로, room에 attachment를 추가
         attachment.name = "floorImageApplyButton"
         room.addChild(attachment)
 
-        // floor의 중앙 위치 계산
-        // floor는 position (0, floorThickness, 0)에 있고 scale로 크기가 조정됨
-        let floorPosition = floor.position
-
-        // floor 위에서 약간 떠 있도록 y offset 추가 (0.05m)
         let yOffset: Float = 0.05
-        let attachmentPosition = SIMD3<Float>(
-            0,  // x: floor 중앙
-            floorPosition.y + yOffset,  // y: floor 표면 위
-            0   // z: floor 중앙
-        )
+        attachment.position = SIMD3<Float>(0, floor.position.y + yOffset, 0)
 
-        attachment.position = attachmentPosition
-
-        // attachment가 바닥과 평행하도록 X축 기준으로 -90도 회전
-        // SwiftUI attachment는 기본적으로 수직(카메라 향함)이므로 바닥을 향하도록 회전
-        let rotation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
-        attachment.orientation = rotation
+        // Rotate to lay flat on floor (X-axis rotation)
+        attachment.orientation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
     }
     
     // MARK: - 회전 버튼과 Toolbar (Volume용)
