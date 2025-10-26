@@ -64,11 +64,6 @@ struct SpacialMoodBoardApp: App {
                             // TODO: - 리팩토링 필요
                             sceneViewModel: sceneViewModel
                         )
-
-                        Divider()
-
-                        DummyView(viewModel: sceneViewModel)
-                            .frame(height: 200)
                     }
                     .environment(appModel)
                     .task {
