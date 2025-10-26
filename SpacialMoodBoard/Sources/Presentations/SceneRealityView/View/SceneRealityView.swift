@@ -91,7 +91,7 @@ struct SceneRealityView: View {
             viewModel.alignRoomToWindowBottom(room: room, windowHeight: volumeSize)
         } else {
             // Immersive/Minimap 모드: 기존 방식
-            room.scale = [config.roomScale, config.roomScale, config.roomScale]
+            room.scale = [config.scale, config.scale, config.scale]
             content.add(room)
 
             if config.alignToWindowBottom {

@@ -47,7 +47,7 @@ struct EntityRotationGesture: ViewModifier {
                         // 최종 rotation을 Euler angles로 변환해서 저장
                         let finalRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, finalRotation)
-                        // 회전 제스처 실행시 billboardable을 false로 설정
+                        // 회전 제스처 실행시 billboardable을 false로 변경
                         onBillboardableChange(uuid, false)
                         
                         initialOrientation = nil
