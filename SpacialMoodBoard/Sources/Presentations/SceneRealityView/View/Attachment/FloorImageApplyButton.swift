@@ -21,7 +21,7 @@ struct FloorImageApplyButton: View {
                     .clipShape(.circle)
 
                 Image(systemName: "plus")
-                    .font(.system(size: 190, weight: .semibold))
+                    .font(.system(size: 900, weight: .semibold))
             }
             .clipShape(.circle)
             .contentShape(.circle)

@@ -80,7 +80,7 @@ struct SceneRealityView: View {
                             showFloorImageAlert = true
                             viewModel.isSelectingFloorImage = true
                         }
-                        .frame(width: 300, height: 300)
+                        .frame(width: 1300, height: 1300)
                     }
                 }
             }
@@ -195,6 +195,13 @@ struct SceneRealityView: View {
 
         let yOffset: Float = 0.05
         attachment.position = SIMD3<Float>(0, floor.position.y + yOffset, 0)
+
+        // Floor 크기의 1/8로 버튼 크기 설정
+        let floorWidth = floor.scale.x
+        let floorDepth = floor.scale.z
+        let minDimension = min(floorWidth, floorDepth)
+        let buttonSize = minDimension / 8
+        attachment.scale = [buttonSize, buttonSize, buttonSize]
 
         // Rotate to lay flat on floor (X-axis rotation)
         attachment.orientation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
