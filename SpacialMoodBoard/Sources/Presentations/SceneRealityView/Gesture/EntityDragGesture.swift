@@ -52,8 +52,6 @@ struct EntityDragGesture: ViewModifier {
                         onPositionUpdate(uuid, value.entity.position)
                         
                         initialPosition = nil
-                        
-                        let isBillboardable = getBillboardableState(uuid)
                     }
             )
     }
