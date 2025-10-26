@@ -35,15 +35,16 @@ struct DummyView: View {
 //                HStack(spacing: 15) {
 //                    Text("이미지 생성")
 //                        .font(.headline)
-//                    
+//
 //                    ImgCreateButton(asset: assets[0]) {
 //                        viewModel.addImageObject(from: assets[0])
 //                    }
 //                    ImgCreateButton(asset: assets[1]) {
 //                        viewModel.addImageObject(from: assets[1])
 //                    }
-                }
+//                }
             }
         }
     }
 }
+
