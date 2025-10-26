@@ -117,9 +117,19 @@ final class SceneViewModel {
             return
         }
 
-        // SpacialEnvironment에 floor material URL 저장
+        // Documents 디렉토리로부터의 상대 경로 계산
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        let relativePath: String?
+        if let documentsURL = documentsURL {
+            relativePath = asset.url.path.replacingOccurrences(of: documentsURL.path + "/", with: "")
+        } else {
+            relativePath = nil
+        }
+
+        // SpacialEnvironment에 floor material URL과 상대 경로 저장
         var updatedEnvironment = spacialEnvironment
         updatedEnvironment.floorMaterialImageURL = asset.url
+        updatedEnvironment.floorImageRelativePath = relativePath
         spacialEnvironment = updatedEnvironment
 
         // Room entity 캐시 무효화 (다음 getRoomEntity 호출 시 새 material로 재생성됨)
@@ -129,5 +139,25 @@ final class SceneViewModel {
 
         // 선택 모드 해제
         isSelectingFloorImage = false
+
+        // 변경사항 저장
+        saveScene()
+    }
+
+    // MARK: - Scene Persistence
+
+    /// SceneModel을 디스크에 저장
+    func saveScene() {
+        guard let scene = appModel.selectedScene,
+              let projectName = appModel.selectedProject?.title else {
+            print("⚠️ SceneModel 저장 실패: 프로젝트 또는 씬이 없음")
+            return
+        }
+
+        do {
+            try sceneModelFileStorage.save(scene, projectName: projectName)
+        } catch {
+            print("❌ SceneModel 저장 실패: \(error)")
+        }
     }
 }

@@ -7,15 +7,20 @@ struct SpacialEnvironment: Codable, Equatable {
     var immersiveBackground: URL?
     var floorMaterialImageURL: URL?
 
+    // Documents 디렉토리로부터의 상대 경로 (예: "projects/프로젝트명/images/파일명.png")
+    var floorImageRelativePath: String?
+
     init(
         roomType: RoomType,
         groundSize: GroundSize,
         immersiveBackground: URL? = nil,
-        floorMaterialImageURL: URL? = nil
+        floorMaterialImageURL: URL? = nil,
+        floorImageRelativePath: String? = nil
     ) {
         self.roomType = roomType
         self.groundSize = groundSize
         self.immersiveBackground = immersiveBackground
         self.floorMaterialImageURL = floorMaterialImageURL
+        self.floorImageRelativePath = floorImageRelativePath
     }
 }
