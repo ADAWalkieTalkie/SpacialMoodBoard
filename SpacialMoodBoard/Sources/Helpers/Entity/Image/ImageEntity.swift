@@ -22,7 +22,7 @@ struct ImageEntity {
         // 1. 이미지를 로드하여 TextureResource로 변환
         guard let texture = try? TextureResource.load(contentsOf: asset.url) else { return nil }
         
-        // 2. PhysicallyBasedMaterial 생성 및 텍스처 적용
+        // 2. UnlitMaterial 생성 및 텍스처 적용
         var material = UnlitMaterial(color: .white)
         material.color = .init(texture: .init(texture))
         material.blending = .transparent(opacity: 1.0)
