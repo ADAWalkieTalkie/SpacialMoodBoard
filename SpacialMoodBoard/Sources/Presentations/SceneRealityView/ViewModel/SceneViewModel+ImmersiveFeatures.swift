@@ -115,7 +115,6 @@ func getBillboardableState(id: UUID) -> Bool {
     func updateBillboardable(id: UUID, billboardable: Bool) {
             if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
                     sceneObjects[index].setBillboardable(billboardable)
-                    print("🔄 Billboardable 변경: \(id) - \(billboardable)")
             }
     }
 }
