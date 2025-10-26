@@ -58,6 +58,14 @@ struct SceneRealityView: View {
 
             } update: { content, attachments in
                 updateScene(content: content)
+
+                // Floor attachment 재배치 (room 변경 시에도 attachment 유지)
+                if config.showFloorImageApplyButton,
+                   let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
+                   let room = content.entities.first,
+                   let floor = room.findEntity(named: "floor") {
+                    positionFloorAttachment(floorAttachment, on: floor, room: room)
+                }
             } attachments: {
                 Attachment(id: "headToolbar"){
                     ToolBarAttachment(
