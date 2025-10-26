@@ -18,7 +18,7 @@ struct SceneRealityView: View {
         ZStack(alignment: .bottom) {
             RealityView { content, attachments in
                 await setupScene(content: content)
-            
+
                 let anchor = AnchorEntity(world: SIMD3<Float>(0, 0, 0))
                 anchor.name = "RootSceneAnchor"
                 content.add(anchor)
@@ -36,10 +36,18 @@ struct SceneRealityView: View {
                         toolbar.position = toolbarPosition
                         headAnchor.addChild(toolbar)
                     }
-                    
+
                     content.add(headAnchor)
                 }
-                
+
+                // Floor 중앙에 FloorImageApplyButton attachment 배치 (초기 setup)
+                if config.showFloorImageApplyButton,
+                   let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
+                   let room = content.entities.first,
+                   let floor = room.findEntity(named: "floor") {
+                    positionFloorAttachment(floorAttachment, on: floor, room: room)
+                }
+
             } update: { content, attachments in
                 updateScene(content: content)
             } attachments: {
@@ -48,6 +56,15 @@ struct SceneRealityView: View {
                         isSoundEnabled: $isSoundEnabled,
                         onToggleImmersive: handleToggleImmersive
                     )
+                }
+
+                if config.showFloorImageApplyButton {
+                    Attachment(id: "floorImageApplyButton") {
+                        FloorImageApplyButton {
+                            print("Floor Image Apply Button Tapped - Action not yet implemented")
+                        }
+                        .frame(width: 300, height: 300)
+                    }
                 }
             }
             .id(appModel.selectedProject?.id)
@@ -124,17 +141,17 @@ struct SceneRealityView: View {
     }
     
     // MARK: - Update Scene
-    
+
     private func updateScene(content: RealityViewContent) {
         guard let room = content.entities.first else { return }
-        
+
         let sceneObjects = viewModel.sceneObjects
-        
+
         viewModel.updateEntities(
             sceneObjects: sceneObjects,
             anchor: room
         )
-        
+
         if config.enableAttachments {
             viewModel.updateAttachment(
                 onDuplicate: { _ = viewModel.duplicateObject() },
@@ -146,6 +163,33 @@ struct SceneRealityView: View {
                 }
             )
         }
+    }
+
+    // MARK: - Floor Attachment Positioning
+
+    private func positionFloorAttachment(_ attachment: Entity, on floor: Entity, room: Entity) {
+        // floor가 room의 child이므로, room에 attachment를 추가
+        attachment.name = "floorImageApplyButton"
+        room.addChild(attachment)
+
+        // floor의 중앙 위치 계산
+        // floor는 position (0, floorThickness, 0)에 있고 scale로 크기가 조정됨
+        let floorPosition = floor.position
+
+        // floor 위에서 약간 떠 있도록 y offset 추가 (0.05m)
+        let yOffset: Float = 0.05
+        let attachmentPosition = SIMD3<Float>(
+            0,  // x: floor 중앙
+            floorPosition.y + yOffset,  // y: floor 표면 위
+            0   // z: floor 중앙
+        )
+
+        attachment.position = attachmentPosition
+
+        // attachment가 바닥과 평행하도록 X축 기준으로 -90도 회전
+        // SwiftUI attachment는 기본적으로 수직(카메라 향함)이므로 바닥을 향하도록 회전
+        let rotation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
+        attachment.orientation = rotation
     }
     
     // MARK: - 회전 버튼과 Toolbar (Volume용)
