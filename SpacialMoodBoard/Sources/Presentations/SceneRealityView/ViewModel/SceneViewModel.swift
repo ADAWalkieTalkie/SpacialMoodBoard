@@ -114,7 +114,6 @@ final class SceneViewModel {
 
     func applyFloorImage(from asset: Asset) {
         guard asset.type == .image else {
-            print("❌ Asset is not an image")
             return
         }
 
@@ -130,7 +129,5 @@ final class SceneViewModel {
 
         // 선택 모드 해제
         isSelectingFloorImage = false
-
-        print("✅ Floor material applied: \(asset.filename)")
     }
 }

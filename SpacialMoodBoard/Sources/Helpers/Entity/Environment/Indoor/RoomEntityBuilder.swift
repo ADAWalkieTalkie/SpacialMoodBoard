@@ -60,17 +60,16 @@ struct RoomEntityBuilder {
     // MARK: - Private Methods - Floor
 
     @MainActor
-    private func createFloor(width: Float, depth: Float, materialImageURL: URL?) -> ModelEntity {
+    private func createFloor(width: Float, depth: Float, materialImageURL: URL?)
+        -> ModelEntity
+    {
         let material: PhysicallyBasedMaterial
 
         if let imageURL = materialImageURL,
-           let texture = try? TextureResource.load(contentsOf: imageURL) {
-            print("✅ Floor texture loaded: \(imageURL.lastPathComponent)")
+            let texture = try? TextureResource.load(contentsOf: imageURL)
+        {
             material = createTextureMaterial(texture: texture)
         } else {
-            if materialImageURL != nil {
-                print("❌ Failed to load floor texture from URL")
-            }
             material = createBaseMaterial()
         }
 
@@ -96,7 +95,9 @@ struct RoomEntityBuilder {
     }
 
     @MainActor
-    private func createTextureMaterial(texture: TextureResource) -> PhysicallyBasedMaterial {
+    private func createTextureMaterial(texture: TextureResource)
+        -> PhysicallyBasedMaterial
+    {
         var material = PhysicallyBasedMaterial()
         material.baseColor = .init(texture: .init(texture))
         material.metallic = 0.0
