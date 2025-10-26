@@ -32,7 +32,11 @@ struct RoomEntityBuilder {
         let room = Entity()
         room.name = "roomRoot"
 
-        let floor = createFloor(width: dimensions.x, depth: dimensions.z)
+        let floor = createFloor(
+            width: dimensions.x,
+            depth: dimensions.z,
+            materialImageURL: environment.floorMaterialImageURL
+        )
         room.addChild(floor)
 
         applyRotation(to: room, angle: rotationAngle)
@@ -56,8 +60,23 @@ struct RoomEntityBuilder {
     // MARK: - Private Methods - Floor
 
     @MainActor
-    private func createFloor(width: Float, depth: Float) -> ModelEntity {
-        let material = createBaseMaterial()
+    private func createFloor(width: Float, depth: Float, materialImageURL: URL?) -> ModelEntity {
+        let material: PhysicallyBasedMaterial
+
+        if let imageURL = materialImageURL,
+           let texture = try? TextureResource.load(contentsOf: imageURL) {
+            print("✅ Floor texture loaded: \(imageURL.lastPathComponent)")
+            material = createTextureMaterial(
+                texture: texture,
+                floorWidth: width,
+                floorDepth: depth
+            )
+        } else {
+            if materialImageURL != nil {
+                print("❌ Failed to load floor texture from URL")
+            }
+            material = createBaseMaterial()
+        }
 
         let floor = ModelEntity(
             mesh: .generateBox(size: 1),
@@ -77,6 +96,27 @@ struct RoomEntityBuilder {
         material.baseColor.tint = .init(.gray)
         material.metallic = 0.0
         material.roughness = 0.8
+        return material
+    }
+
+    @MainActor
+    private func createTextureMaterial(
+        texture: TextureResource,
+        floorWidth: Float,
+        floorDepth: Float
+    ) -> PhysicallyBasedMaterial {
+        var material = PhysicallyBasedMaterial()
+
+        // Texture를 baseColor에 적용
+        // RealityKit은 기본적으로 texture를 0-1 UV 범위에 매핑하며
+        // 이미지가 floor 전체를 덮도록 자동으로 스트레치됩니다
+        material.baseColor = .init(texture: .init(texture))
+        material.metallic = 0.0
+        material.roughness = 0.8
+
+        print("📐 Floor dimensions: \(floorWidth) x \(floorDepth)")
+        print("🖼️ Texture dimensions: \(texture.width) x \(texture.height)")
+
         return material
     }
 

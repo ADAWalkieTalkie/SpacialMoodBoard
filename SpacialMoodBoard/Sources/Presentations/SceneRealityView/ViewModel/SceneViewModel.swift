@@ -43,6 +43,9 @@ final class SceneViewModel {
     // 회전 각도 (Volume용)
     var rotationAngle: Float = 0
 
+    // Floor 이미지 선택 모드
+    var isSelectingFloorImage: Bool = false
+
     // SceneObjects (computed property)
     var sceneObjects: [SceneObject] {
         get {
@@ -105,5 +108,29 @@ final class SceneViewModel {
         selectedEntity = nil
         roomEntities.removeAll()
         rotationAngle = 0
+    }
+
+    // MARK: - Floor Material Management
+
+    func applyFloorImage(from asset: Asset) {
+        guard asset.type == .image else {
+            print("❌ Asset is not an image")
+            return
+        }
+
+        // SpacialEnvironment에 floor material URL 저장
+        var updatedEnvironment = spacialEnvironment
+        updatedEnvironment.floorMaterialImageURL = asset.url
+        spacialEnvironment = updatedEnvironment
+
+        // Room entity 캐시 무효화 (다음 getRoomEntity 호출 시 새 material로 재생성됨)
+        if let projectId = appModel.selectedProject?.id {
+            roomEntities.removeValue(forKey: projectId)
+        }
+
+        // 선택 모드 해제
+        isSelectingFloorImage = false
+
+        print("✅ Floor material applied: \(asset.filename)")
     }
 }

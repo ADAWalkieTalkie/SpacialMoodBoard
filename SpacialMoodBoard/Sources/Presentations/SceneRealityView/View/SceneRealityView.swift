@@ -12,8 +12,10 @@ struct SceneRealityView: View {
     let config: SceneConfig
 
     let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.3, -0.8)
-    
+
     @State private var isSoundEnabled = false
+    @State private var showFloorImageAlert = false
+
     var body: some View {
         ZStack(alignment: .bottom) {
             RealityView { content, attachments in
@@ -61,13 +63,14 @@ struct SceneRealityView: View {
                 if config.showFloorImageApplyButton {
                     Attachment(id: "floorImageApplyButton") {
                         FloorImageApplyButton {
-                            print("Floor Image Apply Button Tapped - Action not yet implemented")
+                            showFloorImageAlert = true
+                            viewModel.isSelectingFloorImage = true
                         }
                         .frame(width: 300, height: 300)
                     }
                 }
             }
-            .id(appModel.selectedProject?.id)
+            .id("\(appModel.selectedProject?.id.uuidString ?? "")-\(viewModel.spacialEnvironment.floorMaterialImageURL?.absoluteString ?? "")")
             .if(config.enableGestures) { view in
                 view.immersiveEntityGestures(
                     selectedEntity: $viewModel.selectedEntity,
@@ -93,6 +96,11 @@ struct SceneRealityView: View {
             if config.showRotationButton {
                 rotationButton
             }
+        }
+        .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text("바닥으로 설정할 이미지를 선택해주세요.")
         }
     }
     

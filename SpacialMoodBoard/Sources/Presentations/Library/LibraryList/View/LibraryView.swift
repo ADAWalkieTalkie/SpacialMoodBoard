@@ -154,10 +154,16 @@ fileprivate struct ImageTabGridView: View {
                         .contentShape(RoundedRectangle(cornerRadius: 20))
                         .hoverEffect(.highlight)
                         .simultaneousGesture(
-                           
+
                             TapGesture().onEnded {
-                                print("클릭됨")
-                                sceneViewModel.addImageObject(from: asset)   // ✅ 사운드는 sound 쪽으로
+                                if sceneViewModel.isSelectingFloorImage {
+                                    // Floor material 선택 모드
+                                    sceneViewModel.applyFloorImage(from: asset)
+                                } else {
+                                    // 일반 모드: 씬에 이미지 객체 추가
+                                    print("클릭됨")
+                                    sceneViewModel.addImageObject(from: asset)   // ✅ 사운드는 sound 쪽으로
+                                }
                             }
                         )
                 }
