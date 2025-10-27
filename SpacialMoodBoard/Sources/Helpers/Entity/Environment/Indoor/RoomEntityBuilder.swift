@@ -65,10 +65,14 @@ struct RoomEntityBuilder {
     {
         let material: PhysicallyBasedMaterial
 
-        if let imageURL = materialImageURL,
-            let texture = try? TextureResource.load(contentsOf: imageURL)
-        {
-            material = createTextureMaterial(texture: texture)
+        if let imageURL = materialImageURL {
+            do {
+                let texture = try TextureResource.load(contentsOf: imageURL)
+                material = createTextureMaterial(texture: texture)
+            } catch {
+                print("❌ Floor 텍스처 로드 실패 (\(imageURL.lastPathComponent)): \(error.localizedDescription)")
+                material = createBaseMaterial()
+            }
         } else {
             material = createBaseMaterial()
         }
