@@ -202,28 +202,33 @@ fileprivate struct AddToLibraryButton: View {
     @Bindable var viewModel: ImageEditorViewModel
     
     var body: some View {
-        Button(action: viewModel.addCurrentToLibrary) {
-            Text("라이브러리에 추가")
-                .font(.system(size: 19, weight: .medium))
-                .padding(.horizontal, 20)
-                .padding(.vertical, 15)
-        }
-        .buttonStyle(CapsuleButtonStyle(materialOpacity: 0.3))
-        .background(.clear)
-        .overlay(
-            LinearGradient(
-                stops: [
-                    .init(color: .white, location: 0.00),
-                    .init(color: Color(red: 0.43, green: 0.49, blue: 1).opacity(0.5), location: 0.52),
-                    .init(color: .white, location: 1.00),
-                ],
-                startPoint: .init(x: 0, y: 0.5),
-                endPoint: .init(x: 1, y: 0.5)
+        VStack {
+            Button(action: viewModel.addCurrentToLibrary) {
+                Text("라이브러리에 추가")
+                    .font(.system(size: 19, weight: .medium))
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+            }
+            .buttonStyle(CapsuleButtonStyle(materialOpacity: 0.3))
+            .background(.clear)
+            .overlay(
+                LinearGradient(
+                    stops: [
+                        .init(color: .white, location: 0.00),
+                        .init(color: Color(red: 0.43, green: 0.49, blue: 1).opacity(0.5), location: 0.52),
+                        .init(color: .white, location: 1.00),
+                    ],
+                    startPoint: .init(x: 0, y: 0.5),
+                    endPoint: .init(x: 1, y: 0.5)
+                )
+                .blur(radius: 15)
+                .opacity( viewModel.isAddTargeted ? 0.5 : 0.0)
             )
-            .blur(radius: 15)
-            .opacity( viewModel.isAddTargeted ? 0.5 : 0.0)
-        )
-        .contentShape(Capsule())
+            .contentShape(Capsule())
+        }
+        .frame(height: 80)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 140)
         .onDrop(of: viewModel.dropTypes, isTargeted: $viewModel.isAddTargeted) { providers in
             viewModel.handleDropToAdd(providers: providers)
         }
