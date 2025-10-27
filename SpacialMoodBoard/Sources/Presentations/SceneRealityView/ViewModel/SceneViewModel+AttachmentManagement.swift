@@ -59,6 +59,16 @@ extension SceneViewModel {
             )
         )
         objectAttachment.components.set(attachment)
+        objectAttachment.components.set(BillboardComponent())
+        
+        /// attachment 스케일 유지
+        let inverseScale = SIMD3<Float>(
+            1.0 / entity.scale.x,
+            1.0 / entity.scale.y,
+            1.0 / entity.scale.z
+        )
+        objectAttachment.scale = inverseScale
+
         entity.addChild(objectAttachment)
     
         // Attachment 위치 설정
@@ -68,10 +78,10 @@ extension SceneViewModel {
     // 상단 위치로 Attachment 설정(EditBarAttachment 위치)
     private func topPositionAttachment(_ attachment: Entity, relativeTo parent: Entity) {
         let objectBounds = parent.visualBounds(relativeTo: parent)
-        let attachmentBounds = attachment.visualBounds(relativeTo: attachment)
+        let attachmentBounds = attachment.visualBounds(relativeTo: parent)
     
-        let yOffset = objectBounds.max.y + attachmentBounds.max.y / 2 + 0.05
-        attachment.transform = Transform(translation: SIMD3<Float>(0, yOffset, 0))
+        let yOffset = objectBounds.max.y + attachmentBounds.extents.y / 2 + 0.05
+        attachment.position = SIMD3<Float>(0, yOffset, 0)
     }
 
     private func centerPositionAttachment(_ attachment: Entity, relativeTo parent: Entity) {
