@@ -2,7 +2,6 @@ import SwiftUI
 import SwiftData
 
 struct MainWindowContent: View {
-    @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     
@@ -43,6 +42,16 @@ struct MainWindowContent: View {
                 )
                 .environment(appModel)
                 .modelContainer(modelContainer)
+            }
+        }
+        .onDisappear {
+            Task { @MainActor in
+                // 자신을 제외한 모든 창 닫기
+                if appModel.immersiveSpaceState == .open {
+                    await dismissImmersiveSpace()
+                }
+                dismissWindow(id: "ImmersiveVolumeWindow")
+                exit(0)
             }
         }
     }
