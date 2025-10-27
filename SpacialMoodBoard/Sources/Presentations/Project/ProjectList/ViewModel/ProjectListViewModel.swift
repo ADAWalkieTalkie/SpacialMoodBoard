@@ -73,7 +73,14 @@ final class ProjectListViewModel {
                 if let relativePath = sceneModel.spacialEnvironment.floorImageRelativePath {
                     if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
                         let absoluteURL = documentsURL.appendingPathComponent(relativePath)
-                        sceneModel.spacialEnvironment.floorMaterialImageURL = absoluteURL
+
+                        // 파일 존재 여부 확인
+                        if FileManager.default.fileExists(atPath: absoluteURL.path) {
+                            sceneModel.spacialEnvironment.floorMaterialImageURL = absoluteURL
+                        } else {
+                            print("⚠️ Floor 이미지 파일이 존재하지 않음: \(absoluteURL.path)")
+                            sceneModel.spacialEnvironment.floorImageRelativePath = nil
+                        }
                     }
                 }
 
