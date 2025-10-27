@@ -118,11 +118,17 @@ final class SceneViewModel {
         }
 
         // Documents 디렉토리로부터의 상대 경로 계산
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         let relativePath: String?
-        if let documentsURL = documentsURL {
-            relativePath = asset.url.path.replacingOccurrences(of: documentsURL.path + "/", with: "")
+        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let documentsPathWithSlash = documentsURL.path + "/"
+            if asset.url.path.hasPrefix(documentsPathWithSlash) {
+                relativePath = String(asset.url.path.dropFirst(documentsPathWithSlash.count))
+            } else {
+                print("⚠️ Asset이 Documents 디렉토리 내에 없음: \(asset.url.path)")
+                relativePath = nil
+            }
         } else {
+            print("⚠️ Documents 디렉토리를 찾을 수 없음")
             relativePath = nil
         }
 
