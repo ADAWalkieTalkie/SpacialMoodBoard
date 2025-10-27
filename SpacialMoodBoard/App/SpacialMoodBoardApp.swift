@@ -69,6 +69,9 @@ struct SpacialMoodBoardApp: App {
                 viewModel: sceneViewModel
             )
             .environment(appModel)
+            .onDisappear {
+                appModel.selectedProject = nil
+            }
         }
         .windowStyle(.volumetric)
         .defaultSize(width: 1.5, height: 1.5, depth: 1.5, in: .meters)

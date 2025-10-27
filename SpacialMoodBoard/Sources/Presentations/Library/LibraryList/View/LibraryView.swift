@@ -16,6 +16,7 @@ struct LibraryView: View {
     @State private var sceneViewModel: SceneViewModel
     @State private var photoSelection: [PhotosPickerItem] = []
     @Environment(AppModel.self) private var appModel
+    @Environment(\.dismissWindow) private var dismissWindow
     
     // MARK: - Init
     
@@ -97,7 +98,10 @@ struct LibraryView: View {
         HStack(alignment: .center, spacing: 16) {
             IconCircleButton(
                 systemName: "chevron.left",
-                action: {appModel.selectedProject = nil}
+                action: {
+                    dismissWindow(id: "ImmersiveVolumeWindow")
+                    appModel.selectedProject = nil
+                }
             )
             
             SortSegment(selection: $viewModel.sort)
