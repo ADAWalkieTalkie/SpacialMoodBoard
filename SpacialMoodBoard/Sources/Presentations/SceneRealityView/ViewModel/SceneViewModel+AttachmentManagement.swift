@@ -85,8 +85,6 @@ extension SceneViewModel {
     }
 
     private func centerPositionAttachment(_ attachment: Entity, relativeTo parent: Entity) {
-        // let objectBounds = parent.visualBounds(relativeTo: parent)
-        let attachmentBounds = attachment.visualBounds(relativeTo: attachment)
-        attachment.transform = Transform(translation: SIMD3<Float>(0, 0, 0.1))
+        attachment.position = SIMD3<Float>(0, 0, 0.1)
     }
 }
