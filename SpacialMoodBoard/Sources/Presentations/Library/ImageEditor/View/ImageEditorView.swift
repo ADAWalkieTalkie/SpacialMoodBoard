@@ -119,8 +119,6 @@ fileprivate struct EditorToolbarView: View {
 
     var body: some View {
         HStack(alignment: .center) {
-            IconCircleButton(systemName: "chevron.left", action: dismiss)
-
             HiddenOrSpace(show: !viewModel.showSidebar, size: 44) {
                 IconCircleButton(systemName: "square.split.2x1") {
                     withAnimation(.easeInOut(duration: 0.22)) { viewModel.showSidebar = true }
