@@ -54,41 +54,13 @@ struct SpacialMoodBoardApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            Group {
-                if appModel.selectedProject != nil {
-                    VStack {
-                        LibraryView(
-                            viewModel: LibraryViewModel(
-                                assetRepository: assetRepository
-                            ),
-                            // TODO: - 리팩토링 필요
-                            sceneViewModel: sceneViewModel
-                        )
-                    }
-                    .environment(appModel)
-                    .task {
-                        await assetRepository.switchProject(
-                            to: appModel.selectedProject?.title ?? ""
-                        )
-                    }
-                    .onChange(of: appModel.selectedProject?.title ?? "") {
-                        _,
-                        newTitle in
-                        Task {
-                            await assetRepository.switchProject(to: newTitle)
-                        }
-                    }
-                } else {
-                    ProjectListView(
-                        viewModel: ProjectListViewModel(
-                            appModel: appModel,
-                            projectRepository: projectRepository
-                        )
-                    )
-                    .environment(appModel)
-                    .modelContainer(modelContainer)
-                }
-            }
+            MainWindowContent(
+                appModel: appModel,
+                assetRepository: assetRepository,
+                projectRepository: projectRepository,
+                sceneViewModel: sceneViewModel,
+                modelContainer: modelContainer
+            )
         }
 
         // Volume Scene (Room 미리보기)
