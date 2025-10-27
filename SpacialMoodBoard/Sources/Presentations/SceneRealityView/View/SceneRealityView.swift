@@ -5,6 +5,8 @@ import RealityKitContent
 /// 재사용 가능한 핵심 Scene RealityView
 struct SceneRealityView: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     
@@ -147,7 +149,7 @@ struct SceneRealityView: View {
                 onCrop: { /* handle */ },
                 onDelete: {
                     guard let entity = viewModel.selectedEntity,
-                          let objectId = UUID(uuidString: entity.name) else { return }
+                        let objectId = UUID(uuidString: entity.name) else { return }
                     viewModel.removeSceneObject(id: objectId)
                 }
             )
@@ -160,31 +162,46 @@ struct SceneRealityView: View {
     
     private var rotationButton: some View {
         VStack(spacing: 12) {
-            Button {
-                guard !isAnimating else { return }
-                isAnimating = true
-                viewModel.rotateBy90Degrees()
-                
-                Task {
-                    try? await Task.sleep(nanoseconds: 400_000_000)
-                    isAnimating = false
+            if appModel.selectedProject == nil {
+                Button {
+                    openWindow(id: "MainWindow")
+                    dismissWindow(id: "ImmersiveVolumeWindow")
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.title2)
+                        .padding(12)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
                 }
-            } label: {
-                Image(systemName: "rotate.right")
-                    .font(.title2)
-                    .padding(12)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .opacity(isAnimating ? 0.5 : 1.0)
-            .padding(.horizontal)
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+            }else{
+                Button {
+                    guard !isAnimating else { return }
+                    isAnimating = true
+                    viewModel.rotateBy90Degrees()
+                    
+                    Task {
+                        try? await Task.sleep(nanoseconds: 400_000_000)
+                        isAnimating = false
+                    }
+                } label: {
+                    Image(systemName: "rotate.right")
+                        .font(.title2)
+                        .padding(12)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .opacity(isAnimating ? 0.5 : 1.0)
+                .padding(.horizontal)
 
-            ToolBarAttachment(
-                isSoundEnabled: $isSoundEnabled,
-                onToggleImmersive: handleToggleImmersive
-            )
-            .environment(appModel)
+                ToolBarAttachment(
+                    isSoundEnabled: $isSoundEnabled,
+                    onToggleImmersive: handleToggleImmersive
+                )
+                .environment(appModel)
+            }
         }
         .padding(.bottom, 20)
     }

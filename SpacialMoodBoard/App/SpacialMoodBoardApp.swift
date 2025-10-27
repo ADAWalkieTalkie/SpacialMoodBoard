@@ -53,7 +53,7 @@ struct SpacialMoodBoardApp: App {
         }
     }
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "MainWindow") {
             MainWindowContent(
                 appModel: appModel,
                 assetRepository: assetRepository,
