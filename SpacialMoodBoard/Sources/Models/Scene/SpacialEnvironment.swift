@@ -23,4 +23,13 @@ struct SpacialEnvironment: Codable, Equatable {
         self.floorMaterialImageURL = floorMaterialImageURL
         self.floorImageRelativePath = floorImageRelativePath
     }
+
+    // MARK: - Codable
+    // floorMaterialImageURL은 런타임 전용이므로 JSON에 저장하지 않음
+    private enum CodingKeys: String, CodingKey {
+        case roomType
+        case groundSize
+        case immersiveBackground
+        case floorImageRelativePath
+    }
 }
