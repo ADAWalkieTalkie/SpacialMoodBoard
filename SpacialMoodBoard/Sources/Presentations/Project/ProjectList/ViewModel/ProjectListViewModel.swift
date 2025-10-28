@@ -14,6 +14,7 @@ final class ProjectListViewModel {
     private var appModel: AppModel
     private let projectRepository: ProjectRepository
     private let sceneModelStorage = SceneModelFileStorage()
+    private let projectFileStorage = ProjectFileStorage()
 
     var searchText: String = ""
 
@@ -130,7 +131,7 @@ final class ProjectListViewModel {
     @discardableResult
     func createProject(
         title: String? = nil
-    ) -> Project {
+    ) throws -> Project {
         // title이 nil이거나 비어있으면 고유 제목 자동 생성
         let projectTitle = title?.isEmpty == false ? title! : generateUniqueProjectTitle()
 
@@ -148,20 +149,33 @@ final class ProjectListViewModel {
         appModel.selectedProject = newProject
 
         // 새 SceneModel 생성 및 로컬 파일에 저장
-        appModel.selectedScene = SceneModel(
+        let newSceneModel = SceneModel(
             projectId: newProject.id,
             spacialEnvironment: spacialEnvironment,
             userSpatialState: UserSpatialState(),
             sceneObjects: []
         )
-
-        sceneModelStorage.save(appModel.selectedScene, projectName: title)
+        appModel.selectedScene = newSceneModel
+        
+            do {
+                try sceneModelStorage.save(newSceneModel, projectName: projectTitle)
+                print("✅ SceneModel 저장 성공: \(projectTitle)")
+            } catch {
+                print("❌ SceneModel 저장 실패: \(error)")
+                print("   - 프로젝트명: \(projectTitle)")
+                print("   - 에러 상세: \(error.localizedDescription)")
+                throw error // 에러를 다시 던져서 호출자가 처리할 수 있게 함
+            }
 
         return newProject
     }
 
     func updateProjectTitle(project: Project, newTitle: String) {
         do {
+            // 프로젝트 디렉토리, 메타데이터 파일 이름 변경
+            try projectFileStorage.rename(from: project.title, to: newTitle)
+
+            // swiftData 업데이트
             try projectRepository.updateProjectTitle(
                 project,
                 newTitle: newTitle
@@ -174,9 +188,10 @@ final class ProjectListViewModel {
             }
 
             // SceneModel 파일 업데이트 및 appModel 업데이트
-            sceneModelStorage.save(appModel.selectedScene, projectName: newTitle)
+            if let selectedScene = appModel.selectedScene {
+                try sceneModelStorage.save(selectedScene, projectName: newTitle)
+            }
             appModel.selectedProject?.title = newTitle
-            appModel.selectedScene?.projectId = project.id
         } catch {
             #if DEBUG
                 print("[ProjectListViewModel] updateProjectTitle - ❌ Error: \(error)")
