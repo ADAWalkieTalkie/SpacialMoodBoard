@@ -61,6 +61,15 @@ extension SceneViewModel {
             sceneObjects[index].setScale(scale)
         }
     }
+    
+    // MARK: - SceneObjec 사운드, 크롭 등 수정 관련
+    
+    func updateSceneObject(with id: UUID, _ mutate: (inout SceneObject) -> Void) {
+        var arr = sceneObjects
+        guard let idx = arr.firstIndex(where: { $0.id == id }) else { return }
+        mutate(&arr[idx])
+        sceneObjects = arr
+    }
   
     // MARK: - 복제
   

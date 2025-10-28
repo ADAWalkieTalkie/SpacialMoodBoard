@@ -16,10 +16,9 @@ final class SceneAudioCoordinator {
     // MARK: - Properties
     
     static let shared = SceneAudioCoordinator()
+
+    private struct WeakController { weak var controller: AudioPlaybackController? }
     private var controllers: [UUID: WeakController] = [:]
-    private struct WeakController {
-        weak var controller: AudioPlaybackController?
-    }
     
     // MARK: - Methods
     
@@ -35,6 +34,17 @@ final class SceneAudioCoordinator {
     /// - Parameter entityId: 제거할 엔티티의 UUID
     func unregister(entityId: UUID) {
         controllers.removeValue(forKey: entityId)
+    }
+    
+    /// 개별 조회
+    /// - Parameter id: 조회할 UUID
+    /// - Returns: 개별 `AudioPlaybackController` 인스턴스
+    func controller(for id: UUID) -> AudioPlaybackController? {
+        if controllers[id]?.controller == nil {
+            controllers[id] = nil
+            return nil
+        }
+        return controllers[id]?.controller
     }
     
     /// 현재 등록된 모든 오디오 컨트롤러를 일시정지
