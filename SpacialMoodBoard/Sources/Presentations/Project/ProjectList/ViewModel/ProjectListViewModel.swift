@@ -125,6 +125,8 @@ final class ProjectListViewModel {
             roomType: roomType,
             groundSize: groundSize
         )
+
+        // Project 생성 및 DB에 저장
         let newProject = Project(
             title: title,
             createdAt: Date(),
@@ -136,13 +138,15 @@ final class ProjectListViewModel {
 
         appModel.selectedProject = newProject
 
-        // 새 SceneModel 생성
+        // 새 SceneModel 생성 및 로컬 파일에 저장
         appModel.selectedScene = SceneModel(
             projectId: newProject.id,
             spacialEnvironment: spacialEnvironment,
             userSpatialState: UserSpatialState(),
             sceneObjects: []
         )
+
+        sceneModelStorage.save(appModel.selectedScene, projectName: title)
 
         return newProject
     }
@@ -159,6 +163,11 @@ final class ProjectListViewModel {
             if appModel.selectedProject?.id == project.id {
                 appModel.selectedProject?.title = newTitle
             }
+
+            // SceneModel 파일 업데이트 및 appModel 업데이트
+            sceneModelStorage.save(appModel.selectedScene, projectName: newTitle)
+            appModel.selectedProject?.title = newTitle
+            appModel.selectedScene?.projectId = project.id
         } catch {
             #if DEBUG
                 print("[ProjectListViewModel] updateProjectTitle - ❌ Error: \(error)")
