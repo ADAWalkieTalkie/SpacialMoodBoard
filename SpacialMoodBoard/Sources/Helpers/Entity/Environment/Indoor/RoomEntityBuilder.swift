@@ -27,7 +27,7 @@ struct RoomEntityBuilder {
         from environment: SpacialEnvironment,
         rotationAngle: Float
     ) -> Entity {
-        let dimensions = calculateDimensions(from: environment.groundSize)
+        let dimensions = SIMD3<Float>(Float(10), Float(4), Float(10))
 
         let room = Entity()
         room.name = "roomRoot"
@@ -42,19 +42,6 @@ struct RoomEntityBuilder {
         applyRotation(to: room, angle: rotationAngle)
 
         return room
-    }
-
-    // MARK: - Private Methods - Dimensions
-
-    private func calculateDimensions(from groundSize: GroundSize) -> SIMD3<
-        Float
-    > {
-        let dimensions = groundSize.dimensions
-        return SIMD3<Float>(
-            Float(dimensions.x),
-            Float(dimensions.y),
-            Float(dimensions.z)
-        )
     }
 
     // MARK: - Private Methods - Floor
