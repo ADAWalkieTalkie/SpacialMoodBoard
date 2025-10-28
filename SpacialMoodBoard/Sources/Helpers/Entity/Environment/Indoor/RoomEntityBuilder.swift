@@ -30,8 +30,8 @@ struct RoomEntityBuilder {
         room.name = "roomRoot"
 
         let floor = createFloor(
-            size: self.defaultFloorSize,
-            position: self.defaultFloorPosition,
+            size: Self.defaultFloorSize,
+            position: Self.defaultFloorPosition,
             materialImageURL: environment.floorMaterialImageURL
         )
         room.addChild(floor)
