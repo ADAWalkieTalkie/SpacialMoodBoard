@@ -8,8 +8,8 @@ struct SceneConfig {
     var alignToWindowBottom: Bool = false
     var scale: Float = 1.0
     var useHeadAnchoredToolbar: Bool = false
-    var volumeSize: Float? = nil  // Volume 윈도우 크기 (nil이면 자동 scale 미적용)
     var showFloorImageApplyButton: Bool = true  // floor 중앙에 이미지 적용 버튼 표시 여부
+    var floorSize: SIMD3<Float> = SIMD3(5, 0.03, 5)
 
 
     static let immersive = SceneConfig(
@@ -24,7 +24,6 @@ struct SceneConfig {
         enableAttachments: true,
         alignToWindowBottom: true,
         useHeadAnchoredToolbar: false,
-        volumeSize: 1.5  // App에서 정의된 Volume 윈도우 크기
     )
 
     static let minimap = SceneConfig(
@@ -32,6 +31,8 @@ struct SceneConfig {
         enableGestures: false,
         enableAttachments: false,
         scale: 0.3,
-        useHeadAnchoredToolbar: false
+        useHeadAnchoredToolbar: false,
+        showFloorImageApplyButton: false
+        
     )
 }
