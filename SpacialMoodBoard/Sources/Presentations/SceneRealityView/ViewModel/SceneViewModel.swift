@@ -90,10 +90,7 @@ final class SceneViewModel {
     // SpacialEnvironment (computed property)
     var spacialEnvironment: SpacialEnvironment {
         get {
-            appModel.selectedScene?.spacialEnvironment ?? SpacialEnvironment(
-            roomType: .indoor,
-            groundSize: .medium
-            )
+            appModel.selectedScene?.spacialEnvironment ?? SpacialEnvironment()
         }
         set {
             appModel.selectedScene?.spacialEnvironment = newValue

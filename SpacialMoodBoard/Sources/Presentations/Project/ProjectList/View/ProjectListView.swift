@@ -14,20 +14,15 @@ struct ProjectListView: View {
 
     @State private var viewModel: ProjectListViewModel
 
-    @State private var path = NavigationPath()
-
     init(viewModel: ProjectListViewModel) {
         _viewModel = State(wrappedValue: viewModel)
     }
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack {
             projectGridView
                 .navigationTitle("Projects")
                 .searchable(text: $viewModel.searchText, prompt: "search")
-                .navigationDestination(for: CreationStep.self) { step in
-                    destinationView(for: step)
-                }
         }
         .glassBackgroundEffect()
     }
@@ -40,7 +35,8 @@ struct ProjectListView: View {
                 spacing: 40
             ) {
                 ProjectCreationButton {
-                    path.append(CreationStep.roomTypeSelection)
+                    viewModel.createProject()
+                    openWindow(id: "ImmersiveVolumeWindow")
                 }
                 .padding(.horizontal, 30)
 
@@ -65,40 +61,6 @@ struct ProjectListView: View {
                 }
             }
             .padding(.horizontal, 60)
-        }
-    }
-
-    // MARK: - Navigation Destinations
-    @ViewBuilder
-    private func destinationView(for step: CreationStep) -> some View {
-        switch step {
-        case .roomTypeSelection:
-            RoomTypeSelectionView { roomType in
-                path.append(
-                    CreationStep.groundSizeSelection(roomType: roomType)
-                )
-            }
-
-        case .groundSizeSelection(let roomType):
-            GroundSizeSelectionView { groundSize in
-                path.append(
-                    CreationStep.projectTitleInput(
-                        roomType: roomType,
-                        groundSize: groundSize
-                    )
-                )
-            }
-
-        case .projectTitleInput(let roomType, let groundSize):
-            ProjectTitleInputView { projectTitle in
-                viewModel.createProject(
-                    title: projectTitle,
-                    roomType: roomType,
-                    groundSize: groundSize
-                )
-                openWindow(id: "ImmersiveVolumeWindow")
-                path.removeLast(path.count)
-            }
         }
     }
 }

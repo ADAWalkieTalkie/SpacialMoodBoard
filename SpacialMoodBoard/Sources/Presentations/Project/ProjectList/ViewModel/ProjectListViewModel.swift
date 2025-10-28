@@ -42,6 +42,24 @@ final class ProjectListViewModel {
         projects = projectRepository.fetchProjects()
     }
 
+    /// 고유한 프로젝트 제목 생성 ("무제1", "무제2", ...)
+    private func generateUniqueProjectTitle() -> String {
+        let prefix = "무제"
+
+        // 기존 프로젝트 중 "무제" + 숫자 형태의 제목에서 숫자 추출
+        let numbers = projects.compactMap { project -> Int? in
+            guard project.title.hasPrefix(prefix) else { return nil }
+            let numberPart = project.title.dropFirst(prefix.count)
+            return Int(numberPart)
+        }
+
+        // 가장 큰 숫자 찾기 (없으면 0)
+        let maxNumber = numbers.max() ?? 0
+
+        // 다음 숫자로 제목 생성
+        return "\(prefix)\(maxNumber + 1)"
+    }
+
     func selectProject(project: Project) {
         guard projectRepository.fetchProject(project) != nil else {
             #if DEBUG
@@ -90,10 +108,7 @@ final class ProjectListViewModel {
                 // 파일이 없으면 기본값 생성
                 let defaultScene = SceneModel(
                     projectId: project.id,
-                    spacialEnvironment: SpacialEnvironment(
-                        roomType: .indoor,
-                        groundSize: .medium
-                    ),
+                    spacialEnvironment: SpacialEnvironment(),
                     userSpatialState: UserSpatialState(),
                     sceneObjects: []
                 )
@@ -105,10 +120,7 @@ final class ProjectListViewModel {
             // 실패 시 기본값 생성
             appModel.selectedScene = SceneModel(
                 projectId: project.id,
-                spacialEnvironment: SpacialEnvironment(
-                    roomType: .indoor,
-                    groundSize: .medium
-                ),
+                spacialEnvironment: SpacialEnvironment(),
                 userSpatialState: UserSpatialState(),
                 sceneObjects: []
             )
@@ -117,16 +129,14 @@ final class ProjectListViewModel {
 
     @discardableResult
     func createProject(
-        title: String,
-        roomType: RoomType,
-        groundSize: GroundSize
+        title: String? = nil
     ) -> Project {
-        let spacialEnvironment = SpacialEnvironment(
-            roomType: roomType,
-            groundSize: groundSize
-        )
+        // title이 nil이거나 비어있으면 고유 제목 자동 생성
+        let projectTitle = title?.isEmpty == false ? title! : generateUniqueProjectTitle()
+
+        let spacialEnvironment = SpacialEnvironment()
         let newProject = Project(
-            title: title,
+            title: projectTitle,
             createdAt: Date(),
             updatedAt: Date()
         )

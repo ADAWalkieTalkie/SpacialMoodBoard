@@ -137,7 +137,7 @@ struct SceneRealityView: View {
         if let volumeSize = config.volumeSize {
             // Volume 모드: 자동 scale 계산 및 content 직접 추가
             // 최종 크기를 0.6m로 고정 (RealityKit volumetric window 렌더링 보장)
-            let roomDimensions = viewModel.spacialEnvironment.groundSize.dimensions
+            let roomDimensions = (x: 10, y: 4, z:10)
             let roomWidth = Float(roomDimensions.x)
             let roomDepth = Float(roomDimensions.z)
             let roomHeight = Float(roomDimensions.y)
