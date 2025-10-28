@@ -117,6 +117,9 @@ struct SceneRealityView: View {
                 rotationButton
             }
         }
+        .onChange(of: isSoundEnabled) {
+            SceneAudioCoordinator.shared.setGlobalMute(isSoundEnabled)
+        }
         .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
             Button("확인", role: .cancel) { }
         } message: {

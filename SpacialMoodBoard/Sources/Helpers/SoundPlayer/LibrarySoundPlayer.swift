@@ -77,15 +77,11 @@ final class LibrarySoundPlayer: NSObject, ObservableObject, AVAudioPlayerDelegat
     func resume() {
         guard let p = player else { return }
         try? AVAudioSession.sharedInstance().setActive(true)
-        
         p.play()
         isPlaying = true
         startTick()
-        
-        if !isInterruptionActive {
-            SceneAudioCoordinator.shared.beginExternalInterruption()
-            isInterruptionActive = true
-        }
+
+        SceneAudioCoordinator.shared.beginExternalInterruption()
     }
     
     /// 현재 재생 중인 트랙 일시정지
@@ -94,10 +90,7 @@ final class LibrarySoundPlayer: NSObject, ObservableObject, AVAudioPlayerDelegat
         isPlaying = false
         stopTickIfNeeded()
         
-        if isInterruptionActive {
-            SceneAudioCoordinator.shared.endExternalInterruption()
-            isInterruptionActive = false
-        }
+        SceneAudioCoordinator.shared.endExternalInterruption()
     }
     
     /// 재생을 완전히 멈추고, 시간을 처음(0)으로 리셋
@@ -108,10 +101,8 @@ final class LibrarySoundPlayer: NSObject, ObservableObject, AVAudioPlayerDelegat
         progress = 0
         stopTickIfNeeded()
         
-        if isInterruptionActive {
-            SceneAudioCoordinator.shared.endExternalInterruption()
-            isInterruptionActive = false
-        }
+        SceneAudioCoordinator.shared.endExternalInterruption()
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
     
     /// 지정된 진행도로 이동(시크)
@@ -217,18 +208,14 @@ extension LibrarySoundPlayer {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         isPlaying = false
         stopTickIfNeeded()
-        if isInterruptionActive {
-            SceneAudioCoordinator.shared.endExternalInterruption()
-            isInterruptionActive = false
-        }
+        SceneAudioCoordinator.shared.endExternalInterruption()
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
     
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
         isPlaying = false
         stopTickIfNeeded()
-        if isInterruptionActive {
-            SceneAudioCoordinator.shared.endExternalInterruption()
-            isInterruptionActive = false
-        }
+        SceneAudioCoordinator.shared.endExternalInterruption()
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 }

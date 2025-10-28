@@ -20,14 +20,18 @@ final class SceneAudioCoordinator {
     
     private struct WeakController { weak var controller: AudioPlaybackController? }
     private var controllers: [UUID: WeakController] = [:]
-    
+    private var isGlobalMute = false
     
     /// 현재 “재생 중”으로 추적되는 ID 집합
     private var playing: Set<UUID> = []
     
-    /// 외부 인터럽션(라이브러리 재생 등) 동안
-    /// “인터럽션 시작 시점에 재생 중이던 ID 집합”을 스택에 보관
-    private var interruptionStack: [Set<UUID>] = []
+    private enum PauseScope {
+            case external    // 라이브러리(외부) 인터럽션
+            case globalMute  // 툴바 글로벌 음소거
+        }
+    
+    /// 정지 사유, “인터럽션 시작 시점에 재생 중이던 ID 집합”을 스택에 보관
+    private var pauseStack: [(scope: PauseScope, snapshot: Set<UUID>)] = []
     
     // MARK: - Methods
     
@@ -58,24 +62,34 @@ final class SceneAudioCoordinator {
         return controllers[id]?.controller
     }
     
+    /// 특정 엔티티 재생 시작(또는 재개)
+    /// - Parameter id: 엔티티 UUID
     func play(_ id: UUID) {
         guard let c = controller(for: id) else { return }
         c.play()
         playing.insert(id)
     }
     
+    /// 특정 엔티티 일시정지
+    /// - Parameter id: 엔티티 UUID
     func pause(_ id: UUID) {
         guard let c = controller(for: id) else { return }
         c.pause()
         playing.remove(id)
     }
     
+    /// 특정 엔티티 정지(재생 위치 초기화 포함)
+    /// - Parameter id: 엔티티 UUID
     func stop(_ id: UUID) {
         guard let c = controller(for: id) else { return }
         c.stop()
         playing.remove(id)
     }
     
+    /// 특정 엔티티 볼륨(gain, dB)을 설정
+    /// - Parameters:
+    ///   - db: dB 단위(예: 0 = 원음, 음수는 감쇠)
+    ///   - id: 엔티티 UUID
     func setGain(_ db: RealityKit.Audio.Decibel, for id: UUID) {
         controller(for: id)?.gain = db
     }
@@ -103,27 +117,39 @@ final class SceneAudioCoordinator {
 }
 
 extension SceneAudioCoordinator {
-    // MARK: - Interruption (LibrarySoundPlayer 연동)
-    
-    /// 외부 인터럽션 시작:
-    /// 1) 현재 재생 중이던 ID 스냅샷 저장
-    /// 2) 전부 일시정지
-    func beginExternalInterruption() {
+    /// 공통: 현재 재생 중 스냅샷을 스택에 push하고 모두 pause
+    /// - Parameter scope: 정지 사유(외부 인터럽션/글로벌 음소거)
+    private func pushPause(_ scope: PauseScope) {
         cleanup()
-        interruptionStack.append(playing)
+
+        if pauseStack.last?.scope == scope { return }
+        
+        let snapshot: Set<UUID> = (!playing.isEmpty) ? playing : (pauseStack.last?.snapshot ?? [])
+
+        pauseStack.append((scope: scope, snapshot: snapshot))
+
         controllers.values.forEach { $0.controller?.pause() }
         playing.removeAll()
     }
     
-    /// 외부 인터럽션 종료:
-    /// 1) 마지막 스냅샷을 꺼내서
-    /// 2) 그 집합만 재생 복원
-    func endExternalInterruption() {
+    /// 공통: 스택의 top이 `scope`일 때만 pop & 복원
+    /// - Parameter scope: 해제할 정지 사유
+    private func popPause(_ scope: PauseScope) {
         cleanup()
-        try? AVAudioSession.sharedInstance().setActive(true)
         
-        guard let snapshot = interruptionStack.popLast() else { return }
-        for id in snapshot {
+        guard let top = pauseStack.last else { return }
+        if top.scope != scope {
+            if let idx = pauseStack.lastIndex(where: { $0.scope == scope }) {
+                pauseStack.remove(at: idx)
+            }
+            return
+        }
+        _ = pauseStack.popLast()
+
+        guard pauseStack.isEmpty else { return }
+
+        try? AVAudioSession.sharedInstance().setActive(true)
+        for id in top.snapshot {
             if let c = controllers[id]?.controller {
                 c.play()
                 playing.insert(id)
@@ -131,8 +157,35 @@ extension SceneAudioCoordinator {
         }
     }
     
+    // MARK: - 외부(라이브러리) 인터럽션 API
+    
+    /// 라이브러리 재생 시작 등 외부 인터럽션 시작: 전부 pause + 스냅샷 푸시
+    func beginExternalInterruption() {
+        pushPause(.external)
+    }
+    
+    /// 외부 인터럽션 종료: 스택 top이 external이면 해당 스냅샷만 복원
+    func endExternalInterruption() {
+        popPause(.external)
+    }
+    
+    // MARK: - 글로벌 음소거 API (툴바)
+    
+    func setGlobalMute(_ enabled: Bool) {
+        if enabled {
+            guard !isGlobalMute else { return }
+            isGlobalMute = true
+            pushPause(.globalMute)
+        } else {
+            guard isGlobalMute else { return }
+            isGlobalMute = false
+            popPause(.globalMute)
+        }
+    }
+    
     // MARK: - Housekeeping
     
+    /// 컨트롤러 약참조 정리 + 존재하지 않는 ID를 `playing`에서 제거
     private func cleanup() {
         controllers = controllers.filter { $0.value.controller != nil }
         playing = playing.filter { controllers[$0]?.controller != nil }
