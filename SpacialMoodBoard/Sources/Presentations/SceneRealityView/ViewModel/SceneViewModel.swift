@@ -73,6 +73,8 @@ final class SceneViewModel {
                 // nil-safe fallback
                 appModel.selectedScene?.sceneObjects = newValue
             }
+
+            saveScene()
         }
     }
 
@@ -159,6 +161,7 @@ final class SceneViewModel {
 
         do {
             try sceneModelFileStorage.save(scene, projectName: projectName)
+            print("자동 저장")
         } catch {
             print("❌ SceneModel 저장 실패: \(error)")
         }
