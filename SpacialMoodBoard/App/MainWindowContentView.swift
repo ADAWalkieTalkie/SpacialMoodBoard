@@ -40,7 +40,6 @@ struct MainWindowContent: View {
                         projectRepository: projectRepository
                     )
                 )
-                .environment(appModel)
                 .modelContainer(modelContainer)
             }
         }
