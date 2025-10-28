@@ -32,7 +32,6 @@ extension SceneViewModel {
 
         if appModel.selectedProject?.id == project.id {
             appModel.selectedProject = nil
-            rotationAngle = .pi / 4
         }
     }
 }

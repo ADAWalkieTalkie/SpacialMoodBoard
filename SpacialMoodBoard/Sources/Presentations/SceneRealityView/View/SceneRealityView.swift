@@ -133,36 +133,25 @@ struct SceneRealityView: View {
         ) else {
             return
         }
-
-        if let volumeSize = config.volumeSize {
-            // Volume 모드: 자동 scale 계산 및 content 직접 추가
-            // 최종 크기를 0.6m로 고정 (RealityKit volumetric window 렌더링 보장)
-            let roomDimensions = (x: 10, y: 4, z:10)
-            let roomWidth = Float(roomDimensions.x)
-            let roomDepth = Float(roomDimensions.z)
-            let roomHeight = Float(roomDimensions.y)
-
-            let maxDimension = max(roomWidth, roomDepth, roomHeight)
-            let autoScale = 0.6 / maxDimension
-
-            room.scale = [autoScale, autoScale, autoScale]
+        
+        // Volume Window일 떄
+        if config.alignToWindowBottom {
             content.add(room)
 
             // Floor 하단 정렬
-            viewModel.alignRoomToWindowBottom(room: room, windowHeight: volumeSize)
+            viewModel.alignRoomToWindowBottom(room: room, windowHeight: 1.5) // VolumeWindow의 Height값
+            
+        // Immersive일 때
         } else {
             // Immersive/Minimap 모드: 기존 방식
-            room.scale = [config.scale, config.scale, config.scale]
+            room.scale = config.floorSize
+            room.position = [0, 0.1, 0]
             content.add(room)
-
-            if config.alignToWindowBottom {
-                viewModel.alignRoomToWindowBottom(room: room)
-            }
 
             // Immersive 전용: RealityKit Content
             if config.alignToWindowBottom == false {  // immersive 또는 minimap
                 if let immersiveContent = try? await Entity(named: "ImmersiveScene", in: RealityKitContent.realityKitContentBundle) {
-                    room.addChild(immersiveContent)
+                    content.add(immersiveContent)
                 }
             }
         }
@@ -232,7 +221,7 @@ struct SceneRealityView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
-            }else{
+            } else {
                 Button {
                     guard !isAnimating else { return }
                     isAnimating = true
