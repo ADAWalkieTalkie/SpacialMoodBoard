@@ -46,7 +46,7 @@ final class ProjectListViewModel {
         guard projectRepository.fetchProject(project) != nil else {
             #if DEBUG
                 print(
-                    "[ProjectListVM] selectProject - ⚠️ Project not found: \(project.id)"
+                    "[ProjectListViewModel] selectProject - ⚠️ Project not found: \(project.id)"
                 )
             #endif
             return
@@ -145,7 +145,7 @@ final class ProjectListViewModel {
             }
         } catch {
             #if DEBUG
-                print("[ProjectListVM] updateProjectTitle - ❌ Error: \(error)")
+                print("[ProjectListViewModel] updateProjectTitle - ❌ Error: \(error)")
             #endif
         }
     }

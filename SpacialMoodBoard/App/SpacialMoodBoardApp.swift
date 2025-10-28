@@ -41,13 +41,13 @@ struct SpacialMoodBoardApp: App {
             _assetRepository = State(wrappedValue: assetRepository)
 
             // Volume Scene용 ViewModel
-            let sceneVM = SceneViewModel(
+            let sceneViewModel = SceneViewModel(
                 appModel: appModel,
                 sceneRepository: SceneRepository(usageIndex: AssetUsageIndex()),
                 assetRepository: assetRepository,
                 projectRepository: repository
             )
-            _sceneViewModel = State(wrappedValue: sceneVM)
+            _sceneViewModel = State(wrappedValue: sceneViewModel)
         } catch {
             fatalError("❌ Failed to initialize ModelContainer: \(error)")
         }
