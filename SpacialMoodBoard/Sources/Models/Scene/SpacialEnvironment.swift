@@ -2,8 +2,6 @@ import Foundation
 
 // MARK: - SpacialEnvironment (SceneRealityView의 배경)
 struct SpacialEnvironment: Codable, Equatable {
-    var roomType: RoomType
-    var groundSize: GroundSize
     var immersiveBackground: URL?
     var floorMaterialImageURL: URL?
 
@@ -11,14 +9,10 @@ struct SpacialEnvironment: Codable, Equatable {
     var floorImageRelativePath: String?
 
     init(
-        roomType: RoomType,
-        groundSize: GroundSize,
         immersiveBackground: URL? = nil,
         floorMaterialImageURL: URL? = nil,
         floorImageRelativePath: String? = nil
     ) {
-        self.roomType = roomType
-        self.groundSize = groundSize
         self.immersiveBackground = immersiveBackground
         self.floorMaterialImageURL = floorMaterialImageURL
         self.floorImageRelativePath = floorImageRelativePath
@@ -27,8 +21,6 @@ struct SpacialEnvironment: Codable, Equatable {
     // MARK: - Codable
     // floorMaterialImageURL은 런타임 전용이므로 JSON에 저장하지 않음
     private enum CodingKeys: String, CodingKey {
-        case roomType
-        case groundSize
         case immersiveBackground
         case floorImageRelativePath
     }
