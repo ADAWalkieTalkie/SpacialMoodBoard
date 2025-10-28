@@ -7,6 +7,7 @@ enum FileStorageError: LocalizedError {
     case saveFailed
     case deleteFailed
     case directoryCreationFailed
+    case fileAlreadyExists
     
     var errorDescription: String? {
         switch self {
@@ -20,6 +21,8 @@ enum FileStorageError: LocalizedError {
             return "파일 삭제에 실패했습니다."
         case .directoryCreationFailed:
             return "디렉토리 생성에 실패했습니다."
+        case .fileAlreadyExists:
+            return "이미 존재하는 파일입니다."
         }
     }
 }

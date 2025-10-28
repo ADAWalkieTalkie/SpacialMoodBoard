@@ -8,6 +8,9 @@ protocol FileStorageProtocol {
     
     /// 데이터 로드
     func load(projectName: String) throws -> DataType
+
+    /// 이름 변경
+    func rename(from oldName: String, to newName: String) throws
     
     /// 데이터 삭제
     func delete(projectName: String) throws
