@@ -35,8 +35,13 @@ struct ProjectListView: View {
                 spacing: 40
             ) {
                 ProjectCreationButton {
-                    viewModel.createProject()
-                    openWindow(id: "ImmersiveVolumeWindow")
+                    do {
+                        try viewModel.createProject()
+                        openWindow(id: "ImmersiveVolumeWindow")
+                    } catch {
+                        print("프로젝트 생성 실패: \(error)")
+                        // TODO: 사용자에게 에러 알림 표시
+                    }
                 }
                 .padding(.horizontal, 30)
 
