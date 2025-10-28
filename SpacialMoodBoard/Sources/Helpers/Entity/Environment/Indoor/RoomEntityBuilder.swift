@@ -32,7 +32,11 @@ struct RoomEntityBuilder {
         let room = Entity()
         room.name = "roomRoot"
 
-        let floor = createFloor(width: dimensions.x, depth: dimensions.z)
+        let floor = createFloor(
+            width: dimensions.x,
+            depth: dimensions.z,
+            materialImageURL: environment.floorMaterialImageURL
+        )
         room.addChild(floor)
 
         applyRotation(to: room, angle: rotationAngle)
@@ -56,8 +60,22 @@ struct RoomEntityBuilder {
     // MARK: - Private Methods - Floor
 
     @MainActor
-    private func createFloor(width: Float, depth: Float) -> ModelEntity {
-        let material = createBaseMaterial()
+    private func createFloor(width: Float, depth: Float, materialImageURL: URL?)
+        -> ModelEntity
+    {
+        let material: PhysicallyBasedMaterial
+
+        if let imageURL = materialImageURL {
+            do {
+                let texture = try TextureResource.load(contentsOf: imageURL)
+                material = createTextureMaterial(texture: texture)
+            } catch {
+                print("❌ Floor 텍스처 로드 실패 (\(imageURL.lastPathComponent)): \(error.localizedDescription)")
+                material = createBaseMaterial()
+            }
+        } else {
+            material = createBaseMaterial()
+        }
 
         let floor = ModelEntity(
             mesh: .generateBox(size: 1),
@@ -75,6 +93,17 @@ struct RoomEntityBuilder {
     private func createBaseMaterial() -> PhysicallyBasedMaterial {
         var material = PhysicallyBasedMaterial()
         material.baseColor.tint = .init(.gray)
+        material.metallic = 0.0
+        material.roughness = 0.8
+        return material
+    }
+
+    @MainActor
+    private func createTextureMaterial(texture: TextureResource)
+        -> PhysicallyBasedMaterial
+    {
+        var material = PhysicallyBasedMaterial()
+        material.baseColor = .init(texture: .init(texture))
         material.metallic = 0.0
         material.roughness = 0.8
         return material

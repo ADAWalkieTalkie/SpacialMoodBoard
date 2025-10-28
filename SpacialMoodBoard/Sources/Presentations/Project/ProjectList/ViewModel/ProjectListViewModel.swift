@@ -64,10 +64,26 @@ final class ProjectListViewModel {
         do {
             // 파일이 있으면 로드
             if sceneModelStorage.exists(projectName: project.title) {
-                let sceneModel = try sceneModelStorage.load(
+                var sceneModel = try sceneModelStorage.load(
                     projectName: project.title,
                     projectId: project.id
                 )
+
+                // 상대 경로가 있으면 절대 경로 재구성
+                if let relativePath = sceneModel.spacialEnvironment.floorImageRelativePath {
+                    if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                        let absoluteURL = documentsURL.appendingPathComponent(relativePath)
+
+                        // 파일 존재 여부 확인
+                        if FileManager.default.fileExists(atPath: absoluteURL.path) {
+                            sceneModel.spacialEnvironment.floorMaterialImageURL = absoluteURL
+                        } else {
+                            print("⚠️ Floor 이미지 파일이 존재하지 않음: \(absoluteURL.path)")
+                            sceneModel.spacialEnvironment.floorImageRelativePath = nil
+                        }
+                    }
+                }
+
                 appModel.selectedScene = sceneModel
                 print("📂 기존 SceneModel 로드 완료")
             } else {
