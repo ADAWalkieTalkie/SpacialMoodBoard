@@ -108,6 +108,7 @@ struct LibrarySoundItemView: View {
         .onChange(of: player.currentURL) { _, _ in
             if player.currentURL != asset.url { localProgress = 0 }
         }
+        .contentShape(RoundedRectangle(cornerRadius: 16))
         .onTapGesture(perform: tapFlash)
         .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
                             pressing: { p in withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p } },
