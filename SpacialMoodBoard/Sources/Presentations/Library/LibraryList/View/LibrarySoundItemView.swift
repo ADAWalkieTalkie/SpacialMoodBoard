@@ -12,15 +12,15 @@ struct LibrarySoundItemView: View {
     // MARK: - Properties
     
     private let asset: Asset
-    
-    
+
     @Environment(LibraryViewModel.self) private var viewModel
     @ObservedObject private var player = SoundPlayer.shared
     @State private var localProgress: Double = 0
-    @State private var showRename = false
+    @State private var showRenamePopover = false
+    @State private var isRenaming = false
+    @State private var isTextFieldFocused = false
     @State private var draftTitle: String
     @State private var isFlashing = false
-    @FocusState private var renameFocused: Bool
     
     // MARK: - Init
     
@@ -60,16 +60,14 @@ struct LibrarySoundItemView: View {
                 }
                 .frame(width: 52, height: 48)
                 
-                if showRename {
-                    TextField("이름", text: $draftTitle)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .focused($renameFocused)
-                        .submitLabel(.done)
-                        .onAppear { renameFocused = true }
-                        .frame(maxWidth: .infinity)
+                if isRenaming {
+                    SelectAllTextField(
+                        text: $draftTitle,
+                        isFirstResponder: $isTextFieldFocused,
+                        onSubmit: { commitRenameIfNeeded() }
+                    )
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 26)
                 } else {
                     Text(asset.filename.deletingPathExtension)
                         .font(.system(size: 20, weight: .bold))
@@ -110,38 +108,61 @@ struct LibrarySoundItemView: View {
         .onChange(of: player.currentURL) { _, _ in
             if player.currentURL != asset.url { localProgress = 0 }
         }
-        .onTapGesture {
-            guard !showRename else { return }
-            withAnimation(.easeInOut(duration: 0.12)) { isFlashing = true }
-            Task {
-                try? await Task.sleep(for: .milliseconds(220))
-                withAnimation(.easeOut(duration: 0.20)) { isFlashing = false }
-            }
-        }
-        .onLongPressGesture(
-            minimumDuration: 0.35,
-            maximumDistance: 22,
-            pressing: { pressing in
-                withAnimation(.easeInOut(duration: 0.12)) {
-                    isFlashing = pressing
-                }
-            },
-            perform: {
-                showRename = true
-            }
+        .onTapGesture(perform: tapFlash)
+        .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
+                            pressing: { p in withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p } },
+                            perform: { showRenamePopover = true }
         )
-        .popover(isPresented: $showRename, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+        .popover(isPresented: $showRenamePopover, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
             RenamePopover(
                 id: asset.id,
                 title: $draftTitle,
-                onRename: { id, newTitle in viewModel.renameAsset(id: id, to: newTitle) },
-                onDelete: { id in
-                    if player.currentURL == asset.url { player.stop() }
-                    viewModel.deleteAsset(id: id)
+                onRename: {
+                    startInlineRename()
                 },
-                onCancel: { showRename = false }
+                onDelete: { id in viewModel.deleteAsset(id: id) },
+                onCancel: { showRenamePopover = false }
             )
         }
+        .onChange(of: isTextFieldFocused) { _, focused in
+            if !focused { commitRenameIfNeeded() }
+        }
+    }
+    
+    /// 짧게 깜박이는 애니메이션 효과를 주어 사용자 상호작용(탭)을 피드백
+    /// - 팝오버가 열려 있을 땐 실행되지 않음
+    private func tapFlash() {
+        guard !showRenamePopover else { return }
+        withAnimation(.easeInOut(duration: 0.12)) { isFlashing = true }
+        Task {
+            try? await Task.sleep(for: .milliseconds(220))
+            withAnimation(.easeOut(duration: 0.20)) { isFlashing = false }
+        }
+    }
+    
+    /// 팝오버를 닫고 인라인 이름 수정 모드로 전환
+    /// - 한 프레임 뒤에 포커스를 활성화하여 키보드가 즉시 올라오도록 함
+    private func startInlineRename() {
+        showRenamePopover = false
+        isRenaming = true
+        DispatchQueue.main.async {
+            isTextFieldFocused = true
+        }
+    }
+    
+    /// 이름 변경이 필요한 경우에만 변경 사항을 커밋(저장)
+    /// - 공백이거나 기존 이름과 동일하면 무시
+    /// - 커밋 후 편집 및 포커스 상태를 종료
+    private func commitRenameIfNeeded() {
+        guard isRenaming else { return }
+        defer {
+            isRenaming = false
+            isTextFieldFocused = false
+        }
+        let original = asset.filename.deletingPathExtension
+        let trimmed = draftTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed != original else { return }
+        viewModel.renameAsset(id: asset.id, to: trimmed)
     }
     
     // MARK: - Methods
