@@ -41,54 +41,26 @@ struct SpacialMoodBoardApp: App {
             _assetRepository = State(wrappedValue: assetRepository)
 
             // Volume Scene용 ViewModel
-            let sceneVM = SceneViewModel(
+            let sceneViewModel = SceneViewModel(
                 appModel: appModel,
                 sceneRepository: SceneRepository(usageIndex: AssetUsageIndex()),
                 assetRepository: assetRepository,
                 projectRepository: repository
             )
-            _sceneViewModel = State(wrappedValue: sceneVM)
+            _sceneViewModel = State(wrappedValue: sceneViewModel)
         } catch {
             fatalError("❌ Failed to initialize ModelContainer: \(error)")
         }
     }
     var body: some Scene {
-        WindowGroup {
-            Group {
-                if appModel.selectedProject != nil {
-                    VStack {
-                        LibraryView(
-                            viewModel: LibraryViewModel(
-                                assetRepository: assetRepository
-                            ),
-                            // TODO: - 리팩토링 필요
-                            sceneViewModel: sceneViewModel
-                        )
-                    }
-                    .environment(appModel)
-                    .task {
-                        await assetRepository.switchProject(
-                            to: appModel.selectedProject?.title ?? ""
-                        )
-                    }
-                    .onChange(of: appModel.selectedProject?.title ?? "") {
-                        _,
-                        newTitle in
-                        Task {
-                            await assetRepository.switchProject(to: newTitle)
-                        }
-                    }
-                } else {
-                    ProjectListView(
-                        viewModel: ProjectListViewModel(
-                            appModel: appModel,
-                            projectRepository: projectRepository
-                        )
-                    )
-                    .environment(appModel)
-                    .modelContainer(modelContainer)
-                }
-            }
+        WindowGroup(id: "MainWindow") {
+            MainWindowContent(
+                appModel: appModel,
+                assetRepository: assetRepository,
+                projectRepository: projectRepository,
+                sceneViewModel: sceneViewModel,
+                modelContainer: modelContainer
+            )
         }
 
         // Volume Scene (Room 미리보기)
@@ -97,6 +69,9 @@ struct SpacialMoodBoardApp: App {
                 viewModel: sceneViewModel
             )
             .environment(appModel)
+            .onDisappear {
+                appModel.selectedProject = nil
+            }
         }
         .windowStyle(.volumetric)
         .defaultSize(width: 1.5, height: 1.5, depth: 1.5, in: .meters)
