@@ -16,6 +16,7 @@ struct LibraryView: View {
     @State private var sceneViewModel: SceneViewModel
     @State private var photoSelection: [PhotosPickerItem] = []
     @Environment(AppModel.self) private var appModel
+    @Environment(\.dismissWindow) private var dismissWindow
     
     // MARK: - Init
     
@@ -97,7 +98,10 @@ struct LibraryView: View {
         HStack(alignment: .center, spacing: 16) {
             IconCircleButton(
                 systemName: "chevron.left",
-                action: {appModel.selectedProject = nil}
+                action: {
+                    dismissWindow(id: "ImmersiveVolumeWindow")
+                    appModel.selectedProject = nil
+                }
             )
             
             SortSegment(selection: $viewModel.sort)
@@ -160,9 +164,7 @@ fileprivate struct ImageTabGridView: View {
                                     // Floor material 선택 모드
                                     sceneViewModel.applyFloorImage(from: asset)
                                 } else {
-                                    // 일반 모드: 씬에 이미지 객체 추가
-                                    print("클릭됨")
-                                    sceneViewModel.addImageObject(from: asset)   // ✅ 사운드는 sound 쪽으로
+                                sceneViewModel.addImageObject(from: asset)   // 사운드는 sound 쪽으로
                                 }
                             }
                         )

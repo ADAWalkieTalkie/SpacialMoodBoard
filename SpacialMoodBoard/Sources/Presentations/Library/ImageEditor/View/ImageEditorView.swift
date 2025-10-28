@@ -119,8 +119,6 @@ fileprivate struct EditorToolbarView: View {
 
     var body: some View {
         HStack(alignment: .center) {
-            IconCircleButton(systemName: "chevron.left", action: dismiss)
-
             HiddenOrSpace(show: !viewModel.showSidebar, size: 44) {
                 IconCircleButton(systemName: "square.split.2x1") {
                     withAnimation(.easeInOut(duration: 0.22)) { viewModel.showSidebar = true }
@@ -202,23 +200,39 @@ fileprivate struct AddToLibraryButton: View {
     @Bindable var viewModel: ImageEditorViewModel
     
     var body: some View {
-        Button(action: viewModel.addCurrentToLibrary) {
-            Label("라이브러리에 추가", systemImage: "folder")
-                .font(.system(size: 19, weight: .medium))
-                .padding(.horizontal, 20)
-                .padding(.vertical, 15)
+        VStack {
+            Button(action: viewModel.addCurrentToLibrary) {
+                Text("라이브러리에 추가")
+                    .font(.system(size: 19, weight: .medium))
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+            }
+            .buttonStyle(CapsuleButtonStyle(materialOpacity: 0.3))
+            .background(.clear)
+            .overlay(
+                LinearGradient(
+                    stops: [
+                        .init(color: .white, location: 0.00),
+                        .init(color: Color(red: 0.43, green: 0.49, blue: 1).opacity(0.5), location: 0.52),
+                        .init(color: .white, location: 1.00),
+                    ],
+                    startPoint: .init(x: 0, y: 0.5),
+                    endPoint: .init(x: 1, y: 0.5)
+                )
+                .blur(radius: 15)
+                .opacity( viewModel.isAddTargeted ? 0.5 : 0.0)
+            )
+            .contentShape(Capsule())
         }
-        .buttonStyle(CapsuleButtonStyle(materialOpacity: 0.3))
+        .frame(height: 80)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 140)
         .onDrop(of: viewModel.dropTypes, isTargeted: $viewModel.isAddTargeted) { providers in
             viewModel.handleDropToAdd(providers: providers)
         }
-        .overlay {
-            Capsule()
-                .stroke(viewModel.isAddTargeted ? .white.opacity(0.45) : .white.opacity(0.12), lineWidth: 2)
-                .shadow(color: .white.opacity(viewModel.isAddTargeted ? 0.25 : 0), radius: 10)
-        }
     }
 }
+
 
 #Preview {
     ImageEditorView(

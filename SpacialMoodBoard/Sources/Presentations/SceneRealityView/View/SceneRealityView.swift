@@ -5,6 +5,8 @@ import RealityKitContent
 /// 재사용 가능한 핵심 Scene RealityView
 struct SceneRealityView: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     
@@ -14,6 +16,7 @@ struct SceneRealityView: View {
     let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.3, -0.8)
 
     @State private var isSoundEnabled = false
+    @State private var headAnchor: AnchorEntity?
     @State private var showFloorImageAlert = false
 
     private var sceneViewIdentifier: String {
@@ -35,17 +38,17 @@ struct SceneRealityView: View {
                     anchor.addChild(immersiveContentEntity)
                 }
 
-                let headAnchor = AnchorEntity(.head)
+                let newHeadAnchor = AnchorEntity(.head) 
+                headAnchor = newHeadAnchor
 
                 if config.useHeadAnchoredToolbar {
                     if let toolbar = attachments.entity(for: "headToolbar") {
                         // y: -0.3 = 시선보다 약간 아래
                         // z: -0.8 = 앞쪽으로 80cm
                         toolbar.position = toolbarPosition
-                        headAnchor.addChild(toolbar)
+                        newHeadAnchor.addChild(toolbar)
                     }
-
-                    content.add(headAnchor)
+                    content.add(newHeadAnchor)
                 }
 
                 // Floor 중앙에 FloorImageApplyButton attachment 배치 (초기 setup)
@@ -102,6 +105,9 @@ struct SceneRealityView: View {
                     },
                     getBillboardableState: { uuid in
                         viewModel.getBillboardableState(id: uuid)
+                    },
+                    getHeadPosition: {
+                        return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
                     }
                 )
             }
@@ -180,7 +186,7 @@ struct SceneRealityView: View {
                 onCrop: { /* handle */ },
                 onDelete: {
                     guard let entity = viewModel.selectedEntity,
-                          let objectId = UUID(uuidString: entity.name) else { return }
+                        let objectId = UUID(uuidString: entity.name) else { return }
                     viewModel.removeSceneObject(id: objectId)
                 }
             )
@@ -213,31 +219,46 @@ struct SceneRealityView: View {
     
     private var rotationButton: some View {
         VStack(spacing: 12) {
-            Button {
-                guard !isAnimating else { return }
-                isAnimating = true
-                viewModel.rotateBy90Degrees()
-                
-                Task {
-                    try? await Task.sleep(nanoseconds: 400_000_000)
-                    isAnimating = false
+            if appModel.selectedProject == nil {
+                Button {
+                    openWindow(id: "MainWindow")
+                    dismissWindow(id: "ImmersiveVolumeWindow")
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.title2)
+                        .padding(12)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
                 }
-            } label: {
-                Image(systemName: "rotate.right")
-                    .font(.title2)
-                    .padding(12)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+            }else{
+                Button {
+                    guard !isAnimating else { return }
+                    isAnimating = true
+                    viewModel.rotateBy90Degrees()
+                    
+                    Task {
+                        try? await Task.sleep(nanoseconds: 400_000_000)
+                        isAnimating = false
+                    }
+                } label: {
+                    Image(systemName: "rotate.right")
+                        .font(.title2)
+                        .padding(12)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .opacity(isAnimating ? 0.5 : 1.0)
+                .padding(.horizontal)
+
+                ToolBarAttachment(
+                    isSoundEnabled: $isSoundEnabled,
+                    onToggleImmersive: handleToggleImmersive
+                )
+                .environment(appModel)
             }
-            .buttonStyle(.plain)
-            .opacity(isAnimating ? 0.5 : 1.0)
-            .padding(.horizontal)
-            
-            ToolBarAttachment(
-                isSoundEnabled: $isSoundEnabled,
-                onToggleImmersive: handleToggleImmersive
-            )
-            .environment(appModel)
         }
         .padding(.bottom, 20)
     }

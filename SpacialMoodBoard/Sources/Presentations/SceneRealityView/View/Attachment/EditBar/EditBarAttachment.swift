@@ -8,11 +8,11 @@ struct EditBarAttachment: View {
     
     var body: some View {
         HStack(spacing: 20) {
-            // 복사 버튼
-            EditBarAttachmentButton(systemName: "doc.on.doc", action: onDuplicate)
-            
             // 크롭 버튼
             EditBarAttachmentButton(systemName: "crop", action: onCrop)
+            
+            // 복사 버튼
+            EditBarAttachmentButton(systemName: "doc.on.doc", action: onDuplicate)
             
             // 삭제 버튼
             EditBarAttachmentButton(systemName: "trash", action: onDelete)
