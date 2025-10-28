@@ -11,6 +11,9 @@ import SwiftUI
 
 /// Entity 생성을 전담하는 Builder 클래스
 struct RoomEntityBuilder {
+    // MARK: - Constants
+    static let defaultFloorSize = SIMD2<Float>(x: 1, y: 1)
+    static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
 
     // MARK: - Initialization
 
@@ -25,13 +28,10 @@ struct RoomEntityBuilder {
     ) -> Entity {
         let room = Entity()
         room.name = "roomRoot"
-        
-        let floorSize = SIMD2<Float>(x: 1, y: 1)
-        let floorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
 
         let floor = createFloor(
-            size: floorSize,
-            position: floorPosition,
+            size: self.defaultFloorSize,
+            position: self.defaultFloorPosition,
             materialImageURL: environment.floorMaterialImageURL
         )
         room.addChild(floor)
