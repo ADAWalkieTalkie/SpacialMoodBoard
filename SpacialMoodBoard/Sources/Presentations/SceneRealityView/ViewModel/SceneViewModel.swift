@@ -43,9 +43,6 @@ final class SceneViewModel {
     // 회전 각도 (Volume용)
     var rotationAngle: Float = 0
 
-    // Floor 이미지 선택 모드
-    var isSelectingFloorImage: Bool = false
-
     // SceneObjects (computed property)
     var sceneObjects: [SceneObject] {
         get {
@@ -108,62 +105,5 @@ final class SceneViewModel {
         selectedEntity = nil
         roomEntities.removeAll()
         rotationAngle = 0
-    }
-
-    // MARK: - Floor Material Management
-
-    func applyFloorImage(from asset: Asset) {
-        guard asset.type == .image else {
-            return
-        }
-
-        // Documents 디렉토리로부터의 상대 경로 계산
-        let relativePath: String?
-        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let documentsPathWithSlash = documentsURL.path + "/"
-            if asset.url.path.hasPrefix(documentsPathWithSlash) {
-                relativePath = String(asset.url.path.dropFirst(documentsPathWithSlash.count))
-            } else {
-                print("⚠️ Asset이 Documents 디렉토리 내에 없음: \(asset.url.path)")
-                relativePath = nil
-            }
-        } else {
-            print("⚠️ Documents 디렉토리를 찾을 수 없음")
-            relativePath = nil
-        }
-
-        // SpacialEnvironment에 floor material URL과 상대 경로 저장
-        var updatedEnvironment = spacialEnvironment
-        updatedEnvironment.floorMaterialImageURL = asset.url
-        updatedEnvironment.floorImageRelativePath = relativePath
-        spacialEnvironment = updatedEnvironment
-
-        // Room entity 캐시 무효화 (다음 getRoomEntity 호출 시 새 material로 재생성됨)
-        if let projectId = appModel.selectedProject?.id {
-            roomEntities.removeValue(forKey: projectId)
-        }
-
-        // 선택 모드 해제
-        isSelectingFloorImage = false
-
-        // 변경사항 저장
-        saveScene()
-    }
-
-    // MARK: - Scene Persistence
-
-    /// SceneModel을 디스크에 저장
-    func saveScene() {
-        guard let scene = appModel.selectedScene,
-              let projectName = appModel.selectedProject?.title else {
-            print("⚠️ SceneModel 저장 실패: 프로젝트 또는 씬이 없음")
-            return
-        }
-
-        do {
-            try sceneModelFileStorage.save(scene, projectName: projectName)
-        } catch {
-            print("❌ SceneModel 저장 실패: \(error)")
-        }
     }
 }

@@ -7,9 +7,8 @@ struct SceneConfig {
     var enableAttachments: Bool = true
     var alignToWindowBottom: Bool = false
     var scale: Float = 1.0
-    var useHeadAnchoredToolbar: Bool = false
+    var useHeadAnchoredToolbar: Bool = false 
     var volumeSize: Float? = nil  // Volume 윈도우 크기 (nil이면 자동 scale 미적용)
-    var showFloorImageApplyButton: Bool = true  // floor 중앙에 이미지 적용 버튼 표시 여부
 
 
     static let immersive = SceneConfig(

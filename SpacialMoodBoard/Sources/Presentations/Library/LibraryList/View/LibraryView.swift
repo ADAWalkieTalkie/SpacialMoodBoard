@@ -158,14 +158,9 @@ fileprivate struct ImageTabGridView: View {
                         .contentShape(RoundedRectangle(cornerRadius: 20))
                         .hoverEffect(.highlight)
                         .simultaneousGesture(
-
+                           
                             TapGesture().onEnded {
-                                if sceneViewModel.isSelectingFloorImage {
-                                    // Floor material 선택 모드
-                                    sceneViewModel.applyFloorImage(from: asset)
-                                } else {
                                 sceneViewModel.addImageObject(from: asset)   // 사운드는 sound 쪽으로
-                                }
                             }
                         )
                 }
