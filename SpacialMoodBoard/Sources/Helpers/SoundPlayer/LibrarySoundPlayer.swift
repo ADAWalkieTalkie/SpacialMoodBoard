@@ -5,6 +5,7 @@
 //  Created by jeongminji on 10/21/25.
 //
 
+import Foundation
 import AVFoundation
 import Combine
 
@@ -13,11 +14,11 @@ import Combine
 /// - 동일 URL에 대해 `play(url:)`를 다시 호출하면 **토글(재생/일시정지)**
 /// - `progress`는 0...1로 노멀라이즈된 재생 진행도
 @MainActor
-final class SoundPlayer: ObservableObject {
+final class LibrarySoundPlayer: NSObject, ObservableObject, AVAudioPlayerDelegate {
     
     // MARK: - Properties
     
-    static let shared = SoundPlayer()
+    static let shared = LibrarySoundPlayer()
     
     @Published private(set) var isPlaying: Bool = false
     @Published private(set) var progress: Double = 0
@@ -25,6 +26,22 @@ final class SoundPlayer: ObservableObject {
     private var player: AVAudioPlayer?
     private var tick: AnyCancellable?
     private(set) var currentURL: URL?
+    
+    /// 외부 인터럽션 활성화 상태(중복 begin/end 방지)
+    private var isInterruptionActive = false
+    private var wasPlayingBeforeInterruption = false
+    
+    // MARK: - Init
+    
+    override init() {
+        super.init()
+        configureAudioSession()
+        observeAudioSessionNotifications()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
     
     // MARK: - Methods
     
@@ -44,7 +61,9 @@ final class SoundPlayer: ObservableObject {
         }
         
         do {
-            player = try AVAudioPlayer(contentsOf: url)
+            let p = try AVAudioPlayer(contentsOf: url)
+            p.delegate = self
+            player = p
             currentURL = url
             player?.prepareToPlay()
             if let f = fraction { seek(to: f) } else { progress = 0 }
@@ -57,9 +76,16 @@ final class SoundPlayer: ObservableObject {
     /// 일시정지 상태에서 재생 재개
     func resume() {
         guard let p = player else { return }
+        try? AVAudioSession.sharedInstance().setActive(true)
+        
         p.play()
         isPlaying = true
         startTick()
+        
+        if !isInterruptionActive {
+            SceneAudioCoordinator.shared.beginExternalInterruption()
+            isInterruptionActive = true
+        }
     }
     
     /// 현재 재생 중인 트랙 일시정지
@@ -67,6 +93,11 @@ final class SoundPlayer: ObservableObject {
         player?.pause()
         isPlaying = false
         stopTickIfNeeded()
+        
+        if isInterruptionActive {
+            SceneAudioCoordinator.shared.endExternalInterruption()
+            isInterruptionActive = false
+        }
     }
     
     /// 재생을 완전히 멈추고, 시간을 처음(0)으로 리셋
@@ -76,6 +107,11 @@ final class SoundPlayer: ObservableObject {
         isPlaying = false
         progress = 0
         stopTickIfNeeded()
+        
+        if isInterruptionActive {
+            SceneAudioCoordinator.shared.endExternalInterruption()
+            isInterruptionActive = false
+        }
     }
     
     /// 지정된 진행도로 이동(시크)
@@ -103,5 +139,96 @@ final class SoundPlayer: ObservableObject {
     private func stopTickIfNeeded() {
         tick?.cancel()
         tick = nil
+    }
+    
+    // MARK: - Session
+    
+    private func configureAudioSession() {
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
+        } catch {
+            print("⚠️ configureAudioSession error:", error)
+        }
+    }
+    
+    @inline(__always)
+    private func ensureSessionActive() throws {
+        let session = AVAudioSession.sharedInstance()
+        try session.setActive(true)
+    }
+    private func observeAudioSessionNotifications() {
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(handleInterruption(_:)),
+                       name: AVAudioSession.interruptionNotification, object: nil)
+        nc.addObserver(self, selector: #selector(handleRouteChange(_:)),
+                       name: AVAudioSession.routeChangeNotification, object: nil)
+        nc.addObserver(self, selector: #selector(handleMediaServicesReset),
+                       name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+    }
+    
+    @objc private func handleInterruption(_ note: Notification) {
+        guard let info = note.userInfo,
+              let typeValue = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
+        
+        switch type {
+        case .began:
+            wasPlayingBeforeInterruption = isPlaying
+            if isPlaying { pause() }
+        case .ended:
+            if wasPlayingBeforeInterruption {
+                // 재생 의도가 있었으면 바로 복구
+                resume()
+            }
+            // ❌ 여기서 setActive(false) 하지 마!
+            wasPlayingBeforeInterruption = false
+        @unknown default:
+            break
+        }
+    }
+    
+    @objc private func handleRouteChange(_ note: Notification) {
+        guard let info = note.userInfo,
+              let reasonValue = info[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else { return }
+        
+        switch reason {
+        case .oldDeviceUnavailable:
+            if isPlaying { pause() }
+        case .newDeviceAvailable:
+            if wasPlayingBeforeInterruption { resume() }
+        default:
+            break
+        }
+    }
+    
+    @objc private func handleMediaServicesReset() {
+        configureAudioSession()
+        if let url = currentURL, isPlaying {
+            play(url: url, from: progress)
+        }
+    }
+}
+
+// MARK: - AVAudioPlayerDelegate
+
+extension LibrarySoundPlayer {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        isPlaying = false
+        stopTickIfNeeded()
+        if isInterruptionActive {
+            SceneAudioCoordinator.shared.endExternalInterruption()
+            isInterruptionActive = false
+        }
+    }
+    
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        isPlaying = false
+        stopTickIfNeeded()
+        if isInterruptionActive {
+            SceneAudioCoordinator.shared.endExternalInterruption()
+            isInterruptionActive = false
+        }
     }
 }

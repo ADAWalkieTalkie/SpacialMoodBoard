@@ -15,7 +15,7 @@ struct LibrarySoundItemView: View {
     
     
     @Environment(LibraryViewModel.self) private var viewModel
-    @ObservedObject private var player = SoundPlayer.shared
+    @ObservedObject private var player = LibrarySoundPlayer.shared
     @State private var localProgress: Double = 0
     @State private var showRename = false
     @State private var draftTitle: String

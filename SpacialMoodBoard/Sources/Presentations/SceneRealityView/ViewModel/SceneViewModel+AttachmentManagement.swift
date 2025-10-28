@@ -35,17 +35,23 @@ extension SceneViewModel {
             
         case .sound:
             let initVol: Double = sceneObject.audioVolumeOrDefault
-
+            
             let onVolumeChange: (Double) -> Void = { [weak self] newValue in
                 guard let self else { return }
                 
-                self.updateSceneObject(with: objectId) { obj in
+                if let idx = self.sceneObjects.firstIndex(where: { $0.id == objectId }) {
+                    var obj = self.sceneObjects[idx]
                     obj.setVolume(Float(newValue))
+                    self.sceneObjects[idx] = obj
                 }
                 
-                if let ctrl = SceneAudioCoordinator.shared.controller(for: objectId) {
-                    ctrl.gain = self.linearToDecibels(newValue)
-                    newValue == 0 ? ctrl.pause() : ctrl.play()
+                let db = self.linearToDecibels(newValue)
+                SceneAudioCoordinator.shared.setGain(db, for: objectId)
+                
+                if newValue == 0 {
+                    SceneAudioCoordinator.shared.pause(objectId)
+                } else {
+                    SceneAudioCoordinator.shared.play(objectId)
                 }
                 
                 self.scheduleSceneAutosaveDebounced()

@@ -47,7 +47,7 @@ struct SoundEntity {
             print("⚠️ SoundEntity.create: img_soundObject 텍스처 로드 실패")
             return nil
         }
-
+        
         let baseWidth: Float = 0.18
         let uiSize = UIImage(named: "img_soundObject")?.size ?? .init(width: 1, height: 1)
         let aspect = uiSize.width > 0 ? (uiSize.height / uiSize.width) : 1.0
@@ -57,7 +57,7 @@ struct SoundEntity {
         var unlit = UnlitMaterial(color: .white)
         unlit.color = .init(texture: .init(texture))
         unlit.blending = .transparent(opacity: 1.0)
-
+        
         let mesh = MeshResource.generatePlane(width: width, height: height, cornerRadius: min(width, height) * 0.11)
         let modelEntity = ModelEntity(mesh: mesh, materials: [unlit])
         modelEntity.name = sceneObject.id.uuidString
@@ -75,18 +75,19 @@ struct SoundEntity {
                 cfg.shouldLoop = true
                 
                 let res = try await AudioFileResource(contentsOf: asset.url, configuration: cfg)
-                
                 let controller = modelEntity.prepareAudio(res)
-                controller.gain = linearToDecibels(Double(audioAttrs.volume))
-                if audioAttrs.volume > 0 {
-                    controller.play()
-                } else {
-                    controller.stop()
-                }
                 
                 modelEntity.components.set(SoundControllerComponent(controller: controller))
-                
                 SceneAudioCoordinator.shared.register(entityId: sceneObject.id, controller: controller)
+                
+                let db = linearToDecibels(Double(audioAttrs.volume))
+                SceneAudioCoordinator.shared.setGain(db, for: sceneObject.id)
+                
+                if audioAttrs.volume > 0 {
+                    SceneAudioCoordinator.shared.play(sceneObject.id)
+                } else {
+                    SceneAudioCoordinator.shared.pause(sceneObject.id) // stop() 대신 pause가 복구에 유리
+                }
             } catch {
                 print("⚠️ SoundEntity.create: 오디오 로드 실패 - \(error)")
             }
