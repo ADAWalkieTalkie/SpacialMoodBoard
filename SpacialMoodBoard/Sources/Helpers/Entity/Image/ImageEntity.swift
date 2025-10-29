@@ -36,8 +36,7 @@ struct ImageEntity {
         // 4. 평면 메시 생성
         let mesh = MeshResource.generatePlane(
             width: width,
-            height: height,
-            cornerRadius: 0.02
+            height: height
         )
         
         // 5. ModelEntity 생성 및 설정
