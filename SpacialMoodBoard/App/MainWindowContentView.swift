@@ -8,6 +8,7 @@ struct MainWindowContent: View {
     @Bindable var appModel: AppModel
     var assetRepository: AssetRepository
     var projectRepository: ProjectRepository
+    var deleteAssetUseCase: DeleteAssetUseCase
     var sceneViewModel: SceneViewModel
     var modelContainer: ModelContainer
     
@@ -17,7 +18,9 @@ struct MainWindowContent: View {
                 VStack {
                     LibraryView(
                         viewModel: LibraryViewModel(
-                            assetRepository: assetRepository
+                            assetRepository: assetRepository,
+                            deleteAssetUseCase: deleteAssetUseCase,
+                            runtimeSink: sceneViewModel
                         ),
                         sceneViewModel: sceneViewModel
                     )

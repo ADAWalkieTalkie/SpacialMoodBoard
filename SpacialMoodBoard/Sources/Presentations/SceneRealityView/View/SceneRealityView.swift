@@ -139,6 +139,14 @@ struct SceneRealityView: View {
                 .zIndex(1)
             }
         }
+        .onChange(of: isSoundEnabled) {
+            SceneAudioCoordinator.shared.setGlobalMute(isSoundEnabled)
+        }
+        .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text("바닥으로 설정할 이미지를 선택해주세요.")
+        }
     }
     
     // MARK: - Setup Scene
@@ -183,12 +191,13 @@ struct SceneRealityView: View {
         )
 
         if config.enableAttachments {
+            guard let entity = viewModel.selectedEntity,
+                      let objectId = UUID(uuidString: entity.name) else { return }
+            
             viewModel.updateAttachment(
                 onDuplicate: { _ = viewModel.duplicateObject() },
                 onCrop: { /* handle */ },
                 onDelete: {
-                    guard let entity = viewModel.selectedEntity,
-                        let objectId = UUID(uuidString: entity.name) else { return }
                     viewModel.removeSceneObject(id: objectId)
                 }
             )
