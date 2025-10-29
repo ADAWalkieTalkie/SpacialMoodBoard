@@ -22,6 +22,12 @@ struct ProjectListView: View {
             projectGridView
                 .navigationTitle("Projects")
                 .searchable(text: $viewModel.searchText, prompt: "search")
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        SortSegment(selection: $viewModel.sort)
+                            .frame(width: 188, height: 44)
+                    }
+                }
         }
         .glassBackgroundEffect()
     }
