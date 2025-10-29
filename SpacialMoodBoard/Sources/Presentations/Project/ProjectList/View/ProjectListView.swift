@@ -11,13 +11,13 @@ import SwiftUI
 struct ProjectListView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(AppModel.self) private var appModel
-
+    
     @State private var viewModel: ProjectListViewModel
-
+    
     init(viewModel: ProjectListViewModel) {
         _viewModel = State(wrappedValue: viewModel)
     }
-
+    
     var body: some View {
         NavigationStack {
             projectGridView
@@ -25,8 +25,9 @@ struct ProjectListView: View {
                 .searchable(text: $viewModel.searchText, prompt: "search")
         }
         .glassBackgroundEffect()
+        .environment(viewModel)
     }
-
+    
     // MARK: - Project Grid View
     private var projectGridView: some View {
         ScrollView {
@@ -44,25 +45,17 @@ struct ProjectListView: View {
                     }
                 }
                 .padding(.horizontal, 30)
-
+                
                 ForEach(viewModel.filteredProjects) { project in
-                    ProjectItemView(
-                        project: project,
-                        onTap: {
-                            viewModel.selectProject(project: project)
-                            openWindow(id: "ImmersiveVolumeWindow")
-                        },
-                        onTitleChanged: { newTitle in
-                            viewModel.updateProjectTitle(
-                                project: project,
-                                newTitle: newTitle
-                            )
-                        },
-                        onDelete: {
-                            viewModel.deleteProject(project: project)
-                        }
-                    )
-                    .padding(.horizontal, 30)
+                    ProjectItemView(project: project)
+                        .simultaneousGesture(
+                            TapGesture().onEnded {
+                                viewModel.selectProject(project: project)
+                                openWindow(id: "ImmersiveVolumeWindow")
+                            },
+                            including: .gesture
+                        )
+                        .padding(.horizontal, 30)
                 }
             }
             .padding(.horizontal, 60)
