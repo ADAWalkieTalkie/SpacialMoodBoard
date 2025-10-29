@@ -73,14 +73,17 @@ struct SceneRealityView: View {
                         rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
                     }
 
-                    updateScene(content: content, rootEntity: rootEntity)
+                    // MainActor에서 실행
+                    MainActor.assumeIsolated {
+                        updateScene(content: content, rootEntity: rootEntity)
 
-                    // Floor attachment 재배치 (room 변경 시에도 attachment 유지)
-                    if config.showFloorImageApplyButton,
-                       let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                       let room = rootEntity.findEntity(named: "roomRoot"),
-                       let floor = room.findEntity(named: "floor") {
-                        positionFloorAttachment(floorAttachment, on: floor, room: room)
+                        // Floor attachment 재배치
+                        if config.showFloorImageApplyButton,
+                        let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
+                        let room = rootEntity.findEntity(named: "roomRoot"),
+                        let floor = room.findEntity(named: "floor") {
+                            positionFloorAttachment(floorAttachment, on: floor, room: room)
+                        }
                     }
                 } attachments: {
                     Attachment(id: "headToolbar"){
