@@ -158,13 +158,12 @@ fileprivate struct ImageTabGridView: View {
                         .contentShape(RoundedRectangle(cornerRadius: 20))
                         .hoverEffect(.highlight)
                         .simultaneousGesture(
-
                             TapGesture().onEnded {
                                 if sceneViewModel.isSelectingFloorImage {
                                     // Floor material 선택 모드
                                     sceneViewModel.applyFloorImage(from: asset)
                                 } else {
-                                sceneViewModel.addImageObject(from: asset)   // 사운드는 sound 쪽으로
+                                sceneViewModel.addImageObject(from: asset)
                                 }
                             }
                         )
@@ -187,9 +186,11 @@ fileprivate struct SoundTabListView: View {
                         .frame(height: 56)
                         .contentShape(RoundedRectangle(cornerRadius: 16))
                         .hoverEffect(.highlight)
-                        .onTapGesture {
-                            sceneViewModel.addSoundObject(from: asset)
-                        }
+                        .simultaneousGesture(
+                            TapGesture().onEnded {
+                                sceneViewModel.addSoundObject(from: asset)
+                            }
+                        )
                 }
             }
             .padding(.horizontal, 26)
