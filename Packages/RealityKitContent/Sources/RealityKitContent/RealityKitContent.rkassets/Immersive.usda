@@ -14,6 +14,189 @@ def Xform "Root"
     {
         float3 xformOp:scale = (0.01, 0.01, 0.01)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        over "mtl"
+        {
+            over "GridMATSG"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                over "GridMAT"
+                {
+                    color3f inputs:diffuseColor = (1, 1, 1) (
+                        colorSpace = "srgb_displayp3"
+                    )
+                }
+            }
+
+            over "GroundMATSG"
+            {
+                token inputs:frame:stPrimvarName = "st" (
+                    customData = {
+                        dictionary realitykit = {
+                            bool hide = 1
+                        }
+                    }
+                )
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                def Shader "diffuseColor"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                    float2 inputs:st.connect = </Root/SkyDome/mtl/GroundMATSG/diffuseColor/TexCoordReader.outputs:result>
+                    color3f outputs:rgb
+
+                    def Shader "TexCoordReader"
+                    {
+                        uniform token info:id = "UsdPrimvarReader_float2"
+                        token inputs:varname.connect = </Root/SkyDome/mtl/GroundMATSG.inputs:frame:stPrimvarName>
+                        float2 outputs:result
+                    }
+                }
+
+                over "GroundMAT"
+                {
+                    color3f inputs:diffuseColor.connect = </Root/SkyDome/mtl/GroundMATSG/diffuseColor.outputs:rgb>
+                    color3f inputs:emissiveColor.connect = </Root/SkyDome/mtl/GroundMATSG/emissiveColor.outputs:rgb>
+                }
+
+                def Shader "emissiveColor"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                    float2 inputs:st.connect = </Root/SkyDome/mtl/GroundMATSG/emissiveColor/TexCoordReader.outputs:result>
+                    color3f outputs:rgb
+
+                    def Shader "TexCoordReader"
+                    {
+                        uniform token info:id = "UsdPrimvarReader_float2"
+                        token inputs:varname.connect = </Root/SkyDome/mtl/GroundMATSG.inputs:frame:stPrimvarName>
+                        float2 outputs:result
+                    }
+                }
+            }
+
+            over "DomeMATSG"
+            {
+                token inputs:frame:stPrimvarName = "st" (
+                    customData = {
+                        dictionary realitykit = {
+                            bool hide = 1
+                        }
+                    }
+                )
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+
+                def Shader "diffuseColor"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                    float2 inputs:st.connect = </Root/SkyDome/mtl/DomeMATSG/diffuseColor/TexCoordReader.outputs:result>
+                    color3f outputs:rgb
+
+                    def Shader "TexCoordReader"
+                    {
+                        uniform token info:id = "UsdPrimvarReader_float2"
+                        token inputs:varname.connect = </Root/SkyDome/mtl/DomeMATSG.inputs:frame:stPrimvarName>
+                        float2 outputs:result
+                    }
+                }
+
+                over "DomeMAT"
+                {
+                    color3f inputs:diffuseColor.connect = </Root/SkyDome/mtl/DomeMATSG/diffuseColor.outputs:rgb>
+                    color3f inputs:emissiveColor.connect = </Root/SkyDome/mtl/DomeMATSG/emissiveColor.outputs:rgb>
+                }
+
+                def Shader "emissiveColor"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                    float2 inputs:st.connect = </Root/SkyDome/mtl/DomeMATSG/emissiveColor/TexCoordReader.outputs:result>
+                    color3f outputs:rgb
+
+                    def Shader "TexCoordReader"
+                    {
+                        uniform token info:id = "UsdPrimvarReader_float2"
+                        token inputs:varname.connect = </Root/SkyDome/mtl/DomeMATSG.inputs:frame:stPrimvarName>
+                        float2 outputs:result
+                    }
+                }
+            }
+        }
+    }
+
+    def Cylinder "Cylinder" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        uniform token axis = "Y"
+        double height = 0.2
+        rel material:binding = </Root/Cylinder/DefaultMaterial>
+        double radius = 0.1
+        float3 xformOp:scale = (120, 0.01, 120)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token inputs:frame:stPrimvarName = "st" (
+                customData = {
+                    dictionary realitykit = {
+                        bool hide = 1
+                    }
+                }
+            )
+            token outputs:mtlx:surface
+            token outputs:realitykit:vertex
+            prepend token outputs:surface.connect = </Root/Cylinder/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.8809599, 0.99735606, 1) (
+                    colorSpace = "srgb_displayp3"
+                )
+                color3f inputs:emissiveColor = (0, 0, 0)
+                color3f inputs:emissiveColor.connect = </Root/Cylinder/DefaultMaterial/emissiveColor.outputs:rgb>
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+
+            def Shader "diffuseColor"
+            {
+                uniform token info:id = "UsdUVTexture"
+                asset inputs:file = @lilienstein_1k.exr@
+                float2 inputs:st.connect = </Root/Cylinder/DefaultMaterial/diffuseColor/TexCoordReader.outputs:result>
+                color3f outputs:rgb
+
+                def Shader "TexCoordReader"
+                {
+                    uniform token info:id = "UsdPrimvarReader_float2"
+                    token inputs:varname.connect = </Root/Cylinder/DefaultMaterial.inputs:frame:stPrimvarName>
+                    float2 outputs:result
+                }
+            }
+
+            def Shader "emissiveColor"
+            {
+                uniform token info:id = "UsdUVTexture"
+                asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                float2 inputs:st.connect = </Root/Cylinder/DefaultMaterial/emissiveColor/TexCoordReader.outputs:result>
+                color3f outputs:rgb
+
+                def Shader "TexCoordReader"
+                {
+                    uniform token info:id = "UsdPrimvarReader_float2"
+                    token inputs:varname.connect = </Root/Cylinder/DefaultMaterial.inputs:frame:stPrimvarName>
+                    float2 outputs:result
+                }
+            }
+        }
     }
 }
 

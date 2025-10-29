@@ -16,6 +16,7 @@ struct SpacialMoodBoardApp: App {
     @State private var assetRepository: AssetRepository
     @State private var deleteAssetUseCase: DeleteAssetUseCase
     @State private var sceneViewModel: SceneViewModel
+    @State private var initialVolumeSize: Size3D = Size3D(width: 1000, height: 1000, depth: 1000)
 
     init() {
         do {
@@ -79,9 +80,11 @@ struct SpacialMoodBoardApp: App {
                 viewModel: sceneViewModel
             )
             .environment(appModel)
+            
         }
         .windowStyle(.volumetric)
-        .defaultSize(width: 1.5, height: 1.5, depth: 1.5, in: .meters)
+        .volumeWorldAlignment(.gravityAligned)
+        .defaultSize(width: 1.0, height: 1.0, depth: 1.0, in: .meters)
 
         // Immersive Space (전체 몰입)
         ImmersiveSpace(id: "ImmersiveScene") {

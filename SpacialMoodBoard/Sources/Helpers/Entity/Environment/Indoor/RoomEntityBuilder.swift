@@ -11,10 +11,9 @@ import SwiftUI
 
 /// Entity 생성을 전담하는 Builder 클래스
 struct RoomEntityBuilder {
-
     // MARK: - Constants
-
-    private static let floorThickness: Float = 0.01
+    static let defaultFloorSize = SIMD2<Float>(x: 1.0, y: 1.0)
+    static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
 
     // MARK: - Initialization
 
@@ -27,19 +26,15 @@ struct RoomEntityBuilder {
         from environment: SpacialEnvironment,
         rotationAngle: Float
     ) -> Entity {
-        let dimensions = SIMD3<Float>(Float(10), Float(4), Float(10))
-
         let room = Entity()
         room.name = "roomRoot"
 
         let floor = createFloor(
-            width: dimensions.x,
-            depth: dimensions.z,
+            size: Self.defaultFloorSize,
+            position: Self.defaultFloorPosition,
             materialImageURL: environment.floorMaterialImageURL
         )
         room.addChild(floor)
-
-        applyRotation(to: room, angle: rotationAngle)
 
         return room
     }
@@ -47,7 +42,7 @@ struct RoomEntityBuilder {
     // MARK: - Private Methods - Floor
 
     @MainActor
-    private func createFloor(width: Float, depth: Float, materialImageURL: URL?)
+    private func createFloor(size: SIMD2<Float>, position: SIMD3<Float>, materialImageURL: URL?)
         -> ModelEntity
     {
         let material: PhysicallyBasedMaterial
@@ -55,42 +50,36 @@ struct RoomEntityBuilder {
         if let imageURL = materialImageURL {
             do {
                 let texture = try TextureResource.load(contentsOf: imageURL)
-                material = createTextureMaterial(texture: texture)
+                material = createMaterial(texture: texture)
             } catch {
-                print("❌ Floor 텍스처 로드 실패 (\(imageURL.lastPathComponent)): \(error.localizedDescription)")
-                material = createBaseMaterial()
+                material = createMaterial()
             }
         } else {
-            material = createBaseMaterial()
+            material = createMaterial()
         }
-
+        
         let floor = ModelEntity(
-            mesh: .generateBox(size: 1),
+            mesh: .generatePlane(width: size.x, depth: size.y),
             materials: [material]
         )
-        floor.scale = .init(x: width, y: Self.floorThickness, z: depth)
-        floor.position = .init(x: 0, y: Self.floorThickness, z: 0)
+        floor.position = position
         floor.name = "floor"
 
         return floor
     }
 
     // MARK: - Private Methods - Material
-
-    private func createBaseMaterial() -> PhysicallyBasedMaterial {
-        var material = PhysicallyBasedMaterial()
-        material.baseColor.tint = .init(.gray)
-        material.metallic = 0.0
-        material.roughness = 0.8
-        return material
-    }
-
     @MainActor
-    private func createTextureMaterial(texture: TextureResource)
+    private func createMaterial(texture: TextureResource? = nil)
         -> PhysicallyBasedMaterial
     {
         var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(texture: .init(texture))
+        if let texture {
+            material.baseColor = .init(texture: .init(texture))
+        } else {
+            material.baseColor.tint = .init(.gray)
+        }
+        
         material.metallic = 0.0
         material.roughness = 0.8
         return material
