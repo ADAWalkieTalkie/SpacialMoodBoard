@@ -73,6 +73,7 @@ struct SpacialMoodBoardApp: App {
             
         }
         .windowStyle(.volumetric)
+        .volumeWorldAlignment(.gravityAligned)
         .defaultSize(width: 1.0, height: 1.0, depth: 1.0, in: .meters)
 
         // Immersive Space (전체 몰입)
