@@ -169,7 +169,7 @@ final class SceneViewModel {
         }
     }
     
-    /// 오디오 볼륨 조절의 경우 일정 시간동안 추가 변경이 없을 때만 저장
+    /// 일정 시간동안 추가 변경이 없을 때만 저장
     /// - Parameter delay: 저장될때까지 변경이 없어야하는 시간
     func scheduleSceneAutosaveDebounced(_ delay: TimeInterval = 0.6) {
         autosaveWorkItem?.cancel()

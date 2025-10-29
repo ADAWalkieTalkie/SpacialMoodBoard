@@ -14,6 +14,7 @@ struct SpacialMoodBoardApp: App {
     @State private var appModel = AppModel()
     @State private var projectRepository: ProjectRepository
     @State private var assetRepository: AssetRepository
+    @State private var deleteAssetUseCase: DeleteAssetUseCase
     @State private var sceneViewModel: SceneViewModel
 
     init() {
@@ -39,11 +40,19 @@ struct SpacialMoodBoardApp: App {
                 soundService: SoundAssetService()
             )
             _assetRepository = State(wrappedValue: assetRepository)
+            let sceneRepository = SceneRepository(usageIndex: AssetUsageIndex())
+            
+            let deleteAssetUseCase = DeleteAssetUseCase(
+                assetRepository: assetRepository,
+                sceneRepository: sceneRepository
+            )
+            _deleteAssetUseCase = State(wrappedValue: deleteAssetUseCase)
+          
 
             // Volume Scene용 ViewModel
             let sceneViewModel = SceneViewModel(
                 appModel: appModel,
-                sceneRepository: SceneRepository(usageIndex: AssetUsageIndex()),
+                sceneRepository: sceneRepository,
                 assetRepository: assetRepository,
                 projectRepository: repository
             )
@@ -58,6 +67,7 @@ struct SpacialMoodBoardApp: App {
                 appModel: appModel,
                 assetRepository: assetRepository,
                 projectRepository: projectRepository,
+                deleteAssetUseCase: deleteAssetUseCase,
                 sceneViewModel: sceneViewModel,
                 modelContainer: modelContainer
             )

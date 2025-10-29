@@ -135,10 +135,7 @@ struct LibrarySoundItemView: View {
                 id: asset.id,
                 title: $draftTitle,
                 onRename: { id, newTitle in viewModel.renameAsset(id: id, to: newTitle) },
-                onDelete: { id in
-                    if player.currentURL == asset.url { player.stop() }
-                    viewModel.deleteAsset(id: id)
-                },
+                onDelete: { id in viewModel.deleteAsset(id: id) },
                 onCancel: { showRename = false }
             )
         }

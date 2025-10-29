@@ -79,7 +79,6 @@ struct LibraryImageItemView: View {
             .padding(12)
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
-
         .popover(isPresented: $showRename, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
             RenamePopover(
                 id: asset.id,

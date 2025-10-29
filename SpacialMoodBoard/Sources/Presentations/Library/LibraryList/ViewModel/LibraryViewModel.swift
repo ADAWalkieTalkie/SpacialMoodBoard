@@ -19,6 +19,9 @@ final class LibraryViewModel {
     
     @ObservationIgnored
     private let assetRepository: AssetRepositoryInterface
+    private let deleteAssetUseCase: DeleteAssetUseCase
+    @ObservationIgnored
+    weak var runtimeSink: SceneRuntimeSink?
     private var token: UUID?
     var projectName: String { assetRepository.project }
     var assets: [Asset] = []
@@ -44,11 +47,21 @@ final class LibraryViewModel {
     /// Init
     /// - Parameter projectName: 작업할 프로젝트 이름 (프로젝트 루트 디렉터리 식별에 사용)
     /// - Parameter assetRepository: AssetRepositoryInterface
-    init(assetRepository: AssetRepositoryInterface) {
+    init(
+        assetRepository: AssetRepositoryInterface,
+        deleteAssetUseCase: DeleteAssetUseCase,
+        runtimeSink: SceneRuntimeSink? = nil
+    ) {
+        // 1) 저장 프로퍼티 먼저 초기화
         self.assetRepository = assetRepository
+        self.deleteAssetUseCase = deleteAssetUseCase
+        self.runtimeSink = runtimeSink
         self.assets = assetRepository.assets
-        token = assetRepository.addChangeHandler { [weak self] in
-            self?.assets = assetRepository.assets
+
+        // 2) 그 다음 옵저버 등록
+        self.token = assetRepository.addChangeHandler { [weak self] in
+            guard let self else { return }
+            self.assets = assetRepository.assets
         }
     }
 //    deinit { if let token { assetRepository.removeChangeHandler(token) } }
@@ -246,11 +259,14 @@ extension LibraryViewModel {
     /// 에셋을 목록과 디스크에서 함께 삭제
     /// - Parameter id: 삭제할 에셋의 식별자(UUID)
     func deleteAsset(id: String) {
+        guard let sink = runtimeSink else {
+            assertionFailure("runtimeSink is nil")
+            return
+        }
         do {
-            _ = try assetRepository.deleteAsset(id: id)
-            syncFromRepo()
+            try deleteAssetUseCase.execute(assetId: id, runtimeSink: sink)
         } catch {
-            print("⚠️ delete failed:", error)
+            print("❌ Failed to delete asset:", error)
         }
     }
 }
