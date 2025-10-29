@@ -13,12 +13,13 @@ struct VolumeSceneView: View {
             viewModel: $viewModel,
             config: .volume
         )
-        .preferredWindowClippingMargins(.all, 400)
         .onAppear {
             viewModel.resetRotation()
         }
         .onDisappear {
             viewModel.reset()
         }
+    
+        
     }
 }

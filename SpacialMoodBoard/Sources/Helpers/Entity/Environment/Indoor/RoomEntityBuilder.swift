@@ -12,7 +12,7 @@ import SwiftUI
 /// Entity 생성을 전담하는 Builder 클래스
 struct RoomEntityBuilder {
     // MARK: - Constants
-    static let defaultFloorSize = SIMD2<Float>(x: 1, y: 1)
+    static let defaultFloorSize = SIMD2<Float>(x: 1.0, y: 1.0)
     static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
 
     // MARK: - Initialization

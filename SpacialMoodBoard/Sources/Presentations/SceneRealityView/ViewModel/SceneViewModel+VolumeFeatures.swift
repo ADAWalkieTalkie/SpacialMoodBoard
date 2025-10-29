@@ -33,15 +33,15 @@ extension SceneViewModel {
 
     func alignRoomToWindowBottom(
         room: Entity,
-        windowHeight: Float = 1.5,
-        padding: Float = 0.02
+        windowHeight: Float = 1,
+        padding: Float = 0
     ) {
         let bounds = room.visualBounds(relativeTo: room)
         let contentMinY = bounds.min.y
         let windowBottomY = -windowHeight / 2.0
         let targetContentMinY = windowBottomY + padding
         let offsetY = targetContentMinY - contentMinY
-    
+
         var transform = room.transform
         transform.translation.y = offsetY
         room.transform = transform
