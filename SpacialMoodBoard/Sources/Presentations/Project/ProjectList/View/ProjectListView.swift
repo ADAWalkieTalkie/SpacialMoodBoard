@@ -10,8 +10,6 @@ import SwiftUI
 
 struct ProjectListView: View {
     @Environment(\.openWindow) private var openWindow
-    @Environment(AppModel.self) private var appModel
-    
     @State private var viewModel: ProjectListViewModel
     
     init(viewModel: ProjectListViewModel) {
@@ -23,6 +21,12 @@ struct ProjectListView: View {
             projectGridView
                 .navigationTitle("Projects")
                 .searchable(text: $viewModel.searchText, prompt: "search")
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        SortSegment(selection: $viewModel.sort)
+                            .frame(width: 188, height: 44)
+                    }
+                }
         }
         .glassBackgroundEffect()
         .environment(viewModel)
