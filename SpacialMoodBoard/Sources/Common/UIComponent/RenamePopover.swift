@@ -13,7 +13,7 @@ struct RenamePopover: View {
     // MARK: - Properties
     
     private let id: String
-    private let onRename: ((_ id: String, _ newTitle: String) -> Void)?
+    private let onRename: (() -> Void)?
     private let onDelete: ((_ id: String) -> Void)?
     private let onDuplicate: ((_ id: String, _ newTitle: String) -> Void)?
     private let onCancel: () -> Void
@@ -34,7 +34,7 @@ struct RenamePopover: View {
     init(
         id: String,
         title: Binding<String>,
-        onRename: ((_ id: String, _ newTitle: String) -> Void)? = nil,
+        onRename: @escaping () -> Void,
         onDelete: ((_ id: String) -> Void)? = nil,
         onDuplicate: ((_ id: String, _ newTitle: String) -> Void)? = nil,
         onCancel: @escaping () -> Void
@@ -53,7 +53,7 @@ struct RenamePopover: View {
         VStack(alignment: .leading, spacing: 8) {
             if let onRename {
                 Button{
-                    onRename(id, title)
+                    onRename()
                     onCancel()
                 } label: {
                     rowLabel("이름 변경", system: "pencil")
