@@ -19,6 +19,10 @@ struct SceneRealityView: View {
     @State private var headAnchor: AnchorEntity?
     @State private var showFloorImageAlert = false
 
+    @State private var volumeRootEntity = Entity()
+
+    private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
+
     private var sceneViewIdentifier: String {
         let projectID = appModel.selectedProject?.id.uuidString ?? ""
         let floorImageURL = viewModel.spacialEnvironment.floorMaterialImageURL?.absoluteString ?? ""
@@ -26,107 +30,121 @@ struct SceneRealityView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            RealityView { content, attachments in
-                await setupScene(content: content)
+        ZStack {
+            GeometryReader3D { proxy in
+                RealityView { content, attachments in
+                    let anchor = AnchorEntity(world: SIMD3<Float>(0, 0, 0))
 
-                let anchor = AnchorEntity(world: SIMD3<Float>(0, 0, 0))
-                anchor.name = "RootSceneAnchor"
-                content.add(anchor)
+                    volumeRootEntity.name = "VolumeRoot"
+                    content.add(volumeRootEntity)
 
-                if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                    anchor.addChild(immersiveContentEntity)
-                }
+                    await setupScene(content: content, volumeRoot: volumeRootEntity)
 
-                let newHeadAnchor = AnchorEntity(.head) 
-                headAnchor = newHeadAnchor
+                    anchor.name = "RootSceneAnchor"
+                    content.add(anchor)
 
-                if config.useHeadAnchoredToolbar {
-                    if let toolbar = attachments.entity(for: "headToolbar") {
-                        // y: -0.3 = 시선보다 약간 아래
-                        // z: -0.8 = 앞쪽으로 80cm
-                        toolbar.position = toolbarPosition
-                        newHeadAnchor.addChild(toolbar)
+                    if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
+                        anchor.addChild(immersiveContentEntity)
                     }
-                    content.add(newHeadAnchor)
-                }
 
-                // Floor 중앙에 FloorImageApplyButton attachment 배치 (초기 setup)
-                if config.showFloorImageApplyButton,
-                   let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                   let room = content.entities.first,
-                   let floor = room.findEntity(named: "floor") {
-                    positionFloorAttachment(floorAttachment, on: floor, room: room)
-                }
+                    let newHeadAnchor = AnchorEntity(.head)
+                    headAnchor = newHeadAnchor
 
-            } update: { content, attachments in
-                updateScene(content: content)
+                    if config.useHeadAnchoredToolbar {
+                        if let toolbar = attachments.entity(for: "headToolbar") {
+                            // y: -0.3 = 시선보다 약간 아래
+                            // z: -0.8 = 앞쪽으로 80cm
+                            toolbar.position = toolbarPosition
+                            newHeadAnchor.addChild(toolbar)
+                        }
+                        content.add(newHeadAnchor)
+                    }
 
-                // Floor attachment 재배치 (room 변경 시에도 attachment 유지)
-                if config.showFloorImageApplyButton,
-                   let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                   let room = content.entities.first,
-                   let floor = room.findEntity(named: "floor") {
-                    positionFloorAttachment(floorAttachment, on: floor, room: room)
+                    // Floor 중앙에 FloorImageApplyButton attachment 배치 (초기 setup)
+                    if config.showFloorImageApplyButton,
+                       let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
+                       let room = volumeRootEntity.findEntity(named: "roomRoot"),
+                       let floor = room.findEntity(named: "floor") {
+                        positionFloorAttachment(floorAttachment, on: floor, room: room)
+                    }
+
+                } update: { content, attachments in
+                    if config.alignToWindowBottom {
+                        volumeRootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
+                    }
+
+                    updateScene(content: content, volumeRoot: volumeRootEntity)
+
+                    // Floor attachment 재배치 (room 변경 시에도 attachment 유지)
+                    if config.showFloorImageApplyButton,
+                       let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
+                       let room = volumeRootEntity.findEntity(named: "roomRoot"),
+                       let floor = room.findEntity(named: "floor") {
+                        positionFloorAttachment(floorAttachment, on: floor, room: room)
+                    }
+                } attachments: {
+                    Attachment(id: "headToolbar"){
+                        ToolBarAttachment(
+                            isSoundEnabled: $isSoundEnabled,
+                            onToggleImmersive: handleToggleImmersive
+                        )
+                    }
+
+                    if config.showFloorImageApplyButton {
+                        Attachment(id: "floorImageApplyButton") {
+                            FloorImageApplyButton {
+                                showFloorImageAlert = true
+                                viewModel.isSelectingFloorImage = true
+                            }
+                            .frame(width: 800, height: 800)
+                        }
+                    }
                 }
-            } attachments: {
-                Attachment(id: "headToolbar"){
-                    ToolBarAttachment(
-                        isSoundEnabled: $isSoundEnabled,
-                        onToggleImmersive: handleToggleImmersive
+                .id(sceneViewIdentifier)
+                .if(config.enableGestures) { view in
+                    view.immersiveEntityGestures(
+                        selectedEntity: $viewModel.selectedEntity,
+                        onPositionUpdate: { uuid, position in
+                            viewModel.updateObjectPosition(id: uuid, position: position)
+                        },
+                        onRotationUpdate: { uuid, rotation in
+                            viewModel.updateObjectRotation(id: uuid, rotation: rotation)
+                        },
+                        onScaleUpdate: { uuid, scale in
+                            viewModel.updateObjectScale(id: uuid, scale: scale)
+                        },
+                        onBillboardableChange: { uuid, billboardable in
+                            viewModel.updateBillboardable(id: uuid, billboardable: billboardable)
+                        },
+                        getBillboardableState: { uuid in
+                            viewModel.getBillboardableState(id: uuid)
+                        },
+                        getHeadPosition: {
+                            return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
+                        }
                     )
                 }
-
-                if config.showFloorImageApplyButton {
-                    Attachment(id: "floorImageApplyButton") {
-                        FloorImageApplyButton {
-                            showFloorImageAlert = true
-                            viewModel.isSelectingFloorImage = true
-                        }
-                        .frame(width: 1300, height: 1300)
-                    }
+                .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
+                    Button("확인", role: .cancel) { }
+                } message: {
+                    Text("바닥으로 설정할 이미지를 선택해주세요.")
                 }
             }
-            .id(sceneViewIdentifier)
-            .if(config.enableGestures) { view in
-                view.immersiveEntityGestures(
-                    selectedEntity: $viewModel.selectedEntity,
-                    onPositionUpdate: { uuid, position in
-                        viewModel.updateObjectPosition(id: uuid, position: position)
-                    },
-                    onRotationUpdate: { uuid, rotation in
-                        viewModel.updateObjectRotation(id: uuid, rotation: rotation)
-                    },
-                    onScaleUpdate: { uuid, scale in
-                        viewModel.updateObjectScale(id: uuid, scale: scale)
-                    },
-                    onBillboardableChange: { uuid, billboardable in
-                        viewModel.updateBillboardable(id: uuid, billboardable: billboardable)
-                    },
-                    getBillboardableState: { uuid in
-                        viewModel.getBillboardableState(id: uuid)
-                    },
-                    getHeadPosition: {
-                        return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
-                    }
-                )
-            }
-            
-            // 회전 버튼과 Toolbar (Volume용)
+
+            // 회전 버튼과 Toolbar (Volume용) - ZStack으로 앞쪽 레이어에 배치
             if config.showRotationButton {
-                rotationButton
+                VStack {
+                    Spacer()
+                    rotationButton
+                }
+                .zIndex(1)
             }
-        }
-        .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
-            Button("확인", role: .cancel) { }
-        } message: {
-            Text("바닥으로 설정할 이미지를 선택해주세요.")
         }
     }
     
     // MARK: - Setup Scene
 
-    private func setupScene(content: RealityViewContent) async {
+    private func setupScene(content: RealityViewContent, volumeRoot: Entity) async {
         guard let room = viewModel.getRoomEntity(
             for: appModel.selectedProject,
             rotationAngle: viewModel.rotationAngle
@@ -136,22 +154,22 @@ struct SceneRealityView: View {
         
         // Volume Window일 떄
         if config.alignToWindowBottom {
-            content.add(room)
+            volumeRoot.addChild(room)
 
             // Floor 하단 정렬
-            viewModel.alignRoomToWindowBottom(room: room, windowHeight: 1.5) // VolumeWindow의 Height값
-            
+            viewModel.alignRoomToWindowBottom(room: room, windowHeight: 1) // VolumeWindow의 Height값
+
         // Immersive일 때
         } else {
             // Immersive/Minimap 모드: 기존 방식
             room.scale = config.floorSize
             room.position = [0, 0.1, 0]
-            content.add(room)
+            volumeRoot.addChild(room)
 
             // Immersive 전용: RealityKit Content
             if config.alignToWindowBottom == false {  // immersive 또는 minimap
                 if let immersiveContent = try? await Entity(named: "ImmersiveScene", in: RealityKitContent.realityKitContentBundle) {
-                    content.add(immersiveContent)
+                    volumeRoot.addChild(immersiveContent)
                 }
             }
         }
@@ -159,14 +177,12 @@ struct SceneRealityView: View {
     
     // MARK: - Update Scene
 
-    private func updateScene(content: RealityViewContent) {
-        guard let room = content.entities.first else { return }
-
+    private func updateScene(content: RealityViewContent, volumeRoot: Entity) {
         let sceneObjects = viewModel.sceneObjects
 
         viewModel.updateEntities(
             sceneObjects: sceneObjects,
-            anchor: room
+            anchor: volumeRoot
         )
 
         if config.enableAttachments {
