@@ -10,7 +10,6 @@ import SwiftUI
 
 struct ProjectListView: View {
     @Environment(\.openWindow) private var openWindow
-    @Environment(AppModel.self) private var appModel
 
     @State private var viewModel: ProjectListViewModel
 
