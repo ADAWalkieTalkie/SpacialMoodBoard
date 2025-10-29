@@ -17,17 +17,15 @@ final class ProjectListViewModel {
     private let projectFileStorage = ProjectFileStorage()
 
     var searchText: String = ""
+    var sort: SortOrder = .recent
 
     private(set) var projects: [Project] = []
 
     var filteredProjects: [Project] {
-        guard !searchText.isEmpty else {
-            return projects
-        }
-        return
-            projects
-            .filter { $0.title.localizedCaseInsensitiveContains(searchText) }
-            .sorted { $0.updatedAt > $1.updatedAt }
+        let filtered = searchText.isEmpty
+            ? projects
+            : projects.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+        return sortProjects(filtered)
     }
 
     init(appModel: AppModel, projectRepository: ProjectRepository) {
@@ -164,7 +162,7 @@ final class ProjectListViewModel {
                 print("❌ SceneModel 저장 실패: \(error)")
                 print("   - 프로젝트명: \(projectTitle)")
                 print("   - 에러 상세: \(error.localizedDescription)")
-                throw error // 에러를 다시 던져서 호출자가 처리할 수 있게 함
+                throw error
             }
 
         return newProject
@@ -213,6 +211,21 @@ final class ProjectListViewModel {
         if appModel.selectedProject?.id == project.id {
             appModel.selectedProject = nil
             appModel.selectedScene = nil
+        }
+    }
+
+    /// 주어진 프로젝트 배열을 뷰모델의 정렬 상태에 맞춰 정렬
+    private func sortProjects(_ projects: [Project]) -> [Project] {
+        switch sort {
+        case .recent:
+            return projects.sorted {
+                if $0.updatedAt == $1.updatedAt { return $0.title < $1.title }
+                return $0.updatedAt > $1.updatedAt // 최신순 (newest first)
+            }
+        case .nameAZ:
+            return projects.sorted {
+                $0.title.localizedStandardCompare($1.title) == .orderedAscending
+            }
         }
     }
 }
