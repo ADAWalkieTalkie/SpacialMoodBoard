@@ -54,10 +54,10 @@ struct EditBarAttachment: View {
             switch objectType {
             case .image:
                 // 크롭 버튼
-                if let onCrop {
+//                if let onCrop {
 //                    EditBarAttachmentButton(systemName: "crop", action: onCrop)
 //                        .accessibilityLabel("Crop")
-                }
+//                }
                 // 복사 버튼
                 if let onDuplicate {
                     EditBarAttachmentButton(systemName: "doc.on.doc", action: onDuplicate)
