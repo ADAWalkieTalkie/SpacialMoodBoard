@@ -55,8 +55,8 @@ struct EditBarAttachment: View {
             case .image:
                 // 크롭 버튼
                 if let onCrop {
-                    EditBarAttachmentButton(systemName: "crop", action: onCrop)
-                        .accessibilityLabel("Crop")
+//                    EditBarAttachmentButton(systemName: "crop", action: onCrop)
+//                        .accessibilityLabel("Crop")
                 }
                 // 복사 버튼
                 if let onDuplicate {

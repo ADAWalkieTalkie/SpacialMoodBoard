@@ -58,7 +58,7 @@ struct SoundEntity {
         unlit.color = .init(texture: .init(texture))
         unlit.blending = .transparent(opacity: 1.0)
         
-        let mesh = MeshResource.generatePlane(width: width, height: height, cornerRadius: min(width, height) * 0.11)
+        let mesh = MeshResource.generatePlane(width: width, height: height)
         let modelEntity = ModelEntity(mesh: mesh, materials: [unlit])
         modelEntity.name = sceneObject.id.uuidString
         modelEntity.position = sceneObject.position
