@@ -8,9 +8,9 @@ struct SceneModelFileStorage {
     typealias DataType = SceneModel
 
     private let fileManager = FileManager.default
-    private let projectRepository: ProjectRepository?
+    private let projectRepository: ProjectRepositoryInterface?
 
-    init(projectRepository: ProjectRepository? = nil) {
+    init(projectRepository: ProjectRepositoryInterface? = nil) {
         self.projectRepository = projectRepository
     }
 

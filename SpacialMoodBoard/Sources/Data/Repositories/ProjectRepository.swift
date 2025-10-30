@@ -1,5 +1,5 @@
 //
-//  SwiftDataProjectRepository.swift
+//  ProjectRepository.swift
 //  SpacialMoodBoard
 //
 //  Created by PenguinLand on 10/22/25.
@@ -9,11 +9,11 @@
 import Foundation
 import SwiftData
 
-// MARK: - SwiftDataProjectRepository Implementation
+// MARK: - ProjectRepository Implementation
 
 /// Swift Data를 사용한 프로젝트 저장소 구현
 @MainActor
-final class SwiftDataProjectRepository: ProjectRepository {
+final class ProjectRepository: ProjectRepositoryInterface {
     private let modelContext: ModelContext
   
     // MARK: - Initialization
@@ -42,7 +42,7 @@ final class SwiftDataProjectRepository: ProjectRepository {
         return project.modelContext === modelContext
     }
   
-    // MARK: - ProjectRepository Protocol Implementation
+    // MARK: - ProjectRepositoryInterface Protocol Implementation
   
     /// 앱 최초 실행 시 초기 mock 데이터 로드
     func loadInitialData() {
@@ -244,7 +244,7 @@ final class SwiftDataProjectRepository: ProjectRepository {
 
 // MARK: - Additional Convenience Methods
 
-extension SwiftDataProjectRepository {
+extension ProjectRepository {
   
     /// 프로젝트 썸네일 이미지 업데이트
     /// - Parameters:
@@ -316,7 +316,7 @@ extension SwiftDataProjectRepository {
 
 // MARK: - Batch Operations
 
-extension SwiftDataProjectRepository {
+extension ProjectRepository {
   
     /// 여러 프로젝트를 한 번에 업데이트 (성능 최적화)
     /// - Parameter projects: 업데이트할 프로젝트 배열

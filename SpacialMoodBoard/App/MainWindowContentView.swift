@@ -7,7 +7,7 @@ struct MainWindowContent: View {
     
     @Bindable var appModel: AppModel
     var assetRepository: AssetRepository
-    var projectRepository: ProjectRepository
+    var projectRepository: ProjectRepositoryInterface
     var deleteAssetUseCase: DeleteAssetUseCase
     var sceneViewModel: SceneViewModel
     var modelContainer: ModelContainer

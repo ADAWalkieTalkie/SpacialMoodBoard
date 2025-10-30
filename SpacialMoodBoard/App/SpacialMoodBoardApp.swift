@@ -12,7 +12,7 @@ import SwiftUI
 struct SpacialMoodBoardApp: App {
     let modelContainer: ModelContainer
     @State private var appModel = AppModel()
-    @State private var projectRepository: ProjectRepository
+    @State private var projectRepository: ProjectRepositoryInterface
     @State private var assetRepository: AssetRepository
     @State private var deleteAssetUseCase: DeleteAssetUseCase
     @State private var sceneViewModel: SceneViewModel
@@ -27,7 +27,7 @@ struct SpacialMoodBoardApp: App {
                 )
             )
             self.modelContainer = container
-            let repository = SwiftDataProjectRepository(
+            let repository = ProjectRepository(
                 modelContext: container.mainContext
             )
             _projectRepository = State(wrappedValue: repository)
