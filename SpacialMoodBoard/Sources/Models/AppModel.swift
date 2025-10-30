@@ -17,8 +17,33 @@ class AppModel {
         case open
     }
     var immersiveSpaceState = ImmersiveSpaceState.closed
+
+    func toggleImmersiveSpace(
+        dismissImmersiveSpace: DismissImmersiveSpaceAction,
+        openImmersiveSpace: OpenImmersiveSpaceAction
+    ) async {
+        switch immersiveSpaceState {
+        case .open:
+            immersiveSpaceState = .inTransition
+            await dismissImmersiveSpace()
+            
+        case .closed:
+            immersiveSpaceState = .inTransition
+            switch await openImmersiveSpace(id: "ImmersiveScene") {
+            case .opened:
+                break
+                
+            case .userCancelled, .error:
+                fallthrough
+            @unknown default:
+                immersiveSpaceState = .closed
+            }
+            
+        case .inTransition:
+            break
+        }
+    }
     
     var selectedProject: Project?
     var selectedScene: SceneModel?
-//    var storedAssets: [Asset] = []
 }

@@ -283,8 +283,7 @@ struct SceneRealityView: View {
     
     private func handleToggleImmersive() {
         Task { @MainActor in
-            await viewModel.toggleImmersiveSpace(
-                appModel: appModel,
+            await appModel.toggleImmersiveSpace(
                 dismissImmersiveSpace: dismissImmersiveSpace,
                 openImmersiveSpace: openImmersiveSpace
             )
