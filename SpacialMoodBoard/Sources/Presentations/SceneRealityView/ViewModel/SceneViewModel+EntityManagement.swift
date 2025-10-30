@@ -47,7 +47,7 @@ extension SceneViewModel {
             guard let asset = assetRepository.asset(withId: sceneObject.assetId) else { continue }
             
             if let existingEntity = entityMap[sceneObject.id] {
-                // 기존 Entity 위치 업데이트
+                // 기존 Entity 위치 
                 existingEntity.position = sceneObject.position
             } else {
                 // 새로운 Entity 생성
