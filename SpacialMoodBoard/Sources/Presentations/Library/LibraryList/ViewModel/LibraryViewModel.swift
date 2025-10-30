@@ -17,10 +17,11 @@ final class LibraryViewModel {
     
     // MARK: - Properties
     
+    private let appModel: AppModel
     @ObservationIgnored
     private let assetRepository: AssetRepositoryInterface
+    private let renameAssetUseCase: RenameAssetUseCase
     private let deleteAssetUseCase: DeleteAssetUseCase
-    private weak var appModel: AppModel?
     
     @ObservationIgnored
     private var token: UUID?
@@ -49,14 +50,16 @@ final class LibraryViewModel {
     /// - Parameter projectName: 작업할 프로젝트 이름 (프로젝트 루트 디렉터리 식별에 사용)
     /// - Parameter assetRepository: AssetRepositoryInterface
     init(
+        appModel: AppModel,
         assetRepository: AssetRepositoryInterface,
+        renameAssetUseCase: RenameAssetUseCase,
         deleteAssetUseCase: DeleteAssetUseCase
     ) {
-        // 1) 저장 프로퍼티 먼저 초기화
+        self.appModel = appModel
         self.assetRepository = assetRepository
+        self.renameAssetUseCase = renameAssetUseCase
         self.deleteAssetUseCase = deleteAssetUseCase
 
-        // 2) 그 다음 옵저버 등록
         self.token = assetRepository.addChangeHandler { [weak self] in
             guard let self else { return }
             self.assets = assetRepository.assets
@@ -242,24 +245,34 @@ extension LibraryViewModel {
 // MARK: - Extension RenamePopover
 
 extension LibraryViewModel {
-    /// 에셋 파일명을 변경하고, 디스크 상의 실제 파일도 함께 rename
+    /// 에셋 이름을 변경하고(필요 시 assetId 변경 포함), 씬 내 참조를 일괄 리맵하는 액션
+    /// 내부적으로 `RenameAssetUseCase`를 호출해
+    /// 1) `AssetRepository.renameAsset`로 에셋 이름을 변경하고
+    /// 2) id가 바뀐 경우 `SceneObjectRepository.remapAssetId`로 씬의 참조를 원자적으로 갱신
+    /// 완료 후 `syncFromRepo()`로 에셋 패널 등 UI를 동기화
     /// - Parameters:
-    ///   - id: 이름을 바꿀 에셋의 식별자(UUID)
-    ///   - newTitle: 확장자를 제외한 새 파일명(사용자 입력). 불법 문자는 `sanitizedFilename(_:)`로 정제
+    ///   - id: 이름을 변경할 에셋의 식별자
+    ///   - newTitle: 변경할 새 기본 파일명(확장자는 서비스가 유지/결정)
+    /// - Note: `appModel.selectedScene`이 존재할 때만 동작
+    @MainActor
     func renameAsset(id: String, to newTitle: String) {
+        guard var scene = appModel.selectedScene else { return }
         do {
-            try assetRepository.renameAsset(id: id, to: newTitle)
+            let result = try renameAssetUseCase.execute(
+                assetId: id,
+                newBaseName: newTitle,
+                scene: &scene
+            )
             syncFromRepo()
         } catch {
-            print("⚠️ rename failed:", error)
+            print("❌ rename failed:", error)
         }
     }
     
     /// 에셋을 목록과 디스크에서 함께 삭제
     /// - Parameter id: 삭제할 에셋의 식별자(UUID)
-    // LibraryViewModel.swift
     func deleteAsset(id: String) {
-        guard var scene = appModel?.selectedScene else {
+        guard var scene = appModel.selectedScene else {
             do {
                 _ = try assetRepository.deleteAsset(id: id)
                 syncFromRepo()
@@ -271,7 +284,7 @@ extension LibraryViewModel {
         
         do {
             _ = try deleteAssetUseCase.execute(assetId: id, scene: &scene)
-            appModel?.selectedScene = scene
+            appModel.selectedScene = scene
             syncFromRepo()
         } catch {
             print("❌ Failed to delete asset:", error)

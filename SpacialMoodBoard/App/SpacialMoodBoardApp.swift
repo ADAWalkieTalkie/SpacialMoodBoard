@@ -43,21 +43,17 @@ struct SpacialMoodBoardApp: App {
             _assetRepository = State(wrappedValue: assetRepository)
 
             let usageIndex = AssetUsageIndex()
-            let sceneRepository = SceneRepository(usageIndex: usageIndex)
             let sceneObjectRepository = SceneObjectRepository(usageIndex: usageIndex)
             
             let deleteAssetUseCase = DeleteAssetUseCase(
                 assetRepository: assetRepository,
-                sceneRepository: sceneRepository,
                 sceneObjectRepository: sceneObjectRepository
             )
             _deleteAssetUseCase = State(wrappedValue: deleteAssetUseCase)
-          
 
             // Volume Scene용 ViewModel
             let sceneViewModel = SceneViewModel(
                 appModel: appModel,
-                sceneRepository: sceneRepository,
                 sceneObjectRepository: sceneObjectRepository,
                 assetRepository: assetRepository,
                 projectRepository: repository

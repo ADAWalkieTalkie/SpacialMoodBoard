@@ -173,14 +173,16 @@ final class AssetRepository: AssetRepositoryInterface {
     
     // MARK: - Rename / Duplicate / Delete
     
-    func renameAsset(id: String, to newBaseName: String) throws {
-        guard let idx = assets.firstIndex(where: { $0.id == id }) else { return }
+    func renameAsset(id: String, to newBaseName: String) throws -> Asset {
+        guard let idx = assets.firstIndex(where: { $0.id == id }) else {
+            throw NSError(domain: "AssetRepo", code: 404, userInfo: [NSLocalizedDescriptionKey: "Asset not found"])
+        }
         let old = assets[idx]
-        
+
         let ext = old.url.pathExtension.isEmpty
-        ? (old.type == .image ? "png" : "m4a")
-        : old.url.pathExtension
-        
+            ? (old.type == .image ? "png" : "m4a")
+            : old.url.pathExtension
+
         let base = Self.sanitizedBase(newBaseName)
         let newFilename: String
         switch old.type {
@@ -192,6 +194,7 @@ final class AssetRepository: AssetRepositoryInterface {
             assets[idx].filename = newFilename
             assets[idx].url = newURL
             assets[idx].id = Self.composeId(contentHash: h, filename: newFilename)
+
         case .sound:
             newFilename = soundService.uniqueFilename(project: project, base: base, ext: ext)
             try soundService.rename(project: project, from: old.filename, to: newFilename)
@@ -201,6 +204,9 @@ final class AssetRepository: AssetRepositoryInterface {
             assets[idx].url = newURL
             assets[idx].id = Self.composeId(contentHash: h, filename: newFilename)
         }
+
+        notify()
+        return assets[idx]
     }
     
     func duplicateAsset(id: String, as newBaseName: String?) async throws -> Asset {
@@ -249,37 +255,22 @@ final class AssetRepository: AssetRepositoryInterface {
         }
     }
     
-    func deleteAsset(id: String) throws -> [UUID] {
-        guard let idx = assets.firstIndex(where: { $0.id == id }) else { return [] }
-        let target = assets.remove(at: idx)
-        // 디스크 삭제
-        switch target.type {
-        case .image: try imageService.delete(project: project, filename: target.filename)
-        case .sound: try soundService.delete(project: project, filename: target.filename)
+    func deleteAsset(id: String) {
+        guard let idx = assets.firstIndex(where: { $0.id == id }) else { return }
+        do {
+            let target = assets[idx]
+            
+            switch target.type {
+            case .image:
+                try imageService.delete(project: project, filename: target.filename)
+            case .sound:
+                try soundService.delete(project: project, filename: target.filename)
+            }
+            assets.remove(at: idx)
+            notify()
+        } catch {
+            print("⚠️ disk delete failed:", error)
         }
-        // 참조 반환(상층에서 오브젝트 일괄 제거)
-        let deps = Array(references[id] ?? [])
-        references[id] = nil
-        notify()
-        return deps
-    }
-    
-    // MARK: - References (SceneObject ↔ Asset)
-    
-    func registerReference(objectId: UUID, assetId: String) {
-        var set = references[assetId] ?? []
-        set.insert(objectId)
-        references[assetId] = set
-    }
-    
-    func unregisterReference(objectId: UUID, assetId: String) {
-        guard var set = references[assetId] else { return }
-        set.remove(objectId)
-        references[assetId] = set.isEmpty ? nil : set
-    }
-    
-    func dependents(of assetId: String) -> [UUID] {
-        Array(references[assetId] ?? [])
     }
     
     // MARK: - Helpers
@@ -327,5 +318,4 @@ final class AssetRepository: AssetRepositoryInterface {
                 }
             }
         }
-    }
-}
+    }}

@@ -10,7 +10,6 @@ final class SceneViewModel {
     // MARK: - Dependencies
     let appModel: AppModel
     let sceneModelFileStorage: SceneModelFileStorage
-    let sceneRepository: SceneRepositoryInterface
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
     let entityBuilder: RoomEntityBuilder
@@ -18,14 +17,12 @@ final class SceneViewModel {
     
     // MARK: - Initialization
     init(appModel: AppModel,
-         sceneRepository: SceneRepositoryInterface,
          sceneObjectRepository: SceneObjectRepositoryInterface,
          assetRepository: AssetRepositoryInterface,
          projectRepository: ProjectServiceInterface? = nil
     ) {
         self.appModel = appModel
         self.sceneModelFileStorage = SceneModelFileStorage(projectRepository: projectRepository)
-        self.sceneRepository = sceneRepository
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
         self.entityBuilder = RoomEntityBuilder()

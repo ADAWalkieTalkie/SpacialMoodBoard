@@ -3,7 +3,7 @@ import Foundation
 // MARK: - SceneObject(3D 공간에 배치되는 모든 객체)
 struct SceneObject: Identifiable, Codable, Hashable {
     let id: UUID                // object_id (PK)
-    let assetId: String           // asset_id (FK) - 단일 Asset 참조
+    var assetId: String           // asset_id (FK) - 단일 Asset 참조
     
     var position: SIMD3<Float>  // x, y, z 통합
     var isEditable: Bool        // 편집 가능 여부
