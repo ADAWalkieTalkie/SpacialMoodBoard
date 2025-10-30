@@ -8,7 +8,7 @@ extension SceneViewModel {
     // MARK: - Add Image Object
     
     /// ImageEditor나 Library에서 호출 (anchor는 SceneRealityView에서 전달)
-    func addImageObject(from asset: Asset, anchor: Entity? = nil) {
+    func addImageObject(from asset: Asset, rootEntity: Entity? = nil) {
         let newObject = SceneObject.createImage(
             assetId: asset.id,
             position: SIMD3<Float>(0, 1.5, -2),
@@ -20,12 +20,12 @@ extension SceneViewModel {
         )
         
         // SceneViewModel+SceneObject의 addSceneObject 사용
-        addSceneObject(newObject, anchor: anchor)
+        addSceneObject(newObject, rootEntity: rootEntity)
     }
     
     // MARK: - Add Sound Object
     
-    func addSoundObject(from asset: Asset, anchor: Entity? = nil) {
+    func addSoundObject(from asset: Asset, rootEntity: Entity? = nil) {
         let soundObj = SceneObject.createAudio(
             assetId: asset.id,
             position: SIMD3<Float>(0, 1.5, -2),
@@ -34,7 +34,7 @@ extension SceneViewModel {
         )
         
         // SceneViewModel+SceneObject의 addSceneObject 사용
-        addSceneObject(soundObj, anchor: anchor)
+        addSceneObject(soundObj, rootEntity: rootEntity)
     }
     
     // MARK: - 복제
@@ -59,7 +59,7 @@ extension SceneViewModel {
         )
         
         // SceneViewModel+SceneObject의 addSceneObject 사용
-        addSceneObject(duplicatedObject, anchor: nil)
+        addSceneObject(duplicatedObject, rootEntity: nil)
         self.selectedEntity = nil
         
         return duplicatedObject

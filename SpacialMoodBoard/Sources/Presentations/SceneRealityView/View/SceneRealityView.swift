@@ -33,18 +33,14 @@ struct SceneRealityView: View {
         ZStack {
             GeometryReader3D { proxy in
                 RealityView { content, attachments in
-                    let anchor = AnchorEntity(world: SIMD3<Float>(0, 0, 0))
 
                     rootEntity.name = "RootEntity"
                     content.add(rootEntity)
 
                     await setupScene(content: content, rootEntity: rootEntity)
 
-                    anchor.name = "RootSceneAnchor"
-                    content.add(anchor)
-
                     if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                        anchor.addChild(immersiveContentEntity)
+                        rootEntity.addChild(immersiveContentEntity)
                     }
 
                     let newHeadAnchor = AnchorEntity(.head)
@@ -190,7 +186,7 @@ struct SceneRealityView: View {
 
         viewModel.updateEntities(
             sceneObjects: sceneObjects,
-            anchor: rootEntity
+            rootEntity: rootEntity
         )
 
         if config.enableAttachments {

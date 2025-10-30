@@ -7,7 +7,7 @@ extension SceneViewModel {
     
     func updateEntities(
         sceneObjects: [SceneObject],
-        anchor: Entity
+        rootEntity: Entity
     ) {
         let currentObjectIds = Set(sceneObjects.map { $0.id })
         let existingEntityIds = Set(entityMap.keys)
@@ -21,7 +21,7 @@ extension SceneViewModel {
         // 2. 새로운 객체 추가 또는 업데이트
         updateOrCreateEntities(
             sceneObjects: sceneObjects,
-            anchor: anchor
+            rootEntity: rootEntity
         )
     }
     
@@ -41,7 +41,7 @@ extension SceneViewModel {
     
     private func updateOrCreateEntities(
         sceneObjects: [SceneObject],
-        anchor: Entity
+        rootEntity: Entity
     ) {
         for sceneObject in sceneObjects {
             guard let asset = assetRepository.asset(withId: sceneObject.assetId) else { continue }
@@ -51,7 +51,7 @@ extension SceneViewModel {
                 existingEntity.position = sceneObject.position
             } else {
                 // 새로운 Entity 생성
-                createAndAddEntity(sceneObject: sceneObject, asset: asset, anchor: anchor)
+                createAndAddEntity(sceneObject: sceneObject, asset: asset, rootEntity: rootEntity)
             }
         }
     }
@@ -59,7 +59,7 @@ extension SceneViewModel {
     func createAndAddEntity(
         sceneObject: SceneObject,
         asset: Asset,
-        anchor: Entity
+        rootEntity: Entity
     ) {
         let newEntity: ModelEntity?
         switch sceneObject.attributes {
@@ -69,7 +69,7 @@ extension SceneViewModel {
             newEntity = SoundEntity.create(from: sceneObject, with: asset, viewMode: false)
         }
         if let entity = newEntity {
-            anchor.addChild(entity)
+            rootEntity.addChild(entity)
             entityMap[sceneObject.id] = entity
         }
     }

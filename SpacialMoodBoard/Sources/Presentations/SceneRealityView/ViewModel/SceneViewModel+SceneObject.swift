@@ -8,7 +8,7 @@ extension SceneViewModel {
     // MARK: - Basic CRUD
     
     /// 객체 추가 + Entity 생성
-    func addSceneObject(_ object: SceneObject, anchor: Entity? = nil) {
+    func addSceneObject(_ object: SceneObject, rootEntity: Entity? = nil) {
         guard var scene = appModel.selectedScene else { return }
         
         // 1. Repository를 통해 SceneObject 추가
@@ -16,9 +16,9 @@ extension SceneViewModel {
         appModel.selectedScene = scene
         
         // 2. Entity 생성 및 추가
-        if let anchor = anchor,
+        if let rootEntity = rootEntity,
            let asset = assetRepository.asset(withId: object.assetId) {
-            createAndAddEntity(sceneObject: object, asset: asset, anchor: anchor)
+            createAndAddEntity(sceneObject: object, asset: asset, rootEntity: rootEntity)
         }
         
         // 3. 저장
