@@ -55,19 +55,20 @@ struct EditBarAttachment: View {
             case .image:
                 // 크롭 버튼
 //                if let onCrop {
-//                    EditBarAttachmentButton(systemName: "crop", action: onCrop)
+//                    CircleFillButton(type: .crop, action: onCrop)
 //                        .accessibilityLabel("Crop")
 //                }
                 // 복사 버튼
                 if let onDuplicate {
-                    EditBarAttachmentButton(systemName: "doc.on.doc", action: onDuplicate)
+                    CircleFillButton(type: .duplicate, action: onDuplicate)
                         .accessibilityLabel("Duplicate")
                 }
                 
             case .sound:
-                EditBarAttachmentButton(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill") {
-                    toggleMute()
-                }
+                CircleFillButton(
+                    type: .sound(isOn: isMuted),
+                    action: { toggleMute() }
+                )
                 .accessibilityLabel(isMuted ? "Unmute" : "Mute")
                 
                 CapsuleVolumeSlider(value: Binding(
@@ -88,7 +89,7 @@ struct EditBarAttachment: View {
             }
             
             // 공통: 삭제
-            EditBarAttachmentButton(systemName: "trash", action: onDelete)
+            CircleFillButton(type: .delete, action: onDelete)
                 .accessibilityLabel("Delete")
         }
         .padding(12)

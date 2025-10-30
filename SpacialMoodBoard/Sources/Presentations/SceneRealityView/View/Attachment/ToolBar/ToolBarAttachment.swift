@@ -17,24 +17,30 @@ struct ToolBarAttachment: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // 뷰 모드 버튼 (viewMode 토글)
-            ToolBarButton(
-                systemName: "eye",
-                isEnabled: isViewEnabled,
-                action: toggleViewMode
-            )
+            // 볼륨 컨트롤
+//            ToolBarButton(
+//                type: .volumeControl,
+//                isSelected: ,
+//                action: {}
+//            )
             
             // Immersive Space 토글 버튼
             ToolBarButton(
-                systemName: "person.and.background.dotted",
-                isEnabled: isImmersiveOpen,
-                action: handleToggleImmersive
+                type: .fullImmersive,
+                isSelected: isImmersiveOpen,
+                action: { handleToggleImmersive() }
             )
             
-            // 사운드 버튼
+            // 뷰 모드 버튼 (viewMode 토글)
             ToolBarButton(
-                systemName: isMuted ? "speaker.slash" : "speaker",
-                isEnabled: isMuted,
+                type: .viewMode,
+                isSelected: isViewEnabled,
+                action: toggleViewMode
+            )
+            
+            ToolBarButton(
+                type: .mute(isOn: isMuted),
+                isSelected: isMuted,
                 action: {
                     isMuted.toggle()
                     SceneAudioCoordinator.shared.setGlobalMute(isMuted)

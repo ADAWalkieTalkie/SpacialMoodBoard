@@ -258,7 +258,7 @@ extension LibraryViewModel {
     func renameAsset(id: String, to newTitle: String) {
         guard var scene = appModel.selectedScene else { return }
         do {
-            let result = try renameAssetUseCase.execute(
+            _ = try renameAssetUseCase.execute(
                 assetId: id,
                 newBaseName: newTitle,
                 scene: &scene

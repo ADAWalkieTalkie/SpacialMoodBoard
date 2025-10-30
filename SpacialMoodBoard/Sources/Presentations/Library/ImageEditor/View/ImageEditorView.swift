@@ -70,9 +70,12 @@ fileprivate struct ImageSidebarView: View {
                 
                 Spacer()
                 
-                IconCircleButton(systemName: "square.split.2x1") {
-                    withAnimation(.easeInOut(duration: 0.22)) { viewModel.showSidebar.toggle() }
-                }
+                CircleFillButton(
+                    type: .sidebar,
+                    action: { withAnimation(.easeInOut(duration: 0.22)) {
+                        viewModel.showSidebar.toggle()}
+                    }
+                )
                 .keyboardShortcut("l", modifiers: .command)
             }
             .padding(.leading, 28)
@@ -120,9 +123,12 @@ fileprivate struct EditorToolbarView: View {
     var body: some View {
         HStack(alignment: .center) {
             HiddenOrSpace(show: !viewModel.showSidebar, size: 44) {
-                IconCircleButton(systemName: "square.split.2x1") {
-                    withAnimation(.easeInOut(duration: 0.22)) { viewModel.showSidebar = true }
-                }
+                CircleFillButton(
+                    type: .sidebar,
+                    action: { withAnimation(.easeInOut(duration: 0.22)) {
+                        viewModel.showSidebar = true}
+                    }
+                )
                 .keyboardShortcut("l", modifiers: .command)
             }
 
@@ -151,17 +157,20 @@ fileprivate struct EditorToolbarView: View {
 /// 편집 중인 이미지뷰
 fileprivate struct ImageStageView: View {
     @Bindable var viewModel: ImageEditorViewModel
-
+    
     var body: some View {
         HStack(alignment: .center, spacing: 49) {
             HiddenOrSpace(show: (viewModel.images.count > 1 && !viewModel.isFirst), size: 44) {
-                NavButton(systemName: "chevron.left", action: viewModel.prevImage)
+                CircleFillButton(
+                    type: .back,
+                    action: { viewModel.prevImage() }
+                )
             }
-
+            
             ZStack {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(.black.opacity(0.06))
-
+                
                 if let img = viewModel.selectedImage {
                     SubjectLiftDragView(image: img)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -184,9 +193,12 @@ fileprivate struct ImageStageView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-
+            
             HiddenOrSpace(show: (viewModel.images.count > 1 && !viewModel.isLast), size: 44) {
-                NavButton(systemName: "chevron.right", action: viewModel.nextImage)
+                CircleFillButton(
+                    type: .next,
+                    action: { viewModel.nextImage() }
+                )
             }
         }
         .frame(maxHeight: .infinity)

@@ -10,19 +10,6 @@ import SwiftUI
 // TODO: - 디자인 시스템 나온 후 컴포넌트화 예정
 // 지금은 버튼 여백, 폰트, 색상 다 달라서 일단 ImageEditor에서 여러번 쓰이는 애들만 각각 다른 컴포넌트화
 
-struct IconCircleButton: View {
-    let systemName: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemName)
-                .font(.system(size: 19, weight: .medium))
-        }
-        .frame(width: 44, height: 44)
-    }
-}
-
 struct CapsuleTextButton: View {
     let title: String
     var prominent: Bool = false
@@ -37,23 +24,6 @@ struct CapsuleTextButton: View {
             .padding(.vertical, 11)
             .background(.gray.opacity(prominent ? 0.7 : 0.5), in: Capsule())
             .hoverEffect(.highlight)
-    }
-}
-
-struct NavButton: View {
-    let systemName: String
-    let action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemName)
-                .font(.system(size: 20, weight: .semibold))
-                .frame(width: 44, height: 44)
-                .background(.gray.opacity(0.5), in: Circle())
-                .foregroundStyle(.primary)
-                .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .hoverEffect(.highlight)
     }
 }
 
