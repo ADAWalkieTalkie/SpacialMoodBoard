@@ -20,7 +20,6 @@ struct MainWindowContent: View {
                         viewModel: LibraryViewModel(
                             assetRepository: assetRepository,
                             deleteAssetUseCase: deleteAssetUseCase,
-                            runtimeSink: sceneViewModel
                         ),
                         sceneViewModel: sceneViewModel
                     )

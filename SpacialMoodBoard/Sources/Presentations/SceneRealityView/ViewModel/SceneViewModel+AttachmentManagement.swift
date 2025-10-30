@@ -39,10 +39,8 @@ extension SceneViewModel {
             let onVolumeChange: (Double) -> Void = { [weak self] newValue in
                 guard let self else { return }
                 
-                if let idx = self.sceneObjects.firstIndex(where: { $0.id == objectId }) {
-                    var obj = self.sceneObjects[idx]
+                self.updateSceneObject(with: objectId) { obj in
                     obj.setVolume(Float(newValue))
-                    self.sceneObjects[idx] = obj
                 }
                 
                 let db = self.linearToDecibels(newValue)

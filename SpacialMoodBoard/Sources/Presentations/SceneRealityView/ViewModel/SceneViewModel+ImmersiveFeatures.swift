@@ -5,17 +5,13 @@ import RealityKit
 
 extension SceneViewModel {
     
-    
-    func toggleViewMode() {
-        userSpatialState.viewMode.toggle()
-    }
-    
     // MARK: - Add Image Object
     
-    func addImageObject(from asset: Asset) {
+    /// ImageEditor나 Library에서 호출 (anchor는 SceneRealityView에서 전달)
+    func addImageObject(from asset: Asset, anchor: Entity? = nil) {
         let newObject = SceneObject.createImage(
             assetId: asset.id,
-            position: SIMD3<Float>(0, 1.5, -2),  // 기본 위치
+            position: SIMD3<Float>(0, 1.5, -2),
             isEditable: true,
             scale: 1.0,
             rotation: SIMD3<Float>(0, 0, 0),
@@ -23,12 +19,13 @@ extension SceneViewModel {
             billboardable: true
         )
         
-        sceneObjects.append(newObject)
+        // SceneViewModel+SceneObject의 addSceneObject 사용
+        addSceneObject(newObject, anchor: anchor)
     }
     
     // MARK: - Add Sound Object
     
-    func addSoundObject(from asset: Asset) {
+    func addSoundObject(from asset: Asset, anchor: Entity? = nil) {
         let soundObj = SceneObject.createAudio(
             assetId: asset.id,
             position: SIMD3<Float>(0, 1.5, -2),
@@ -36,39 +33,8 @@ extension SceneViewModel {
             volume: 1.0
         )
         
-        sceneObjects.append(soundObj)
-        sceneRepository.didAppend(soundObj)
-    }
-    
-    // MARK: - Gesture 관련
-    /// 위치 업데이트
-    func updateObjectPosition(id: UUID, position: SIMD3<Float>) {
-        if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
-            sceneObjects[index].move(to: position)
-        }
-    }
-    
-    /// 회전 업데이트
-    func updateObjectRotation(id: UUID, rotation: SIMD3<Float>) {
-        if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
-            sceneObjects[index].setRotation(rotation)
-        }
-    }
-    
-    /// 크기 업데이트
-    func updateObjectScale(id: UUID, scale: Float) {
-        if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
-            sceneObjects[index].setScale(scale)
-        }
-    }
-    
-    // MARK: - SceneObjec 사운드, 크롭 등 수정 관련
-    
-    func updateSceneObject(with id: UUID, _ mutate: (inout SceneObject) -> Void) {
-        var arr = sceneObjects
-        guard let idx = arr.firstIndex(where: { $0.id == id }) else { return }
-        mutate(&arr[idx])
-        sceneObjects = arr
+        // SceneViewModel+SceneObject의 addSceneObject 사용
+        addSceneObject(soundObj, anchor: anchor)
     }
     
     // MARK: - 복제
@@ -92,24 +58,14 @@ extension SceneViewModel {
             billboardable: imageAttrs.billboardable
         )
         
-        sceneObjects.append(duplicatedObject)
+        // SceneViewModel+SceneObject의 addSceneObject 사용
+        addSceneObject(duplicatedObject, anchor: nil)
         self.selectedEntity = nil
         
         return duplicatedObject
     }
     
-    // MARK: - 삭제
-    
-    func removeSceneObject(id: UUID) {
-        sceneObjects.removeAll { $0.id == id }
-        
-        if let entity = entityMap[id] {
-            entity.removeFromParent()
-            entityMap.removeValue(forKey: id)
-        }
-        
-        selectedEntity = nil
-    }
+    // MARK: - Billboardable 관련
     
     /// Billboardable 상태 조회
     func getBillboardableState(id: UUID) -> Bool {
@@ -122,8 +78,9 @@ extension SceneViewModel {
     
     /// Billboardable 상태 변경
     func updateBillboardable(id: UUID, billboardable: Bool) {
-        if let index = sceneObjects.firstIndex(where: { $0.id == id }) {
-            sceneObjects[index].setBillboardable(billboardable)
+        // ✅ SceneViewModel+SceneObject의 updateSceneObject 사용
+        updateSceneObject(with: id) { object in
+            object.setBillboardable(billboardable)
         }
     }
 }

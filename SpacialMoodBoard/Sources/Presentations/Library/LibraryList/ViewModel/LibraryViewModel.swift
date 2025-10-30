@@ -20,8 +20,9 @@ final class LibraryViewModel {
     @ObservationIgnored
     private let assetRepository: AssetRepositoryInterface
     private let deleteAssetUseCase: DeleteAssetUseCase
+    private weak var appModel: AppModel?
+    
     @ObservationIgnored
-    weak var runtimeSink: SceneRuntimeSink?
     private var token: UUID?
     var projectName: String { assetRepository.project }
     var assets: [Asset] = []
@@ -49,14 +50,11 @@ final class LibraryViewModel {
     /// - Parameter assetRepository: AssetRepositoryInterface
     init(
         assetRepository: AssetRepositoryInterface,
-        deleteAssetUseCase: DeleteAssetUseCase,
-        runtimeSink: SceneRuntimeSink? = nil
+        deleteAssetUseCase: DeleteAssetUseCase
     ) {
         // 1) 저장 프로퍼티 먼저 초기화
         self.assetRepository = assetRepository
         self.deleteAssetUseCase = deleteAssetUseCase
-        self.runtimeSink = runtimeSink
-        self.assets = assetRepository.assets
 
         // 2) 그 다음 옵저버 등록
         self.token = assetRepository.addChangeHandler { [weak self] in
@@ -256,15 +254,25 @@ extension LibraryViewModel {
             print("⚠️ rename failed:", error)
         }
     }
+    
     /// 에셋을 목록과 디스크에서 함께 삭제
     /// - Parameter id: 삭제할 에셋의 식별자(UUID)
+    // LibraryViewModel.swift
     func deleteAsset(id: String) {
-        guard let sink = runtimeSink else {
-            assertionFailure("runtimeSink is nil")
+        guard var scene = appModel?.selectedScene else {
+            do {
+                _ = try assetRepository.deleteAsset(id: id)
+                syncFromRepo()
+            } catch {
+                print("❌ Failed to delete asset:", error)
+            }
             return
         }
+        
         do {
-            try deleteAssetUseCase.execute(assetId: id, runtimeSink: sink)
+            _ = try deleteAssetUseCase.execute(assetId: id, scene: &scene)
+            appModel?.selectedScene = scene
+            syncFromRepo()
         } catch {
             print("❌ Failed to delete asset:", error)
         }

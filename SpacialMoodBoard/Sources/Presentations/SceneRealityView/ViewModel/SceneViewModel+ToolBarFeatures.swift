@@ -3,8 +3,13 @@ import SwiftUI
 // MARK: - Toolbar Features
 
 extension SceneViewModel {
+
+    // Mark: - View Mode Toggle
+    func toggleViewMode() {
+        userSpatialState.viewMode.toggle()
+    }
     
-    /// Immersive Space를 토글하는 함수
+    // Mark: - Immersive Space Toggle
     /// - Parameters:
     ///   - appModel: AppModel (immersiveSpaceState 관리)
     ///   - dismissImmersiveSpace: Environment action

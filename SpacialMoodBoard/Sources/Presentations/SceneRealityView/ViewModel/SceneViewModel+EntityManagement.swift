@@ -56,7 +56,7 @@ extension SceneViewModel {
         }
     }
     
-    private func createAndAddEntity(
+    func createAndAddEntity(
         sceneObject: SceneObject,
         asset: Asset,
         anchor: Entity
