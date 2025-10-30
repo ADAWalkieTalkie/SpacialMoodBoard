@@ -10,9 +10,7 @@ extension SceneViewModel {
     func rotateBy90Degrees() {
         rotationAngle += .pi / 2
 
-        guard let FloorEntity = currentFloorEntity else {
-            return
-        }
+        guard let FloorEntity = getFloorEntity() else { return }
 
         applyRotation(to: FloorEntity, angle: rotationAngle, animated: true)
     }
@@ -20,9 +18,7 @@ extension SceneViewModel {
     func resetRotation() {
         rotationAngle = 0
 
-        guard let FloorEntity = currentFloorEntity else {
-            return
-        }
+        guard let FloorEntity = getFloorEntity() else { return }
 
         applyRotation(to: FloorEntity, angle: rotationAngle, animated: false)
     }

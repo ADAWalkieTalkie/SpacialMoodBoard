@@ -4,73 +4,36 @@ import RealityKit
 // MARK: - SceneObject Entity Management
 
 extension SceneViewModel {
-    
+
+    /// SceneObject 배열과 엔티티를 동기화
+    /// EntityRepository에 작업을 위임
     func updateEntities(
         sceneObjects: [SceneObject],
         rootEntity: Entity
     ) {
-        let currentObjectIds = Set(sceneObjects.map { $0.id })
-        let existingEntityIds = Set(entityMap.keys)
-        
-        // 1. 삭제된 객체 제거
-        removeDeletedEntities(
-            currentIds: currentObjectIds,
-            existingIds: existingEntityIds
-        )
-        
-        // 2. 새로운 객체 추가 또는 업데이트
-        updateOrCreateEntities(
+        entityRepository.syncEntities(
             sceneObjects: sceneObjects,
-            rootEntity: rootEntity
+            rootEntity: rootEntity,
+            assetRepository: assetRepository
         )
     }
-    
-    // MARK: - Private Helpers
-    
-    private func removeDeletedEntities(
-        currentIds: Set<UUID>,
-        existingIds: Set<UUID>
-    ) {
-        for removedId in existingIds.subtracting(currentIds) {
-            if let entity = entityMap[removedId] {
-                entity.removeFromParent()
-                entityMap.removeValue(forKey: removedId)
-            }
-        }
-    }
-    
-    private func updateOrCreateEntities(
-        sceneObjects: [SceneObject],
-        rootEntity: Entity
-    ) {
-        for sceneObject in sceneObjects {
-            guard let asset = assetRepository.asset(withId: sceneObject.assetId) else { continue }
-            
-            if let existingEntity = entityMap[sceneObject.id] {
-                // 기존 Entity 위치 업데이트
-                existingEntity.position = sceneObject.position
-            } else {
-                // 새로운 Entity 생성
-                createAndAddEntity(sceneObject: sceneObject, asset: asset, rootEntity: rootEntity)
-            }
-        }
-    }
-    
+
+    /// 새로운 엔티티를 생성하고 추가
+    /// EntityRepository에 작업을 위임
     func createAndAddEntity(
         sceneObject: SceneObject,
         asset: Asset,
         rootEntity: Entity
     ) {
-        let newEntity: ModelEntity?
-        switch sceneObject.attributes {
-        case .image:
-            newEntity = ImageEntity.create(from: sceneObject, with: asset, viewMode: false)
-        case .audio:
-            newEntity = SoundEntity.create(from: sceneObject, with: asset, viewMode: false)
-        }
-        if let entity = newEntity {
-            rootEntity.addChild(entity)
-            entityMap[sceneObject.id] = entity
-        }
+        _ = entityRepository.createEntity(
+            from: sceneObject,
+            asset: asset,
+            rootEntity: rootEntity
+        )
+    }
+
+    /// 특정 ID의 엔티티를 가져오기
+    func getEntity(for id: UUID) -> ModelEntity? {
+        return entityRepository.getEntity(for: id)
     }
 }

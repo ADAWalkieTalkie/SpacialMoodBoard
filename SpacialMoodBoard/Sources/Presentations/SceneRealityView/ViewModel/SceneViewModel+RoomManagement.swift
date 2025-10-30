@@ -3,24 +3,16 @@ import RealityKit
 
 extension SceneViewModel {
 
+    /// Floor 엔티티를 가져오거나 생성
+    /// EntityRepository에 작업을 위임
     func getFloorEntity() -> ModelEntity? {
-        // 캐싱된 Entity 확인
-        if let currentFloorEntity = currentFloorEntity {
-            return currentFloorEntity
-        }
-
-        // SpacialEnvironment 가져오기
         let environment = self.spacialEnvironment
-
-        // Floor 생성
-        let floor = FloorEntity.create(from: environment)
-        currentFloorEntity = floor
-
-        return floor
+        return entityRepository.getOrCreateFloorEntity(from: environment)
     }
 
+    /// 특정 프로젝트의 엔티티 캐시 삭제
     func deleteEntityCache(for project: Project) {
-        currentFloorEntity = nil
+        entityRepository.clearFloorCache()
 
         if appModel.selectedProject?.id == project.id {
             appModel.selectedProject = nil

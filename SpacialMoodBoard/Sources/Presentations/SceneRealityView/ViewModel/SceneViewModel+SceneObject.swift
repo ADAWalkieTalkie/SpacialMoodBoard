@@ -70,17 +70,14 @@ extension SceneViewModel {
     /// 객체 삭제 + Entity 제거
     func removeSceneObject(id: UUID) {
         guard var scene = appModel.selectedScene else { return }
-        
-        // 1. Entity 먼저 제거
-        if let entity = entityMap[id] {
-            entity.removeFromParent()
-            entityMap.removeValue(forKey: id)
-        }
-        
+
+        // 1. EntityRepository를 통해 엔티티 제거
+        entityRepository.removeEntity(id: id)
+
         // 2. Repository를 통해 SceneObject 삭제
         sceneObjectRepository.deleteObject(by: id, from: &scene)
         appModel.selectedScene = scene
-        
+
         // 3. 선택 해제
         selectedEntity = nil
         

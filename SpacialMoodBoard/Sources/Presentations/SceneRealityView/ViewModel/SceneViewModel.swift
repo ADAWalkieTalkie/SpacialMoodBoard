@@ -12,31 +12,30 @@ final class SceneViewModel {
     let sceneModelFileStorage: SceneModelFileStorage
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
+    let entityRepository: EntityRepositoryInterface
     private var needsEntitySync: Bool = false
-    
+
     // MARK: - Initialization
     init(appModel: AppModel,
          sceneObjectRepository: SceneObjectRepositoryInterface,
          assetRepository: AssetRepositoryInterface,
+         entityRepository: EntityRepositoryInterface,
          projectRepository: ProjectServiceInterface? = nil
     ) {
         self.appModel = appModel
         self.sceneModelFileStorage = SceneModelFileStorage(projectRepository: projectRepository)
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
+        self.entityRepository = entityRepository
     }
     
     
     // MARK: - State
     var selectedSceneModel: SceneModel?
-    
+
     // MARK: - Entity Management
-    /// Environment, sceneObjects를 분리해서 관리.
-    /// 향후 보기모드에서 Entity에 component를 추가 삭제 하기 편한게 하기 위해서.
-    /// Floor Entity 참조
-    var currentFloorEntity: ModelEntity?
-    /// SceneObject의 RealityKit 내 Entity 맵
-    var entityMap: [UUID: ModelEntity] = [:]
+    /// 현재 선택된 엔티티 (UI 상태 관리용)
+    /// Note: entityMap과 floor 캐시는 entityRepository가 관리
     var selectedEntity: ModelEntity?
     
     // 회전 각도 (Volume용)
@@ -76,11 +75,10 @@ final class SceneViewModel {
     
     
     // MARK: - Cleanup
-    
+
     func reset() {
-        entityMap.removeAll()
+        entityRepository.clearAllCaches()
         selectedEntity = nil
-        currentFloorEntity = nil
         rotationAngle = 0
     }
     
@@ -112,9 +110,9 @@ final class SceneViewModel {
         updatedEnvironment.floorImageRelativePath = relativePath
         spacialEnvironment = updatedEnvironment
 
-        // Floor entity 초기화 (다음 getFloorEntity 호출 시 새 material로 재생성됨)
-        currentFloorEntity = nil
-        
+        // Floor entity 캐시 초기화 (다음 호출 시 새 material로 재생성됨)
+        entityRepository.clearFloorCache()
+
         // 선택 모드 해제
         isSelectingFloorImage = false
         

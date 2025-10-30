@@ -19,12 +19,10 @@ extension SceneViewModel {
         
         let result = try useCase.execute(assetId: assetId, scene: &scene)
         appModel.selectedScene = scene
-        
+
         for object in result.removedSceneObjects {
-            if let entity = entityMap[object.id] {
-                entity.removeFromParent()
-                entityMap.removeValue(forKey: object.id)
-            }
+            // EntityRepository를 통해 엔티티 제거
+            entityRepository.removeEntity(id: object.id)
             SceneAudioCoordinator.shared.stop(object.id)
             SceneAudioCoordinator.shared.unregister(entityId: object.id)
         }

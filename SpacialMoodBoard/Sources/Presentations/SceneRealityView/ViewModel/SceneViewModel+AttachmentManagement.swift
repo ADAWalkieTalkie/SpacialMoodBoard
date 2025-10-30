@@ -67,9 +67,9 @@ extension SceneViewModel {
     }
     
     // MARK: - Private Helpers
-    
+
     private func removeAllAttachments() {
-        for entity in entityMap.values {
+        for entity in entityRepository.getCachedEntities().values {
             entity.children
                 .filter { $0.name == "objectAttachment" }
                 .forEach { $0.removeFromParent() }
