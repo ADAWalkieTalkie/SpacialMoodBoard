@@ -7,15 +7,12 @@ struct SceneRealityView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
-    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     
     @Binding var viewModel: SceneViewModel
     let config: SceneConfig
 
     let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.3, -0.8)
 
-    @State private var isSoundEnabled = false
     @State private var headAnchor: AnchorEntity?
     @State private var showFloorImageAlert = false
 
@@ -30,115 +27,94 @@ struct SceneRealityView: View {
     }
 
     var body: some View {
-        ZStack {
-            GeometryReader3D { proxy in
-                RealityView { content, attachments in
+        GeometryReader3D { proxy in
+            RealityView { content, attachments in
 
-                    rootEntity.name = "RootEntity"
-                    content.add(rootEntity)
+                rootEntity.name = "RootEntity"
+                content.add(rootEntity)
 
-                    await setupScene(content: content, rootEntity: rootEntity)
+                await setupScene(content: content, rootEntity: rootEntity)
 
-                    let newHeadAnchor = AnchorEntity(.head)
-                    headAnchor = newHeadAnchor
+                let newHeadAnchor = AnchorEntity(.head)
+                headAnchor = newHeadAnchor
 
-                    if config.useHeadAnchoredToolbar {
-                        if let toolbar = attachments.entity(for: "headToolbar") {
-                            // y: -0.3 = 시선보다 약간 아래
-                            // z: -0.8 = 앞쪽으로 80cm
-                            toolbar.position = toolbarPosition
-                            newHeadAnchor.addChild(toolbar)
-                        }
-                        content.add(newHeadAnchor)
+                if config.useHeadAnchoredToolbar {
+                    if let toolbar = attachments.entity(for: "headToolbar") {
+                        // y: -0.3 = 시선보다 약간 아래
+                        // z: -0.8 = 앞쪽으로 80cm
+                        toolbar.position = toolbarPosition
+                        newHeadAnchor.addChild(toolbar)
                     }
+                    content.add(newHeadAnchor)
+                }
 
-                    // Floor 중앙에 FloorImageApplyButton attachment 배치 (초기 setup)
+                // Floor 중앙에 FloorImageApplyButton attachment 배치 (초기 setup)
+                if config.showFloorImageApplyButton,
+                    let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
+                    let floor = rootEntity.findEntity(named: "floorRoot") {
+                    positionFloorAttachment(floorAttachment, on: floor)
+                }
+                
+            } update: { content, attachments in
+                if config.alignToWindowBottom {
+                    rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
+                }
+
+                // MainActor에서 실행
+                MainActor.assumeIsolated {
+                    updateScene(content: content, rootEntity: rootEntity)
+
+                    // Floor attachment 재배치
                     if config.showFloorImageApplyButton,
-                       let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                       let floor = rootEntity.findEntity(named: "floorRoot") {
+                    let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
+                    let floor = rootEntity.findEntity(named: "floor") {
                         positionFloorAttachment(floorAttachment, on: floor)
                     }
-                    
-                } update: { content, attachments in
-                    if config.alignToWindowBottom {
-                        rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
-                    }
-
-                    // MainActor에서 실행
-                    MainActor.assumeIsolated {
-                        updateScene(content: content, rootEntity: rootEntity)
-
-                        // Floor attachment 재배치
-                        if config.showFloorImageApplyButton,
-                        let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                        let floor = rootEntity.findEntity(named: "floor") {
-                            positionFloorAttachment(floorAttachment, on: floor)
-                        }
-                    }
-                } attachments: {
-                    Attachment(id: "headToolbar"){
-                        ToolBarAttachment(
-                            isSoundEnabled: $isSoundEnabled,
-                            onToggleImmersive: handleToggleImmersive
-                        )
-                    }
-
-                    if config.showFloorImageApplyButton {
-                        Attachment(id: "floorImageApplyButton") {
-                            FloorImageApplyButton {
-                                showFloorImageAlert = true
-                                viewModel.isSelectingFloorImage = true
-                            }
-                        }
-                    }
                 }
-                .id(sceneViewIdentifier)
-                .if(config.enableGestures) { view in
-                    view.immersiveEntityGestures(
-                        selectedEntity: $viewModel.selectedEntity,
-                        onPositionUpdate: { uuid, position in
-                            viewModel.updateObjectPosition(id: uuid, position: position)
-                        },
-                        onRotationUpdate: { uuid, rotation in
-                            viewModel.updateObjectRotation(id: uuid, rotation: rotation)
-                        },
-                        onScaleUpdate: { uuid, scale in
-                            viewModel.updateObjectScale(id: uuid, scale: scale)
-                        },
-                        onBillboardableChange: { uuid, billboardable in
-                            viewModel.updateBillboardable(id: uuid, billboardable: billboardable)
-                        },
-                        getBillboardableState: { uuid in
-                            viewModel.getBillboardableState(id: uuid)
-                        },
-                        getHeadPosition: {
-                            return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
-                        }
-                    )
+            } attachments: {
+                Attachment(id: "headToolbar"){
+                    ToolBarAttachment()
+                        .environment(appModel)
                 }
-                .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
-                    Button("확인", role: .cancel) { }
-                } message: {
-                    Text("바닥으로 설정할 이미지를 선택해주세요.")
+
+                if config.showFloorImageApplyButton {
+                    Attachment(id: "floorImageApplyButton") {
+                        FloorImageApplyButton {
+                            showFloorImageAlert = true
+                            viewModel.isSelectingFloorImage = true
+                        }
+                    }
                 }
             }
-
-            // 회전 버튼과 Toolbar (Volume용) - ZStack으로 앞쪽 레이어에 배치
-            if config.showRotationButton {
-                VStack {
-                    Spacer()
-                    rotationButton
-                }
-                .zIndex(1)
+            .id(sceneViewIdentifier)
+            .if(config.enableGestures) { view in
+                view.immersiveEntityGestures(
+                    selectedEntity: $viewModel.selectedEntity,
+                    onPositionUpdate: { uuid, position in
+                        viewModel.updateObjectPosition(id: uuid, position: position)
+                    },
+                    onRotationUpdate: { uuid, rotation in
+                        viewModel.updateObjectRotation(id: uuid, rotation: rotation)
+                    },
+                    onScaleUpdate: { uuid, scale in
+                        viewModel.updateObjectScale(id: uuid, scale: scale)
+                    },
+                    onBillboardableChange: { uuid, billboardable in
+                        viewModel.updateBillboardable(id: uuid, billboardable: billboardable)
+                    },
+                    getBillboardableState: { uuid in
+                        viewModel.getBillboardableState(id: uuid)
+                    },
+                    getHeadPosition: {
+                        return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
+                    }
+                )
             }
-        }
-        .onChange(of: isSoundEnabled) {
-            SceneAudioCoordinator.shared.setGlobalMute(isSoundEnabled)
-        }
-        .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
-            Button("확인", role: .cancel) { }
-        } message: {
-            Text("바닥으로 설정할 이미지를 선택해주세요.")
+            .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
+                Button("확인", role: .cancel) { }
+            } message: {
+                Text("바닥으로 설정할 이미지를 선택해주세요.")
+            }
         }
     }
     
@@ -218,66 +194,5 @@ struct SceneRealityView: View {
 
         // floor의 회전과 무관하게 항상 같은 방향 유지
         attachment.orientation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
-    }
-    
-    // MARK: - 회전 버튼과 Toolbar (Volume용)
-    
-    @State private var isAnimating = false
-    
-    private var rotationButton: some View {
-        VStack(spacing: 12) {
-            if appModel.selectedProject == nil {
-                Button {
-                    openWindow(id: "MainWindow")
-                    dismissWindow(id: "ImmersiveVolumeWindow")
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.title2)
-                        .padding(12)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal)
-            } else {
-                Button {
-                    guard !isAnimating else { return }
-                    isAnimating = true
-                    viewModel.rotateBy90Degrees()
-                    
-                    Task {
-                        try? await Task.sleep(nanoseconds: 400_000_000)
-                        isAnimating = false
-                    }
-                } label: {
-                    Image(systemName: "rotate.right")
-                        .font(.title2)
-                        .padding(12)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .opacity(isAnimating ? 0.5 : 1.0)
-                .padding(.horizontal)
-
-                ToolBarAttachment(
-                    isSoundEnabled: $isSoundEnabled,
-                    onToggleImmersive: handleToggleImmersive
-                )
-                .environment(appModel)
-            }
-        }
-        .padding(.bottom, 20)
-    }
-    
-    // MARK: - Actions
-    
-    private func handleToggleImmersive() {
-        Task { @MainActor in
-            await appModel.toggleImmersiveSpace(
-                dismissImmersiveSpace: dismissImmersiveSpace,
-                openImmersiveSpace: openImmersiveSpace
-            )
-        }
     }
 }

@@ -2,13 +2,11 @@ import SwiftUI
 
 struct ToolBarAttachment: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     
-    @Binding var isSoundEnabled: Bool
+    @State private var isMuted = false
     
-    // Environment Actions 대신 클로저로 전달받음
-    var onToggleImmersive: (() -> Void)?
-    
-    // Computed properties for state
     private var isViewEnabled: Bool {
         appModel.selectedScene?.userSpatialState.viewMode ?? false
     }
@@ -30,14 +28,17 @@ struct ToolBarAttachment: View {
             ToolBarButton(
                 systemName: "person.and.background.dotted",
                 isEnabled: isImmersiveOpen,
-                action: { onToggleImmersive?() }
+                action: handleToggleImmersive
             )
             
             // 사운드 버튼
             ToolBarButton(
-                systemName: isSoundEnabled ? "speaker.slash" : "speaker",
-                isEnabled: isSoundEnabled,
-                action: { isSoundEnabled.toggle() }
+                systemName: isMuted ? "speaker.slash" : "speaker",
+                isEnabled: isMuted,
+                action: {
+                    isMuted.toggle()
+                    SceneAudioCoordinator.shared.setGlobalMute(isMuted)
+                }
             )
         }
         .padding(.horizontal, 12)
@@ -52,16 +53,13 @@ struct ToolBarAttachment: View {
         scene.userSpatialState.viewMode.toggle()
         appModel.selectedScene = scene 
     }
-}
-
-// MARK: - Preview
-
-#Preview {
-    @Previewable @State var isSoundEnabled = false
     
-    ToolBarAttachment(
-        isSoundEnabled: $isSoundEnabled,
-        onToggleImmersive: { print("Toggle Immersive") } 
-    )
-    .environment(AppModel())
+    private func handleToggleImmersive() {
+        Task { @MainActor in
+            await appModel.toggleImmersiveSpace(
+                dismissImmersiveSpace: dismissImmersiveSpace,
+                openImmersiveSpace: openImmersiveSpace
+            )
+        }
+    }
 }
