@@ -26,7 +26,7 @@ struct EntityRotationGesture: ViewModifier {
                         let rotationQuat = simd_quatf(value.rotation)
                         
                         // 월드 Y축을 Entity의 로컬 좌표계로 변환
-                        let worldYAxis = SIMD3<Float>(0, 1, 0)
+                        let worldYAxis = SIMD3<Float>(1, 1, 1) // 0, 1, 0 대신 1, 1, 1로 변경(모든 축을 고려)
                         let localYAxis = rootEntity.orientation.inverse.act(worldYAxis)
                         
                         // 로컬 Y축 기준 회전 각도 추출
