@@ -1,5 +1,5 @@
 //
-//  RoomEntityBuilder.swift
+//  FloorEntityBuilder.swift
 //  SpacialMoodBoard
 //
 //  Created by PenguinLand on 10/19/25.
@@ -10,7 +10,7 @@ import RealityKit
 import SwiftUI
 
 /// Entity 생성을 전담하는 Builder 클래스
-struct RoomEntityBuilder {
+class FloorEntity {
     // MARK: - Constants
     static let defaultFloorSize = SIMD2<Float>(x: 1.0, y: 1.0)
     static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
@@ -22,27 +22,25 @@ struct RoomEntityBuilder {
     // MARK: - Public Methods
 
     @MainActor
-    func buildRoomEntity(
-        from environment: SpacialEnvironment,
-        rotationAngle: Float
-    ) -> Entity {
-        let room = Entity()
-        room.name = "roomRoot"
+    static func create (
+        from environment: SpacialEnvironment
+    ) -> ModelEntity {
 
         let floor = createFloor(
             size: Self.defaultFloorSize,
             position: Self.defaultFloorPosition,
             materialImageURL: environment.floorMaterialImageURL
         )
-        room.addChild(floor)
+        
+        floor.name = "floorRoot"
 
-        return room
+        return floor
     }
 
     // MARK: - Private Methods - Floor
 
     @MainActor
-    private func createFloor(size: SIMD2<Float>, position: SIMD3<Float>, materialImageURL: URL?)
+    static private func createFloor(size: SIMD2<Float>, position: SIMD3<Float>, materialImageURL: URL?)
         -> ModelEntity
     {
         let material: PhysicallyBasedMaterial
@@ -63,14 +61,13 @@ struct RoomEntityBuilder {
             materials: [material]
         )
         floor.position = position
-        floor.name = "floor"
 
         return floor
     }
 
     // MARK: - Private Methods - Material
     @MainActor
-    private func createMaterial(texture: TextureResource? = nil)
+    static private func createMaterial(texture: TextureResource? = nil)
         -> PhysicallyBasedMaterial
     {
         var material = PhysicallyBasedMaterial()
@@ -83,13 +80,5 @@ struct RoomEntityBuilder {
         material.metallic = 0.0
         material.roughness = 0.8
         return material
-    }
-
-    // MARK: - Private Methods - Transform
-
-    @MainActor
-    private func applyRotation(to entity: Entity, angle: Float) {
-        let rotation = simd_quatf(angle: angle, axis: [0, 1, 0])
-        entity.transform.rotation = rotation
     }
 }

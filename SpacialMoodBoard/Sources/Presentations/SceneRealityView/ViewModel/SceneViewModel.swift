@@ -12,7 +12,6 @@ final class SceneViewModel {
     let sceneModelFileStorage: SceneModelFileStorage
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
-    let entityBuilder: RoomEntityBuilder
     private var needsEntitySync: Bool = false
     
     // MARK: - Initialization
@@ -25,7 +24,6 @@ final class SceneViewModel {
         self.sceneModelFileStorage = SceneModelFileStorage(projectRepository: projectRepository)
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
-        self.entityBuilder = RoomEntityBuilder()
     }
     
     
@@ -35,8 +33,8 @@ final class SceneViewModel {
     // MARK: - Entity Management
     /// Environment, sceneObjects를 분리해서 관리.
     /// 향후 보기모드에서 Entity에 component를 추가 삭제 하기 편한게 하기 위해서.
-    /// Room Entity 캐시
-    var roomEntities: [UUID: Entity] = [:]
+    /// Floor Entity 참조
+    var currentFloorEntity: ModelEntity?
     /// SceneObject의 RealityKit 내 Entity 맵
     var entityMap: [UUID: ModelEntity] = [:]
     var selectedEntity: ModelEntity?
@@ -82,7 +80,7 @@ final class SceneViewModel {
     func reset() {
         entityMap.removeAll()
         selectedEntity = nil
-        roomEntities.removeAll()
+        currentFloorEntity = nil
         rotationAngle = 0
     }
     
@@ -113,11 +111,9 @@ final class SceneViewModel {
         updatedEnvironment.floorMaterialImageURL = asset.url
         updatedEnvironment.floorImageRelativePath = relativePath
         spacialEnvironment = updatedEnvironment
-        
-        // Room entity 캐시 무효화 (다음 getRoomEntity 호출 시 새 material로 재생성됨)
-        if let projectId = appModel.selectedProject?.id {
-            roomEntities.removeValue(forKey: projectId)
-        }
+
+        // Floor entity 초기화 (다음 getFloorEntity 호출 시 새 material로 재생성됨)
+        currentFloorEntity = nil
         
         // 선택 모드 해제
         isSelectingFloorImage = false

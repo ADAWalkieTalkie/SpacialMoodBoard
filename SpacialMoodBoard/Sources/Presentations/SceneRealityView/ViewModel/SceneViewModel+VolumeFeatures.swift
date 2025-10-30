@@ -10,41 +10,39 @@ extension SceneViewModel {
     func rotateBy90Degrees() {
         rotationAngle += .pi / 2
 
-        guard let projectId = appModel.selectedProject?.id,
-                    let roomEntity = roomEntities[projectId] else {
+        guard let FloorEntity = currentFloorEntity else {
             return
         }
 
-        applyRotation(to: roomEntity, angle: rotationAngle, animated: true)
+        applyRotation(to: FloorEntity, angle: rotationAngle, animated: true)
     }
   
     func resetRotation() {
         rotationAngle = 0
 
-        guard let projectId = appModel.selectedProject?.id,
-                    let roomEntity = roomEntities[projectId] else {
+        guard let FloorEntity = currentFloorEntity else {
             return
         }
 
-        applyRotation(to: roomEntity, angle: rotationAngle, animated: false)
+        applyRotation(to: FloorEntity, angle: rotationAngle, animated: false)
     }
 
     // MARK: - 위치 조정
 
-    func alignRoomToWindowBottom(
-        room: Entity,
+    func alignFloorToWindowBottom(
+        floor: Entity,
         windowHeight: Float = 1,
         padding: Float = 0
     ) {
-        let bounds = room.visualBounds(relativeTo: room)
+        let bounds = floor.visualBounds(relativeTo: floor)
         let contentMinY = bounds.min.y
         let windowBottomY = -windowHeight / 2.0
         let targetContentMinY = windowBottomY + padding
         let offsetY = targetContentMinY - contentMinY
 
-        var transform = room.transform
+        var transform = floor.transform
         transform.translation.y = offsetY
-        room.transform = transform
+        floor.transform = transform
     }
   
     // MARK: - Private Helpers

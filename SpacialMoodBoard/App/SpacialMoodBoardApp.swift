@@ -83,7 +83,7 @@ struct SpacialMoodBoardApp: App {
             )
         }
 
-        // Volume Scene (Room 미리보기)
+        // Volume Scene
         WindowGroup(id: "ImmersiveVolumeWindow") {
             VolumeSceneView(
                 viewModel: sceneViewModel

@@ -39,10 +39,6 @@ struct SceneRealityView: View {
 
                     await setupScene(content: content, rootEntity: rootEntity)
 
-                    if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                        rootEntity.addChild(immersiveContentEntity)
-                    }
-
                     let newHeadAnchor = AnchorEntity(.head)
                     headAnchor = newHeadAnchor
 
@@ -59,11 +55,10 @@ struct SceneRealityView: View {
                     // Floor 중앙에 FloorImageApplyButton attachment 배치 (초기 setup)
                     if config.showFloorImageApplyButton,
                        let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                       let room = rootEntity.findEntity(named: "roomRoot"),
-                       let floor = room.findEntity(named: "floor") {
-                        positionFloorAttachment(floorAttachment, on: floor, room: room)
+                       let floor = rootEntity.findEntity(named: "floorRoot") {
+                        positionFloorAttachment(floorAttachment, on: floor)
                     }
-
+                    
                 } update: { content, attachments in
                     if config.alignToWindowBottom {
                         rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
@@ -76,9 +71,8 @@ struct SceneRealityView: View {
                         // Floor attachment 재배치
                         if config.showFloorImageApplyButton,
                         let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                        let room = rootEntity.findEntity(named: "roomRoot"),
-                        let floor = room.findEntity(named: "floor") {
-                            positionFloorAttachment(floorAttachment, on: floor, room: room)
+                        let floor = rootEntity.findEntity(named: "floor") {
+                            positionFloorAttachment(floorAttachment, on: floor)
                         }
                     }
                 } attachments: {
@@ -151,29 +145,26 @@ struct SceneRealityView: View {
     // MARK: - Setup Scene
 
     private func setupScene(content: RealityViewContent, rootEntity: Entity) async {
-        guard let room = viewModel.getRoomEntity(
-            for: appModel.selectedProject,
-            rotationAngle: viewModel.rotationAngle
-        ) else {
+        guard let floor = viewModel.getFloorEntity() else {
             return
         }
 
         // Volume Window일 때
         if config.alignToWindowBottom {
-            rootEntity.addChild(room)
+            rootEntity.addChild(floor)
 
             // Floor 하단 정렬
-            viewModel.alignRoomToWindowBottom(room: room, windowHeight: 1) // VolumeWindow의 Height값
+            viewModel.alignFloorToWindowBottom(floor: floor, windowHeight: 1) // VolumeWindow의 Height값
 
         // Immersive일 때
         } else {
             // Immersive/Minimap 모드: 기존 방식
-            room.scale = config.floorSize
-            room.position = [0, 0.1, 0]
-            rootEntity.addChild(room)
+            floor.scale = config.floorSize
+            floor.position = [0, 0.1, 0]
+            rootEntity.addChild(floor)
 
             // Immersive 전용: RealityKit Content
-            if let immersiveContent = try? await Entity(named: "ImmersiveScene", in: RealityKitContent.realityKitContentBundle) {
+            if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
                 rootEntity.addChild(immersiveContent)
             }
         }
@@ -205,10 +196,10 @@ struct SceneRealityView: View {
 
     // MARK: - Floor Attachment Positioning
 
-    private func positionFloorAttachment(_ attachment: Entity, on floor: Entity, room: Entity) {
+    private func positionFloorAttachment(_ attachment: Entity, on floor: Entity) {
         attachment.name = "floorImageApplyButton"
 
-        // rootEntity에 직접 추가 (room 회전에 영향받지 않도록)
+        // rootEntity에 직접 추가 (floor 회전에 영향받지 않도록)
         if attachment.parent != rootEntity {
             rootEntity.addChild(attachment)
         }
@@ -225,7 +216,7 @@ struct SceneRealityView: View {
         let buttonSize = minDimension / 8
         attachment.scale = [buttonSize, buttonSize, buttonSize]
 
-        // room의 회전과 무관하게 항상 같은 방향 유지
+        // floor의 회전과 무관하게 항상 같은 방향 유지
         attachment.orientation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
     }
     
