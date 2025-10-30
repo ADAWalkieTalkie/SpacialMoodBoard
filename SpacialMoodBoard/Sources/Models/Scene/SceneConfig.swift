@@ -13,25 +13,18 @@ struct SceneConfig {
 
 
     static let immersive = SceneConfig(
-        enableGestures: true,
-        enableAttachments: true,
         useHeadAnchoredToolbar: true 
     )
 
     static let volume = SceneConfig(
         showRotationButton: true,
-        enableGestures: true,
-        enableAttachments: true,
         alignToWindowBottom: true,
-        useHeadAnchoredToolbar: false,
     )
 
     static let minimap = SceneConfig(
-        showRotationButton: false,
         enableGestures: false,
         enableAttachments: false,
         scale: 0.3,
-        useHeadAnchoredToolbar: false,
         showFloorImageApplyButton: false
         
     )
