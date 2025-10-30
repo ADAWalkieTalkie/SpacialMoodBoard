@@ -14,6 +14,7 @@ struct SpacialMoodBoardApp: App {
     @State private var appModel = AppModel()
     @State private var projectRepository: ProjectServiceInterface
     @State private var assetRepository: AssetRepository
+    @State private var renameAssetUseCase: RenameAssetUseCase
     @State private var deleteAssetUseCase: DeleteAssetUseCase
     @State private var sceneViewModel: SceneViewModel
     @State private var initialVolumeSize: Size3D = Size3D(width: 1000, height: 1000, depth: 1000)
@@ -45,6 +46,12 @@ struct SpacialMoodBoardApp: App {
             let usageIndex = AssetUsageIndex()
             let sceneObjectRepository = SceneObjectRepository(usageIndex: usageIndex)
             
+            let renameAssetUseCase = RenameAssetUseCase(
+                assetRepository: assetRepository,
+                sceneObjectRepository: sceneObjectRepository
+            )
+            _renameAssetUseCase = State(wrappedValue: renameAssetUseCase)
+            
             let deleteAssetUseCase = DeleteAssetUseCase(
                 assetRepository: assetRepository,
                 sceneObjectRepository: sceneObjectRepository
@@ -69,6 +76,7 @@ struct SpacialMoodBoardApp: App {
                 appModel: appModel,
                 assetRepository: assetRepository,
                 projectRepository: projectRepository,
+                renameAssetUseCase: renameAssetUseCase,
                 deleteAssetUseCase: deleteAssetUseCase,
                 sceneViewModel: sceneViewModel,
                 modelContainer: modelContainer
