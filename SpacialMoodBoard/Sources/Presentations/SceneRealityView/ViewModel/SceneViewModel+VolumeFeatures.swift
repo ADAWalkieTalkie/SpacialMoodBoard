@@ -26,19 +26,19 @@ extension SceneViewModel {
     // MARK: - 위치 조정
 
     func alignFloorToWindowBottom(
-        floor: Entity,
+        rootEntity: Entity,
         windowHeight: Float = 1,
         padding: Float = 0
     ) {
-        let bounds = floor.visualBounds(relativeTo: floor)
+        let bounds = rootEntity.visualBounds(relativeTo: rootEntity)
         let contentMinY = bounds.min.y
         let windowBottomY = -windowHeight / 2.0
         let targetContentMinY = windowBottomY + padding
         let offsetY = targetContentMinY - contentMinY
 
-        var transform = floor.transform
+        var transform = rootEntity.transform
         transform.translation.y = offsetY
-        floor.transform = transform
+        rootEntity.transform = transform
     }
   
     // MARK: - Private Helpers

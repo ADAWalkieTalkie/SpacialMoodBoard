@@ -130,7 +130,7 @@ struct SceneRealityView: View {
             rootEntity.addChild(floor)
 
             // Floor 하단 정렬
-            viewModel.alignFloorToWindowBottom(floor: floor, windowHeight: 1) // VolumeWindow의 Height값
+            viewModel.alignFloorToWindowBottom(rootEntity: rootEntity, windowHeight: 1) // VolumeWindow의 Height값
 
         // Immersive일 때
         } else {
