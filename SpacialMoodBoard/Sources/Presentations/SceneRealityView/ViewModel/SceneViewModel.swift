@@ -18,7 +18,7 @@ final class SceneViewModel {
     init(appModel: AppModel,
          sceneRepository: SceneRepositoryInterface,
          assetRepository: AssetRepositoryInterface,
-         projectRepository: ProjectRepositoryInterface? = nil
+         projectRepository: ProjectServiceInterface? = nil
     ) {
         self.appModel = appModel
         self.sceneModelFileStorage = SceneModelFileStorage(projectRepository: projectRepository)
