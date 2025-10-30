@@ -13,7 +13,7 @@ import SwiftData
 
 /// Swift Data를 사용한 프로젝트 저장소 구현
 @MainActor
-final class ProjectRepository: ProjectRepositoryInterface {
+final class ProjectService: ProjectServiceInterface {
     private let modelContext: ModelContext
   
     // MARK: - Initialization
@@ -244,7 +244,7 @@ final class ProjectRepository: ProjectRepositoryInterface {
 
 // MARK: - Additional Convenience Methods
 
-extension ProjectRepository {
+extension ProjectService {
   
     /// 프로젝트 썸네일 이미지 업데이트
     /// - Parameters:
@@ -316,7 +316,7 @@ extension ProjectRepository {
 
 // MARK: - Batch Operations
 
-extension ProjectRepository {
+extension ProjectService {
   
     /// 여러 프로젝트를 한 번에 업데이트 (성능 최적화)
     /// - Parameter projects: 업데이트할 프로젝트 배열

@@ -18,7 +18,7 @@ enum ProjectRepositoryError: Error {
 // MARK: - ProjectRepositoryInterface Protocol
 /// 프로젝트 데이터에 대한 CRUD 작업을 정의하는 프로토콜
 /// - Note: 프로토콜은 데이터 계층의 책임만 가지며, UI 상태(AppSceneState)에 의존하지 않습니다.
-protocol ProjectRepositoryInterface {
+protocol ProjectServiceInterface {
     /// 초기 데이터 불러오는 작업
     func loadInitialData()
 
