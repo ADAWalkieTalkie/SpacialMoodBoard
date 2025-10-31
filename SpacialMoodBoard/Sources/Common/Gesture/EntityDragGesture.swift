@@ -29,15 +29,15 @@ struct EntityDragGesture: ViewModifier {
                         
                         guard let uuid = UUID(uuidString: value.entity.name) else { return }
                         
-                        let isBillboardable = getBillboardableState(uuid)
+//                        let isBillboardable = getBillboardableState(uuid)
                         
-                        // if isBillboardable {
-                        //     // 모든 축의 Billboard
-                        //     applyFullBillboard(to: rootEntity)
-                        // } else {
-                        //     // Y축만 고정, X/Z축은 Billboard
-                        //     applyYAxisLockedBillboard(to: rootEntity)
-                        // }
+//                         if isBillboardable {
+//                             // 모든 축의 Billboard
+//                             applyFullBillboard(to: rootEntity)
+//                         } else {
+//                             // Y축만 고정, X/Z축은 Billboard
+//                             applyYAxisLockedBillboard(to: rootEntity)
+//                         }
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
