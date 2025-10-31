@@ -34,9 +34,10 @@ struct ImageEntity {
         let height = baseSize * imageAttrs.scale
         
         // 4. 평면 메시 생성
-        let mesh = MeshResource.generatePlane(
+        let mesh = MeshResource.generateBox(
             width: width,
-            height: height
+            height: height,
+            depth: 0.01
         )
         
         // 5. ModelEntity 생성 및 설정
