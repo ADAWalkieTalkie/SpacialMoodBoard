@@ -58,7 +58,7 @@ struct SoundEntity {
         unlit.color = .init(texture: .init(texture))
         unlit.blending = .transparent(opacity: 1.0)
         
-        let mesh = MeshResource.generatePlane(width: width, height: height)
+        let mesh = MeshResource.generateBox(width: width, height: height, depth: 0.01)
         let modelEntity = ModelEntity(mesh: mesh, materials: [unlit])
         modelEntity.name = sceneObject.id.uuidString
         modelEntity.position = sceneObject.position
@@ -68,6 +68,7 @@ struct SoundEntity {
         )
         modelEntity.components.set(InputTargetComponent())
         modelEntity.components.set(HoverEffectComponent())
+        modelEntity.components.set(BillboardComponent())
         
         Task {
             do {
