@@ -2,13 +2,11 @@ import SwiftUI
 
 struct ToolBarAttachment: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     
-    @Binding var isSoundEnabled: Bool
+    @State private var isMuted = false
     
-    // Environment Actions 대신 클로저로 전달받음
-    var onToggleImmersive: (() -> Void)?
-    
-    // Computed properties for state
     private var isViewEnabled: Bool {
         appModel.selectedScene?.userSpatialState.viewMode ?? false
     }
@@ -19,25 +17,34 @@ struct ToolBarAttachment: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // 뷰 모드 버튼 (viewMode 토글)
-            ToolBarButton(
-                systemName: "eye",
-                isEnabled: isViewEnabled,
-                action: toggleViewMode
-            )
+            // 볼륨 컨트롤
+//            ToolBarButton(
+//                type: .volumeControl,
+//                isSelected: ,
+//                action: {}
+//            )
             
             // Immersive Space 토글 버튼
             ToolBarButton(
-                systemName: "person.and.background.dotted",
-                isEnabled: isImmersiveOpen,
-                action: { onToggleImmersive?() }
+                type: .fullImmersive,
+                isSelected: isImmersiveOpen,
+                action: { handleToggleImmersive() }
             )
             
-            // 사운드 버튼
+            // 뷰 모드 버튼 (viewMode 토글)
             ToolBarButton(
-                systemName: isSoundEnabled ? "speaker.slash" : "speaker",
-                isEnabled: isSoundEnabled,
-                action: { isSoundEnabled.toggle() }
+                type: .viewMode,
+                isSelected: isViewEnabled,
+                action: toggleViewMode
+            )
+            
+            ToolBarButton(
+                type: .mute(isOn: isMuted),
+                isSelected: isMuted,
+                action: {
+                    isMuted.toggle()
+                    SceneAudioCoordinator.shared.setGlobalMute(isMuted)
+                }
             )
         }
         .padding(.horizontal, 12)
@@ -52,16 +59,13 @@ struct ToolBarAttachment: View {
         scene.userSpatialState.viewMode.toggle()
         appModel.selectedScene = scene 
     }
-}
-
-// MARK: - Preview
-
-#Preview {
-    @Previewable @State var isSoundEnabled = false
     
-    ToolBarAttachment(
-        isSoundEnabled: $isSoundEnabled,
-        onToggleImmersive: { print("Toggle Immersive") } 
-    )
-    .environment(AppModel())
+    private func handleToggleImmersive() {
+        Task { @MainActor in
+            await appModel.toggleImmersiveSpace(
+                dismissImmersiveSpace: dismissImmersiveSpace,
+                openImmersiveSpace: openImmersiveSpace
+            )
+        }
+    }
 }

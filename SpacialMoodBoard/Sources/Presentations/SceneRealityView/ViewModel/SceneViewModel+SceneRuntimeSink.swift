@@ -7,26 +7,33 @@
 
 import RealityKit
 
-extension SceneViewModel: SceneRuntimeSink {
-    func currentSceneObjects() -> [SceneObject] {
-        sceneObjects
-    }
+// SceneViewModel.swift 또는 새 extension에 추가
+extension SceneViewModel {
     
-    func replaceSceneObjects(with newObjects: [SceneObject]) {
-        sceneObjects = newObjects
-    }
-    
-    func cleanupRuntime(for removed: [SceneObject], maybeResetFloorIfMatches assetId: String) {
-        for obj in removed {
-            if let e = entityMap[obj.id] {
-                e.removeFromParent()
-                entityMap[obj.id] = nil
-            }
-            SceneAudioCoordinator.shared.stop(obj.id)
-            SceneAudioCoordinator.shared.unregister(entityId: obj.id)
-        }
-        spacialEnvironment.floorMaterialImageURL = nil
+    /// Asset 삭제 UseCase 실행 + Entity 정리
+    /// - Parameters:
+    ///   - useCase: DeleteAssetUseCase
+    ///   - assetId: 에셋 id
+    func executeDeleteAsset(_ useCase: DeleteAssetUseCase, assetId: String) throws {
+        guard var scene = appModel.selectedScene else { return }
+        
+        let result = try useCase.execute(assetId: assetId, scene: &scene)
+        appModel.selectedScene = scene
 
-        scheduleSceneAutosaveDebounced()
+        for object in result.removedSceneObjects {
+            // EntityRepository를 통해 엔티티 제거
+            entityRepository.removeEntity(id: object.id)
+            SceneAudioCoordinator.shared.stop(object.id)
+            SceneAudioCoordinator.shared.unregister(entityId: object.id)
+        }
+        
+        if spacialEnvironment.floorImageRelativePath?.contains(assetId) == true {
+            var env = spacialEnvironment
+            env.floorMaterialImageURL = nil
+            env.floorImageRelativePath = nil
+            spacialEnvironment = env
+        }
+        
+        saveScene()
     }
 }

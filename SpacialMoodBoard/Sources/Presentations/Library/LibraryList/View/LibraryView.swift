@@ -96,8 +96,8 @@ struct LibraryView: View {
     
     private var headerView: some View {
         HStack(alignment: .center, spacing: 16) {
-            IconCircleButton(
-                systemName: "chevron.left",
+            CircleFillButton(
+                type: .back,
                 action: {
                     dismissWindow(id: "ImmersiveVolumeWindow")
                     appModel.selectedProject = nil
@@ -109,13 +109,16 @@ struct LibraryView: View {
             
             Spacer()
             
-            IconCircleButton(systemName: "plus") {
-                if viewModel.assetType == .image {
-                    viewModel.showDropDock.toggle()
-                } else {
-                    viewModel.showSoundImporter.toggle()
+            CircleFillButton(
+                type: .plus,
+                action: {
+                    if viewModel.assetType == .image {
+                        viewModel.showDropDock.toggle()
+                    } else {
+                        viewModel.showSoundImporter.toggle()
+                    }
                 }
-            }
+            )
             
             if viewModel.showSearch {
                 CenteredVisionSearchBar(text: $viewModel.searchText)
@@ -128,8 +131,8 @@ struct LibraryView: View {
                     )
                     
             } else {
-                IconCircleButton(
-                    systemName: "magnifyingglass",
+                CircleFillButton(
+                    type: .search,
                     action: { withAnimation(.easeInOut) { viewModel.showSearch = true } }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))

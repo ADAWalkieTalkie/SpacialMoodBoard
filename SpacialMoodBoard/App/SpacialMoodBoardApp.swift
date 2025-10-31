@@ -12,8 +12,9 @@ import SwiftUI
 struct SpacialMoodBoardApp: App {
     let modelContainer: ModelContainer
     @State private var appModel = AppModel()
-    @State private var projectRepository: ProjectRepository
+    @State private var projectRepository: ProjectServiceInterface
     @State private var assetRepository: AssetRepository
+    @State private var renameAssetUseCase: RenameAssetUseCase
     @State private var deleteAssetUseCase: DeleteAssetUseCase
     @State private var sceneViewModel: SceneViewModel
     @State private var initialVolumeSize: Size3D = Size3D(width: 1000, height: 1000, depth: 1000)
@@ -27,7 +28,7 @@ struct SpacialMoodBoardApp: App {
                 )
             )
             self.modelContainer = container
-            let repository = SwiftDataProjectRepository(
+            let repository = ProjectService(
                 modelContext: container.mainContext
             )
             _projectRepository = State(wrappedValue: repository)
@@ -41,20 +42,31 @@ struct SpacialMoodBoardApp: App {
                 soundService: SoundAssetService()
             )
             _assetRepository = State(wrappedValue: assetRepository)
-            let sceneRepository = SceneRepository(usageIndex: AssetUsageIndex())
-            
+
+            let usageIndex = AssetUsageIndex()
+            let sceneObjectRepository = SceneObjectRepository(usageIndex: usageIndex)
+
+            let renameAssetUseCase = RenameAssetUseCase(
+                assetRepository: assetRepository,
+                sceneObjectRepository: sceneObjectRepository
+            )
+            _renameAssetUseCase = State(wrappedValue: renameAssetUseCase)
+
             let deleteAssetUseCase = DeleteAssetUseCase(
                 assetRepository: assetRepository,
-                sceneRepository: sceneRepository
+                sceneObjectRepository: sceneObjectRepository
             )
             _deleteAssetUseCase = State(wrappedValue: deleteAssetUseCase)
-          
+
+            // EntityRepository 생성
+            let entityRepository = EntityRepository()
 
             // Volume Scene용 ViewModel
             let sceneViewModel = SceneViewModel(
                 appModel: appModel,
-                sceneRepository: sceneRepository,
+                sceneObjectRepository: sceneObjectRepository,
                 assetRepository: assetRepository,
+                entityRepository: entityRepository,
                 projectRepository: repository
             )
             _sceneViewModel = State(wrappedValue: sceneViewModel)
@@ -68,13 +80,14 @@ struct SpacialMoodBoardApp: App {
                 appModel: appModel,
                 assetRepository: assetRepository,
                 projectRepository: projectRepository,
+                renameAssetUseCase: renameAssetUseCase,
                 deleteAssetUseCase: deleteAssetUseCase,
                 sceneViewModel: sceneViewModel,
                 modelContainer: modelContainer
             )
         }
 
-        // Volume Scene (Room 미리보기)
+        // Volume Scene
         WindowGroup(id: "ImmersiveVolumeWindow") {
             VolumeSceneView(
                 viewModel: sceneViewModel

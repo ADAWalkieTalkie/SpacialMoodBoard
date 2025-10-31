@@ -10,34 +10,32 @@ final class SceneViewModel {
     // MARK: - Dependencies
     let appModel: AppModel
     let sceneModelFileStorage: SceneModelFileStorage
-    let sceneRepository: SceneRepositoryInterface
+    let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
-    let entityBuilder: RoomEntityBuilder
-    
+    let entityRepository: EntityRepositoryInterface
+    private var needsEntitySync: Bool = false
+
     // MARK: - Initialization
     init(appModel: AppModel,
-         sceneRepository: SceneRepositoryInterface,
+         sceneObjectRepository: SceneObjectRepositoryInterface,
          assetRepository: AssetRepositoryInterface,
-         projectRepository: ProjectRepository? = nil
+         entityRepository: EntityRepositoryInterface,
+         projectRepository: ProjectServiceInterface? = nil
     ) {
         self.appModel = appModel
         self.sceneModelFileStorage = SceneModelFileStorage(projectRepository: projectRepository)
-        self.sceneRepository = sceneRepository
+        self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
-        self.entityBuilder = RoomEntityBuilder()
+        self.entityRepository = entityRepository
     }
     
     
     // MARK: - State
     var selectedSceneModel: SceneModel?
-    
+
     // MARK: - Entity Management
-    /// Environment, sceneObjects를 분리해서 관리.
-    /// 향후 보기모드에서 Entity에 component를 추가 삭제 하기 편한게 하기 위해서.
-    /// Room Entity 캐시
-    var roomEntities: [UUID: Entity] = [:]
-    /// SceneObject의 RealityKit 내 Entity 맵
-    var entityMap: [UUID: ModelEntity] = [:]
+    /// 현재 선택된 엔티티 (UI 상태 관리용)
+    /// Note: entityMap과 floor 캐시는 entityRepository가 관리
     var selectedEntity: ModelEntity?
     
     // 회전 각도 (Volume용)
@@ -48,34 +46,8 @@ final class SceneViewModel {
     
     // SceneObjects (computed property)
     var sceneObjects: [SceneObject] {
-        get {
-            appModel.selectedScene?.sceneObjects ?? []
-        }
-        set {
-            // 1) 이전/이후 id 집합 비교
-            let oldIDs = Set((appModel.selectedScene?.sceneObjects ?? []).map(\.id))
-            let newIDs = Set(newValue.map(\.id))
-            let added = newIDs.subtracting(oldIDs)
-            let removed = oldIDs.subtracting(newIDs)
-            
-            if !added.isEmpty {
-                print("🆕 Added SceneObject id(s):", added.map(\.uuidString).joined(separator: ", "))
-            }
-            if !removed.isEmpty {
-                print("🗑️ Removed SceneObject id(s):", removed.map(\.uuidString).joined(separator: ", "))
-            }
-            
-            // 2) 값 타입일 때 변화 전파를 위해 통째로 재대입
-            if var s = appModel.selectedScene {
-                s.sceneObjects = newValue
-                appModel.selectedScene = s
-            } else {
-                // nil-safe fallback
-                appModel.selectedScene?.sceneObjects = newValue
-            }
-            
-            saveScene()
-        }
+        guard let scene = appModel.selectedScene else { return [] }
+        return sceneObjectRepository.getAllObjects(from: scene)
     }
     
     // UserSpatialState (computed property)
@@ -103,11 +75,10 @@ final class SceneViewModel {
     
     
     // MARK: - Cleanup
-    
+
     func reset() {
-        entityMap.removeAll()
+        entityRepository.clearAllCaches()
         selectedEntity = nil
-        roomEntities.removeAll()
         rotationAngle = 0
     }
     
@@ -138,12 +109,10 @@ final class SceneViewModel {
         updatedEnvironment.floorMaterialImageURL = asset.url
         updatedEnvironment.floorImageRelativePath = relativePath
         spacialEnvironment = updatedEnvironment
-        
-        // Room entity 캐시 무효화 (다음 getRoomEntity 호출 시 새 material로 재생성됨)
-        if let projectId = appModel.selectedProject?.id {
-            roomEntities.removeValue(forKey: projectId)
-        }
-        
+
+        // Floor entity 캐시 초기화 (다음 호출 시 새 material로 재생성됨)
+        entityRepository.clearFloorCache()
+
         // 선택 모드 해제
         isSelectingFloorImage = false
         
