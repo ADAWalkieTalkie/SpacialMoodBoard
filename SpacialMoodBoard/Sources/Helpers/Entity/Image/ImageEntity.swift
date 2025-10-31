@@ -43,7 +43,13 @@ struct ImageEntity {
         // 5. ModelEntity 생성 및 설정
         let modelEntity = ModelEntity(mesh: mesh, materials: [material])
         modelEntity.name = sceneObject.id.uuidString
-        modelEntity.position = sceneObject.position
+        // y축 위치를 0 이상으로 제한
+        let clampedPosition = SIMD3<Float>(
+            sceneObject.position.x,
+            max(0, sceneObject.position.y),
+            sceneObject.position.z
+        )
+        modelEntity.position = clampedPosition
         
         // 6. 회전 적용
         let rotation = imageAttrs.rotation

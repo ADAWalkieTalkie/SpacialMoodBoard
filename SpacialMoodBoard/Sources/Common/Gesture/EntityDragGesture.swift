@@ -25,8 +25,23 @@ struct EntityDragGesture: ViewModifier {
                         }
                         
                         let movement = value.convert(value.translation3D, from: .global, to: .scene)
-                        rootEntity.position = (initialPosition ?? .zero) + movement
-                        
+                        let newPosition = (initialPosition ?? .zero) + movement
+
+                        // 엔티티의 높이를 계산하여 하단이 y=0 아래로 내려가지 않도록 제한
+                        var minY: Float = 0
+                        if let modelEntity = rootEntity as? ModelEntity {
+                            let bounds = modelEntity.visualBounds(relativeTo: nil)
+                            let entityHeight = bounds.extents.y  // 전체 높이
+                            let halfHeight = entityHeight / 2.0  // 높이의 절반
+                            minY = halfHeight  // 중심점이 최소 halfHeight 이상이어야 하단이 y=0에 닿음
+                        }
+
+                        rootEntity.position = SIMD3<Float>(
+                            newPosition.x,
+                            max(minY, newPosition.y),
+                            newPosition.z
+                        )
+                                                
                         guard let uuid = UUID(uuidString: value.entity.name) else { return }
                         
 //                        let isBillboardable = getBillboardableState(uuid)
