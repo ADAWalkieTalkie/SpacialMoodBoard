@@ -73,7 +73,7 @@ struct SceneRealityView: View {
                 }
             } attachments: {
                 Attachment(id: "headToolbar"){
-                    ToolBarAttachment()
+                    ToolBarAttachment(viewModel: viewModel)
                         .environment(appModel)
                 }
 
