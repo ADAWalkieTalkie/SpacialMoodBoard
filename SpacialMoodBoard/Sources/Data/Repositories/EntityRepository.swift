@@ -32,9 +32,9 @@ final class EntityRepository: EntityRepositoryInterface {
 
         switch sceneObject.attributes {
         case .image:
-            newEntity = ImageEntity.create(from: sceneObject, with: asset, viewMode: false)
+            newEntity = ImageEntity.create(from: sceneObject, with: asset)
         case .audio:
-            newEntity = SoundEntity.create(from: sceneObject, with: asset, viewMode: false)
+            newEntity = SoundEntity.create(from: sceneObject, with: asset)
         }
 
         if let entity = newEntity {
