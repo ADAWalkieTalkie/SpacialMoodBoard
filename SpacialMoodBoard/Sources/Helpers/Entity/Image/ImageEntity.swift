@@ -30,8 +30,16 @@ struct ImageEntity {
         
         // 3. 크기 계산 (scale 적용)
         let baseSize: Float = 0.5
-        let width = baseSize * imageAttrs.scale
-        let height = baseSize * imageAttrs.scale
+        let baseWidth = baseSize * imageAttrs.scale
+
+        // 실제 이미지 비율 가져오기
+        let imageWidth = Float(asset.image?.width ?? 1)
+        let imageHeight = Float(asset.image?.height ?? 1)
+        let aspectRatio = imageWidth > 0 ? (imageHeight / imageWidth) : 1.0
+
+        // 가로는 baseWidth로 고정, 세로는 비율에 맞춰 계산
+        let width = baseWidth
+        let height = baseWidth * aspectRatio
         
         // 4. 평면 메시 생성
         let mesh = MeshResource.generateBox(
