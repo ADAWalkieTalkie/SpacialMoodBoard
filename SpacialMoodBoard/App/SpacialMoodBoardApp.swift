@@ -37,7 +37,7 @@ struct SpacialMoodBoardApp: App {
             _appModel = State(wrappedValue: appModel)
 
             let assetRepository = AssetRepository(
-                project: appModel.selectedProject?.title ?? "",
+                project: appModel.appState.selectedProject?.title ?? "",
                 imageService: ImageAssetService(),
                 soundService: SoundAssetService()
             )
@@ -103,12 +103,6 @@ struct SpacialMoodBoardApp: App {
         ImmersiveSpace(id: "ImmersiveScene") {
             ImmersiveSceneView(viewModel: sceneViewModel)
                 .environment(appModel)
-                .onAppear {
-                    appModel.immersiveSpaceState = .open
-                }
-                .onDisappear {
-                    appModel.immersiveSpaceState = .closed
-                }
         }
         .immersionStyle(selection: .constant(.full), in: .full)
     }
