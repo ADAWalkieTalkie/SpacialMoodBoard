@@ -47,3 +47,16 @@ func extractRotationAngle(from quat: simd_quatf, around axis: SIMD3<Float>) -> F
     
     return angle * projection
 }
+
+
+//MARK: - Snap Angle
+
+/// 각도를 지정된 각도 단위로 스냅
+/// - Parameters:
+///   - angle: 라디안 단위의 원본 각도
+///   - snapDegrees: 스냅할 각도 (도 단위, 예: 15, 30, 45 등)
+/// - Returns: 스냅된 각도 (라디안)
+func snapAngle(_ angle: Float, toDegrees snapDegrees: Float) -> Float {
+    let snapAngleRadians = snapDegrees * Float.pi / 180.0
+    return round(angle / snapAngleRadians) * snapAngleRadians
+}
