@@ -58,16 +58,23 @@ struct SoundEntity {
         unlit.color = .init(texture: .init(texture))
         unlit.blending = .transparent(opacity: 1.0)
         
-        let mesh = MeshResource.generatePlane(width: width, height: height)
+        let mesh = MeshResource.generateBox(width: width, height: height, depth: 0.01)
         let modelEntity = ModelEntity(mesh: mesh, materials: [unlit])
         modelEntity.name = sceneObject.id.uuidString
-        modelEntity.position = sceneObject.position
+        // y축 위치를 0 이상으로 제한
+        let clampedPosition = SIMD3<Float>(
+            sceneObject.position.x,
+            max(0, sceneObject.position.y),
+            sceneObject.position.z
+        )
+        modelEntity.position = clampedPosition
         
         modelEntity.collision = CollisionComponent(
             shapes: [.generateBox(width: width, height: height, depth: 0.01)]
         )
         modelEntity.components.set(InputTargetComponent())
         modelEntity.components.set(HoverEffectComponent())
+        modelEntity.components.set(BillboardComponent())
         
         Task {
             do {
