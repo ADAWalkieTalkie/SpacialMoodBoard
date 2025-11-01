@@ -61,7 +61,6 @@ fileprivate struct EmptyStateView: View {
 /// 3열 기본 그리드 래퍼
 fileprivate struct AddedAssetGridView: View {
     let urls: [URL]
-    let thumbHeight: CGFloat = 85
     
     private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 10), count: 3)
     
@@ -69,7 +68,8 @@ fileprivate struct AddedAssetGridView: View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(Array(urls.enumerated()), id: \.offset) { _, url in
-                    AssetThumb(url: url, height: thumbHeight)
+                    AssetThumb(url: url)
+                        .frame(width: 96, height: 72)
                 }
             }
         }
@@ -79,25 +79,20 @@ fileprivate struct AddedAssetGridView: View {
 /// URL에서 이미지를 로드해 보여주는 썸네일
 fileprivate struct AssetThumb: View {
     let url: URL
-    let height: CGFloat
     
     var body: some View {
         if let img = loadImage(url) {
             Image(uiImage: img)
                 .resizable()
                 .scaledToFit()
-                .frame(width: height)
-                .frame(height: height)
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity)
                 .clipShape(Rectangle())
-                .background(.gray.opacity(0.2))
         } else {
             Rectangle()
                 .fill(.gray.opacity(0.2))
-                .overlay(
-                    Image(systemName: "photo")
-                        .foregroundStyle(.secondary)
-                )
-                .frame(height: height)
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity)
         }
     }
     
