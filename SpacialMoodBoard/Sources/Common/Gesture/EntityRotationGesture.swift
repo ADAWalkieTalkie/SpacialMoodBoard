@@ -6,6 +6,7 @@ import RealityKit
 struct EntityRotationGesture: ViewModifier {
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
     let onBillboardableChange: (UUID, Bool) -> Void
+    let snapAngleDegrees: Float
     
     @State private var initialOrientation: simd_quatf? = nil
     
@@ -31,9 +32,12 @@ struct EntityRotationGesture: ViewModifier {
                         
                         // 로컬 Y축 기준 회전 각도 추출
                         let angle = extractRotationAngle(from: rotationQuat, around: localYAxis)
+
+                        // 지정된 각도 단위로 스냅
+                        let snappedAngle = snapAngle(angle, toDegrees: snapAngleDegrees)
                         
                         // 월드 Y축 기준으로 회전
-                        let worldYRotation = simd_quatf(angle: angle, axis: worldYAxis)
+                        let worldYRotation = simd_quatf(angle: snappedAngle, axis: worldYAxis)
                         
                         rootEntity.orientation = worldYRotation * (initialOrientation ?? simd_quatf(angle: 0, axis: [0, 1, 0]))
                     }
@@ -59,11 +63,13 @@ struct EntityRotationGesture: ViewModifier {
 extension View {
     func entityRotationGesture(
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
-        onBillboardableChange: @escaping (UUID, Bool) -> Void
+        onBillboardableChange: @escaping (UUID, Bool) -> Void,
+        snapAngleDegrees: Float = 15.0 // 기본값 15도
     ) -> some View {
         self.modifier(EntityRotationGesture(
             onRotationUpdate: onRotationUpdate,
-            onBillboardableChange: onBillboardableChange
+            onBillboardableChange: onBillboardableChange,
+            snapAngleDegrees: snapAngleDegrees
         ))
     }
 }
