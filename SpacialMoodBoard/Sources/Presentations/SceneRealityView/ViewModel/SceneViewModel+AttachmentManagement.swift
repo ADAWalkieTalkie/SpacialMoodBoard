@@ -80,6 +80,10 @@ extension SceneViewModel {
 
     private func removeAllAttachments() {
         for entity in entityRepository.getCachedEntities().values {
+            // boundBox 제거
+            entityBoundBoxApplier.removeBoundBox(from: entity)
+            
+            // attachment 제거
             entity.children
                 .filter { $0.name == "objectAttachment" }
                 .forEach { $0.removeFromParent() }
@@ -88,6 +92,10 @@ extension SceneViewModel {
 
     // 특정 Entity의 attachment만 제거
     private func removeAttachment(from entity: ModelEntity) {
+        // boundBox 제거
+        entityBoundBoxApplier.removeBoundBox(from: entity)
+
+        // objectAttachment 제거
         entity.children
             .filter { $0.name == "objectAttachment" }
             .forEach { $0.removeFromParent() }
@@ -130,6 +138,12 @@ extension SceneViewModel {
         objectAttachment.scale = inverseScale
         
         entity.addChild(objectAttachment)
+
+        // Entity의 크기 계산 (visualBounds 사용)
+        let bounds = entity.visualBounds(relativeTo: entity)
+        let width = bounds.extents.x
+        let height = bounds.extents.y
+        entityBoundBoxApplier.addBoundBox(to: entity, width: width, height: height)
         
         // Attachment 위치 설정
         topPositionAttachment(objectAttachment, relativeTo: entity)
