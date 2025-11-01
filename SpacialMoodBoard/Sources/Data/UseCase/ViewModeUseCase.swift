@@ -8,9 +8,19 @@ import RealityKit
 struct ViewModeUseCase {
     
     private let entityRepository: EntityRepositoryInterface
+    private let viewMode: Bool
     
-    init(entityRepository: EntityRepositoryInterface) {
+    init(entityRepository: EntityRepositoryInterface, viewMode: Bool) {
         self.entityRepository = entityRepository
+        self.viewMode = viewMode
+    }
+
+    func execute() {
+        if viewMode {
+            viewModeOnAll()
+        } else {
+            viewModeOffAll()
+        }
     }
     
     /// ViewMode OFF: 엔티티의 상호작용을 비활성화

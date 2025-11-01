@@ -62,17 +62,11 @@ struct ToolBarAttachment: View {
         appModel.selectedScene = scene
         
         // ViewModeUseCase를 생성하고 사용
-        let viewModeUseCase = ViewModeUseCase(entityRepository: viewModel.entityRepository)
-        
-        // isViewEnabled가 false일 때 (viewMode가 꺼져있을 때) -> viewModeOnAll()
-        // isViewEnabled가 true일 때 (viewMode가 켜져있을 때) -> viewModeOffAll()
-        if isViewEnabled {
-            // 현재 상태가 true인데 toggle했으므로 false가 됨 -> viewModeOffAll()
-            viewModeUseCase.viewModeOffAll()
-        } else {
-            // 현재 상태가 false인데 toggle했으므로 true가 됨 -> viewModeOnAll()
-            viewModeUseCase.viewModeOnAll()
-        }
+        let viewModeUseCase = ViewModeUseCase(
+            entityRepository: viewModel.entityRepository,
+            viewMode: scene.userSpatialState.viewMode
+        )
+        viewModeUseCase.execute()
     }
     
     private func handleToggleImmersive() {
