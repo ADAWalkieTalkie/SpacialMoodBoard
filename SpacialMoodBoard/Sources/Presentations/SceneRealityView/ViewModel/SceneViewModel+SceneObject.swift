@@ -7,21 +7,48 @@ extension SceneViewModel {
     
     // MARK: - Basic CRUD
     
-    /// 객체 추가 + Entity 생성
+    /// 씬(Scene) 데이터와 3D 엔티티(Entity)를 씬에 추가합니다.
+    ///
+    /// 이 메서드는 `SceneObject` (데이터 모델)를 현재 씬에 추가하는 것을 기본으로 합니다.
+    /// 추가적으로 `rootEntity` 매개변수의 제공 여부에 따라 3D 씬의 `Entity` (시각적 표현)를
+    /// 즉시 생성할지, 아니면 나중에 동기화하도록 연기할지 결정합니다.
+    ///
+    /// - Parameters:
+    ///   - object: 씬에 추가할 `SceneObject` 데이터 모델입니다.
+    ///   - rootEntity: (선택 사항) `Entity`를 즉시 생성할 경우, 그 부모가 될 RealityKit 엔티티입니다.
+    ///                 이 값이 `nil`이면 `SceneObject` 데이터만 씬에 추가되며, `Entity` 생성은 나중에 동기화됩니다.
     func addSceneObject(_ object: SceneObject, rootEntity: Entity? = nil) {
         guard var scene = appModel.selectedScene else { return }
         
-        // 1. Repository를 통해 SceneObject 추가
-        sceneObjectRepository.addObject(object, to: &scene)
-        appModel.selectedScene = scene
-        
-        // 2. Entity 생성 및 추가
-        if let rootEntity = rootEntity,
-           let asset = assetRepository.asset(withId: object.assetId) {
-            createAndAddEntity(sceneObject: object, asset: asset, rootEntity: rootEntity)
+        // rootEntity가 제공된 경우 UseCase를 통해 객체 생성
+        if let rootEntity = rootEntity {
+            do {
+                let result = try createObjectUseCase.execute(
+                    object: object,
+                    rootEntity: rootEntity,
+                    scene: &scene
+                )
+                appModel.selectedScene = scene
+            } catch CreateObjectError.assetNotFound {
+#if DEBUG
+                print("❌ SceneObject 생성 실패: 에셋을 찾을 수 없음 (assetId: \(object.assetId))")
+#endif
+            } catch CreateObjectError.entityCreationFailed {
+#if DEBUG
+                print("❌ Entity 생성 실패 (objectId: \(object.id))")
+#endif
+            } catch {
+#if DEBUG
+                print("❌ SceneObject 생성 실패: \(error)")
+#endif
+            }
+        } else {
+            // rootEntity가 없는 경우 SceneObject만 추가 (Entity는 나중에 동기화)
+            sceneObjectRepository.addObject(object, to: &scene)
+            appModel.selectedScene = scene
         }
         
-        // 3. 저장
+        // 저장
         saveScene()
     }
     

@@ -161,7 +161,7 @@ struct SceneRealityView: View {
                       let objectId = UUID(uuidString: entity.name) else { return }
             
             viewModel.updateAttachment(
-                onDuplicate: { _ = viewModel.duplicateObject() },
+                onDuplicate: { _ = viewModel.duplicateObject(rootEntity: Entity) },
                 onCrop: { /* handle */ },
                 onDelete: {
                     viewModel.removeSceneObject(id: objectId)
