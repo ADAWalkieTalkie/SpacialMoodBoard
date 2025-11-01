@@ -47,7 +47,7 @@ extension SceneViewModel {
             return nil
         }
         
-        let newPosition = originalObject.position + SIMD3<Float>(-0.1, 0.1, 0)
+        let newPosition = originalObject.position + SIMD3<Float>(0.2, 0.2, 0.1)
         let duplicatedObject = SceneObject.createImage(
             assetId: originalObject.assetId,
             position: newPosition,
@@ -60,7 +60,6 @@ extension SceneViewModel {
         
         // SceneViewModel+SceneObject의 addSceneObject 사용
         addSceneObject(duplicatedObject, rootEntity: nil)
-        self.selectedEntity = nil
         
         return duplicatedObject
     }
