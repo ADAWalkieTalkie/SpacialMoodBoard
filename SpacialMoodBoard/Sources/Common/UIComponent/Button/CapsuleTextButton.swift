@@ -1,5 +1,5 @@
 //
-//  IconCircleButton.swift
+//  CapsuleTextButton.swift
 //  SpacialMoodBoard
 //
 //  Created by jeongminji on 10/15/25.
