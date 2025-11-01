@@ -39,7 +39,7 @@ extension SceneViewModel {
     
     // MARK: - 복제
     
-    func duplicateObject() -> SceneObject? {
+    func duplicateObject(rootEntity: Entity) -> SceneObject? {
         guard let selectedEntity = selectedEntity,
               let objectId = UUID(uuidString: selectedEntity.name),
               let originalObject = sceneObjects.first(where: { $0.id == objectId }),
@@ -59,7 +59,7 @@ extension SceneViewModel {
         )
         
         // SceneViewModel+SceneObject의 addSceneObject 사용
-        addSceneObject(duplicatedObject, rootEntity: nil)
+        addSceneObject(duplicatedObject, rootEntity: rootEntity)
         self.selectedEntity = nil
         
         return duplicatedObject
