@@ -21,7 +21,7 @@ struct SceneRealityView: View {
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
 
     private var sceneViewIdentifier: String {
-        let projectID = appModel.selectedProject?.id.uuidString ?? ""
+        let projectID = appModel.appState.selectedProject?.id.uuidString ?? ""
         let floorImageURL = viewModel.spacialEnvironment.floorMaterialImageURL?.absoluteString ?? ""
         return "\(projectID)-\(floorImageURL)"
     }

@@ -136,7 +136,7 @@ final class SceneViewModel {
     /// SceneModel을 디스크에 저장
     func saveScene() {
         guard let scene = appModel.selectedScene,
-              let projectName = appModel.selectedProject?.title else {
+              let projectName = appModel.appState.selectedProject?.title else {
             print("⚠️ SceneModel 저장 실패: 프로젝트 또는 씬이 없음")
             return
         }

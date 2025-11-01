@@ -12,9 +12,9 @@ struct ToolBarAttachment: View {
     private var isViewEnabled: Bool {
         appModel.selectedScene?.userSpatialState.viewMode ?? false
     }
-    
+
     private var isImmersiveOpen: Bool {
-        appModel.immersiveSpaceState == .open
+        appModel.appState.isImmersiveOpen
     }
     
     var body: some View {
@@ -71,10 +71,22 @@ struct ToolBarAttachment: View {
     
     private func handleToggleImmersive() {
         Task { @MainActor in
-            await appModel.toggleImmersiveSpace(
-                dismissImmersiveSpace: dismissImmersiveSpace,
-                openImmersiveSpace: openImmersiveSpace
-            )
+            // 현재 상태에 따라 Immersive 모드 열기/닫기
+            if isImmersiveOpen {
+                // Immersive 닫기
+                await appModel.closeImmersive()
+                await dismissImmersiveSpace()
+            } else {
+                // Immersive 열기
+                switch await openImmersiveSpace(id: "ImmersiveScene") {
+                case .opened:
+                    await appModel.openImmersive()
+                case .userCancelled, .error:
+                    print("⚠️ Immersive Space 열기 실패")
+                @unknown default:
+                    print("⚠️ Immersive Space 알 수 없는 에러")
+                }
+            }
         }
     }
 }

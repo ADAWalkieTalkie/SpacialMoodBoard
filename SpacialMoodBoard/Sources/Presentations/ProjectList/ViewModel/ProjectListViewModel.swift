@@ -69,15 +69,15 @@ final class ProjectListViewModel {
             return
         }
 
-        // 1. Project 선흑
-        appModel.selectedProject = project
+        // 1. SceneModel 로드 (파일이 있으면 로드, 없으면 기본값 생성)
+        let sceneModel = loadSceneModel(for: project)
 
-        // 2. SceneModel 로드 (파일이 있으면 로드, 없으면 기본값 생성)
-        loadSceneModel(for: project)
+        // 2. AppModel의 중앙화된 상태 관리 메서드 호출
+        appModel.selectProject(project, scene: sceneModel)
     }
 
     // SceneModel 로드 또는 생성
-    private func loadSceneModel(for project: Project) {
+    private func loadSceneModel(for project: Project) -> SceneModel {
         do {
             // 파일이 있으면 로드
             if sceneModelStorage.exists(projectName: project.title) {
@@ -101,23 +101,21 @@ final class ProjectListViewModel {
                     }
                 }
 
-                appModel.selectedScene = sceneModel
                 print("📂 기존 SceneModel 로드 완료")
+                return sceneModel
             } else {
                 // 파일이 없으면 기본값 생성
-                let defaultScene = SceneModel(
+                return SceneModel(
                     projectId: project.id,
                     spacialEnvironment: SpacialEnvironment(),
                     userSpatialState: UserSpatialState(),
                     sceneObjects: []
                 )
-                appModel.selectedScene = defaultScene
-                print("✨ 새 SceneModel 생성")
             }
         } catch {
             print("❌ SceneModel 로드 실패: \(error)")
             // 실패 시 기본값 생성
-            appModel.selectedScene = SceneModel(
+            return SceneModel(
                 projectId: project.id,
                 spacialEnvironment: SpacialEnvironment(),
                 userSpatialState: UserSpatialState(),
@@ -144,8 +142,6 @@ final class ProjectListViewModel {
         projectRepository.addProject(newProject)
         refreshProjects()
 
-        appModel.selectedProject = newProject
-
         // 새 SceneModel 생성 및 로컬 파일에 저장
         let newSceneModel = SceneModel(
             projectId: newProject.id,
@@ -164,6 +160,8 @@ final class ProjectListViewModel {
                 print("   - 에러 상세: \(error.localizedDescription)")
                 throw error
             }
+        
+        appModel.selectProject(newProject, scene: newSceneModel)
 
         return newProject
     }
@@ -180,16 +178,16 @@ final class ProjectListViewModel {
             )
             refreshProjects()
 
-            // 선택된 프로젝트의 제목이 변경되면 AppModel도 업데이트
-            if appModel.selectedProject?.id == project.id {
-                appModel.selectedProject?.title = newTitle
-            }
-
-            // SceneModel 파일 업데이트 및 appModel 업데이트
-            if let selectedScene = appModel.selectedScene {
+            // 선택된 프로젝트의 제목이 변경되면 AppState 재설정
+            if appModel.appState.selectedProject?.id == project.id,
+               let selectedScene = appModel.selectedScene {
+                // 업데이트된 project 객체를 가져와서 appState 재설정
+                if let updatedProject = projectRepository.fetchProject(project) {
+                    appModel.selectProject(updatedProject, scene: selectedScene)
+                }
+                // SceneModel 파일도 새 이름으로 저장
                 try sceneModelStorage.save(selectedScene, projectName: newTitle)
             }
-            appModel.selectedProject?.title = newTitle
         } catch {
             #if DEBUG
                 print("[ProjectListViewModel] updateProjectTitle - ❌ Error: \(error)")
@@ -208,9 +206,9 @@ final class ProjectListViewModel {
         projectRepository.deleteProject(project)
         refreshProjects()
 
-        if appModel.selectedProject?.id == project.id {
-            appModel.selectedProject = nil
-            appModel.selectedScene = nil
+        // 삭제된 프로젝트가 현재 선택된 프로젝트라면 상태 초기화
+        if appModel.appState.selectedProject?.id == project.id {
+            appModel.closeProject()
         }
     }
 
