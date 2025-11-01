@@ -8,7 +8,7 @@ import SwiftUI
 final class SceneViewModel {
     
     // MARK: - Dependencies
-    let appModel: AppModel
+    let appModel: AppStateManager
     let sceneModelFileStorage: SceneModelFileStorage
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
@@ -17,7 +17,7 @@ final class SceneViewModel {
     private var needsEntitySync: Bool = false
 
     // MARK: - Initialization
-    init(appModel: AppModel,
+    init(appModel: AppStateManager,
          sceneObjectRepository: SceneObjectRepositoryInterface,
          assetRepository: AssetRepositoryInterface,
          entityRepository: EntityRepositoryInterface,

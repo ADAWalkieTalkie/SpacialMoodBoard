@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct SpacialMoodBoardApp: App {
     let modelContainer: ModelContainer
-    @State private var appModel = AppModel()
+    @State private var appModel = AppStateManager()
     @State private var projectRepository: ProjectServiceInterface
     @State private var assetRepository: AssetRepository
     @State private var renameAssetUseCase: RenameAssetUseCase
@@ -33,7 +33,7 @@ struct SpacialMoodBoardApp: App {
             )
             _projectRepository = State(wrappedValue: repository)
 
-            let appModel = AppModel()
+            let appModel = AppStateManager()
             _appModel = State(wrappedValue: appModel)
 
             let assetRepository = AssetRepository(

@@ -4,7 +4,7 @@ import RealityKitContent
 
 /// 재사용 가능한 핵심 Scene RealityView
 struct SceneRealityView: View {
-    @Environment(AppModel.self) private var appModel
+    @Environment(AppStateManager.self) private var appModel
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     

@@ -17,7 +17,7 @@ final class LibraryViewModel {
     
     // MARK: - Properties
     
-    private let appModel: AppModel
+    private let appModel: AppStateManager
     @ObservationIgnored
     private let assetRepository: AssetRepositoryInterface
     private let renameAssetUseCase: RenameAssetUseCase
@@ -50,7 +50,7 @@ final class LibraryViewModel {
     /// - Parameter projectName: 작업할 프로젝트 이름 (프로젝트 루트 디렉터리 식별에 사용)
     /// - Parameter assetRepository: AssetRepositoryInterface
     init(
-        appModel: AppModel,
+        appModel: AppStateManager,
         assetRepository: AssetRepositoryInterface,
         renameAssetUseCase: RenameAssetUseCase,
         deleteAssetUseCase: DeleteAssetUseCase

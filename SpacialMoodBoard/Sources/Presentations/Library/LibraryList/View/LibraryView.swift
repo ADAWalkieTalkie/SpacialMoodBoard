@@ -15,7 +15,7 @@ struct LibraryView: View {
     @State private var viewModel: LibraryViewModel
     @State private var sceneViewModel: SceneViewModel
     @State private var photoSelection: [PhotosPickerItem] = []
-    @Environment(AppModel.self) private var appModel
+    @Environment(AppStateManager.self) private var appModel
     
     // MARK: - Init
     

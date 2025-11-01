@@ -11,7 +11,7 @@ import Observation
 @MainActor
 @Observable
 final class ProjectListViewModel {
-    private var appModel: AppModel
+    private var appModel: AppStateManager
     private let projectRepository: ProjectServiceInterface
     private let sceneModelStorage = SceneModelFileStorage()
     private let projectFileStorage = ProjectFileStorage()
@@ -28,7 +28,7 @@ final class ProjectListViewModel {
         return sortProjects(filtered)
     }
 
-    init(appModel: AppModel, projectRepository: ProjectServiceInterface) {
+    init(appModel: AppStateManager, projectRepository: ProjectServiceInterface) {
         self.appModel = appModel
         self.projectRepository = projectRepository
 

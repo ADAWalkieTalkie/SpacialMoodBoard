@@ -6,7 +6,7 @@ struct MainWindowContent: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openWindow) private var openWindow
 
-    @Bindable var appModel: AppModel
+    @Bindable var appModel: AppStateManager
     var assetRepository: AssetRepository
     var projectRepository: ProjectServiceInterface
     var renameAssetUseCase: RenameAssetUseCase

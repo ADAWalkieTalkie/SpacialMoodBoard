@@ -13,10 +13,10 @@ import SwiftUI
 @Observable
 class WindowCoordinator {
 
-    private let appModel: AppModel
+    private let appModel: AppStateManager
 
     /// - Parameter appModel: 앱의 상태를 공유하는 `AppModel` 인스턴스
-    init(appModel: AppModel) {
+    init(appModel: AppStateManager) {
         self.appModel = appModel
     }
 
@@ -30,8 +30,8 @@ class WindowCoordinator {
     ///   - dismissWindow: 특정 ID를 가진 윈도우를 닫는 클로저
     ///   - dismissImmersiveSpace: 현재 열려있는 몰입형 공간을 닫는 비동기 클로저
     func handleStateChange(
-        from oldState: AppModel.AppState,
-        to newState: AppModel.AppState,
+        from oldState: AppStateManager.AppState,
+        to newState: AppStateManager.AppState,
         openWindow: @escaping (String) -> Void,
         dismissWindow: @escaping (String) -> Void,
         dismissImmersiveSpace: @escaping () async -> Void

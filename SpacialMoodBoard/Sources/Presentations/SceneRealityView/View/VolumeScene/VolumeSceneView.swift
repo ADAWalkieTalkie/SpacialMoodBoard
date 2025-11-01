@@ -3,7 +3,7 @@ import RealityKit
 
 struct VolumeSceneView: View {
     @State private var viewModel: SceneViewModel
-    @Environment(AppModel.self) private var appModel
+    @Environment(AppStateManager.self) private var appModel
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
   

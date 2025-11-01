@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct VolumeSceneButton: View {
-    @Environment(AppModel.self) private var appModel
+    @Environment(AppStateManager.self) private var appModel
 
     let onRotate: () -> Void
     let viewModel: SceneViewModel

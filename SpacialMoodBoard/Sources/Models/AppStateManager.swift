@@ -1,5 +1,5 @@
 //
-//  AppModel.swift
+//  AppStateManager.swift
 //  SpacialMoodBoard
 //
 //  Created by apple on 10/2/25.
@@ -11,7 +11,7 @@ import SwiftUI
 /// 앱의 현재 상태(`AppState`)를 정의하고, 상태 간의 전환을 처리하는 메서드들을 제공.
 @MainActor
 @Observable
-class AppModel {
+class AppStateManager {
     // MARK: - App State Definition
 
     /// 앱의 현재 상태를 명시적으로 정의

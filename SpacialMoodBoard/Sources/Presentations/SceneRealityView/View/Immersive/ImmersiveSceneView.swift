@@ -2,7 +2,7 @@ import SwiftUI
 import RealityKit
 
 struct ImmersiveSceneView: View {
-    @Environment(AppModel.self) private var appModel
+    @Environment(AppStateManager.self) private var appModel
 
     @State private var viewModel: SceneViewModel
 
