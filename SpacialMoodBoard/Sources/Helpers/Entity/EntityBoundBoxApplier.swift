@@ -32,8 +32,6 @@ struct EntityBoundBoxApplier {
         boundBoxEntity.name = "boundBox"
         boundBoxEntity.position = SIMD3(0, 0, 0)
         boundBoxEntity.setParent(entity)
-        
-        return boundBoxEntity
     }
     
     /// Entity에서 boundBox 제거
