@@ -36,8 +36,7 @@ struct SoundEntity {
     ///   - viewMode: 보기 모드 전환을 위한 bool
     /// - Returns: 구성 완료된 루트 Entity. .audio 타입이 아니거나 로드 실패 시 `nil` 반환
     static func create(from sceneObject: SceneObject,
-                       with asset: Asset,
-                       viewMode: Bool = false
+                       with asset: Asset
     ) -> ModelEntity? {
         guard case .audio(let audioAttrs) = sceneObject.attributes else {
             print("❌ SoundEntity.create: .audio 타입 아님"); return nil

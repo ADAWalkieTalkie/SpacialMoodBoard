@@ -28,7 +28,8 @@ struct VolumeSceneView: View {
             VStack {
                 Spacer()
                 VolumeSceneButton(
-                    onRotate: { viewModel.rotateBy90Degrees() }
+                    onRotate: { viewModel.rotateBy90Degrees() },
+                    viewModel: viewModel
                 )
             }
             .zIndex(1)

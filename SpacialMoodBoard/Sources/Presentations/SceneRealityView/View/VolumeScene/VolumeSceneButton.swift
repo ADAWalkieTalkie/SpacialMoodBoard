@@ -4,9 +4,10 @@ struct VolumeSceneButton: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-    
+
     let onRotate: () -> Void
-    
+    let viewModel: SceneViewModel
+
     @State private var isAnimating = false
     
     var body: some View {
@@ -45,7 +46,7 @@ struct VolumeSceneButton: View {
                 .opacity(isAnimating ? 0.5 : 1.0)
                 .padding(.horizontal)
 
-                ToolBarAttachment()
+                ToolBarAttachment(viewModel: viewModel)
                     .environment(appModel)
             }
         }

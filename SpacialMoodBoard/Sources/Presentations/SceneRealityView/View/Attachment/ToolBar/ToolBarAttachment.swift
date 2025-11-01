@@ -4,6 +4,8 @@ struct ToolBarAttachment: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
+
+    let viewModel: SceneViewModel
     
     @State private var isMuted = false
     
@@ -57,7 +59,14 @@ struct ToolBarAttachment: View {
     private func toggleViewMode() {
         guard var scene = appModel.selectedScene else { return }
         scene.userSpatialState.viewMode.toggle()
-        appModel.selectedScene = scene 
+        appModel.selectedScene = scene
+        
+        // ViewModeUseCase를 생성하고 사용
+        let viewModeUseCase = ViewModeUseCase(
+            entityRepository: viewModel.entityRepository,
+            viewMode: scene.userSpatialState.viewMode
+        )
+        viewModeUseCase.execute()
     }
     
     private func handleToggleImmersive() {
