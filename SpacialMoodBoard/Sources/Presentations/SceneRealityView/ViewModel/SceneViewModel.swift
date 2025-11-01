@@ -13,6 +13,7 @@ final class SceneViewModel {
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
     let entityRepository: EntityRepositoryInterface
+    let createObjectUseCase: CreateObjectUseCase
     private var needsEntitySync: Bool = false
 
     // MARK: - Initialization
@@ -27,6 +28,11 @@ final class SceneViewModel {
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
         self.entityRepository = entityRepository
+        self.createObjectUseCase = CreateObjectUseCase(
+            assetRepository: assetRepository,
+            sceneObjectRepository: sceneObjectRepository,
+            entityRepository: entityRepository
+        )
     }
     
     
