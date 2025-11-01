@@ -6,11 +6,18 @@ import SwiftUI
 
 extension SceneViewModel {
     
+    // Attachment 자동 제거 시간 설정 (초 단위)
+    private static let attachmentAutoRemoveDuration: TimeInterval = 5.0
+    
     func updateAttachment(
         onDuplicate: @escaping () -> Void,
         onCrop: @escaping () -> Void,
         onDelete: @escaping () -> Void
     ) {
+        // 기존 타이머 취소
+        attachmentTimerTask?.cancel()
+        attachmentTimerTask = nil
+        
         // 기존 attachment 모두 제거
         removeAllAttachments()
         
@@ -64,6 +71,9 @@ extension SceneViewModel {
                 onDelete: onDelete
             )
         }
+
+        // 5초 후 자동 제거 타이머 시작
+        startAttachmentAutoRemoveTimer(for: entity, duration: Self.attachmentAutoRemoveDuration)
     }
     
     // MARK: - Private Helpers
@@ -74,6 +84,13 @@ extension SceneViewModel {
                 .filter { $0.name == "objectAttachment" }
                 .forEach { $0.removeFromParent() }
         }
+    }
+
+    // 특정 Entity의 attachment만 제거
+    private func removeAttachment(from entity: ModelEntity) {
+        entity.children
+            .filter { $0.name == "objectAttachment" }
+            .forEach { $0.removeFromParent() }
     }
     
     private func addAttachment(
@@ -116,6 +133,37 @@ extension SceneViewModel {
         
         // Attachment 위치 설정
         topPositionAttachment(objectAttachment, relativeTo: entity)
+    }
+
+    /// 설정된 시간 후 attachment 자동 제거 타이머 시작
+    /// - Parameters:
+    ///   - entity: Attachment가 있는 Entity
+    ///   - duration: 자동 제거까지의 시간 (초 단위)
+    private func startAttachmentAutoRemoveTimer(for entity: ModelEntity, duration: TimeInterval) {
+        // 기존 타이머 취소
+        attachmentTimerTask?.cancel()
+        
+        // 나노초로 변환
+        let nanoseconds = UInt64(duration * 1_000_000_000)
+        
+        // 새로운 타이머 시작
+        attachmentTimerTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: nanoseconds)
+            
+            // 타이머가 취소되지 않았고 entity가 여전히 존재하는지 확인
+            guard !Task.isCancelled,
+                  let self = self,
+                  entity.parent != nil else {
+                return
+            }
+            
+            await MainActor.run {
+                // attachment가 여전히 존재하는지 확인 후 제거
+                if entity.children.contains(where: { $0.name == "objectAttachment" }) {
+                    self.removeAttachment(from: entity)
+                }
+            }
+        }
     }
     
     // 상단 위치로 Attachment 설정(EditBarAttachment 위치)
