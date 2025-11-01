@@ -53,21 +53,30 @@ struct DropDockOverlayView: View {
                 DropDockCard()
 
                 HStack(alignment: .center, spacing: 24.5) {
-                    CapsuleActionButton(title: "파일") {
-                        viewModel.openFiles()
-                    }
-                    
+                    CapsuleTextButton(
+                        title: "파일",
+                        type: .dropDockOverlayView,
+                        action: { viewModel.openFiles() }
+                    )
                     PhotosPicker(selection: $viewModel.photoSelection,
                                  maxSelectionCount: 10,
                                  matching: .images) {
-                        CapsuleActionLabel(title: "사진")
+                        Text("사진")
+                            .font(.system(size: 17, weight: .medium))
+                            .padding(.horizontal, 26)
+                            .padding(.vertical, 6.5)
                     }
                     .buttonStyle(.plain)
+                    .background(.black.opacity(0.26))
+                    .clipShape(Capsule())
+                    .contentShape(Capsule())
                     .hoverEffect(.highlight)
 
-                    CapsuleActionButton(title: "붙여넣기") {
-                        viewModel.pasteFromClipboard()
-                    }
+                    CapsuleTextButton(
+                        title: "붙여넣기",
+                        type: .dropDockOverlayView,
+                        action: { viewModel.pasteFromClipboard() }
+                    )
                 }
 
                 if let err = viewModel.pasteError {
@@ -126,35 +135,5 @@ fileprivate struct DropDockCard: View {
                 .stroke(.white.opacity(0.10), lineWidth: 1)
         )
         .contentShape(Rectangle())
-    }
-}
-
-/// 캡슐형 Action 버튼(텍스트만)
-fileprivate struct CapsuleActionButton: View {
-    let title: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            CapsuleActionLabel(title: title)
-        }
-        .buttonStyle(.plain)
-        .hoverEffectDisabled(true)
-        .hoverEffect(.highlight)
-    }
-}
-
-/// 캡슐형 라벨(PhotosPicker에도 재사용)
-fileprivate struct CapsuleActionLabel: View {
-    let title: String
-
-    var body: some View {
-        Text(title)
-            .font(.system(size: 17, weight: .medium))
-            .padding(.horizontal, 26)
-            .padding(.vertical, 6.5)
-            .background(.black.opacity(0.26))
-            .clipShape(Capsule())
-            .contentShape(Capsule())
     }
 }
