@@ -13,6 +13,7 @@ final class SceneViewModel {
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
     let entityRepository: EntityRepositoryInterface
+    let createObjectUseCase: CreateObjectUseCase
     private var needsEntitySync: Bool = false
 
     // MARK: - Initialization
@@ -27,6 +28,11 @@ final class SceneViewModel {
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
         self.entityRepository = entityRepository
+        self.createObjectUseCase = CreateObjectUseCase(
+            assetRepository: assetRepository,
+            sceneObjectRepository: sceneObjectRepository,
+            entityRepository: entityRepository
+        )
     }
     
     
@@ -72,6 +78,9 @@ final class SceneViewModel {
     
     // 자동 저장을 디바운스하기 위한 예약 작업 핸들러
     private var autosaveWorkItem: DispatchWorkItem?
+
+    // 5초 타이머를 관리하기 위한 Task 저장
+    var attachmentTimerTask: Task<Void, Never>?
     
     
     // MARK: - Cleanup
@@ -80,6 +89,8 @@ final class SceneViewModel {
         entityRepository.clearAllCaches()
         selectedEntity = nil
         rotationAngle = 0
+        attachmentTimerTask?.cancel()
+        attachmentTimerTask = nil
     }
     
     // MARK: - Floor Material Management

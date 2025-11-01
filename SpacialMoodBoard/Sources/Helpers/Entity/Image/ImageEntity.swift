@@ -29,19 +29,34 @@ struct ImageEntity {
         
         // 3. 크기 계산 (scale 적용)
         let baseSize: Float = 0.5
-        let width = baseSize * imageAttrs.scale
-        let height = baseSize * imageAttrs.scale
+        let baseWidth = baseSize * imageAttrs.scale
+
+        // 실제 이미지 비율 가져오기
+        let imageWidth = Float(asset.image?.width ?? 1)
+        let imageHeight = Float(asset.image?.height ?? 1)
+        let aspectRatio = imageWidth > 0 ? (imageHeight / imageWidth) : 1.0
+
+        // 가로는 baseWidth로 고정, 세로는 비율에 맞춰 계산
+        let width = baseWidth
+        let height = baseWidth * aspectRatio
         
         // 4. 평면 메시 생성
-        let mesh = MeshResource.generatePlane(
+        let mesh = MeshResource.generateBox(
             width: width,
-            height: height
+            height: height,
+            depth: 0.01
         )
         
         // 5. ModelEntity 생성 및 설정
         let modelEntity = ModelEntity(mesh: mesh, materials: [material])
         modelEntity.name = sceneObject.id.uuidString
-        modelEntity.position = sceneObject.position
+        // y축 위치를 0 이상으로 제한
+        let clampedPosition = SIMD3<Float>(
+            sceneObject.position.x,
+            max(0, sceneObject.position.y),
+            sceneObject.position.z
+        )
+        modelEntity.position = clampedPosition
         
         // 6. 회전 적용
         let rotation = imageAttrs.rotation

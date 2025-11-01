@@ -18,20 +18,6 @@ extension SceneViewModel {
         )
     }
 
-    /// 새로운 엔티티를 생성하고 추가
-    /// EntityRepository에 작업을 위임
-    func createAndAddEntity(
-        sceneObject: SceneObject,
-        asset: Asset,
-        rootEntity: Entity
-    ) {
-        _ = entityRepository.createEntity(
-            from: sceneObject,
-            asset: asset,
-            rootEntity: rootEntity
-        )
-    }
-    
     /// 특정 프로젝트의 엔티티 캐시 삭제
     func deleteEntityCache(for project: Project) {
         entityRepository.clearFloorCache()
