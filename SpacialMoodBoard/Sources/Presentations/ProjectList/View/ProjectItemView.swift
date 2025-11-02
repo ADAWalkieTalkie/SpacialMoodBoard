@@ -34,18 +34,27 @@ struct ProjectItemView: View {
     
     var body: some View {
         VStack {
-            Image(systemName: project.thumbnailImage ?? "cube.transparent")
-                .font(.system(size: 40))
-                .foregroundStyle(.primary)
-                .frame(width: 80, height: 80)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.ultraThinMaterial)
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .aspectRatio(320 / 278, contentMode: .fit)
-                .background(.thinMaterial)
-                .cornerRadius(30)
+            // 썸네일 영역
+            GeometryReader { geometry in
+                ZStack {
+                    // 배경
+                    RoundedRectangle(cornerRadius: 30)
+                        .fill(Color(red: 0.85, green: 0.85, blue: 0.85).opacity(0.2))
+
+                    // 사다리꼴 모양 (채우기)
+                    TrapezoidShape()
+                        .fill(Color.white.opacity(0.3))
+                        .padding(.horizontal, geometry.size.width * 0.1)
+                        .padding(.vertical, geometry.size.height * 0.38)
+
+                    // 사다리꼴 테두리
+                    TrapezoidShape()
+                        .stroke(Color.white, lineWidth: 4)
+                        .padding(.horizontal, geometry.size.width * 0.1)
+                        .padding(.vertical, geometry.size.height * 0.38)
+                }
+            }
+            .aspectRatio(320 / 250, contentMode: .fit)
             
             if isRenaming {
                 SelectAllTextField(
@@ -76,7 +85,6 @@ struct ProjectItemView: View {
                 .frame(height: 26)
             }
         }
-        .padding(20)
         .background(isFlashing ? .white.opacity(0.1) :  .clear)
         .clipShape(RoundedRectangle(cornerRadius: 30))
         .onTapGesture(perform: tapFlash)
@@ -153,5 +161,32 @@ struct ProjectItemView: View {
         
         guard !draftTitle.isEmpty, draftTitle != original else { return }
         viewModel.updateProjectTitle(project: project, newTitle: draftTitle)
+    }
+}
+
+// MARK: - TrapezoidShape
+
+/// SVG 디자인의 사다리꼴 모양을 그리는 Shape
+struct TrapezoidShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        let width = rect.width
+        let height = rect.height
+
+        // 사다리꼴 좌표 (정규화된 값)
+        let bottomLeft = CGPoint(x: width * 0.25, y: height * 0.39)
+        let bottomRight = CGPoint(x: width * 0.75, y: height * 0.39)
+        let topRight = CGPoint(x: width * 0.90, y: height * 0.62)
+        let topLeft = CGPoint(x: width * 0.10, y: height * 0.62)
+
+        // 사다리꼴 그리기
+        path.move(to: bottomLeft)
+        path.addLine(to: bottomRight)
+        path.addLine(to: topRight)
+        path.addLine(to: topLeft)
+        path.closeSubpath()
+
+        return path
     }
 }

@@ -36,7 +36,7 @@ struct ProjectListView: View {
         ScrollView {
             LazyVGrid(
                 columns: Array(repeating: GridItem(.flexible()), count: 3),
-                spacing: 40
+                spacing: 35
             ) {
                 ProjectCreationButton {
                     do {
