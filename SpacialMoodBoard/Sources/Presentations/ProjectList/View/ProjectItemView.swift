@@ -33,54 +33,49 @@ struct ProjectItemView: View {
     // MARK: - Body
     
     var body: some View {
-        VStack {
             // 썸네일 영역
-            ZStack {
-                // 배경
-                RoundedRectangle(cornerRadius: 30)
-                    .fill(Color(red: 0.85, green: 0.85, blue: 0.85).opacity(0.2))
-
-                // 사다리꼴 모양 (채우기)
-                TrapezoidShape()
-                    .fill(Color.white.opacity(0.3))
-
-                // 사다리꼴 테두리
-                TrapezoidShape()
-                    .stroke(Color.white, lineWidth: 4)
-            }
-            
-            if isRenaming {
-                SelectAllTextField(
-                    text: $draftTitle,
-                    isFirstResponder: $isTextFieldFocused,
-                    onSubmit: { commitRenameIfNeeded() },
-                    alignment: .center,
-                    usesIntrinsicWidth: true,
-                    minWidth: 40,
-                    horizontalPadding: 8
-                )
-                .frame(height: 26)
-            } else {
-                Button(action: {
-                    startInlineRename()
-                }){
-                    HStack(alignment: .center, spacing: 10) {
-                        Text(project.title)
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.white)
-                        
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.blue)
-                    }
+        Button(action: tapFlash) {
+            VStack {
+                ZStack {
+                    Color.clear
+                        .background(Color(red: 0.85, green: 0.85, blue: 0.85).opacity(0.2))
+                        .aspectRatio(320/250, contentMode: .fit)
+                        .clipShape(.rect(cornerRadius: 30))
+                    
+                    // 사다리꼴 모양 (채우기)
+                    TrapezoidShape()
+                        .fill(Color.white.opacity(0.3))
+                    
+                    // 사다리꼴 테두리
+                    TrapezoidShape()
+                        .stroke(Color.white, lineWidth: 4)
                 }
-                .buttonStyle(.plain)
-                .frame(height: 26)
+                
+                if isRenaming {
+                    SelectAllTextField(
+                        text: $draftTitle,
+                        isFirstResponder: $isTextFieldFocused,
+                        onSubmit: { commitRenameIfNeeded() },
+                        alignment: .center,
+                        usesIntrinsicWidth: true,
+                        minWidth: 40,
+                        horizontalPadding: 8
+                    )
+                    .frame(height: 26)
+                } else {
+                    Text(project.title)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(height: 26)
+                }
             }
+            .padding(20)
+            .contentShape(.hoverEffect, .rect(cornerRadius: 30))
+            .hoverEffect()
         }
+        .buttonStyle(.plain)
         .background(isFlashing ? .white.opacity(0.1) :  .clear)
         .clipShape(RoundedRectangle(cornerRadius: 30))
-        .onTapGesture(perform: tapFlash)
         .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
                             pressing: { p in withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p } },
                             perform: { showRenamePopover = true }

@@ -35,22 +35,21 @@ struct ProjectListView: View {
     // MARK: - Project Grid View
     private var projectGridView: some View {
         ScrollView {
-            let columns = [GridItem(.adaptive(minimum: 288, maximum: 320), spacing: 95)]
-            LazyVGrid(columns: columns, spacing: 70) {
+            let columns = [GridItem(.adaptive(minimum: 348, maximum: 360), spacing: 30)]
+            LazyVGrid(columns: columns, spacing: 0) {
                 ProjectCreationButton {
                     do {
                         try viewModel.createProject()
                     } catch {
                         print("프로젝트 생성 실패: \(error)")
-                        // TODO: 사용자에게 에러 알림 표시
                     }
                 }
-                .frame(width: 320, height: 288)
+                .frame(width: 360, height: 328)
 
                 ForEach(viewModel.filteredProjects) { project in
                     ProjectItemView(project: project)
-                        .frame(width: 320, height: 288)
-                        .hoverEffect(.highlight)
+                        .frame(width: 360, height: 328)
+//                        .hoverEffect(.highlight)
                         .simultaneousGesture(
                             TapGesture().onEnded {
                                 viewModel.selectProject(project: project)
@@ -60,7 +59,7 @@ struct ProjectListView: View {
                 }
                 
             }
-            .padding(.horizontal, 90)
+            .padding(.horizontal, 0)
         }
     }
 
@@ -79,6 +78,7 @@ struct ProjectListView: View {
                 .font(.system(size: 29, weight: .bold)),
             alignment: .center
         )
-        .padding(24)
+        .padding(28.5)
+        .padding(.bottom, -20)
     }
 }
