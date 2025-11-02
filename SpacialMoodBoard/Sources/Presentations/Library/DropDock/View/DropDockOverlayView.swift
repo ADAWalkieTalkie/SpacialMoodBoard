@@ -7,37 +7,52 @@
 
 import SwiftUI
 import PhotosUI
+import UniformTypeIdentifiers
 
 struct DropDockOverlayView: View {
     
     // MARK: - Properties
     
     @Binding private var isPresented: Bool
-    private let onDropProviders: ([NSItemProvider]) -> Bool
-
+    private let onTapFile: () -> Void
     @State private var viewModel: DropDockOverlayViewModel
-
+    
     // MARK: - Init
-
-    /// 드롭 도크(가져오기 오버레이) 뷰 초기화
+    
+    /// 드롭 도크(가져오기 오버레이) 초기화
     /// - Parameters:
-    ///   - isPresented: 오버레이 표시 여부 바인딩. `true`로 설정하면 표시되고, 성공 처리 시 자동으로 `false`로 전환
-    ///   - onDropProviders: 드래그/선택/붙여넣기로 모은 `NSItemProvider` 배열을 상위로 전달해 실제 Import 처리를 수행하는 콜백
-    ///                      성공하면 `true` 반환
+    ///   - isPresented: 오버레이 표시 여부 바인딩
+    ///   - onDrop: 드래그&드롭 provider 전달 콜백
+    ///   - onPhotosPicked: PhotosPicker 선택 콜백
+    ///   - onPaste: 붙여넣기 콜백
+    ///   - onTapFile: 파일 버튼 탭 시 부모에 알리는 콜백(부모가 fileImporter 표시)
     init(
         isPresented: Binding<Bool>,
-        onDropProviders: @escaping ([NSItemProvider]) -> Bool
+        onDrop: @escaping ([NSItemProvider]) -> Void,
+        onPhotosPicked: @escaping ([PhotosPickerItem]) -> Void,
+        onPaste: @escaping () -> Void,
+        onTapFile: @escaping () -> Void
     ) {
         self._isPresented = isPresented
-        self.onDropProviders = onDropProviders
+        self.onTapFile = onTapFile
         self._viewModel = State(
             initialValue: DropDockOverlayViewModel(
-                sendProviders: onDropProviders,
-                onSuccess: { isPresented.wrappedValue = false }
+                onDrop: { providers in
+                    onDrop(providers)
+                    isPresented.wrappedValue = false
+                },
+                onPhotosPicked: { items in
+                    onPhotosPicked(items)
+                    isPresented.wrappedValue = false
+                },
+                onPaste: {
+                    onPaste()
+                    isPresented.wrappedValue = false
+                }
             )
         )
     }
-
+    
     // MARK: - Body
     
     var body: some View {
@@ -45,19 +60,24 @@ struct DropDockOverlayView: View {
             Color.black.opacity(0.001)
                 .ignoresSafeArea()
                 .onTapGesture { isPresented = false }
-
+            
             VStack(alignment: .center, spacing: 16) {
                 Text("이미지 가져오기")
                     .font(.system(size: 17, weight: .bold))
-
+                
                 DropDockCard()
-
+                
                 HStack(alignment: .center, spacing: 24.5) {
                     CapsuleTextButton(
                         title: "파일",
                         type: .dropDockOverlayView,
-                        action: { viewModel.openFiles() }
+                        action:
+                            {
+                                onTapFile()
+                                isPresented = false
+                            }
                     )
+                    
                     PhotosPicker(selection: $viewModel.photoSelection,
                                  maxSelectionCount: 10,
                                  matching: .images) {
@@ -66,21 +86,17 @@ struct DropDockOverlayView: View {
                             .padding(.horizontal, 26)
                             .padding(.vertical, 6.5)
                     }
-                    .buttonStyle(.plain)
-                    .background(.black.opacity(0.26))
-                    .clipShape(Capsule())
-                    .contentShape(Capsule())
-                    .hoverEffect(.highlight)
-
+                                 .buttonStyle(.plain)
+                                 .background(.black.opacity(0.26))
+                                 .clipShape(Capsule())
+                                 .contentShape(Capsule())
+                                 .hoverEffect(.highlight)
+                    
                     CapsuleTextButton(
                         title: "붙여넣기",
                         type: .dropDockOverlayView,
                         action: { viewModel.pasteFromClipboard() }
                     )
-                }
-
-                if let err = viewModel.pasteError {
-                    Text(err).font(.footnote).foregroundStyle(.secondary)
                 }
             }
             .onDrop(of: [UTType.image, .png, .jpeg, .heic, .fileURL, .url],
@@ -90,23 +106,11 @@ struct DropDockOverlayView: View {
                     ),
                     perform: { providers in
                 viewModel.handleOnDrop(providers: providers)
-                    })
+            })
             .padding(24)
             .glassBackgroundEffect()
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
             .padding(.top, 90)
-        }
-        .fileImporter(
-            isPresented: $viewModel.showFileImporter,
-            allowedContentTypes: [.image, .png, .jpeg, .heic],
-            allowsMultipleSelection: true
-        ) { result in
-            switch result {
-            case .success(let urls):
-                viewModel.handleFilesPicked(urls: urls)
-            case .failure(let err):
-                print("파일 가져오기 실패:", err.localizedDescription)
-            }
         }
         .onChange(of: viewModel.photoSelection) { _, _ in
             Task { await viewModel.handlePhotosChanged(limit: 10) }

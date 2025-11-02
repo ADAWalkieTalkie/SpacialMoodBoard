@@ -14,7 +14,7 @@ struct LibraryView: View {
     
     @State private var viewModel: LibraryViewModel
     @State private var sceneViewModel: SceneViewModel
-    @State private var photoSelection: [PhotosPickerItem] = []
+    
     @Environment(AppModel.self) private var appModel
     @Environment(\.dismissWindow) private var dismissWindow
     
@@ -56,27 +56,35 @@ struct LibraryView: View {
             if viewModel.assetType == .image, viewModel.showDropDock {
                 DropDockOverlayView(
                     isPresented: $viewModel.showDropDock,
-                    onDropProviders: viewModel.handleDrop(providers:)
+                    onDrop: { providers in
+                        _ = viewModel.handleDrop(providers: providers)
+                    },
+                    onPhotosPicked: { items in
+                        viewModel.importFromPhotos(items)
+                    },
+                    onPaste: {
+                        viewModel.importFromClipboard()
+                    },
+                    onTapFile: {
+                        viewModel.showFileImporter.toggle()
+                    }
                 )
                 .ignoresSafeArea()
                 .zIndex(9999)
                 .transition(.topRightSlide(260))
                 .allowsHitTesting(true)
             }
-
         }
         .fileImporter(
-            isPresented: $viewModel.showSoundImporter,
-            allowedContentTypes: [.audio],
+            isPresented: $viewModel.showFileImporter,
+            allowedContentTypes: viewModel.assetType.allowedTypes,
             allowsMultipleSelection: true
         ) { result in
             switch result {
             case .success(let urls):
-                let allowedExt = Set(["mp3","m4a","wav","aac","caf"])
-                let picked = urls.filter { allowedExt.contains($0.pathExtension.lowercased()) }
-                Task { await viewModel.importSoundFiles(urls: picked) }
+                viewModel.importFromFileUrls(urls)
             case .failure(let err):
-                print("🎧 오디오 가져오기 실패:", err.localizedDescription)
+                print("파일 가져오기 실패:", err.localizedDescription)
             }
         }
         .fullScreenCover(isPresented: $viewModel.showEditor) {
@@ -115,7 +123,7 @@ struct LibraryView: View {
                     if viewModel.assetType == .image {
                         viewModel.showDropDock.toggle()
                     } else {
-                        viewModel.showSoundImporter.toggle()
+                        viewModel.showFileImporter.toggle()
                     }
                 }
             )
@@ -163,7 +171,6 @@ fileprivate struct ImageTabGridView: View {
                         .simultaneousGesture(
                             TapGesture().onEnded {
                                 if sceneViewModel.isSelectingFloorImage {
-                                    // Floor material 선택 모드
                                     sceneViewModel.applyFloorImage(from: asset)
                                 } else {
                                 sceneViewModel.addImageObject(from: asset)
@@ -200,17 +207,3 @@ fileprivate struct SoundTabListView: View {
         }
     }
 }
-
-// MARK: - Preview
-
-//#Preview(windowStyle: .plain) {
-//    LibraryView(viewModel: LibraryViewModel(
-//        assetRepository: AssetRepository(
-//            project: "",
-//            imageService: ImageAssetService(),
-//            soundService: SoundAssetService()
-//        )
-//    )
-//    )
-//    .environment(AppModel())
-//}
