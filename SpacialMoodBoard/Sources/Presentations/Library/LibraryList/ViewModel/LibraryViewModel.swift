@@ -22,7 +22,8 @@ final class LibraryViewModel {
     private let assetRepository: AssetRepositoryInterface
     private let renameAssetUseCase: RenameAssetUseCase
     private let deleteAssetUseCase: DeleteAssetUseCase
-    
+    private let sceneModelFileStorage: SceneModelFileStorage
+
     @ObservationIgnored
     private var token: UUID?
     var projectName: String { assetRepository.project }
@@ -53,12 +54,14 @@ final class LibraryViewModel {
         appStateManager: AppStateManager,
         assetRepository: AssetRepositoryInterface,
         renameAssetUseCase: RenameAssetUseCase,
-        deleteAssetUseCase: DeleteAssetUseCase
+        deleteAssetUseCase: DeleteAssetUseCase,
+        sceneModelFileStorage: SceneModelFileStorage
     ) {
         self.appStateManager = appStateManager
         self.assetRepository = assetRepository
         self.renameAssetUseCase = renameAssetUseCase
         self.deleteAssetUseCase = deleteAssetUseCase
+        self.sceneModelFileStorage = sceneModelFileStorage
 
         self.token = assetRepository.addChangeHandler { [weak self] in
             guard let self else { return }
@@ -256,13 +259,20 @@ extension LibraryViewModel {
     /// - Note: `appStateManager.selectedScene`이 존재할 때만 동작
     @MainActor
     func renameAsset(id: String, to newTitle: String) {
-        guard var scene = appStateManager.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene,
+              let projectName = appStateManager.appState.selectedProject?.title else { return }
         do {
             _ = try renameAssetUseCase.execute(
                 assetId: id,
                 newBaseName: newTitle,
                 scene: &scene
             )
+            // 수정된 scene을 다시 저장
+            appStateManager.selectedScene = scene
+
+            // JSON에 저장
+            try sceneModelFileStorage.save(scene, projectName: projectName)
+
             syncFromRepo()
         } catch {
             print("❌ rename failed:", error)

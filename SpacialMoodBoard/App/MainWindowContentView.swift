@@ -27,6 +27,7 @@ struct MainWindowContent: View {
                             assetRepository: assetRepository,
                             renameAssetUseCase: renameAssetUseCase,
                             deleteAssetUseCase: deleteAssetUseCase,
+                            sceneModelFileStorage: sceneViewModel.sceneModelFileStorage
                         ),
                         sceneViewModel: sceneViewModel
                     )
