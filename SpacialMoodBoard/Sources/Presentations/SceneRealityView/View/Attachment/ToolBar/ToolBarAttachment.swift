@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ToolBarAttachment: View {
-    @Environment(AppModel.self) private var appModel
+    @Environment(AppStateManager.self) private var appStateManager
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
 
@@ -10,11 +10,11 @@ struct ToolBarAttachment: View {
     @State private var isMuted = false
     
     private var isViewEnabled: Bool {
-        appModel.selectedScene?.userSpatialState.viewMode ?? false
+        appStateManager.selectedScene?.userSpatialState.viewMode ?? false
     }
-    
+
     private var isImmersiveOpen: Bool {
-        appModel.immersiveSpaceState == .open
+        appStateManager.appState.isImmersiveOpen
     }
     
     var body: some View {
@@ -57,9 +57,9 @@ struct ToolBarAttachment: View {
     // MARK: - Actions
     
     private func toggleViewMode() {
-        guard var scene = appModel.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene else { return }
         scene.userSpatialState.viewMode.toggle()
-        appModel.selectedScene = scene
+        appStateManager.selectedScene = scene
         
         // ViewModeUseCase를 생성하고 사용
         let viewModeUseCase = ViewModeUseCase(
@@ -71,10 +71,22 @@ struct ToolBarAttachment: View {
     
     private func handleToggleImmersive() {
         Task { @MainActor in
-            await appModel.toggleImmersiveSpace(
-                dismissImmersiveSpace: dismissImmersiveSpace,
-                openImmersiveSpace: openImmersiveSpace
-            )
+            // 현재 상태에 따라 Immersive 모드 열기/닫기
+            if isImmersiveOpen {
+                // Immersive 닫기
+                await appStateManager.closeImmersive()
+                await dismissImmersiveSpace()
+            } else {
+                // Immersive 열기
+                switch await openImmersiveSpace(id: "ImmersiveScene") {
+                case .opened:
+                    await appStateManager.openImmersive()
+                case .userCancelled, .error:
+                    print("⚠️ Immersive Space 열기 실패")
+                @unknown default:
+                    print("⚠️ Immersive Space 알 수 없는 에러")
+                }
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ import SwiftUI
 final class SceneViewModel {
     
     // MARK: - Dependencies
-    let appModel: AppModel
+    let appStateManager: AppStateManager
     let sceneModelFileStorage: SceneModelFileStorage
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
@@ -17,13 +17,13 @@ final class SceneViewModel {
     private var needsEntitySync: Bool = false
 
     // MARK: - Initialization
-    init(appModel: AppModel,
+    init(appStateManager: AppStateManager,
          sceneObjectRepository: SceneObjectRepositoryInterface,
          assetRepository: AssetRepositoryInterface,
          entityRepository: EntityRepositoryInterface,
          projectRepository: ProjectServiceInterface? = nil
     ) {
-        self.appModel = appModel
+        self.appStateManager = appStateManager
         self.sceneModelFileStorage = SceneModelFileStorage(projectRepository: projectRepository)
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
@@ -52,27 +52,27 @@ final class SceneViewModel {
     
     // SceneObjects (computed property)
     var sceneObjects: [SceneObject] {
-        guard let scene = appModel.selectedScene else { return [] }
+        guard let scene = appStateManager.selectedScene else { return [] }
         return sceneObjectRepository.getAllObjects(from: scene)
     }
     
     // UserSpatialState (computed property)
     var userSpatialState: UserSpatialState {
         get {
-            appModel.selectedScene?.userSpatialState ?? UserSpatialState()
+            appStateManager.selectedScene?.userSpatialState ?? UserSpatialState()
         }
         set {
-            appModel.selectedScene?.userSpatialState = newValue
+            appStateManager.selectedScene?.userSpatialState = newValue
         }
     }
     
     // SpacialEnvironment (computed property)
     var spacialEnvironment: SpacialEnvironment {
         get {
-            appModel.selectedScene?.spacialEnvironment ?? SpacialEnvironment()
+            appStateManager.selectedScene?.spacialEnvironment ?? SpacialEnvironment()
         }
         set {
-            appModel.selectedScene?.spacialEnvironment = newValue
+            appStateManager.selectedScene?.spacialEnvironment = newValue
         }
     }
     
@@ -135,8 +135,8 @@ final class SceneViewModel {
     
     /// SceneModel을 디스크에 저장
     func saveScene() {
-        guard let scene = appModel.selectedScene,
-              let projectName = appModel.selectedProject?.title else {
+        guard let scene = appStateManager.selectedScene,
+              let projectName = appStateManager.appState.selectedProject?.title else {
             print("⚠️ SceneModel 저장 실패: 프로젝트 또는 씬이 없음")
             return
         }
