@@ -50,7 +50,7 @@ struct EditBarAttachment: View {
     // MARK: - Body
     
     var body: some View {
-        HStack(spacing: objectType == .image ? 12 : 4) {
+        HStack(spacing: 12) {
             switch objectType {
             case .image:
                 // 크롭 버튼

@@ -37,7 +37,7 @@ struct CapsuleVolumeSlider: View {
         value: Binding<Double>,
         onEditingChanged: ((Bool)->Void)? = nil,
         trackHeight: CGFloat = 2,
-        thumbDiameter: CGFloat = 12,
+        thumbDiameter: CGFloat = 16,
         backgroundColor: Color = .white.opacity(0.25),
         fillColor: Color = .white.opacity(0.6),
         thumbColor: Color = .white

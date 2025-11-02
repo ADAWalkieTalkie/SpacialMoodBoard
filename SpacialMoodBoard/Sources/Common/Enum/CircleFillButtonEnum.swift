@@ -44,7 +44,7 @@ enum CircleFillButtonEnum {
         case .delete:
             return "trash"
         case .sound(let isOn):
-            return isOn ? "speaker.wave.2.fill" : "speaker.slash.fill"
+            return isOn ? "speaker.slash.fill" : "speaker.wave.2.fill"
         }
     }
     
@@ -54,6 +54,15 @@ enum CircleFillButtonEnum {
             return 36
         default:
             return 44
+        }
+    }
+    
+    var font: Font {
+        switch self {
+        case .crop, .duplicate, .delete, .sound:
+            return .system(size: 17, weight: .medium)
+        default:
+            return .system(size: 19, weight: .medium)
         }
     }
     
