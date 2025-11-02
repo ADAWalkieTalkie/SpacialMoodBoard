@@ -16,7 +16,7 @@ extension SceneViewModel {
     ///   - assetId: 에셋 id
     func executeDeleteAsset(_ useCase: DeleteAssetUseCase, assetId: String) throws {
         guard var scene = appStateManager.selectedScene else { return }
-        
+
         let result = try useCase.execute(assetId: assetId, scene: &scene)
         appStateManager.selectedScene = scene
 
@@ -26,14 +26,15 @@ extension SceneViewModel {
             SceneAudioCoordinator.shared.stop(object.id)
             SceneAudioCoordinator.shared.unregister(entityId: object.id)
         }
-        
-        if spacialEnvironment.floorImageRelativePath?.contains(assetId) == true {
+
+        // Floor Asset ID가 삭제된 asset를 참조 중이면 제거 (SceneObject와 동일한 방식)
+        if spacialEnvironment.floorAssetId == assetId {
             var env = spacialEnvironment
-            env.floorMaterialImageURL = nil
-            env.floorImageRelativePath = nil
+            env.floorAssetId = nil
             spacialEnvironment = env
+            print("✅ Floor 참조 제거: Asset \(assetId) 삭제됨")
         }
-        
+
         saveScene()
     }
 }

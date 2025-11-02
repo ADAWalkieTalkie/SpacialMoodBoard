@@ -5,6 +5,14 @@ import RealityKit
 
 extension SceneViewModel {
 
+    // MARK: - Floor URL
+
+    /// Floor 이미지 URL (AssetRepository에서 Asset ID로 조회)
+    var floorImageURL: URL? {
+        guard let assetId = spacialEnvironment.floorAssetId else { return nil }
+        return assetRepository.asset(withId: assetId)?.url
+    }
+
     // MARK: - Floor Material
 
     /// Floor entity의 material만 업데이트 (entity 재생성 없이)
@@ -33,25 +41,9 @@ extension SceneViewModel {
             return
         }
 
-        // Documents 디렉토리로부터의 상대 경로 계산
-        let relativePath: String?
-        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let documentsPathWithSlash = documentsURL.path + "/"
-            if asset.url.path.hasPrefix(documentsPathWithSlash) {
-                relativePath = String(asset.url.path.dropFirst(documentsPathWithSlash.count))
-            } else {
-                print("⚠️ Asset이 Documents 디렉토리 내에 없음: \(asset.url.path)")
-                relativePath = nil
-            }
-        } else {
-            print("⚠️ Documents 디렉토리를 찾을 수 없음")
-            relativePath = nil
-        }
-
-        // SpacialEnvironment에 floor material URL과 상대 경로 저장
+        // SpacialEnvironment에 Asset ID 저장 (SceneObject와 동일한 방식)
         var updatedEnvironment = spacialEnvironment
-        updatedEnvironment.floorMaterialImageURL = asset.url
-        updatedEnvironment.floorImageRelativePath = relativePath
+        updatedEnvironment.floorAssetId = asset.id
         spacialEnvironment = updatedEnvironment
 
         // 선택 모드 해제
