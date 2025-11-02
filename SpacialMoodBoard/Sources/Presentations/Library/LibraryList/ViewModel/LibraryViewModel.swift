@@ -47,6 +47,7 @@ final class LibraryViewModel {
     var showDropDock = false
     var showFileImporter = false
     var editorImages: [UIImage] = []
+    var editorPreferredNames: [String?] = []
     var showEditor = false
     
     // MARK: - Init
@@ -134,25 +135,31 @@ extension LibraryViewModel {
     /// - Returns: 드롭 제스처 수락 여부. 항상 `true`를 반환합니다(비동기 임포트 시작 의미)
     @discardableResult
     func handleDrop(providers: [NSItemProvider]) -> Bool {
-        Task { await runImport(kind: assetType, source: .dragDrop(providers: providers)) }
+        Task {
+            editorPreferredNames = await collectNamesForProviders(providers)
+            await runImport(kind: assetType, source: .dragDrop(providers: providers))
+        }
         return true
     }
     
     /// PhotosPicker에서 선택된 항목들을 임포트 요청으로 실행
     /// - Parameter items: 사용자가 선택한 `PhotosPickerItem` 목록(최대 10개로 잘라 처리)
     func importFromPhotos(_ items: [PhotosPickerItem]) {
+        editorPreferredNames = collectNamesForPhotos(items)
         Task { await runImport(kind: .image, source: .photosPicker(items: items, limit: 10)) }
     }
     
     /// 클립보드의 현재 내용을 임포트 요청으로 실행
     /// 이미지/사운드는 현재 탭(`assetType`)에 따라 분기
     func importFromClipboard() {
+        editorPreferredNames = collectNamesForClipboard()
         Task { await runImport(kind: assetType, source: .clipboard) }
     }
     
     /// 파일 선택기로 고른 파일 URL들을 임포트 요청으로 실행
     /// - Parameter urls: 사용자가 선택한 파일 URL 배열
     func importFromFileUrls(_ urls: [URL]) {
+        editorPreferredNames = collectNamesForFileURLs(urls)
         Task { await runImport(kind: assetType, source: .fileUrls(urls)) }
     }
     
@@ -171,7 +178,10 @@ extension LibraryViewModel {
             let result = try await importUseCase.execute(request)
             switch result {
             case .images(let images):
-                await presentEditor(with: images)
+                let names = Array(editorPreferredNames.prefix(images.count))
+                let padded = names + Array(repeating: nil, count: max(0, images.count - names.count))
+                
+                await presentEditor(with: images, preferredNames: padded)
             case .soundsSaved:
                 syncFromRepo()
             }
@@ -236,21 +246,64 @@ extension LibraryViewModel {
 extension LibraryViewModel {
     /// 수집된 이미지들을 에디터에 전달하고 에디터를 표시
     /// - Parameter images: 에디터에서 편집할 `UIImage` 배열
-    func presentEditor(with images: [UIImage]) async {
+    /// - Parameter preferredNames: 저장할때 사용할 원본 파일 이름 `String?` 배경
+    func presentEditor(with images: [UIImage], preferredNames: [String?]) async {
         editorImages = images
+        editorPreferredNames = preferredNames
         showDropDock = false
         showEditor = true
     }
-    
-    /// 에디터 저장 결과로 전달된 파일 URL을 읽어 프로젝트에 추가하고 목록을 갱신
-    /// - Parameter url: 저장된 이미지 파일의 URL
-    func appendItem(with url: URL) async {
-        do {
-            let data = try Data(contentsOf: url)
-            _ = try await assetRepository.addImageData(data, filename: url.lastPathComponent)
-            syncFromRepo()
-        } catch {
-            print("⚠️ appendItem failed:", error)
+}
+
+// MARK: - 파일이름 관련
+
+extension LibraryViewModel {
+    // 드래그&드롭: provider별 원본 파일명 추출
+    func collectNamesForProviders(_ providers: [NSItemProvider]) async -> [String?] {
+        var out: [String?] = []
+        out.reserveCapacity(providers.count)
+
+        for p in providers {
+            // 1) suggestedName
+            if let n = p.suggestedName, !n.isEmpty { out.append(n); continue }
+
+            // 2) loadFileRepresentation로 실제 tmp 파일명 확보
+            if let id = p.registeredTypeIdentifiers.first {
+                let name: String? = await withCheckedContinuation { cont in
+                    p.loadFileRepresentation(forTypeIdentifier: id) { url, _ in
+                        cont.resume(returning: url?.lastPathComponent)
+                    }
+                }
+                out.append(name)
+                continue
+            }
+
+            out.append(nil)
         }
+        return out
+    }
+
+    // PhotosPicker: PHAssetResource로 원본 파일명
+    func collectNamesForPhotos(_ items: [PhotosPickerItem]) -> [String?] {
+        var names: [String?] = Array(repeating: nil, count: items.count)
+        for (i, it) in items.enumerated() {
+            if let id = it.itemIdentifier,
+               let a = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil).firstObject,
+               let res = PHAssetResource.assetResources(for: a).first {
+                names[i] = res.originalFilename   // 예: IMG_1234.HEIC
+            }
+        }
+        return names
+    }
+
+    // 파일 URL들: 그대로 파일명
+    func collectNamesForFileURLs(_ urls: [URL]) -> [String?] {
+        urls.map { $0.lastPathComponent }
+    }
+
+    // 클립보드: URL이면 파일명, 아니면 nil
+    func collectNamesForClipboard() -> [String?] {
+        if let u = UIPasteboard.general.url { return [u.lastPathComponent] }
+        return [nil]
     }
 }

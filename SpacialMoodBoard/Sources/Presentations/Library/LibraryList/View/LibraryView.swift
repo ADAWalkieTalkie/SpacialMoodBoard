@@ -90,9 +90,12 @@ struct LibraryView: View {
         .fullScreenCover(isPresented: $viewModel.showEditor) {
             ImageEditorView(
                 images: viewModel.editorImages,
+                preferredNames: viewModel.editorPreferredNames,
                 projectName: viewModel.projectName
             ) { urls in
-                for u in urls { Task { await viewModel.appendItem(with: u) } }
+                Task {
+                    await viewModel.loadAssets()
+                }
             }
         }
         .task { await viewModel.loadAssets() }
