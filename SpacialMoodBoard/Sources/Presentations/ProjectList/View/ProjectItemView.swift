@@ -35,22 +35,19 @@ struct ProjectItemView: View {
     var body: some View {
         VStack {
             // 썸네일 영역
-            GeometryReader { geometry in
-                ZStack {
-                    // 배경
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(Color(red: 0.85, green: 0.85, blue: 0.85).opacity(0.2))
+            ZStack {
+                // 배경
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(Color(red: 0.85, green: 0.85, blue: 0.85).opacity(0.2))
 
-                    // 사다리꼴 모양 (채우기)
-                    TrapezoidShape()
-                        .fill(Color.white.opacity(0.3))
+                // 사다리꼴 모양 (채우기)
+                TrapezoidShape()
+                    .fill(Color.white.opacity(0.3))
 
-                    // 사다리꼴 테두리
-                    TrapezoidShape()
-                        .stroke(Color.white, lineWidth: 4)
-                }
+                // 사다리꼴 테두리
+                TrapezoidShape()
+                    .stroke(Color.white, lineWidth: 4)
             }
-            .aspectRatio(320 / 250, contentMode: .fit)
             
             if isRenaming {
                 SelectAllTextField(

@@ -20,6 +20,7 @@ struct ProjectListView: View {
             headerView
             projectGridView
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassBackgroundEffect()
         .environment(viewModel)
         .onTapGesture {
@@ -34,10 +35,8 @@ struct ProjectListView: View {
     // MARK: - Project Grid View
     private var projectGridView: some View {
         ScrollView {
-            LazyVGrid(
-                columns: Array(repeating: GridItem(.flexible()), count: 3),
-                spacing: 35
-            ) {
+            let columns = [GridItem(.adaptive(minimum: 288, maximum: 320), spacing: 95)]
+            LazyVGrid(columns: columns, spacing: 70) {
                 ProjectCreationButton {
                     do {
                         try viewModel.createProject()
@@ -46,20 +45,22 @@ struct ProjectListView: View {
                         // TODO: 사용자에게 에러 알림 표시
                     }
                 }
-                .padding(.horizontal, 30)
+                .frame(width: 320, height: 288)
 
                 ForEach(viewModel.filteredProjects) { project in
                     ProjectItemView(project: project)
+                        .frame(width: 320, height: 288)
+                        .hoverEffect(.highlight)
                         .simultaneousGesture(
                             TapGesture().onEnded {
                                 viewModel.selectProject(project: project)
                             },
                             including: .gesture
                         )
-                        .padding(.horizontal, 30)
                 }
+                
             }
-            .padding(.horizontal, 60)
+            .padding(.horizontal, 90)
         }
     }
 
