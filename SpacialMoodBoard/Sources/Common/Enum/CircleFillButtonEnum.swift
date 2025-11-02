@@ -44,7 +44,7 @@ enum CircleFillButtonEnum {
         case .delete:
             return "trash"
         case .sound(let isOn):
-            return isOn ? "speaker.wave.2.fill" : "speaker.slash.fill"
+            return isOn ? "speaker.slash.fill" : "speaker.wave.2.fill"
         }
     }
     
