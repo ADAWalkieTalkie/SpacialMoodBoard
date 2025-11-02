@@ -121,7 +121,7 @@ extension LibraryViewModel {
             }
         case .nameAZ:
             return assets.sorted {
-                $0.filename.localizedStandardCompare($1.filename) == .orderedAscending
+                $0.filename.localizedCompare($1.filename) == .orderedAscending
             }
         }
     }
