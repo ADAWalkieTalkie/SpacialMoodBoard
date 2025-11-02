@@ -18,7 +18,7 @@ struct ProjectListView: View {
     var body: some View {
         NavigationStack {
             projectGridView
-                .navigationTitle("Projects")
+                .navigationTitle("프로젝트")
                 .searchable(text: $viewModel.searchText, prompt: "search")
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {

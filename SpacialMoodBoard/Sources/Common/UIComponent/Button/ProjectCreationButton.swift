@@ -32,7 +32,7 @@ struct ProjectCreationButton: View {
                 .buttonStyle(.plain)
             }
 
-            Text("New Project")
+            Text("새 프로젝트")
                 .font(.system(size: 20))
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
