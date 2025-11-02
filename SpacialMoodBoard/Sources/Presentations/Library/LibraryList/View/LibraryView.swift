@@ -15,7 +15,7 @@ struct LibraryView: View {
     @State private var viewModel: LibraryViewModel
     @State private var sceneViewModel: SceneViewModel
     @State private var photoSelection: [PhotosPickerItem] = []
-    @Environment(AppStateManager.self) private var appModel
+    @Environment(AppStateManager.self) private var appStateManager
     
     // MARK: - Init
     
@@ -98,7 +98,7 @@ struct LibraryView: View {
             CircleFillButton(
                 type: .back,
                 action: {
-                    appModel.closeProject()
+                    appStateManager.closeProject()
                 }
             )
             

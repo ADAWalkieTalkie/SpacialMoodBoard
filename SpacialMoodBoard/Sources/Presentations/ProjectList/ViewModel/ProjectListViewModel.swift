@@ -11,7 +11,7 @@ import Observation
 @MainActor
 @Observable
 final class ProjectListViewModel {
-    private var appModel: AppStateManager
+    private var appStateManager: AppStateManager
     private let projectRepository: ProjectServiceInterface
     private let sceneModelStorage = SceneModelFileStorage()
     private let projectFileStorage = ProjectFileStorage()
@@ -28,8 +28,8 @@ final class ProjectListViewModel {
         return sortProjects(filtered)
     }
 
-    init(appModel: AppStateManager, projectRepository: ProjectServiceInterface) {
-        self.appModel = appModel
+    init(appStateManager: AppStateManager, projectRepository: ProjectServiceInterface) {
+        self.appStateManager = appStateManager
         self.projectRepository = projectRepository
 
         // 초기 데이터 로드 (향후 Task { await ... } 형태로 변경)
@@ -73,7 +73,7 @@ final class ProjectListViewModel {
         let sceneModel = loadSceneModel(for: project)
 
         // 2. AppModel의 중앙화된 상태 관리 메서드 호출
-        appModel.selectProject(project, scene: sceneModel)
+        appStateManager.selectProject(project, scene: sceneModel)
     }
 
     // SceneModel 로드 또는 생성
@@ -149,7 +149,7 @@ final class ProjectListViewModel {
             userSpatialState: UserSpatialState(),
             sceneObjects: []
         )
-        appModel.selectedScene = newSceneModel
+        appStateManager.selectedScene = newSceneModel
         
             do {
                 try sceneModelStorage.save(newSceneModel, projectName: projectTitle)
@@ -161,7 +161,7 @@ final class ProjectListViewModel {
                 throw error
             }
         
-        appModel.selectProject(newProject, scene: newSceneModel)
+        appStateManager.selectProject(newProject, scene: newSceneModel)
 
         return newProject
     }
@@ -179,11 +179,11 @@ final class ProjectListViewModel {
             refreshProjects()
 
             // 선택된 프로젝트의 제목이 변경되면 AppState 재설정
-            if appModel.appState.selectedProject?.id == project.id,
-               let selectedScene = appModel.selectedScene {
+            if appStateManager.appState.selectedProject?.id == project.id,
+               let selectedScene = appStateManager.selectedScene {
                 // 업데이트된 project 객체를 가져와서 appState 재설정
                 if let updatedProject = projectRepository.fetchProject(project) {
-                    appModel.selectProject(updatedProject, scene: selectedScene)
+                    appStateManager.selectProject(updatedProject, scene: selectedScene)
                 }
                 // SceneModel 파일도 새 이름으로 저장
                 try sceneModelStorage.save(selectedScene, projectName: newTitle)
@@ -207,8 +207,8 @@ final class ProjectListViewModel {
         refreshProjects()
 
         // 삭제된 프로젝트가 현재 선택된 프로젝트라면 상태 초기화
-        if appModel.appState.selectedProject?.id == project.id {
-            appModel.closeProject()
+        if appStateManager.appState.selectedProject?.id == project.id {
+            appStateManager.closeProject()
         }
     }
 

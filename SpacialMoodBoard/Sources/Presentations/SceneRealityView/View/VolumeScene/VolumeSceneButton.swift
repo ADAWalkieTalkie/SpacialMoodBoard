@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct VolumeSceneButton: View {
-    @Environment(AppStateManager.self) private var appModel
+    @Environment(AppStateManager.self) private var appStateManager
 
     let onRotate: () -> Void
     let viewModel: SceneViewModel
@@ -10,9 +10,9 @@ struct VolumeSceneButton: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            if case .projectList = appModel.appState {
+            if case .projectList = appStateManager.appState {
                 Button {
-                    appModel.closeProject()
+                    appStateManager.closeProject()
                 } label: {
                     Image(systemName: "xmark")
                         .font(.title2)
@@ -44,7 +44,7 @@ struct VolumeSceneButton: View {
                 .padding(.horizontal)
 
                 ToolBarAttachment(viewModel: viewModel)
-                    .environment(appModel)
+                    .environment(appStateManager)
             }
         }
         .padding(.bottom, 20)

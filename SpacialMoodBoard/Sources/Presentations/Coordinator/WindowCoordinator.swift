@@ -13,16 +13,16 @@ import SwiftUI
 @Observable
 class WindowCoordinator {
 
-    private let appModel: AppStateManager
+    private let appStateManager: AppStateManager
 
-    /// - Parameter appModel: 앱의 상태를 공유하는 `AppModel` 인스턴스
-    init(appModel: AppStateManager) {
-        self.appModel = appModel
+    /// - Parameter appStateManager: 앱의 상태를 공유하는 `AppModel` 인스턴스
+    init(appStateManager: AppStateManager) {
+        self.appStateManager = appStateManager
     }
 
     /// `AppModel`의 `AppState` 변경 사항을 처리하여 적절한 윈도우 조작을 수행합니다.
     ///
-    /// 이 메서드는 `onChange(of: appModel.appState)` 수정자 내부에서 호출되어야 합니다.
+    /// 이 메서드는 `onChange(of: appStateManager.appState)` 수정자 내부에서 호출되어야 합니다.
     /// - Parameters:
     ///   - oldState: 변경 전의 `AppState`
     ///   - newState: 변경 후의 `AppState`
@@ -37,7 +37,8 @@ class WindowCoordinator {
         dismissImmersiveSpace: @escaping () async -> Void
     ) async {
         switch (oldState, newState) {
-        // projectList → libraryWithVolume: Volume 윈도우 열기
+        // Volume 윈도우 열기
+        // projectList → libraryWithVolume
         case (.projectList, .libraryWithVolume):
             openWindow("ImmersiveVolumeWindow")
 

@@ -6,7 +6,7 @@ struct MainWindowContent: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openWindow) private var openWindow
 
-    @Bindable var appModel: AppStateManager
+    @Bindable var appStateManager: AppStateManager
     var assetRepository: AssetRepository
     var projectRepository: ProjectServiceInterface
     var renameAssetUseCase: RenameAssetUseCase
@@ -19,11 +19,11 @@ struct MainWindowContent: View {
 
     var body: some View {
         Group {
-            if appModel.appState.selectedProject != nil {
+            if appStateManager.appState.selectedProject != nil {
                 VStack {
                     LibraryView(
                         viewModel: LibraryViewModel(
-                            appModel: appModel,
+                            appStateManager: appStateManager,
                             assetRepository: assetRepository,
                             renameAssetUseCase: renameAssetUseCase,
                             deleteAssetUseCase: deleteAssetUseCase,
@@ -31,13 +31,13 @@ struct MainWindowContent: View {
                         sceneViewModel: sceneViewModel
                     )
                 }
-                .environment(appModel)
+                .environment(appStateManager)
                 .task {
                     await assetRepository.switchProject(
-                        to: appModel.appState.selectedProject?.title ?? ""
+                        to: appStateManager.appState.selectedProject?.title ?? ""
                     )
                 }
-                .onChange(of: appModel.appState.selectedProject?.title) { oldTitle, newTitle in
+                .onChange(of: appStateManager.appState.selectedProject?.title) { oldTitle, newTitle in
                     Task {
                         await assetRepository.switchProject(to: newTitle ?? "")
                     }
@@ -45,7 +45,7 @@ struct MainWindowContent: View {
             } else {
                 ProjectListView(
                     viewModel: ProjectListViewModel(
-                        appModel: appModel,
+                        appStateManager: appStateManager,
                         projectRepository: projectRepository
                     )
                 )
@@ -55,9 +55,9 @@ struct MainWindowContent: View {
         // MARK: - Centralized Window Management (WindowCoordinator)
         .onAppear {
             // WindowCoordinator 초기화
-            windowCoordinator = WindowCoordinator(appModel: appModel)
+            windowCoordinator = WindowCoordinator(appStateManager: appStateManager)
         }
-        .onChange(of: appModel.appState) { oldState, newState in
+        .onChange(of: appStateManager.appState) { oldState, newState in
             Task { @MainActor in
                 await windowCoordinator?.handleStateChange(
                     from: oldState,
@@ -72,7 +72,7 @@ struct MainWindowContent: View {
             Task { @MainActor in
                 // 앱 종료 시 모든 창 닫기
                 // Case 2: Immersive 상태에서 LibraryView 창 종료 시 Immersive도 함께 닫기
-                if appModel.appState.isImmersiveOpen {
+                if appStateManager.appState.isImmersiveOpen {
                     await dismissImmersiveSpace()
                 }
                 dismissWindow(id: "ImmersiveVolumeWindow")

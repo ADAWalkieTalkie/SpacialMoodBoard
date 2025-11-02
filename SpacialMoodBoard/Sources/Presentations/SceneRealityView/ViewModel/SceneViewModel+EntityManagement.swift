@@ -22,8 +22,8 @@ extension SceneViewModel {
 //    func deleteEntityCache(for project: Project) {
 //        entityRepository.clearFloorCache()
 //
-//        if appModel.selectedProject?.id == project.id {
-//            appModel.selectedProject = nil
+//        if appStateManager.selectedProject?.id == project.id {
+//            appStateManager.selectedProject = nil
 //        }
 //    }
 
