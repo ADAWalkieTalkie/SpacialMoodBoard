@@ -18,13 +18,13 @@ final class SceneViewModel {
 
     // MARK: - Initialization
     init(appStateManager: AppStateManager,
+         sceneModelFileStorage: SceneModelFileStorage,
          sceneObjectRepository: SceneObjectRepositoryInterface,
          assetRepository: AssetRepositoryInterface,
-         entityRepository: EntityRepositoryInterface,
-         projectRepository: ProjectServiceInterface? = nil
+         entityRepository: EntityRepositoryInterface
     ) {
         self.appStateManager = appStateManager
-        self.sceneModelFileStorage = SceneModelFileStorage(projectRepository: projectRepository)
+        self.sceneModelFileStorage = sceneModelFileStorage
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
         self.entityRepository = entityRepository

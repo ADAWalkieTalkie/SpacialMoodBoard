@@ -11,6 +11,7 @@ struct MainWindowContent: View {
     var projectRepository: ProjectServiceInterface
     var renameAssetUseCase: RenameAssetUseCase
     var deleteAssetUseCase: DeleteAssetUseCase
+    var sceneModelFileStorage: SceneModelFileStorage
     var sceneViewModel: SceneViewModel
     var modelContainer: ModelContainer
 
@@ -27,7 +28,7 @@ struct MainWindowContent: View {
                             assetRepository: assetRepository,
                             renameAssetUseCase: renameAssetUseCase,
                             deleteAssetUseCase: deleteAssetUseCase,
-                            sceneModelFileStorage: sceneViewModel.sceneModelFileStorage
+                            sceneModelFileStorage: sceneModelFileStorage
                         ),
                         sceneViewModel: sceneViewModel
                     )
