@@ -195,15 +195,10 @@ fileprivate struct SoundTabListView: View {
         ScrollView {
             LazyVStack(spacing: 12) {
                 ForEach(assets) { asset in
-                    LibrarySoundItemView(asset: asset)
-                        .frame(height: 56)
-                        .contentShape(RoundedRectangle(cornerRadius: 16))
-                        .hoverEffect(.highlight)
-                        .simultaneousGesture(
-                            TapGesture().onEnded {
-                                sceneViewModel.addSoundObject(from: asset)
-                            }
-                        )
+                    LibrarySoundItemView(asset: asset){
+                        sceneViewModel.addSoundObject(from: asset)
+                    }
+                    .frame(height: 56)
                 }
             }
             .padding(.horizontal, 26)
