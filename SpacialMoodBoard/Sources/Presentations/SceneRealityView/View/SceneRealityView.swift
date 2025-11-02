@@ -15,7 +15,6 @@ struct SceneRealityView: View {
 
     @State private var headAnchor: AnchorEntity?
     @State private var showFloorImageAlert = false
-
     @State private var rootEntity = Entity()
 
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
@@ -130,7 +129,7 @@ struct SceneRealityView: View {
             rootEntity.addChild(floor)
 
             // Floor 하단 정렬
-            viewModel.alignFloorToWindowBottom(rootEntity: floor, windowHeight: 1) // VolumeWindow의 Height값
+            viewModel.alignFloorToWindowBottom(floor, windowHeight: Float(Self.defaultVolumeSize.height)) // VolumeWindow의 Height값
 
         // Immersive일 때
         } else {
