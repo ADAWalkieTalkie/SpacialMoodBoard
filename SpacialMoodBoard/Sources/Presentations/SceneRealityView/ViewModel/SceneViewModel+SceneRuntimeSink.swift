@@ -15,10 +15,10 @@ extension SceneViewModel {
     ///   - useCase: DeleteAssetUseCase
     ///   - assetId: 에셋 id
     func executeDeleteAsset(_ useCase: DeleteAssetUseCase, assetId: String) throws {
-        guard var scene = appModel.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene else { return }
         
         let result = try useCase.execute(assetId: assetId, scene: &scene)
-        appModel.selectedScene = scene
+        appStateManager.selectedScene = scene
 
         for object in result.removedSceneObjects {
             // EntityRepository를 통해 엔티티 제거

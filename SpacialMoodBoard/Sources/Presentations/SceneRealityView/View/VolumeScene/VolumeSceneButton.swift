@@ -1,21 +1,18 @@
 import SwiftUI
 
 struct VolumeSceneButton: View {
-    @Environment(AppModel.self) private var appModel
-    @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(AppStateManager.self) private var appStateManager
 
     let onRotate: () -> Void
     let viewModel: SceneViewModel
 
     @State private var isAnimating = false
-    
+
     var body: some View {
         VStack(spacing: 12) {
-            if appModel.selectedProject == nil {
+            if case .projectList = appStateManager.appState {
                 Button {
-                    openWindow(id: "MainWindow")
-                    dismissWindow(id: "ImmersiveVolumeWindow")
+                    appStateManager.closeProject()
                 } label: {
                     Image(systemName: "xmark")
                         .font(.title2)
@@ -47,7 +44,7 @@ struct VolumeSceneButton: View {
                 .padding(.horizontal)
 
                 ToolBarAttachment(viewModel: viewModel)
-                    .environment(appModel)
+                    .environment(appStateManager)
             }
         }
         .padding(.bottom, 20)

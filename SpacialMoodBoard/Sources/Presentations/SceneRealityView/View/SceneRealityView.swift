@@ -4,7 +4,7 @@ import RealityKitContent
 
 /// 재사용 가능한 핵심 Scene RealityView
 struct SceneRealityView: View {
-    @Environment(AppModel.self) private var appModel
+    @Environment(AppStateManager.self) private var appStateManager
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     
@@ -21,7 +21,7 @@ struct SceneRealityView: View {
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
 
     private var sceneViewIdentifier: String {
-        let projectID = appModel.selectedProject?.id.uuidString ?? ""
+        let projectID = appStateManager.appState.selectedProject?.id.uuidString ?? ""
         let floorImageURL = viewModel.spacialEnvironment.floorMaterialImageURL?.absoluteString ?? ""
         return "\(projectID)-\(floorImageURL)"
     }
@@ -74,7 +74,7 @@ struct SceneRealityView: View {
             } attachments: {
                 Attachment(id: "headToolbar"){
                     ToolBarAttachment(viewModel: viewModel)
-                        .environment(appModel)
+                        .environment(appStateManager)
                 }
 
                 if config.showFloorImageApplyButton {
