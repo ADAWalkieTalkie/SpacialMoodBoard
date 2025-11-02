@@ -22,16 +22,16 @@ class FloorEntity {
     // MARK: - Public Methods
 
     @MainActor
-    static func create (
-        from environment: SpacialEnvironment
+    static func create(
+        materialImageURL: URL?
     ) -> ModelEntity {
 
         let floor = createFloor(
             size: Self.defaultFloorSize,
             position: Self.defaultFloorPosition,
-            materialImageURL: environment.floorMaterialImageURL
+            materialImageURL: materialImageURL
         )
-        
+
         floor.name = "floorRoot"
 
         return floor

@@ -58,12 +58,12 @@ protocol EntityRepositoryInterface {
 
     // MARK: - Floor Entity Management
 
-    /// SpacialEnvironment 설정으로부터 Floor 엔티티를 가져오거나 생성
+    /// Floor 엔티티를 가져오거나 생성
     /// - 이미 캐싱된 floor가 있으면 재사용
     /// - 없으면 FloorEntity.create()로 새로 생성 후 캐싱
-    /// - Parameter environment: Floor를 생성할 SpacialEnvironment 설정
+    /// - Parameter floorImageURL: Floor 이미지 URL (AssetRepository에서 조회된 URL)
     /// - Returns: Floor ModelEntity, 생성 실패 시 nil
-    func getOrCreateFloorEntity(from environment: SpacialEnvironment) -> ModelEntity?
+    func getOrCreateFloorEntity(floorImageURL: URL?) -> ModelEntity?
 
     /// Floor 엔티티 캐시를 삭제 (다음 호출 시 재생성됨)
     func clearFloorCache()

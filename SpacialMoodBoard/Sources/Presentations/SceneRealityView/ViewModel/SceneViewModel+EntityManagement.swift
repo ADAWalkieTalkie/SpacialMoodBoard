@@ -24,8 +24,7 @@ extension SceneViewModel {
     
     /// Floor 엔티티를 가져오거나 생성
     func getFloorEntity() -> ModelEntity? {
-        let environment = self.spacialEnvironment
-        return entityRepository.getOrCreateFloorEntity(from: environment)
+        return entityRepository.getOrCreateFloorEntity(floorImageURL: self.floorImageURL)
     }
 
 }
