@@ -189,4 +189,35 @@ extension SceneViewModel {
     func decibelsToLinear(_ db: RealityKit.Audio.Decibel) -> Double {
         pow(10.0, db / 20.0)
     }
+
+    // MARK: - Floor Attachment Positioning
+
+    /// Floor 이미지 적용 버튼 attachment 위치 설정
+    /// - Parameters:
+    ///   - attachment: 위치시킬 attachment 엔티티
+    ///   - floor: 기준이 되는 floor 엔티티
+    ///   - rootEntity: rootEntity (attachment의 parent가 될 엔티티)
+    func positionFloorAttachment(_ attachment: Entity, on floor: Entity, rootEntity: Entity) {
+        attachment.name = "floorImageApplyButton"
+
+        // rootEntity에 직접 추가 (floor 회전에 영향받지 않도록)
+        if attachment.parent != rootEntity {
+            rootEntity.addChild(attachment)
+        }
+
+        // floor의 world position을 기준으로 attachment 위치 계산
+        let floorWorldPosition = floor.position(relativeTo: rootEntity)
+        let yOffset: Float = 0.05
+        attachment.position = SIMD3<Float>(floorWorldPosition.x, floorWorldPosition.y + yOffset, floorWorldPosition.z)
+
+        // Floor 크기의 1/8로 버튼 크기 설정
+        let floorWidth = floor.scale.x
+        let floorDepth = floor.scale.z
+        let minDimension = min(floorWidth, floorDepth)
+        let buttonSize = minDimension / 8
+        attachment.scale = [buttonSize, buttonSize, buttonSize]
+
+        // floor의 회전과 무관하게 항상 같은 방향 유지
+        attachment.orientation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
+    }
 }
