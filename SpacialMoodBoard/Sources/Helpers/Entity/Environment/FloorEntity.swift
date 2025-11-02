@@ -67,7 +67,7 @@ class FloorEntity {
 
     // MARK: - Private Methods - Material
     @MainActor
-    static private func createMaterial(texture: TextureResource? = nil)
+    static func createMaterial(texture: TextureResource? = nil)
         -> PhysicallyBasedMaterial
     {
         var material = PhysicallyBasedMaterial()

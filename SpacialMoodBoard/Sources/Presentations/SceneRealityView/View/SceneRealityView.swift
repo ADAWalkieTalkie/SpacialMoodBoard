@@ -19,12 +19,6 @@ struct SceneRealityView: View {
 
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
 
-    private var sceneViewIdentifier: String {
-        let projectID = appStateManager.appState.selectedProject?.id.uuidString ?? ""
-        let floorImageURL = viewModel.spacialEnvironment.floorMaterialImageURL?.absoluteString ?? ""
-        return "\(projectID)-\(floorImageURL)"
-    }
-
     var body: some View {
         GeometryReader3D { proxy in
             RealityView { content, attachments in
@@ -62,6 +56,17 @@ struct SceneRealityView: View {
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
                     updateScene(content: content, rootEntity: rootEntity)
+                    
+                    
+
+                    // Floor material 업데이트 (URL이 변경된 경우)
+                    let currentFloorURL = viewModel.spacialEnvironment.floorMaterialImageURL
+                    if currentFloorURL != viewModel.appliedFloorImageURL,
+                       let floor = rootEntity.findEntity(named: "floorRoot") {
+                        Task {
+                            await viewModel.updateFloorMaterial(on: floor as! ModelEntity, with: currentFloorURL!)
+                        }
+                    }
 
                     // Floor attachment 재배치
                     if config.showFloorImageApplyButton,
@@ -85,7 +90,6 @@ struct SceneRealityView: View {
                     }
                 }
             }
-            .id(sceneViewIdentifier)
             .if(config.enableGestures) { view in
                 view.immersiveEntityGestures(
                     selectedEntity: $viewModel.selectedEntity,
