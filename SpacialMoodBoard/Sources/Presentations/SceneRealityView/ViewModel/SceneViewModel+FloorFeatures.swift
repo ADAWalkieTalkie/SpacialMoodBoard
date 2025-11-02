@@ -12,18 +12,19 @@ extension SceneViewModel {
     ///   - floor: 업데이트할 floor entity
     ///   - imageURL: 새로운 floor 이미지 URL (nil이면 기본 회색 material)
     func updateFloorMaterial(on floor: ModelEntity, with imageURL: URL?) {
-        let floor = floor
-            do {
-                if let imageURL = imageURL {
-                    let texture = try TextureResource.load(contentsOf: imageURL)
-                    let material = FloorEntity.createMaterial(texture: texture)
-                    floor.model?.materials = [material]
-                } else {
-                    
-                }
-            } catch {
-                print("adsf")
+        do {
+            let material: PhysicallyBasedMaterial
+            if let imageURL = imageURL {
+                let texture = try TextureResource.load(contentsOf: imageURL)
+                material = FloorEntity.createMaterial(texture: texture)
+            } else {
+                // nil이면 기본 회색 material 적용
+                material = FloorEntity.createMaterial()
             }
+            floor.model?.materials = [material]
+        } catch {
+            print("⚠️ Floor material 업데이트 실패: \(error.localizedDescription)")
+        }
         appliedFloorImageURL = imageURL
     }
 

@@ -62,9 +62,9 @@ struct SceneRealityView: View {
                     // Floor material 업데이트 (URL이 변경된 경우)
                     let currentFloorURL = viewModel.spacialEnvironment.floorMaterialImageURL
                     if currentFloorURL != viewModel.appliedFloorImageURL,
-                       let floor = rootEntity.findEntity(named: "floorRoot") {
+                       let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
                         Task {
-                            await viewModel.updateFloorMaterial(on: floor as! ModelEntity, with: currentFloorURL!)
+                            viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
                         }
                     }
 
