@@ -44,14 +44,10 @@ struct ProjectItemView: View {
                     // 사다리꼴 모양 (채우기)
                     TrapezoidShape()
                         .fill(Color.white.opacity(0.3))
-                        .padding(.horizontal, geometry.size.width * 0.1)
-                        .padding(.vertical, geometry.size.height * 0.38)
 
                     // 사다리꼴 테두리
                     TrapezoidShape()
                         .stroke(Color.white, lineWidth: 4)
-                        .padding(.horizontal, geometry.size.width * 0.1)
-                        .padding(.vertical, geometry.size.height * 0.38)
                 }
             }
             .aspectRatio(320 / 250, contentMode: .fit)
@@ -166,7 +162,7 @@ struct ProjectItemView: View {
 
 // MARK: - TrapezoidShape
 
-/// SVG 디자인의 사다리꼴 모양을 그리는 Shape
+/// 썸네일 이미지
 struct TrapezoidShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
