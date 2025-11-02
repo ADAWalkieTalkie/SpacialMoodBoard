@@ -28,7 +28,13 @@ final class LibraryViewModel {
     var assets: [Asset] = []
     
     var searchText = ""
-    var assetType: AssetType = .image
+    var assetType: AssetType = .image {
+        didSet {
+            if assetType != .image, showDropDock {
+                showDropDock = false
+            }
+        }
+    }
     var sort: SortOrder = .recent
     var showSearch: Bool = false {
         didSet {
@@ -63,7 +69,7 @@ final class LibraryViewModel {
         self.renameAssetUseCase = renameAssetUseCase
         self.deleteAssetUseCase = deleteAssetUseCase
         self.importUseCase = ImportUseCase(assetRepository: assetRepository)
-
+        
         self.token = assetRepository.addChangeHandler { [weak self] in
             guard let self else { return }
             self.assets = assetRepository.assets
