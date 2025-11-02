@@ -44,7 +44,14 @@ struct LibraryView: View {
                     SoundTabListView(
                         assets: viewModel.filteredAndSorted(type: .sound, key: viewModel.searchText)
                     )
-                    .tabItem { Label("사운드", systemImage: "speaker.fill") }
+                    .tabItem {
+                        Label {
+                            Text("사운드")
+                        } icon: {
+                            Image(.icBeamNote)
+                                .renderingMode(.template)
+                        }
+                    }
                     .tag(AssetType.sound)
                 }
             }
@@ -176,7 +183,7 @@ fileprivate struct ImageTabGridView: View {
                                 if sceneViewModel.isSelectingFloorImage {
                                     sceneViewModel.applyFloorImage(from: asset)
                                 } else {
-                                sceneViewModel.addImageObject(from: asset)
+                                    sceneViewModel.addImageObject(from: asset)
                                 }
                             }
                         )
