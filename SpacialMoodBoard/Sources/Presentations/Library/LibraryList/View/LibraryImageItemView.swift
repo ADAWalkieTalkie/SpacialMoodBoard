@@ -10,10 +10,11 @@ import SwiftUI
 struct LibraryImageItemView: View {
     
     // MARK: - Properties
-    
+
     private let asset: Asset
-    
+
     @Environment(LibraryViewModel.self) private var viewModel
+    @Environment(SceneViewModel.self) private var sceneViewModel
     @State private var showRenamePopover = false
     @State private var isRenaming = false
     @State private var isTextFieldFocused = false
@@ -92,6 +93,14 @@ struct LibraryImageItemView: View {
                     startInlineRename()
                 },
                 onDelete: { id in viewModel.deleteAsset(id: id) },
+                onAddToFloor: { _ in
+                    if sceneViewModel.spacialEnvironment.floorAssetId == asset.id {
+                        sceneViewModel.removeFloorImage()
+                    } else {
+                        sceneViewModel.applyFloorImage(from: asset)
+                    }
+                },
+                isCurrentFloorImage: sceneViewModel.spacialEnvironment.floorAssetId == asset.id,
                 onCancel: { showRenamePopover = false }
             )
         }
