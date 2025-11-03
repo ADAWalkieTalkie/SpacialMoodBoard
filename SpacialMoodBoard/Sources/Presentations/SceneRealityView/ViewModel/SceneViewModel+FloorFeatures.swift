@@ -46,8 +46,16 @@ extension SceneViewModel {
         updatedEnvironment.floorAssetId = asset.id
         spacialEnvironment = updatedEnvironment
 
-        // 선택 모드 해제
-        isSelectingFloorImage = false
+        // 변경사항 저장
+        saveScene()
+    }
+
+    /// Floor 이미지 제거
+    func removeFloorImage() {
+        // SpacialEnvironment에서 Asset ID 제거
+        var updatedEnvironment = spacialEnvironment
+        updatedEnvironment.floorAssetId = nil
+        spacialEnvironment = updatedEnvironment
 
         // 변경사항 저장
         saveScene()
