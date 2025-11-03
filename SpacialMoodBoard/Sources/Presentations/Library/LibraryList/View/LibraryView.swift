@@ -160,12 +160,7 @@ fileprivate struct ImageTabGridView: View {
                         .hoverEffect(.highlight)
                         .simultaneousGesture(
                             TapGesture().onEnded {
-                                if sceneViewModel.isSelectingFloorImage {
-                                    // Floor material 선택 모드
-                                    sceneViewModel.applyFloorImage(from: asset)
-                                } else {
                                 sceneViewModel.addImageObject(from: asset)
-                                }
                             }
                         )
                 }
