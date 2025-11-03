@@ -19,7 +19,7 @@ class FloorEntity {
 
     nonisolated init() {}
 
-    // MARK: - Public Methods
+    // MARK: - floor 생성
 
     @MainActor
     static func create(
@@ -37,7 +37,7 @@ class FloorEntity {
         return floor
     }
 
-    // MARK: - Private Methods - Floor
+    // MARK: - Private Methods - 바닥 생성
 
     @MainActor
     static private func createFloor(size: SIMD2<Float>, position: SIMD3<Float>, materialImageURL: URL?)
@@ -60,12 +60,17 @@ class FloorEntity {
             mesh: .generatePlane(width: size.x, depth: size.y),
             materials: [material]
         )
+
+        // Floor 위치 설정
         floor.position = position
+
+        // Floor 투명도 설정
+        floor.components[OpacityComponent.self] = .init(opacity: 0.3)
 
         return floor
     }
 
-    // MARK: - Private Methods - Material
+    // MARK: - 머티리얼 생성
     @MainActor
     static func createMaterial(texture: TextureResource? = nil)
         -> PhysicallyBasedMaterial
@@ -74,9 +79,9 @@ class FloorEntity {
         if let texture {
             material.baseColor = .init(texture: .init(texture))
         } else {
-            material.baseColor.tint = .init(.gray)
+            material.baseColor.tint = .init(.white)
         }
-        
+
         material.metallic = 0.0
         material.roughness = 0.8
         return material
