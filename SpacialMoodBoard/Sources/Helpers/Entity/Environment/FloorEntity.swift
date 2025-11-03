@@ -20,7 +20,7 @@ import SwiftUI
 /// ## 주요 기능
 /// - 커스텀 이미지 텍스처를 사용한 바닥 생성
 /// - 기본 머티리얼(흰색)을 사용한 바닥 생성
-/// - 바닥 투명도 설정 (기본값: 0.3)
+/// - 바닥 투명도 조건부 설정 (이미지 있음: 1.0, 없음: 0.3)
 /// - PBR(Physically Based Rendering) 머티리얼 적용
 ///
 /// ## 사용 예시
@@ -35,7 +35,7 @@ import SwiftUI
 /// ## 기술적 세부사항
 /// - **크기**: 기본 1.0m x 1.0m (defaultFloorSize)
 /// - **위치**: 원점 (0, 0, 0)
-/// - **투명도**: 0.3 (OpacityComponent)
+/// - **투명도**: 조건부 (이미지 있음: 1.0, 없음: 0.3 - OpacityComponent)
 /// - **머티리얼**: PhysicallyBasedMaterial
 ///   - Metallic: 0.0 (비금속)
 ///   - Roughness: 0.8 (거친 표면)
@@ -73,14 +73,14 @@ class FloorEntity {
     /// 제공된 이미지 URL을 사용하여 텍스처를 적용하거나, nil인 경우 기본 머티리얼을 사용합니다.
     ///
     /// - Parameter materialImageURL: 바닥에 적용할 이미지의 URL (옵셔널)
-    ///   - nil인 경우: 기본 흰색 머티리얼 사용
-    ///   - URL이 제공된 경우: 해당 이미지를 텍스처로 로드하여 적용
+    ///   - nil인 경우: 기본 흰색 머티리얼 사용, opacity 0.3
+    ///   - URL이 제공된 경우: 해당 이미지를 텍스처로 로드하여 적용, opacity 1.0
     ///
     /// - Returns: 설정이 완료된 바닥 ModelEntity
     ///   - name: "floorRoot"
     ///   - size: defaultFloorSize (1m x 1m)
     ///   - position: defaultFloorPosition (0, 0, 0)
-    ///   - opacity: 0.3
+    ///   - opacity: 이미지 유무에 따라 1.0 또는 0.3
     ///
     /// - Note: 이미지 로드에 실패하면 자동으로 기본 머티리얼로 폴백됩니다
     @MainActor
@@ -112,24 +112,28 @@ class FloorEntity {
     ///
     /// - Returns: 설정이 완료된 ModelEntity
     ///
-    /// - Note: 투명도는 항상 0.3으로 고정되어 약간 투명한 바닥을 제공합니다
+    /// - Note: 투명도는 이미지 유무에 따라 조건부로 설정됩니다 (이미지 있음: 1.0, 없음: 0.3)
     @MainActor
     static private func createFloor(size: SIMD2<Float>, position: SIMD3<Float>, materialImageURL: URL?)
         -> ModelEntity
     {
         let material: PhysicallyBasedMaterial
+        let opacity: Float
 
         // 머티리얼 생성: 이미지 텍스처 또는 기본 머티리얼
         if let imageURL = materialImageURL {
             do {
                 let texture = try TextureResource.load(contentsOf: imageURL)
                 material = createMaterial(texture: texture)
+                opacity = 1.0  // 이미지가 있을 때: 완전 불투명
             } catch {
                 // 이미지 로드 실패 시 기본 머티리얼 사용
                 material = createMaterial()
+                opacity = 0.3  // 기본 상태: 반투명
             }
         } else {
             material = createMaterial()
+            opacity = 0.3  // 기본 상태: 반투명
         }
 
         // Plane 메시로 바닥 Entity 생성
@@ -141,8 +145,8 @@ class FloorEntity {
         // Floor 위치 설정
         floor.position = position
 
-        // Floor 투명도 설정 (0.3 = 30% 투명)
-        floor.components[OpacityComponent.self] = .init(opacity: 0.3)
+        // Floor 투명도 설정 (이미지 있을 때 1.0, 없을 때 0.3)
+        floor.components[OpacityComponent.self] = .init(opacity: opacity)
 
         return floor
     }
