@@ -50,7 +50,7 @@ struct EditBarAttachment: View {
     // MARK: - Body
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .center, spacing: 12) {
             switch objectType {
             case .image:
                 // 크롭 버튼
@@ -84,7 +84,8 @@ struct EditBarAttachment: View {
                         onVolumeChange?(newValue)
                     }
                 ))
-                .frame(width: 80)
+                .frame(width: 100)
+                .frame(maxHeight: .infinity)
                 .accessibilityLabel("Volume")
             }
             
