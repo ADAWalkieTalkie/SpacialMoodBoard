@@ -23,7 +23,7 @@ extension SceneViewModel {
         // rootEntity가 제공된 경우 UseCase를 통해 객체 생성
         if let rootEntity = rootEntity {
             do {
-                let result = try createObjectUseCase.execute(
+                _ = try createObjectUseCase.execute(
                     object: object,
                     rootEntity: rootEntity,
                     scene: &scene

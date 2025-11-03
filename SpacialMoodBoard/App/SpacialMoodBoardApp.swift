@@ -16,8 +16,8 @@ struct SpacialMoodBoardApp: App {
     @State private var assetRepository: AssetRepository
     @State private var renameAssetUseCase: RenameAssetUseCase
     @State private var deleteAssetUseCase: DeleteAssetUseCase
+    @State private var sceneModelFileStorage: SceneModelFileStorage
     @State private var sceneViewModel: SceneViewModel
-    @State private var initialVolumeSize: Size3D = Size3D(width: 1000, height: 1000, depth: 1000)
 
     init() {
         do {
@@ -32,6 +32,9 @@ struct SpacialMoodBoardApp: App {
                 modelContext: container.mainContext
             )
             _projectRepository = State(wrappedValue: repository)
+
+            let sceneModelFileStorage = SceneModelFileStorage(projectRepository: repository)
+            _sceneModelFileStorage = State(wrappedValue: sceneModelFileStorage)
 
             let appStateManager = AppStateManager()
             _appStateManager = State(wrappedValue: appStateManager)
@@ -64,10 +67,10 @@ struct SpacialMoodBoardApp: App {
             // Volume Scene용 ViewModel
             let sceneViewModel = SceneViewModel(
                 appStateManager: appStateManager,
+                sceneModelFileStorage: sceneModelFileStorage,
                 sceneObjectRepository: sceneObjectRepository,
                 assetRepository: assetRepository,
-                entityRepository: entityRepository,
-                projectRepository: repository
+                entityRepository: entityRepository
             )
             _sceneViewModel = State(wrappedValue: sceneViewModel)
         } catch {
@@ -82,6 +85,7 @@ struct SpacialMoodBoardApp: App {
                 projectRepository: projectRepository,
                 renameAssetUseCase: renameAssetUseCase,
                 deleteAssetUseCase: deleteAssetUseCase,
+                sceneModelFileStorage: sceneModelFileStorage,
                 sceneViewModel: sceneViewModel,
                 modelContainer: modelContainer
             )

@@ -15,16 +15,9 @@ struct SceneRealityView: View {
 
     @State private var headAnchor: AnchorEntity?
     @State private var showFloorImageAlert = false
-
     @State private var rootEntity = Entity()
 
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
-
-    private var sceneViewIdentifier: String {
-        let projectID = appStateManager.appState.selectedProject?.id.uuidString ?? ""
-        let floorImageURL = viewModel.spacialEnvironment.floorMaterialImageURL?.absoluteString ?? ""
-        return "\(projectID)-\(floorImageURL)"
-    }
 
     var body: some View {
         GeometryReader3D { proxy in
@@ -55,7 +48,7 @@ struct SceneRealityView: View {
                 if config.showFloorImageApplyButton,
                     let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
                     let floor = rootEntity.findEntity(named: "floorRoot") {
-                    positionFloorAttachment(floorAttachment, on: floor)
+                    viewModel.positionFloorAttachment(floorAttachment, on: floor, rootEntity: rootEntity)
                 }
                 
             } update: { content, attachments in
@@ -66,12 +59,23 @@ struct SceneRealityView: View {
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
                     updateScene(content: content, rootEntity: rootEntity)
+                    
+                    
+
+                    // Floor material 업데이트 (Asset ID → URL 자동 조회)
+                    let currentFloorURL = viewModel.floorImageURL
+                    if currentFloorURL != viewModel.appliedFloorImageURL,
+                       let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
+                        Task {
+                            await viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
+                        }
+                    }
 
                     // Floor attachment 재배치
                     if config.showFloorImageApplyButton,
                     let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                    let floor = rootEntity.findEntity(named: "floor") {
-                        positionFloorAttachment(floorAttachment, on: floor)
+                    let floor = rootEntity.findEntity(named: "floorRoot") {
+                        viewModel.positionFloorAttachment(floorAttachment, on: floor, rootEntity: rootEntity)
                     }
                 }
             } attachments: {
@@ -89,7 +93,6 @@ struct SceneRealityView: View {
                     }
                 }
             }
-            .id(sceneViewIdentifier)
             .if(config.enableGestures) { view in
                 view.immersiveEntityGestures(
                     selectedEntity: $viewModel.selectedEntity,
@@ -133,7 +136,7 @@ struct SceneRealityView: View {
             rootEntity.addChild(floor)
 
             // Floor 하단 정렬
-            viewModel.alignFloorToWindowBottom(rootEntity: floor, windowHeight: 1) // VolumeWindow의 Height값
+            viewModel.alignFloorToWindowBottom(floor, windowHeight: Float(Self.defaultVolumeSize.height)) // VolumeWindow의 Height값
 
         // Immersive일 때
         } else {
@@ -171,31 +174,5 @@ struct SceneRealityView: View {
                 }
             )
         }
-    }
-
-    // MARK: - Floor Attachment Positioning
-
-    private func positionFloorAttachment(_ attachment: Entity, on floor: Entity) {
-        attachment.name = "floorImageApplyButton"
-
-        // rootEntity에 직접 추가 (floor 회전에 영향받지 않도록)
-        if attachment.parent != rootEntity {
-            rootEntity.addChild(attachment)
-        }
-
-        // floor의 world position을 기준으로 attachment 위치 계산
-        let floorWorldPosition = floor.position(relativeTo: rootEntity)
-        let yOffset: Float = 0.05
-        attachment.position = SIMD3<Float>(floorWorldPosition.x, floorWorldPosition.y + yOffset, floorWorldPosition.z)
-
-        // Floor 크기의 1/8로 버튼 크기 설정
-        let floorWidth = floor.scale.x
-        let floorDepth = floor.scale.z
-        let minDimension = min(floorWidth, floorDepth)
-        let buttonSize = minDimension / 8
-        attachment.scale = [buttonSize, buttonSize, buttonSize]
-
-        // floor의 회전과 무관하게 항상 같은 방향 유지
-        attachment.orientation = simd_quatf(angle: -.pi / 2, axis: [1, 0, 0])
     }
 }
