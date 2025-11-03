@@ -39,6 +39,9 @@ struct SceneRealityView: View {
                 headAnchor = newHeadAnchor
 
                 if config.useHeadAnchoredToolbar {
+                    // rootEntity 위치 설정
+                    rootEntity.position = SIMD3<Float>(0, 0, -4)
+
                     if let toolbar = attachments.entity(for: "headToolbar") {
                         // y: -0.3 = 시선보다 약간 아래
                         // z: -0.8 = 앞쪽으로 80cm
