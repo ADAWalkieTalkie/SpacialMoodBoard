@@ -18,17 +18,17 @@ extension SceneViewModel {
     ///   - rootEntity: (선택 사항) `Entity`를 즉시 생성할 경우, 그 부모가 될 RealityKit 엔티티입니다.
     ///                 이 값이 `nil`이면 `SceneObject` 데이터만 씬에 추가되며, `Entity` 생성은 나중에 동기화됩니다.
     func addSceneObject(_ object: SceneObject, rootEntity: Entity? = nil) {
-        guard var scene = appModel.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene else { return }
         
         // rootEntity가 제공된 경우 UseCase를 통해 객체 생성
         if let rootEntity = rootEntity {
             do {
-                let result = try createObjectUseCase.execute(
+                _ = try createObjectUseCase.execute(
                     object: object,
                     rootEntity: rootEntity,
                     scene: &scene
                 )
-                appModel.selectedScene = scene
+                appStateManager.selectedScene = scene
             } catch CreateObjectError.assetNotFound {
 #if DEBUG
                 print("❌ SceneObject 생성 실패: 에셋을 찾을 수 없음 (assetId: \(object.assetId))")
@@ -45,7 +45,7 @@ extension SceneViewModel {
         } else {
             // rootEntity가 없는 경우 SceneObject만 추가 (Entity는 나중에 동기화)
             sceneObjectRepository.addObject(object, to: &scene)
-            appModel.selectedScene = scene
+            appStateManager.selectedScene = scene
         }
         
         // 저장
@@ -54,56 +54,56 @@ extension SceneViewModel {
     
     /// 객체 위치 업데이트 (제스처용)
     func updateObjectPosition(id: UUID, position: SIMD3<Float>) {
-        guard var scene = appModel.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene else { return }
         
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
             object.move(to: position)
         }
-        appModel.selectedScene = scene
+        appStateManager.selectedScene = scene
         scheduleSceneAutosaveDebounced()
     }
     
     /// 객체 회전 업데이트 (제스처용)
     func updateObjectRotation(id: UUID, rotation: SIMD3<Float>) {
-        guard var scene = appModel.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene else { return }
         
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
             object.setRotation(rotation)
         }
-        appModel.selectedScene = scene
+        appStateManager.selectedScene = scene
         scheduleSceneAutosaveDebounced()
     }
     
     /// 객체 크기 업데이트 (제스처용)
     func updateObjectScale(id: UUID, scale: Float) {
-        guard var scene = appModel.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene else { return }
         
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
             object.setScale(scale)
         }
-        appModel.selectedScene = scene
+        appStateManager.selectedScene = scene
         scheduleSceneAutosaveDebounced()
     }
     
     /// 객체 속성 업데이트 (일반용)
     func updateSceneObject(with id: UUID, _ mutate: (inout SceneObject) -> Void) {
-        guard var scene = appModel.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene else { return }
         
         sceneObjectRepository.updateObject(id: id, in: &scene, mutate: mutate)
-        appModel.selectedScene = scene
+        appStateManager.selectedScene = scene
         saveScene()
     }
     
     /// 객체 삭제 + Entity 제거
     func removeSceneObject(id: UUID) {
-        guard var scene = appModel.selectedScene else { return }
+        guard var scene = appStateManager.selectedScene else { return }
 
         // 1. EntityRepository를 통해 엔티티 제거
         entityRepository.removeEntity(id: id)
 
         // 2. Repository를 통해 SceneObject 삭제
         sceneObjectRepository.deleteObject(by: id, from: &scene)
-        appModel.selectedScene = scene
+        appStateManager.selectedScene = scene
 
         // 3. 선택 해제
         selectedEntity = nil

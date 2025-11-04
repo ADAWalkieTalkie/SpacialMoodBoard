@@ -14,9 +14,8 @@ struct LibraryView: View {
     
     @State private var viewModel: LibraryViewModel
     @State private var sceneViewModel: SceneViewModel
-    
-    @Environment(AppModel.self) private var appModel
-    @Environment(\.dismissWindow) private var dismissWindow
+    @State private var photoSelection: [PhotosPickerItem] = []
+    @Environment(AppStateManager.self) private var appStateManager
     
     // MARK: - Init
     
@@ -117,8 +116,7 @@ struct LibraryView: View {
             CircleFillButton(
                 type: .back,
                 action: {
-                    dismissWindow(id: "ImmersiveVolumeWindow")
-                    appModel.selectedProject = nil
+                    appStateManager.closeProject()
                 }
             )
             

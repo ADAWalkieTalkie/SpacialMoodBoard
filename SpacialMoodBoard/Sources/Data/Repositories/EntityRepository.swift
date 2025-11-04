@@ -32,9 +32,9 @@ final class EntityRepository: EntityRepositoryInterface {
 
         switch sceneObject.attributes {
         case .image:
-            newEntity = ImageEntity.create(from: sceneObject, with: asset, viewMode: false)
+            newEntity = ImageEntity.create(from: sceneObject, with: asset)
         case .audio:
-            newEntity = SoundEntity.create(from: sceneObject, with: asset, viewMode: false)
+            newEntity = SoundEntity.create(from: sceneObject, with: asset)
         }
 
         if let entity = newEntity {
@@ -85,14 +85,14 @@ final class EntityRepository: EntityRepositoryInterface {
     }
 
     // MARK: - Floor Entity Management
-    func getOrCreateFloorEntity(from environment: SpacialEnvironment) -> ModelEntity? {
+    func getOrCreateFloorEntity(floorImageURL: URL?) -> ModelEntity? {
         // 캐싱된 Floor 엔티티가 있으면 재사용
         if let currentFloorEntity = currentFloorEntity {
             return currentFloorEntity
         }
 
         // 없으면 새로 생성 후 캐싱
-        let floor = FloorEntity.create(from: environment)
+        let floor = FloorEntity.create(materialImageURL: floorImageURL)
         currentFloorEntity = floor
 
         return floor

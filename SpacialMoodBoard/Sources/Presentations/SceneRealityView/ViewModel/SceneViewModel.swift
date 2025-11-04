@@ -8,23 +8,24 @@ import SwiftUI
 final class SceneViewModel {
     
     // MARK: - Dependencies
-    let appModel: AppModel
+    let appStateManager: AppStateManager
     let sceneModelFileStorage: SceneModelFileStorage
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let assetRepository: AssetRepositoryInterface
     let entityRepository: EntityRepositoryInterface
     let createObjectUseCase: CreateObjectUseCase
+    let entityBoundBoxApplier = EntityBoundBoxApplier()
     private var needsEntitySync: Bool = false
 
     // MARK: - Initialization
-    init(appModel: AppModel,
+    init(appStateManager: AppStateManager,
+         sceneModelFileStorage: SceneModelFileStorage,
          sceneObjectRepository: SceneObjectRepositoryInterface,
          assetRepository: AssetRepositoryInterface,
-         entityRepository: EntityRepositoryInterface,
-         projectRepository: ProjectServiceInterface? = nil
+         entityRepository: EntityRepositoryInterface
     ) {
-        self.appModel = appModel
-        self.sceneModelFileStorage = SceneModelFileStorage(projectRepository: projectRepository)
+        self.appStateManager = appStateManager
+        self.sceneModelFileStorage = sceneModelFileStorage
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
         self.entityRepository = entityRepository
@@ -50,29 +51,32 @@ final class SceneViewModel {
     // Floor 이미지 선택 모드
     var isSelectingFloorImage: Bool = false
     
+    // Floor에 적용된 이미지 URL
+    var appliedFloorImageURL: URL?
+    
     // SceneObjects (computed property)
     var sceneObjects: [SceneObject] {
-        guard let scene = appModel.selectedScene else { return [] }
+        guard let scene = appStateManager.selectedScene else { return [] }
         return sceneObjectRepository.getAllObjects(from: scene)
     }
     
     // UserSpatialState (computed property)
     var userSpatialState: UserSpatialState {
         get {
-            appModel.selectedScene?.userSpatialState ?? UserSpatialState()
+            appStateManager.selectedScene?.userSpatialState ?? UserSpatialState()
         }
         set {
-            appModel.selectedScene?.userSpatialState = newValue
+            appStateManager.selectedScene?.userSpatialState = newValue
         }
     }
     
     // SpacialEnvironment (computed property)
     var spacialEnvironment: SpacialEnvironment {
         get {
-            appModel.selectedScene?.spacialEnvironment ?? SpacialEnvironment()
+            appStateManager.selectedScene?.spacialEnvironment ?? SpacialEnvironment()
         }
         set {
-            appModel.selectedScene?.spacialEnvironment = newValue
+            appStateManager.selectedScene?.spacialEnvironment = newValue
         }
     }
     
@@ -92,51 +96,13 @@ final class SceneViewModel {
         attachmentTimerTask?.cancel()
         attachmentTimerTask = nil
     }
-    
-    // MARK: - Floor Material Management
-    
-    func applyFloorImage(from asset: Asset) {
-        guard asset.type == .image else {
-            return
-        }
-        
-        // Documents 디렉토리로부터의 상대 경로 계산
-        let relativePath: String?
-        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let documentsPathWithSlash = documentsURL.path + "/"
-            if asset.url.path.hasPrefix(documentsPathWithSlash) {
-                relativePath = String(asset.url.path.dropFirst(documentsPathWithSlash.count))
-            } else {
-                print("⚠️ Asset이 Documents 디렉토리 내에 없음: \(asset.url.path)")
-                relativePath = nil
-            }
-        } else {
-            print("⚠️ Documents 디렉토리를 찾을 수 없음")
-            relativePath = nil
-        }
-        
-        // SpacialEnvironment에 floor material URL과 상대 경로 저장
-        var updatedEnvironment = spacialEnvironment
-        updatedEnvironment.floorMaterialImageURL = asset.url
-        updatedEnvironment.floorImageRelativePath = relativePath
-        spacialEnvironment = updatedEnvironment
 
-        // Floor entity 캐시 초기화 (다음 호출 시 새 material로 재생성됨)
-        entityRepository.clearFloorCache()
-
-        // 선택 모드 해제
-        isSelectingFloorImage = false
-        
-        // 변경사항 저장
-        saveScene()
-    }
-    
     // MARK: - Scene Persistence
     
     /// SceneModel을 디스크에 저장
     func saveScene() {
-        guard let scene = appModel.selectedScene,
-              let projectName = appModel.selectedProject?.title else {
+        guard let scene = appStateManager.selectedScene,
+              let projectName = appStateManager.appState.selectedProject?.title else {
             print("⚠️ SceneModel 저장 실패: 프로젝트 또는 씬이 없음")
             return
         }

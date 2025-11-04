@@ -11,7 +11,7 @@ import Observation
 @MainActor
 @Observable
 final class ProjectListViewModel {
-    private var appModel: AppModel
+    private var appStateManager: AppStateManager
     private let projectRepository: ProjectServiceInterface
     private let sceneModelStorage = SceneModelFileStorage()
     private let projectFileStorage = ProjectFileStorage()
@@ -28,8 +28,8 @@ final class ProjectListViewModel {
         return sortProjects(filtered)
     }
 
-    init(appModel: AppModel, projectRepository: ProjectServiceInterface) {
-        self.appModel = appModel
+    init(appStateManager: AppStateManager, projectRepository: ProjectServiceInterface) {
+        self.appStateManager = appStateManager
         self.projectRepository = projectRepository
 
         // 초기 데이터 로드 (향후 Task { await ... } 형태로 변경)
@@ -69,15 +69,15 @@ final class ProjectListViewModel {
             return
         }
 
-        // 1. Project 선흑
-        appModel.selectedProject = project
+        // 1. SceneModel 로드 (파일이 있으면 로드, 없으면 기본값 생성)
+        let sceneModel = loadSceneModel(for: project)
 
-        // 2. SceneModel 로드 (파일이 있으면 로드, 없으면 기본값 생성)
-        loadSceneModel(for: project)
+        // 2. AppModel의 중앙화된 상태 관리 메서드 호출
+        appStateManager.selectProject(project, scene: sceneModel)
     }
 
     // SceneModel 로드 또는 생성
-    private func loadSceneModel(for project: Project) {
+    private func loadSceneModel(for project: Project) -> SceneModel {
         do {
             // 파일이 있으면 로드
             if sceneModelStorage.exists(projectName: project.title) {
@@ -86,38 +86,25 @@ final class ProjectListViewModel {
                     projectId: project.id
                 )
 
-                // 상대 경로가 있으면 절대 경로 재구성
-                if let relativePath = sceneModel.spacialEnvironment.floorImageRelativePath {
-                    if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                        let absoluteURL = documentsURL.appendingPathComponent(relativePath)
+                // Floor 로드는 SceneViewModel에서 AssetRepository를 통해 처리됨
+                // (floorAssetId → Asset 조회 → URL 획득)
+                print("📂 Floor Asset ID: \(sceneModel.spacialEnvironment.floorAssetId ?? "없음")")
 
-                        // 파일 존재 여부 확인
-                        if FileManager.default.fileExists(atPath: absoluteURL.path) {
-                            sceneModel.spacialEnvironment.floorMaterialImageURL = absoluteURL
-                        } else {
-                            print("⚠️ Floor 이미지 파일이 존재하지 않음: \(absoluteURL.path)")
-                            sceneModel.spacialEnvironment.floorImageRelativePath = nil
-                        }
-                    }
-                }
-
-                appModel.selectedScene = sceneModel
                 print("📂 기존 SceneModel 로드 완료")
+                return sceneModel
             } else {
                 // 파일이 없으면 기본값 생성
-                let defaultScene = SceneModel(
+                return SceneModel(
                     projectId: project.id,
                     spacialEnvironment: SpacialEnvironment(),
                     userSpatialState: UserSpatialState(),
                     sceneObjects: []
                 )
-                appModel.selectedScene = defaultScene
-                print("✨ 새 SceneModel 생성")
             }
         } catch {
             print("❌ SceneModel 로드 실패: \(error)")
             // 실패 시 기본값 생성
-            appModel.selectedScene = SceneModel(
+            return SceneModel(
                 projectId: project.id,
                 spacialEnvironment: SpacialEnvironment(),
                 userSpatialState: UserSpatialState(),
@@ -144,8 +131,6 @@ final class ProjectListViewModel {
         projectRepository.addProject(newProject)
         refreshProjects()
 
-        appModel.selectedProject = newProject
-
         // 새 SceneModel 생성 및 로컬 파일에 저장
         let newSceneModel = SceneModel(
             projectId: newProject.id,
@@ -153,7 +138,7 @@ final class ProjectListViewModel {
             userSpatialState: UserSpatialState(),
             sceneObjects: []
         )
-        appModel.selectedScene = newSceneModel
+        appStateManager.selectedScene = newSceneModel
         
             do {
                 try sceneModelStorage.save(newSceneModel, projectName: projectTitle)
@@ -164,6 +149,8 @@ final class ProjectListViewModel {
                 print("   - 에러 상세: \(error.localizedDescription)")
                 throw error
             }
+        
+        appStateManager.selectProject(newProject, scene: newSceneModel)
 
         return newProject
     }
@@ -180,16 +167,16 @@ final class ProjectListViewModel {
             )
             refreshProjects()
 
-            // 선택된 프로젝트의 제목이 변경되면 AppModel도 업데이트
-            if appModel.selectedProject?.id == project.id {
-                appModel.selectedProject?.title = newTitle
-            }
-
-            // SceneModel 파일 업데이트 및 appModel 업데이트
-            if let selectedScene = appModel.selectedScene {
+            // 선택된 프로젝트의 제목이 변경되면 AppState 재설정
+            if appStateManager.appState.selectedProject?.id == project.id,
+               let selectedScene = appStateManager.selectedScene {
+                // 업데이트된 project 객체를 가져와서 appState 재설정
+                if let updatedProject = projectRepository.fetchProject(project) {
+                    appStateManager.selectProject(updatedProject, scene: selectedScene)
+                }
+                // SceneModel 파일도 새 이름으로 저장
                 try sceneModelStorage.save(selectedScene, projectName: newTitle)
             }
-            appModel.selectedProject?.title = newTitle
         } catch {
             #if DEBUG
                 print("[ProjectListViewModel] updateProjectTitle - ❌ Error: \(error)")
@@ -208,9 +195,9 @@ final class ProjectListViewModel {
         projectRepository.deleteProject(project)
         refreshProjects()
 
-        if appModel.selectedProject?.id == project.id {
-            appModel.selectedProject = nil
-            appModel.selectedScene = nil
+        // 삭제된 프로젝트가 현재 선택된 프로젝트라면 상태 초기화
+        if appStateManager.appState.selectedProject?.id == project.id {
+            appStateManager.closeProject()
         }
     }
 

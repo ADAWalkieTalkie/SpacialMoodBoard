@@ -11,13 +11,13 @@ import SwiftUI
 @main
 struct SpacialMoodBoardApp: App {
     let modelContainer: ModelContainer
-    @State private var appModel = AppModel()
+    @State private var appStateManager = AppStateManager()
     @State private var projectRepository: ProjectServiceInterface
     @State private var assetRepository: AssetRepository
     @State private var renameAssetUseCase: RenameAssetUseCase
     @State private var deleteAssetUseCase: DeleteAssetUseCase
+    @State private var sceneModelFileStorage: SceneModelFileStorage
     @State private var sceneViewModel: SceneViewModel
-    @State private var initialVolumeSize: Size3D = Size3D(width: 1000, height: 1000, depth: 1000)
 
     init() {
         do {
@@ -33,11 +33,14 @@ struct SpacialMoodBoardApp: App {
             )
             _projectRepository = State(wrappedValue: repository)
 
-            let appModel = AppModel()
-            _appModel = State(wrappedValue: appModel)
+            let sceneModelFileStorage = SceneModelFileStorage(projectRepository: repository)
+            _sceneModelFileStorage = State(wrappedValue: sceneModelFileStorage)
+
+            let appStateManager = AppStateManager()
+            _appStateManager = State(wrappedValue: appStateManager)
 
             let assetRepository = AssetRepository(
-                project: appModel.selectedProject?.title ?? "",
+                project: appStateManager.appState.selectedProject?.title ?? "",
                 imageService: ImageAssetService(),
                 soundService: SoundAssetService()
             )
@@ -63,11 +66,11 @@ struct SpacialMoodBoardApp: App {
 
             // Volume Scene용 ViewModel
             let sceneViewModel = SceneViewModel(
-                appModel: appModel,
+                appStateManager: appStateManager,
+                sceneModelFileStorage: sceneModelFileStorage,
                 sceneObjectRepository: sceneObjectRepository,
                 assetRepository: assetRepository,
-                entityRepository: entityRepository,
-                projectRepository: repository
+                entityRepository: entityRepository
             )
             _sceneViewModel = State(wrappedValue: sceneViewModel)
         } catch {
@@ -77,11 +80,12 @@ struct SpacialMoodBoardApp: App {
     var body: some Scene {
         WindowGroup(id: "MainWindow") {
             MainWindowContent(
-                appModel: appModel,
+                appStateManager: appStateManager,
                 assetRepository: assetRepository,
                 projectRepository: projectRepository,
                 renameAssetUseCase: renameAssetUseCase,
                 deleteAssetUseCase: deleteAssetUseCase,
+                sceneModelFileStorage: sceneModelFileStorage,
                 sceneViewModel: sceneViewModel,
                 modelContainer: modelContainer
             )
@@ -92,7 +96,7 @@ struct SpacialMoodBoardApp: App {
             VolumeSceneView(
                 viewModel: sceneViewModel
             )
-            .environment(appModel)
+            .environment(appStateManager)
             
         }
         .windowStyle(.volumetric)
@@ -102,14 +106,8 @@ struct SpacialMoodBoardApp: App {
         // Immersive Space (전체 몰입)
         ImmersiveSpace(id: "ImmersiveScene") {
             ImmersiveSceneView(viewModel: sceneViewModel)
-                .environment(appModel)
-                .onAppear {
-                    appModel.immersiveSpaceState = .open
-                }
-                .onDisappear {
-                    appModel.immersiveSpaceState = .closed
-                }
+                .environment(appStateManager)
         }
-        .immersionStyle(selection: .constant(.full), in: .full)
+        .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
 }

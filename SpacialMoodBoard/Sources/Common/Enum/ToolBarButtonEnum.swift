@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-enum ToolBarButtonEnum {
+enum ToolBarToggleButtonEnum {
     case volumeControl
     case fullImmersive
     case viewMode
-    case mute(isOn: Bool)
+    case pause(isOn: Bool)
 
     var name: String {
         switch self {
@@ -21,8 +21,8 @@ enum ToolBarButtonEnum {
             return "Full Immersive"
         case .viewMode:
             return "View Mode"
-        case .mute:
-            return "Mute"
+        case .pause:
+            return "Pause"
         }
     }
     
@@ -31,11 +31,11 @@ enum ToolBarButtonEnum {
         case .volumeControl:
             return Image(.icVolumeControl)
         case .fullImmersive:
-            return Image(.icFullImmersive)
+            return Image(systemName: "person.and.background.dotted")
         case .viewMode:
-            return Image(.icViewMode)
-        case .mute(let isOn):
-            return isOn ? Image(.icMuteTrue) : Image(.icMuteFalse)
+            return Image(systemName: "eye")
+        case .pause(let isOn):
+            return isOn ? Image(systemName: "play.fill") : Image(systemName: "pause.fill")
         }
     }
 }

@@ -11,8 +11,7 @@ struct ImageEntity {
     /// - Returns: 설정된 ModelEntity
     static func create(
         from sceneObject: SceneObject,
-        with asset: Asset,
-        viewMode: Bool = false
+        with asset: Asset
     ) -> ModelEntity? {
         guard case .image(let imageAttrs) = sceneObject.attributes else {
             print("❌ 이미지 타입이 아닙니다")
