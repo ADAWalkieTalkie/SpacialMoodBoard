@@ -20,10 +20,16 @@ struct ImageEditorView: View {
     ///   - images: 편집 대상 이미지들
     ///   - projectName: 저장 대상 프로젝트 이름 (환경에서 읽지 말고 외부에서 주입)
     ///   - onAddToLibrary: 내보낸 파일 URL 배열 콜백
-    init(images: [UIImage], projectName: String, onAddToLibrary: @escaping ([URL]) -> Void) {
+    init(
+        images: [UIImage],
+        preferredNames: [String?],
+        projectName: String,
+        onAddToLibrary: @escaping ([URL]) -> Void
+    ) {
         _viewModel = State(
             initialValue: ImageEditorViewModel(
                 images: images,
+                preferredNames: preferredNames,
                 assetRepository: AssetRepository(
                     project: projectName,
                     imageService: ImageAssetService(),
@@ -254,19 +260,4 @@ fileprivate struct AddToLibraryButton: View {
             viewModel.handleDropToAdd(providers: providers)
         }
     }
-}
-
-
-#Preview {
-    ImageEditorView(
-        images: [
-            UIImage(systemName: "photo")!.withTintColor(.systemBlue, renderingMode: .alwaysOriginal),
-            UIImage(systemName: "photo.on.rectangle")!.withTintColor(.systemPink, renderingMode: .alwaysOriginal),
-            UIImage(systemName: "photo.fill")!.withTintColor(.systemGreen, renderingMode: .alwaysOriginal)
-        ],
-        projectName: "",
-        onAddToLibrary: { urls in
-            print("Added to library:", urls)
-        }
-    )
 }

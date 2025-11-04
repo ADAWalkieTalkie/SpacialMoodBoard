@@ -10,10 +10,11 @@ import SwiftUI
 struct LibraryImageItemView: View {
     
     // MARK: - Properties
-    
+
     private let asset: Asset
-    
+
     @Environment(LibraryViewModel.self) private var viewModel
+    @Environment(SceneViewModel.self) private var sceneViewModel
     @State private var showRenamePopover = false
     @State private var isRenaming = false
     @State private var isTextFieldFocused = false
@@ -50,7 +51,6 @@ struct LibraryImageItemView: View {
                     .frame(maxWidth: .infinity)
                     .frame(maxHeight: .infinity)
                     .aspectRatio(1, contentMode: .fit)
-                    .background(.black.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -92,6 +92,14 @@ struct LibraryImageItemView: View {
                     startInlineRename()
                 },
                 onDelete: { id in viewModel.deleteAsset(id: id) },
+                onAddToFloor: { _ in
+                    if sceneViewModel.spacialEnvironment.floorAssetId == asset.id {
+                        sceneViewModel.removeFloorImage()
+                    } else {
+                        sceneViewModel.applyFloorImage(from: asset)
+                    }
+                },
+                isCurrentFloorImage: sceneViewModel.spacialEnvironment.floorAssetId == asset.id,
                 onCancel: { showRenamePopover = false }
             )
         }

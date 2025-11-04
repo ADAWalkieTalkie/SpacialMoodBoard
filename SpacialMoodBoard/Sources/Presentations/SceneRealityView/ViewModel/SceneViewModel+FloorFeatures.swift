@@ -22,14 +22,21 @@ extension SceneViewModel {
     func updateFloorMaterial(on floor: ModelEntity, with imageURL: URL?) {
         do {
             let material: PhysicallyBasedMaterial
+            let opacity: Float
+
             if let imageURL = imageURL {
+                // 이미지가 있을 때: opacity 1.0 (완전 불투명)
                 let texture = try TextureResource.load(contentsOf: imageURL)
                 material = FloorEntity.createMaterial(texture: texture)
+                opacity = 1.0
             } else {
-                // nil이면 기본 회색 material 적용
+                // 기본 상태: opacity 0.3 (반투명)
                 material = FloorEntity.createMaterial()
+                opacity = 0.3
             }
+
             floor.model?.materials = [material]
+            floor.components[OpacityComponent.self] = .init(opacity: opacity)
         } catch {
             print("⚠️ Floor material 업데이트 실패: \(error.localizedDescription)")
         }
@@ -46,8 +53,16 @@ extension SceneViewModel {
         updatedEnvironment.floorAssetId = asset.id
         spacialEnvironment = updatedEnvironment
 
-        // 선택 모드 해제
-        isSelectingFloorImage = false
+        // 변경사항 저장
+        saveScene()
+    }
+
+    /// Floor 이미지 제거
+    func removeFloorImage() {
+        // SpacialEnvironment에서 Asset ID 제거
+        var updatedEnvironment = spacialEnvironment
+        updatedEnvironment.floorAssetId = nil
+        spacialEnvironment = updatedEnvironment
 
         // 변경사항 저장
         saveScene()

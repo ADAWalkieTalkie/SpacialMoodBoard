@@ -11,7 +11,7 @@ struct EntityBoundBoxApplier {
     ///   - width: Entity의 너비
     ///   - height: Entity의 높이
     /// - Returns: 생성된 boundBox Entity (나중에 제거할 때 사용)
-    func addBoundBox(to entity: ModelEntity, width: Float, height: Float) -> ModelEntity? {
+    func addBoundBox(to entity: ModelEntity, width: Float, height: Float) {
         let expandedWidth = width * 1.2
         let expandedHeight = height * 1.2
         
@@ -32,6 +32,8 @@ struct EntityBoundBoxApplier {
         boundBoxEntity.name = "boundBox"
         boundBoxEntity.position = SIMD3(0, 0, 0)
         boundBoxEntity.setParent(entity)
+        
+        return boundBoxEntity
     }
     
     /// Entity에서 boundBox 제거

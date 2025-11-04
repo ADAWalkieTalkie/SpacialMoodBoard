@@ -12,7 +12,8 @@ struct LibrarySoundItemView: View {
     // MARK: - Properties
     
     private let asset: Asset
-
+    private let onRowTap: (() -> Void)?
+    
     @Environment(LibraryViewModel.self) private var viewModel
     @ObservedObject private var player = LibrarySoundPlayer.shared
     @State private var localProgress: Double = 0
@@ -26,9 +27,11 @@ struct LibrarySoundItemView: View {
     
     /// Init
     ///  - Parameter asset: 표시할 사운드 에셋(타입은 `.sound` 여야 함)
-    init(asset: Asset) {
+    ///  - Parameter onRowTap: LibrarySoundItemView 행 탭 콜백
+    init(asset: Asset, onRowTap: (() -> Void)? = nil) {
         precondition(asset.type == .sound, "LibrarySoundItemView는 .sound 에셋만 지원합니다.")
         self.asset = asset
+        self.onRowTap = onRowTap
         self._draftTitle = State(initialValue: asset.filename.deletingPathExtension)
     }
     
@@ -57,8 +60,11 @@ struct LibrarySoundItemView: View {
                 } label: {
                     Image(systemName: (player.currentURL == asset.url && player.isPlaying) ? "pause.circle" : "play.circle")
                         .font(.system(size: 40, weight: .medium))
+                        .padding(0)
                 }
-                .frame(width: 52, height: 48)
+                .buttonStyle(.plain)
+                .frame(width: 40.5, height: 40.5)
+                .padding(.trailing, 36)
                 
                 if isRenaming {
                     SelectAllTextField(
@@ -66,13 +72,14 @@ struct LibrarySoundItemView: View {
                         isFirstResponder: $isTextFieldFocused,
                         onSubmit: { commitRenameIfNeeded() }
                     )
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: 488)
                     .frame(height: 26)
                 } else {
                     Text(asset.filename.deletingPathExtension)
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
+                        .frame(maxWidth: 488, alignment: .leading)
                 }
                 
                 Spacer()
@@ -97,6 +104,7 @@ struct LibrarySoundItemView: View {
                     }
                 )
                 .frame(width: 382, height: 30)
+                .padding(.trailing, 83.5)
                 
                 Text(Self.formatDuration(asset.sound?.duration ?? 0))
                     .font(.system(size: 16, weight: .regular))
@@ -105,11 +113,16 @@ struct LibrarySoundItemView: View {
             .padding(.vertical, 15)
             .padding(.horizontal, 18)
         }
+        .contentShape(RoundedRectangle(cornerRadius: 16))
+        .hoverEffect(.highlight)
         .onChange(of: player.currentURL) { _, _ in
             if player.currentURL != asset.url { localProgress = 0 }
         }
         .contentShape(RoundedRectangle(cornerRadius: 16))
-        .onTapGesture(perform: tapFlash)
+        .onTapGesture {
+            tapFlash()
+            onRowTap?()
+        }
         .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
                             pressing: { p in withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p } },
                             perform: { showRenamePopover = true }

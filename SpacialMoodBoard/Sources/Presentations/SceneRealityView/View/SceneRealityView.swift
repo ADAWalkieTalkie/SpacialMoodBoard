@@ -14,7 +14,6 @@ struct SceneRealityView: View {
     let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.3, -0.8)
 
     @State private var headAnchor: AnchorEntity?
-    @State private var showFloorImageAlert = false
     @State private var rootEntity = Entity()
 
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
@@ -44,13 +43,6 @@ struct SceneRealityView: View {
                     content.add(newHeadAnchor)
                 }
 
-                // Floor 중앙에 FloorImageApplyButton attachment 배치 (초기 setup)
-                if config.showFloorImageApplyButton,
-                    let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                    let floor = rootEntity.findEntity(named: "floorRoot") {
-                    viewModel.positionFloorAttachment(floorAttachment, on: floor, rootEntity: rootEntity)
-                }
-                
             } update: { content, attachments in
                 if config.alignToWindowBottom {
                     rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
@@ -59,8 +51,6 @@ struct SceneRealityView: View {
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
                     updateScene(content: content, rootEntity: rootEntity)
-                    
-                    
 
                     // Floor material 업데이트 (Asset ID → URL 자동 조회)
                     let currentFloorURL = viewModel.floorImageURL
@@ -70,27 +60,11 @@ struct SceneRealityView: View {
                             await viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
                         }
                     }
-
-                    // Floor attachment 재배치
-                    if config.showFloorImageApplyButton,
-                    let floorAttachment = attachments.entity(for: "floorImageApplyButton"),
-                    let floor = rootEntity.findEntity(named: "floorRoot") {
-                        viewModel.positionFloorAttachment(floorAttachment, on: floor, rootEntity: rootEntity)
-                    }
                 }
             } attachments: {
                 Attachment(id: "headToolbar"){
                     ToolBarAttachment(viewModel: viewModel)
                         .environment(appStateManager)
-                }
-
-                if config.showFloorImageApplyButton {
-                    Attachment(id: "floorImageApplyButton") {
-                        FloorImageApplyButton {
-                            showFloorImageAlert = true
-                            viewModel.isSelectingFloorImage = true
-                        }
-                    }
                 }
             }
             .if(config.enableGestures) { view in
@@ -115,11 +89,6 @@ struct SceneRealityView: View {
                         return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
                     }
                 )
-            }
-            .alert("바닥 이미지 선택", isPresented: $showFloorImageAlert) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text("바닥으로 설정할 이미지를 선택해주세요.")
             }
         }
     }

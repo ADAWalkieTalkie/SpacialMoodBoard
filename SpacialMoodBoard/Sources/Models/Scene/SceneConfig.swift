@@ -8,7 +8,6 @@ struct SceneConfig {
     var alignToWindowBottom: Bool = false
     var scale: Float = 1.0
     var useHeadAnchoredToolbar: Bool = false
-    var showFloorImageApplyButton: Bool = true  // floor 중앙에 이미지 적용 버튼 표시 여부
     var floorSize: SIMD3<Float> = SIMD3(5, 0.03, 5)
 
 
@@ -24,8 +23,6 @@ struct SceneConfig {
     static let minimap = SceneConfig(
         enableGestures: false,
         enableAttachments: false,
-        scale: 0.3,
-        showFloorImageApplyButton: false
-        
+        scale: 0.3
     )
 }
