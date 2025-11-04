@@ -178,11 +178,7 @@ fileprivate struct ImageTabGridView: View {
                         .hoverEffect(.highlight)
                         .simultaneousGesture(
                             TapGesture().onEnded {
-                                if sceneViewModel.isSelectingFloorImage {
-                                    sceneViewModel.applyFloorImage(from: asset)
-                                } else {
-                                    sceneViewModel.addImageObject(from: asset)
-                                }
+                                sceneViewModel.addImageObject(from: asset)
                             }
                         )
                 }

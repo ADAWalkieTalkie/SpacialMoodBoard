@@ -11,13 +11,15 @@ import SwiftUI
 struct RenamePopover: View {
     
     // MARK: - Properties
-    
+
     private let id: String
     private let onRename: (() -> Void)?
     private let onDelete: ((_ id: String) -> Void)?
     private let onDuplicate: ((_ id: String, _ newTitle: String) -> Void)?
+    private let onAddToFloor: ((_ id: String) -> Void)?
+    private let isCurrentFloorImage: Bool
     private let onCancel: () -> Void
-    
+
     @Binding private var title: String
     @FocusState private var isFocused: Bool
     
@@ -30,6 +32,8 @@ struct RenamePopover: View {
     ///   - onRename: 이름 변경 콜백. 전달되지 않으면 해당 메뉴를 숨김
     ///   - onDelete: 삭제 콜백. 전달되지 않으면 해당 메뉴를 숨김
     ///   - onDuplicate: 복제 콜백. 전달되지 않으면 해당 메뉴를 숨김
+    ///   - onAddToFloor: 바닥 추가/제거 콜백. 전달되지 않으면 해당 메뉴를 숨김
+    ///   - isCurrentFloorImage: 현재 이미지가 바닥 이미지인지 여부 (기본값: false)
     ///   - onCancel: 팝오버를 닫을 때 호출되는 콜백
     init(
         id: String,
@@ -37,6 +41,8 @@ struct RenamePopover: View {
         onRename: @escaping () -> Void,
         onDelete: ((_ id: String) -> Void)? = nil,
         onDuplicate: ((_ id: String, _ newTitle: String) -> Void)? = nil,
+        onAddToFloor: ((_ id: String) -> Void)? = nil,
+        isCurrentFloorImage: Bool = false,
         onCancel: @escaping () -> Void
     ) {
         self.id = id
@@ -44,6 +50,8 @@ struct RenamePopover: View {
         self.onRename = onRename
         self.onDelete = onDelete
         self.onDuplicate = onDuplicate
+        self.onAddToFloor = onAddToFloor
+        self.isCurrentFloorImage = isCurrentFloorImage
         self.onCancel = onCancel
     }
     
@@ -60,7 +68,21 @@ struct RenamePopover: View {
                 }
                 .buttonStyle(.plain)
             }
-            
+
+            if let onAddToFloor {
+                Button {
+                    onAddToFloor(id)
+                    onCancel()
+                } label: {
+                    if isCurrentFloorImage {
+                        rowLabel("바닥 이미지 제거", system: "square.dashed")
+                    } else {
+                        rowLabel("바닥 추가", system: "square.on.square.dashed")
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
             if let onDuplicate {
                 Button {
                     onDuplicate(id, title)
@@ -70,7 +92,7 @@ struct RenamePopover: View {
                 }
                 .buttonStyle(.plain)
             }
-            
+
             if let onDelete {
                 Button(role: .destructive) {
                     onDelete(id)

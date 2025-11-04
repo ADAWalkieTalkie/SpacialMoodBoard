@@ -47,10 +47,7 @@ final class SceneViewModel {
     
     // 회전 각도 (Volume용)
     var rotationAngle: Float = 0
-    
-    // Floor 이미지 선택 모드
-    var isSelectingFloorImage: Bool = false
-    
+
     // Floor에 적용된 이미지 URL
     var appliedFloorImageURL: URL?
     
