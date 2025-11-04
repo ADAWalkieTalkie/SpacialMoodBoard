@@ -8,41 +8,30 @@
 import SwiftUI
 
 struct CapsuleVolumeSlider: View {
-    
-    // MARK: - Properties
-    
     @Binding private var value: Double
-    private var onEditingChanged: ((Bool)->Void)? = nil
+    private let onEditingChanged: ((Bool) -> Void)?
     
-    private var trackHeight: CGFloat
-    private var thumbDiameter: CGFloat
-    private var backgroundColor: Color
-    private var fillColor: Color
-    private var thumbColor: Color
+    private let trackHeight: CGFloat
+    private let thumbDiameter: CGFloat
+    private let backgroundColor: Color
+    private let fillColor: Color
+    private let thumbColor: Color
     
-    @State private var isEditing = false
+    @State private var isDragging = false
+    @State private var internalValue: Double
+    @State private var trackWidth: CGFloat = 0
     
-    // MARK: - Init
-    
-    /// 커스텀 캡슐 형태 슬라이더 초기화
-    /// - Parameters:
-    ///   - value: 0...1 범위의 슬라이더 값. 외부 상태와 양방향 바인딩됨
-    ///   - onEditingChanged: 사용자가 슬라이더를 드래그하거나 놓을 때 호출되는 콜백 (true = 드래그 중, false = 종료)
-    ///   - trackHeight: 슬라이더 트랙(막대)의 높이. 기본값은 2
-    ///   - thumbDiameter: 손잡이(원)의 지름. 기본값은 12
-    ///   - backgroundColor: 비활성(남은 구간) 트랙 색상
-    ///   - fillColor: 활성(채워진 구간) 트랙 색상
-    ///   - thumbColor: 손잡이 색상
     init(
         value: Binding<Double>,
-        onEditingChanged: ((Bool)->Void)? = nil,
+        onEditingChanged: ((Bool) -> Void)? = nil,
         trackHeight: CGFloat = 2,
-        thumbDiameter: CGFloat = 12,
-        backgroundColor: Color = .white.opacity(0.25),
-        fillColor: Color = .white.opacity(0.6),
+        thumbDiameter: CGFloat = 16,
+        backgroundColor: Color = .gray.opacity(0.25),
+        fillColor: Color = .white,
         thumbColor: Color = .white
     ) {
         self._value = value
+        self._internalValue = State(initialValue: value.wrappedValue)
         self.onEditingChanged = onEditingChanged
         self.trackHeight = trackHeight
         self.thumbDiameter = thumbDiameter
@@ -51,68 +40,86 @@ struct CapsuleVolumeSlider: View {
         self.thumbColor = thumbColor
     }
     
-    // MARK: - Body
-    
     var body: some View {
-        GeometryReader { geo in
-            let width = geo.size.width
-            let clamped = value.clamped(to: 0...1)
+        GeometryReader { _ in
+            let w = max(trackWidth, thumbDiameter)
+            let usable = w - thumbDiameter
+            let clamped = internalValue.clamped(to: 0...1)
+            let centerX = CGFloat(clamped) * usable + thumbDiameter / 2
             
             ZStack(alignment: .leading) {
-                // 트랙(전체)
                 Capsule()
                     .fill(backgroundColor)
                     .frame(height: trackHeight)
+                    .background(
+                        GeometryReader { p in
+                            Color.clear
+                                .onAppear { trackWidth = p.size.width }
+                                .onChange(of: p.size.width) { oldWidth, newWidth in
+                                    guard newWidth > 0, newWidth != oldWidth else { return }
+                                    trackWidth = newWidth
+                                }
+                        }
+                    )
                 
-                // 채워진 구간
                 Capsule()
                     .fill(fillColor)
-                    .frame(width: max(thumbDiameter/2, clamped * (width - thumbDiameter) + thumbDiameter/2),
-                           height: trackHeight)
+                    .frame(width: centerX, height: trackHeight)
                 
-                // 손잡이
                 Circle()
                     .fill(thumbColor)
                     .frame(width: thumbDiameter, height: thumbDiameter)
-                    .shadow(radius: 0.5)
-                    .offset(x: clamped * (width - thumbDiameter))
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { g in
-                                if !isEditing {
-                                    isEditing = true
-                                    onEditingChanged?(true)
-                                }
-                                let x = g.location.x - thumbDiameter/2
-                                let newVal = Double(x / (width - thumbDiameter)).clamped(to: 0...1)
-                                withAnimation(.easeOut(duration: 0.06)) {
-                                    value = newVal
-                                }
-                                onEditingChanged?(true)
-                            }
-                            .onEnded { _ in
-                                isEditing = false
-                                onEditingChanged?(false)
-                            }
-                    )
+                    .scaleEffect(isDragging ? 1.2 : 1.0)
+                    .offset(x: centerX - thumbDiameter / 2)
+                    .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isDragging)
             }
-            .contentShape(Rectangle())
-            .onTapGesture { loc in
-                let x = loc.x - thumbDiameter/2
-                let newVal = Double(x / (width - thumbDiameter)).clamped(to: 0...1)
-                withAnimation(.easeOut(duration: 0.08)) { value = newVal }
-                onEditingChanged?(false)
-            }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Volume")
-            .accessibilityValue("\(Int(value * 100)) percent")
+            .padding(.vertical, 10)
+            .padding(.horizontal, 10)
+            .contentShape(Capsule())
+            .frame(maxHeight: .infinity)
+            .highPriorityGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { g in
+                        guard trackWidth > 0 else { return }
+                        if !isDragging {
+                            isDragging = true
+                            onEditingChanged?(true)
+                        }
+                        
+                        let minCenter = thumbDiameter / 2
+                        let maxCenter = trackWidth - thumbDiameter / 2
+                        
+                        let clampedCenterX = min(max(g.location.x - 10, minCenter), maxCenter)
+                        
+                        let newVal = Double((clampedCenterX - thumbDiameter / 2) / usable).clamped(to: 0...1)
+                        internalValue = newVal
+                        value = newVal
+                    }
+                    .onEnded { _ in
+                        isDragging = false
+                        onEditingChanged?(false)
+                    },
+                including: .all
+            )
         }
-        .frame(height: max(trackHeight, thumbDiameter))
     }
 }
 
 private extension Comparable {
-    func clamped(to r: ClosedRange<Self>) -> Self {
-        min(max(self, r.lowerBound), r.upperBound)
+    func clamped(to range: ClosedRange<Self>) -> Self {
+        min(max(self, range.lowerBound), range.upperBound)
     }
+}
+
+// MARK: - Previews
+#Preview {
+    @Previewable @State var volume = 0.5
+    VStack(spacing: 40) {
+        CapsuleVolumeSlider(value: $volume)
+            .frame(width: 100)
+        Text(String(format: "Volume: %.2f", volume))
+            .foregroundStyle(.white)
+    }
+    .padding()
+    .background(.black)
 }

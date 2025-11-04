@@ -118,33 +118,36 @@ final class AssetRepository: AssetRepositoryInterface {
     
 #if canImport(UIKit)
     func addImage(_ image: UIImage, filename: String) async throws -> Asset {
-        let safe = Self.sanitizedFilename(filename)
-        try imageService.save(image, project: project, filename: safe)
+        let (base, _) = Self.splitFilename(filename, defaultExt: "png")
+        let newFilename = imageService.uniqueFilename(project: project, base: base, ext: "png")
+        try imageService.save(image, project: project, filename: newFilename)
         notify()
-        return try addImageByURL(filename: safe)
+        return try addImageByURL(filename: newFilename)
     }
 #endif
     
     func addImageData(_ data: Data, filename: String) async throws -> Asset {
-        let safe = Self.sanitizedFilename(filename)
-        try imageService.save(data, project: project, filename: safe)
+        let (base, _) = Self.splitFilename(filename, defaultExt: "png")
+        let newFilename = imageService.uniqueFilename(project: project, base: base, ext: "png")
+        try imageService.save(data, project: project, filename: newFilename)
         notify()
-        return try addImageByURL(filename: safe)
+        return try addImageByURL(filename: newFilename)
     }
     
     func addSoundData(_ data: Data, filename: String) async throws -> Asset {
-        let safe = Self.sanitizedFilename(filename)
-        try soundService.save(data, project: project, filename: safe)
+        let (base, _) = Self.splitFilename(filename, defaultExt: "m4a")
+        let newFilename = soundService.uniqueFilename(project: project, base: base, ext: "m4a")
+        try soundService.save(data, project: project, filename: newFilename)
 
-        let url = soundService.url(project: project, filename: safe)
+        let url = soundService.url(project: project, filename: newFilename)
         let meta = soundService.meta(for: url)
         let h = try soundService.sha256Hex(url: url)
-        let id = Self.composeId(contentHash: h, filename: safe)
+        let id = Self.composeId(contentHash: h, filename: newFilename)
         
         let wf = await waveformProvider.waveform(url: url, targetSamples: 120, method: .peak)
 
         let asset = Asset(
-            id: id, type: .sound, filename: safe, filesize: meta.fileSize,
+            id: id, type: .sound, filename: newFilename, filesize: meta.fileSize,
             url: url, createdAt: meta.createdAt,
             image: nil,
             sound: SoundAsset(channel: .ambient, duration: meta.duration, waveform: wf)
@@ -280,15 +283,24 @@ final class AssetRepository: AssetRepositoryInterface {
         "\(contentHash)@\(filename)"
     }
     
+    static func splitFilename(_ filename: String, defaultExt: String) -> (base: String, ext: String) {
+        let url = URL(fileURLWithPath: filename)
+        let rawBase = url.deletingPathExtension().lastPathComponent
+        let rawExt  = url.pathExtension
+        let base = Self.sanitizedBase(rawBase)
+        let ext  = (rawExt.isEmpty ? defaultExt : rawExt).lowercased()
+        return (base, ext)
+    }
+    
+    private static func sanitizedBase(_ base: String) -> String {
+        sanitizedFilename(base).replacingOccurrences(of: ".", with: "_")
+    }
+    
     private static func sanitizedFilename(_ name: String) -> String {
         let bad = CharacterSet(charactersIn: "/:\\?%*|\"<>")
         let cleaned = name.components(separatedBy: bad).joined(separator: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return cleaned.isEmpty ? "Untitled" : cleaned
-    }
-    
-    private static func sanitizedBase(_ base: String) -> String {
-        sanitizedFilename(base).replacingOccurrences(of: ".", with: "_")
     }
     
     private func fillWaveformsIfNeeded() async {

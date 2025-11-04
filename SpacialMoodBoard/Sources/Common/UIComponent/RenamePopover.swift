@@ -66,7 +66,7 @@ struct RenamePopover: View {
                     onDuplicate(id, title)
                     onCancel()
                 } label: {
-                    rowLabel("복제 하기", system: "plus.square.on.square")
+                    rowLabel("복제하기", system: "plus.square.on.square")
                 }
                 .buttonStyle(.plain)
             }

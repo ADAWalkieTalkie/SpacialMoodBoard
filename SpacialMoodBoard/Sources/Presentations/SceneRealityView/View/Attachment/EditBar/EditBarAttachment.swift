@@ -50,7 +50,7 @@ struct EditBarAttachment: View {
     // MARK: - Body
     
     var body: some View {
-        HStack(spacing: objectType == .image ? 12 : 4) {
+        HStack(alignment: .center, spacing: 12) {
             switch objectType {
             case .image:
                 // 크롭 버튼
@@ -71,20 +71,28 @@ struct EditBarAttachment: View {
                 )
                 .accessibilityLabel(isMuted ? "Unmute" : "Mute")
                 
-                CapsuleVolumeSlider(value: Binding(
-                    get: { volume },
-                    set: { newValue in
-                        volume = newValue
-                        if newValue > 0 {
-                            lastNonZeroVolume = newValue
-                            isMuted = false
-                        } else {
-                            isMuted = true
+                CapsuleVolumeSlider(
+                    value: Binding(
+                        get: { volume },
+                        set: { newValue in
+                            volume = newValue
+                            if newValue > 0 {
+                                lastNonZeroVolume = newValue
+                                isMuted = false
+                            } else {
+                                isMuted = true
+                            }
                         }
-                        onVolumeChange?(newValue)
+                    ),
+                    onEditingChanged: { isEditing in
+                        if !isEditing {
+                            onVolumeChange?(volume)
+                        }
                     }
-                ))
-                .frame(width: 80)
+                )
+                .frame(width: 100)
+                .frame(maxHeight: .infinity)
+                .hoverEffect()
                 .accessibilityLabel("Volume")
             }
             
