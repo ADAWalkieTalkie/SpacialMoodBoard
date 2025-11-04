@@ -79,6 +79,7 @@ struct LibraryImageItemView: View {
             .padding(12)
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .contentShape(RoundedRectangle(cornerRadius: 20))
         .onTapGesture(perform: tapFlash)
         .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
                             pressing: { p in withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p } },
