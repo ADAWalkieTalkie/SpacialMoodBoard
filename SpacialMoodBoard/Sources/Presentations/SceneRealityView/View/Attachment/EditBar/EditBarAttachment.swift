@@ -71,21 +71,28 @@ struct EditBarAttachment: View {
                 )
                 .accessibilityLabel(isMuted ? "Unmute" : "Mute")
                 
-                CapsuleVolumeSlider(value: Binding(
-                    get: { volume },
-                    set: { newValue in
-                        volume = newValue
-                        if newValue > 0 {
-                            lastNonZeroVolume = newValue
-                            isMuted = false
-                        } else {
-                            isMuted = true
+                CapsuleVolumeSlider(
+                    value: Binding(
+                        get: { volume },
+                        set: { newValue in
+                            volume = newValue
+                            if newValue > 0 {
+                                lastNonZeroVolume = newValue
+                                isMuted = false
+                            } else {
+                                isMuted = true
+                            }
                         }
-                        onVolumeChange?(newValue)
+                    ),
+                    onEditingChanged: { isEditing in
+                        if !isEditing {
+                            onVolumeChange?(volume)
+                        }
                     }
-                ))
+                )
                 .frame(width: 100)
                 .frame(maxHeight: .infinity)
+                .hoverEffect()
                 .accessibilityLabel("Volume")
             }
             

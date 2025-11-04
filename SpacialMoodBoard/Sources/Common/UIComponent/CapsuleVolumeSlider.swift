@@ -77,8 +77,7 @@ struct CapsuleVolumeSlider: View {
             .padding(.horizontal, 10)
             .contentShape(Capsule())
             .frame(maxHeight: .infinity)
-            .hoverEffect()
-            .simultaneousGesture(
+            .highPriorityGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { g in
                         guard trackWidth > 0 else { return }
@@ -99,7 +98,8 @@ struct CapsuleVolumeSlider: View {
                     .onEnded { _ in
                         isDragging = false
                         onEditingChanged?(false)
-                    }
+                    },
+                including: .all
             )
         }
     }

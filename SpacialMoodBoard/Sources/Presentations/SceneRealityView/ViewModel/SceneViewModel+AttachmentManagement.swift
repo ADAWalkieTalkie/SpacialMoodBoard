@@ -50,8 +50,9 @@ extension SceneViewModel {
                     obj.setVolume(Float(newValue))
                 }
                 
-                let db = self.linearToDecibels(newValue)
-                SceneAudioCoordinator.shared.setGain(db, for: objectId)
+                let clamped = max(0.0, min(newValue, 1.0))
+                let db: Float = Float(self.linearToDecibels(clamped))
+                SceneAudioCoordinator.shared.setGain(Audio.Decibel(db), for: objectId)
                 
                 if newValue == 0 {
                     SceneAudioCoordinator.shared.pause(objectId)
