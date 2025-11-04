@@ -6,7 +6,7 @@ struct SceneConfig {
     var enableGestures: Bool = true
     var enableAttachments: Bool = true
     var alignToWindowBottom: Bool = false
-    var scale: Float = 1.0
+    var scale: Float = 5.0
     var useHeadAnchoredToolbar: Bool = false
     var floorSize: SIMD3<Float> = SIMD3(5, 0.03, 5)
 
@@ -18,6 +18,7 @@ struct SceneConfig {
     static let volume = SceneConfig(
         showRotationButton: true,
         alignToWindowBottom: true,
+        scale: 1
     )
 
     static let minimap = SceneConfig(

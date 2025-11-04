@@ -44,8 +44,12 @@ struct SceneRealityView: View {
                 }
 
             } update: { content, attachments in
+                // Volume 모드: base scale (0.2) × dynamic scale
                 if config.alignToWindowBottom {
-                    rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
+                    rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize, baseScale: config.scale)
+                } else {
+                    // Immersive 모드: scale 1.0 적용
+                    rootEntity.scale = [config.scale, config.scale, config.scale]
                 }
 
                 // MainActor에서 실행

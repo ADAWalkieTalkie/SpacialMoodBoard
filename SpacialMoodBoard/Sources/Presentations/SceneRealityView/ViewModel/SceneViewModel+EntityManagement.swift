@@ -10,6 +10,9 @@ extension SceneViewModel {
         sceneObjects: [SceneObject],
         rootEntity: Entity
     ) {
+        // rootEntity 참조 저장 (회전 등의 작업에 사용)
+        self.rootEntity = rootEntity
+
         entityRepository.syncEntities(
             sceneObjects: sceneObjects,
             rootEntity: rootEntity,

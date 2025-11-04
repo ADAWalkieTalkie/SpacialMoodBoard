@@ -73,17 +73,17 @@ extension SceneViewModel {
     func rotateBy90Degrees() {
         rotationAngle += .pi / 2
 
-        guard let FloorEntity = getFloorEntity() else { return }
+        guard let rootEntity = rootEntity else { return }
 
-        applyRotation(to: FloorEntity, angle: rotationAngle, animated: true)
+        applyRotation(to: rootEntity, angle: rotationAngle, animated: true)
     }
 
     func resetRotation() {
         rotationAngle = 0
 
-        guard let FloorEntity = getFloorEntity() else { return }
+        guard let rootEntity = rootEntity else { return }
 
-        applyRotation(to: FloorEntity, angle: rotationAngle, animated: false)
+        applyRotation(to: rootEntity, angle: rotationAngle, animated: false)
     }
 
     func alignFloorToWindowBottom(

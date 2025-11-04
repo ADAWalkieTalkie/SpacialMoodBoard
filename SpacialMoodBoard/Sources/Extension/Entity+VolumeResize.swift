@@ -20,20 +20,22 @@ extension Entity {
     ///   - realityViewContent: RealityView의 콘텐츠. 좌표계 변환에 사용됩니다.
     ///   - geometryProxy3D: Volume 윈도우의 3D geometry 정보를 제공하는 proxy
     ///   - defaultVolumeSize: 기준이 되는 기본 Volume 크기. 기본값은 1.0m x 1.0m x 1.0m
+    ///   - baseScale: 동적 스케일 전에 적용할 기본 스케일. 기본값은 1.0
     ///
     /// - Note: 이 메서드는 반드시 Main Actor에서 호출되어야 합니다.
     ///
     /// ## 동작 원리
     /// 1. geometryProxy3D의 로컬 프레임을 씬 좌표계로 변환
     /// 2. 변환된 bounding box의 각 축(x, y, z) 크기를 기본 Volume 크기로 나누어 스케일 비율 계산
-    /// 3. 계산된 비율을 Entity의 scale 속성에 적용
+    /// 3. 계산된 비율에 baseScale을 곱하여 최종 스케일 계산
+    /// 4. 최종 스케일을 Entity의 scale 속성에 적용
     ///
     /// ## 사용 예시
     /// ```swift
     /// RealityView { content in
     ///     // ...
     /// } update: { content, attachments in
-    ///     rootEntity.volumeResize(content, proxy)
+    ///     rootEntity.volumeResize(content, proxy, baseScale: 0.2)
     /// }
     /// .modifier(GeometryModifier3D())
     /// ```
@@ -41,7 +43,8 @@ extension Entity {
     func volumeResize(
         _ realityViewContent: RealityViewContent,
         _ geometryProxy3D: GeometryProxy3D,
-        _ defaultVolumeSize: Size3D = Size3D(width: 1.0, height: 1.0, depth: 1.0)
+        _ defaultVolumeSize: Size3D = Size3D(width: 1.0, height: 1.0, depth: 1.0),
+        baseScale: Float = 1.0
     ) {
         // Volume 윈도우의 로컬 프레임을 씬 좌표계로 변환
         let scaledVolumeContentBoundingBox = realityViewContent.convert(
@@ -54,8 +57,8 @@ extension Entity {
         let scaleY = scaledVolumeContentBoundingBox.extents.y / Float(defaultVolumeSize.height)
         let scaleZ = scaledVolumeContentBoundingBox.extents.z / Float(defaultVolumeSize.depth)
 
-        // 계산된 스케일을 Entity에 적용
-        let newScale: SIMD3<Float> = [scaleX, scaleY, scaleZ]
+        // 계산된 스케일에 baseScale을 곱하여 최종 스케일 계산
+        let newScale: SIMD3<Float> = [scaleX * baseScale, scaleY * baseScale, scaleZ * baseScale]
         self.scale = newScale
     }
 }
