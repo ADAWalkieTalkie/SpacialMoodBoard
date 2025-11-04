@@ -16,6 +16,7 @@ final class ImageEditorViewModel {
     private let assetRepository: AssetRepositoryInterface
     
     var images: [UIImage]
+    private var preferredNames: [String?]
     private var onAddToLibrary: (_ exported: [URL]) -> Void
     
     // 사이드바 상태/폭
@@ -43,10 +44,12 @@ final class ImageEditorViewModel {
     // MARK: - Init
     init(
         images: [UIImage],
+        preferredNames: [String?],
         assetRepository: AssetRepositoryInterface,
         onAddToLibrary: @escaping ([URL]) -> Void
     ) {
         self.images = images
+        self.preferredNames = preferredNames
         self.assetRepository = assetRepository
         self.onAddToLibrary = onAddToLibrary
         if !images.isEmpty { selectedIndex = 0 }
@@ -132,7 +135,11 @@ final class ImageEditorViewModel {
     /// - Returns: 저장에 성공하면 `Documents/projects/<projectName>/images/<uuid>.jpg`의 파일 URL, 실패 시 `nil`
     private func saveToProject(image: UIImage) async -> URL? {
         do {
-            let filename = UUID().uuidString + ".png"
+            let raw = (preferredNames.indices.contains(selectedIndex) ? preferredNames[selectedIndex] : nil)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let base = (raw?.isEmpty == false ? raw! : "Image")
+            let filename = URL(fileURLWithPath: base).deletingPathExtension().lastPathComponent
+            
             let asset = try await assetRepository.addImage(image, filename: filename)
             return asset.url
         } catch {

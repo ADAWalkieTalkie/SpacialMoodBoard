@@ -6,10 +6,7 @@
 //
 
 import SwiftUI
-import Observation
 import PhotosUI
-import UniformTypeIdentifiers
-import AVFoundation
 
 @MainActor
 @Observable
@@ -22,15 +19,22 @@ final class LibraryViewModel {
     private let assetRepository: AssetRepositoryInterface
     private let renameAssetUseCase: RenameAssetUseCase
     private let deleteAssetUseCase: DeleteAssetUseCase
+    @ObservationIgnored
+    private let importUseCase: ImportUseCase
     private let sceneModelFileStorage: SceneModelFileStorage
-
     @ObservationIgnored
     private var token: UUID?
     var projectName: String { assetRepository.project }
     var assets: [Asset] = []
     
     var searchText = ""
-    var assetType: AssetType = .image
+    var assetType: AssetType = .image {
+        didSet {
+            if assetType != .image, showDropDock {
+                showDropDock = false
+            }
+        }
+    }
     var sort: SortOrder = .recent
     var showSearch: Bool = false {
         didSet {
@@ -39,17 +43,22 @@ final class LibraryViewModel {
             }
         }
     }
+
     var showDropDock = false
-    var showSoundImporter = false
-    
+    var showFileImporter = false
     var editorImages: [UIImage] = []
+    var editorPreferredNames: [String?] = []
     var showEditor = false
     
     // MARK: - Init
     
     /// Init
-    /// - Parameter projectName: 작업할 프로젝트 이름 (프로젝트 루트 디렉터리 식별에 사용)
-    /// - Parameter assetRepository: AssetRepositoryInterface
+    /// - Parameters:
+    ///   - appModel: 전역 앱 상태를 보유하는 `AppModel`
+    ///   - assetRepository: 에셋(이미지/사운드)의 영속화를 담당하는 저장소
+    ///   - renameAssetUseCase: 에셋 이름 변경(및 참조 리맵)을 수행하는 유즈케이스
+    ///   - deleteAssetUseCase: 에셋 삭제(및 참조 정리)를 수행하는 유즈케이스
+
     init(
         appStateManager: AppStateManager,
         assetRepository: AssetRepositoryInterface,
@@ -61,144 +70,18 @@ final class LibraryViewModel {
         self.assetRepository = assetRepository
         self.renameAssetUseCase = renameAssetUseCase
         self.deleteAssetUseCase = deleteAssetUseCase
+        self.importUseCase = ImportUseCase(assetRepository: assetRepository)
         self.sceneModelFileStorage = sceneModelFileStorage
-
         self.token = assetRepository.addChangeHandler { [weak self] in
             guard let self else { return }
             self.assets = assetRepository.assets
         }
     }
-//    deinit { if let token { assetRepository.removeChangeHandler(token) } }
     
     // MARK: - Methods
     
     func loadAssets() async {
         await assetRepository.reload()
-        syncFromRepo()
-    }
-    
-    /// 드래그 앤 드롭으로 전달된 아이템들을 처리한다. 즉시 `true`를 반환하고 내부에서 비동기로 로딩
-    /// - Parameter providers: 드롭된 `NSItemProvider`들
-    /// - Returns: 항상 `true`(드롭 수락). 실제 로딩은 비동기로 진행
-    @discardableResult
-    func handleDrop(providers: [NSItemProvider]) -> Bool {
-        Task { await importFromProviders(providers) }
-        return true
-    }
-    
-    /// 여러 Provider에서 이미지들을 배열로 모아 한 번에 에디터로 전달한다.
-    /// - Parameter providers: 최대 10개까지 처리할 `NSItemProvider` 배열
-    private func importFromProviders(_ providers: [NSItemProvider]) async {
-        let limited = Array(providers.prefix(10))
-        var images: [UIImage] = []
-        images.reserveCapacity(limited.count)
-        
-        for p in limited {
-            if p.canLoadObject(ofClass: UIImage.self) {
-                if let img = await loadUIImage(provider: p) {
-                    images.append(img); continue
-                }
-            }
-            
-            let imageUTIs: [String] = [
-                UTType.image.identifier,
-                UTType.png.identifier,
-                UTType.jpeg.identifier,
-                UTType.heic.identifier
-            ]
-            if let t = imageUTIs.first(where: { p.hasItemConformingToTypeIdentifier($0) }),
-               let data = await loadData(provider: p, typeIdentifier: t),
-               let img = UIImage(data: data) {
-                images.append(img); continue
-            }
-            
-            let urlUTIs: [String] = [UTType.fileURL.identifier, UTType.url.identifier]
-            if let t = urlUTIs.first(where: { p.hasItemConformingToTypeIdentifier($0) }),
-               let any = await loadItem(provider: p, typeIdentifier: t),
-               let url = any as? URL,
-               let data = try? Data(contentsOf: url),
-               let img = UIImage(data: data) {
-                images.append(img); continue
-            }
-        }
-        
-        guard !images.isEmpty else { return }
-        await presentEditor(with: images)
-    }
-    
-    // MARK: - Editor
-    
-    /// 수집된 이미지들을 에디터에 전달하고 에디터를 표시.
-    /// - Parameter images: 에디터에서 편집할 이미지 배열
-    func presentEditor(with images: [UIImage]) async {
-        editorImages = images
-        showDropDock = false
-        showEditor = true
-    }
-    
-    func appendItem(with url: URL) async {
-        do {
-            let data = try Data(contentsOf: url)
-            _ = try await assetRepository.addImageData(data, filename: url.lastPathComponent)
-            syncFromRepo()
-        } catch {
-            print("⚠️ appendItem failed: \(error)")
-        }
-    }
-    
-    // MARK: - Provider loaders (async helpers)
-    
-    /// `NSItemProvider`에서 `UIImage`를 비동기로 로드
-    /// - Parameter provider: 로드할 프로바이더
-    /// - Returns: 로드 성공 시 이미지, 실패 시 `nil`
-    private func loadUIImage(provider: NSItemProvider) async -> UIImage? {
-        await withCheckedContinuation { cont in
-            provider.loadObject(ofClass: UIImage.self) { obj, _ in
-                cont.resume(returning: obj as? UIImage)
-            }
-        }
-    }
-    
-    /// `NSItemProvider`에서 특정 UTI 타입의 `Data`를 비동기로 로드
-    /// - Parameters:
-    ///   - provider: 로드할 프로바이더
-    ///   - typeIdentifier: 예) `UTType.png.identifier`
-    /// - Returns: 데이터 로드 성공 시 `Data`, 실패 시 `nil`
-    private func loadData(provider: NSItemProvider, typeIdentifier: String) async -> Data? {
-        await withCheckedContinuation { cont in
-            provider.loadDataRepresentation(forTypeIdentifier: typeIdentifier) { data, _ in
-                cont.resume(returning: data)
-            }
-        }
-    }
-    
-    /// `NSItemProvider`에서 특정 UTI 타입의 아이템을 비동기로 로드
-    /// - Parameters:
-    ///   - provider: 로드할 프로바이더
-    ///   - typeIdentifier: 예) `UTType.fileURL.identifier`
-    /// - Returns: 로드된 아이템(`NSSecureCoding`), 실패 시 `nil`
-    private func loadItem(provider: NSItemProvider, typeIdentifier: String) async -> NSSecureCoding? {
-        await withCheckedContinuation { cont in
-            provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, _ in
-                cont.resume(returning: item)
-            }
-        }
-    }
-    
-    /// 파일 피커에서 고른 사운드 파일들을 프로젝트 /sounds 에 **원본 그대로** 저장하고, 목록에 추가
-    /// - Parameter urls: [URL]
-    func importSoundFiles(urls: [URL]) async {
-        guard !urls.isEmpty else { return }
-        for url in urls {
-            let needsSecurity = url.startAccessingSecurityScopedResource()
-            defer { if needsSecurity { url.stopAccessingSecurityScopedResource() } }
-            do {
-                let data = try Data(contentsOf: url)
-                _ = try await assetRepository.addSoundData(data, filename: url.lastPathComponent)
-            } catch {
-                print("사운드 임포트 실패(\(url.lastPathComponent)): \(error)")
-            }
-        }
         syncFromRepo()
     }
     
@@ -208,7 +91,7 @@ final class LibraryViewModel {
     }
 }
 
-// MARK: - Extension sort
+// MARK: - 정렬, 검색어 관련
 
 extension LibraryViewModel {
     /// 검색어와 타입으로 목록을 필터링한 뒤, 현재 정렬 옵션(`sort`)에 따라 정렬된 배열을 반환
@@ -239,13 +122,77 @@ extension LibraryViewModel {
             }
         case .nameAZ:
             return assets.sorted {
-                $0.filename.localizedStandardCompare($1.filename) == .orderedAscending
+                $0.filename.localizedCompare($1.filename) == .orderedAscending
             }
         }
     }
 }
 
-// MARK: - Extension RenamePopover
+// MARK: - DropDockOverlayView 관련
+
+extension LibraryViewModel {
+    /// 드래그&드롭으로 전달된 아이템들을 임포트 요청으로 실행
+    /// - Parameter providers: 드롭된 `NSItemProvider` 배열
+    /// - Returns: 드롭 제스처 수락 여부. 항상 `true`를 반환합니다(비동기 임포트 시작 의미)
+    @discardableResult
+    func handleDrop(providers: [NSItemProvider]) -> Bool {
+        Task {
+            editorPreferredNames = await collectNamesForProviders(providers)
+            await runImport(kind: assetType, source: .dragDrop(providers: providers))
+        }
+        return true
+    }
+    
+    /// PhotosPicker에서 선택된 항목들을 임포트 요청으로 실행
+    /// - Parameter items: 사용자가 선택한 `PhotosPickerItem` 목록(최대 10개로 잘라 처리)
+    func importFromPhotos(_ items: [PhotosPickerItem]) {
+        editorPreferredNames = collectNamesForPhotos(items)
+        Task { await runImport(kind: .image, source: .photosPicker(items: items, limit: 10)) }
+    }
+    
+    /// 클립보드의 현재 내용을 임포트 요청으로 실행
+    /// 이미지/사운드는 현재 탭(`assetType`)에 따라 분기
+    func importFromClipboard() {
+        editorPreferredNames = collectNamesForClipboard()
+        Task { await runImport(kind: assetType, source: .clipboard) }
+    }
+    
+    /// 파일 선택기로 고른 파일 URL들을 임포트 요청으로 실행
+    /// - Parameter urls: 사용자가 선택한 파일 URL 배열
+    func importFromFileUrls(_ urls: [URL]) {
+        editorPreferredNames = collectNamesForFileURLs(urls)
+        Task { await runImport(kind: assetType, source: .fileUrls(urls)) }
+    }
+    
+    /// 임포트 요청을 생성하고 유즈케이스를 호출한 뒤, 결과에 따라 후처리
+    /// - Parameters:
+    ///   - kind: 임포트 대상 종류(.image / .sound). 보통 현재 탭 상태를 반영
+    ///   - source: 임포트 소스(드래그드롭/포토피커/클립보드/파일URL)
+    private func runImport(kind: AssetType, source: ImportRequest.Source) async {
+        let request = ImportRequest(
+            kind: kind,
+            source: source,
+            projectName: projectName,
+            limit: 10
+        )
+        do {
+            let result = try await importUseCase.execute(request)
+            switch result {
+            case .images(let images):
+                let names = Array(editorPreferredNames.prefix(images.count))
+                let padded = names + Array(repeating: nil, count: max(0, images.count - names.count))
+                
+                await presentEditor(with: images, preferredNames: padded)
+            case .soundsSaved:
+                syncFromRepo()
+            }
+        } catch {
+            print("Import failed:", error)
+        }
+    }
+}
+
+// MARK: - RenamePopoverView 관련
 
 extension LibraryViewModel {
     /// 에셋 이름을 변경하고(필요 시 assetId 변경 포함), 씬 내 참조를 일괄 리맵하는 액션
@@ -299,5 +246,72 @@ extension LibraryViewModel {
         } catch {
             print("❌ Failed to delete asset:", error)
         }
+    }
+}
+
+// MARK: - ImageEditorView 관련
+
+extension LibraryViewModel {
+    /// 수집된 이미지들을 에디터에 전달하고 에디터를 표시
+    /// - Parameter images: 에디터에서 편집할 `UIImage` 배열
+    /// - Parameter preferredNames: 저장할때 사용할 원본 파일 이름 `String?` 배경
+    func presentEditor(with images: [UIImage], preferredNames: [String?]) async {
+        editorImages = images
+        editorPreferredNames = preferredNames
+        showDropDock = false
+        showEditor = true
+    }
+}
+
+// MARK: - 파일이름 관련
+
+extension LibraryViewModel {
+    // 드래그&드롭: provider별 원본 파일명 추출
+    func collectNamesForProviders(_ providers: [NSItemProvider]) async -> [String?] {
+        var out: [String?] = []
+        out.reserveCapacity(providers.count)
+
+        for p in providers {
+            // 1) suggestedName
+            if let n = p.suggestedName, !n.isEmpty { out.append(n); continue }
+
+            // 2) loadFileRepresentation로 실제 tmp 파일명 확보
+            if let id = p.registeredTypeIdentifiers.first {
+                let name: String? = await withCheckedContinuation { cont in
+                    p.loadFileRepresentation(forTypeIdentifier: id) { url, _ in
+                        cont.resume(returning: url?.lastPathComponent)
+                    }
+                }
+                out.append(name)
+                continue
+            }
+
+            out.append(nil)
+        }
+        return out
+    }
+
+    // PhotosPicker: PHAssetResource로 원본 파일명
+    func collectNamesForPhotos(_ items: [PhotosPickerItem]) -> [String?] {
+        var names: [String?] = Array(repeating: nil, count: items.count)
+        for (i, it) in items.enumerated() {
+            if let id = it.itemIdentifier,
+               let a = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil).firstObject,
+               let res = PHAssetResource.assetResources(for: a).first {
+                names[i] = res.originalFilename   // 예: IMG_1234.HEIC
+            }
+        }
+        return names
+    }
+
+    // 파일 URL들: 그대로 파일명
+    func collectNamesForFileURLs(_ urls: [URL]) -> [String?] {
+        urls.map { $0.lastPathComponent }
+    }
+
+    // 클립보드: URL이면 파일명, 아니면 nil
+    func collectNamesForClipboard() -> [String?] {
+        if let u = UIPasteboard.general.url { return [u.lastPathComponent] }
+        return [nil]
     }
 }

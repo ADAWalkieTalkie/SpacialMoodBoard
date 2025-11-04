@@ -51,7 +51,6 @@ struct LibraryImageItemView: View {
                     .frame(maxWidth: .infinity)
                     .frame(maxHeight: .infinity)
                     .aspectRatio(1, contentMode: .fit)
-                    .background(.black.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 
                 VStack(alignment: .leading, spacing: 2) {
