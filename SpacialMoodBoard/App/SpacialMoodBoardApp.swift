@@ -108,6 +108,6 @@ struct SpacialMoodBoardApp: App {
             ImmersiveSceneView(viewModel: sceneViewModel)
                 .environment(appStateManager)
         }
-        .immersionStyle(selection: .constant(.full), in: .full)
+        .immersionStyle(selection: .constant(.mixed), in: .mixed)
     }
 }
