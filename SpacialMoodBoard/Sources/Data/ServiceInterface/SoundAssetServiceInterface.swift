@@ -29,6 +29,9 @@ protocol SoundAssetServiceProtocol {
     func copy(project: String, from srcName: String, to dstName: String) throws
     func uniqueFilename(project: String, base: String, ext: String) -> String
 
+    // 기본 사운드 조회
+    func listBuiltins(subdirectory: String) -> [Asset]
+    
     // 해시
     func sha256Hex(url: URL) throws -> String
 }

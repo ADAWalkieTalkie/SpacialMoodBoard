@@ -35,7 +35,9 @@ final class LibraryViewModel {
             }
         }
     }
-    var sort: SortOrder = .recent
+    var sortOrder: SortOrder.Sort = .recent
+    var originFilter: SortOrder.Origin = .userOnly
+    var expandedChannels: [SoundChannel: Bool] = [.foley: true, .ambient: true]
     var showSearch: Bool = false {
         didSet {
             if showSearch == false, !searchText.isEmpty {
@@ -101,30 +103,46 @@ extension LibraryViewModel {
     /// - Returns: 필터링 + 정렬이 적용된 `Asset` 배열
     func filteredAndSorted(type: AssetType, key: String) -> [Asset] {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
-        let filtered = assets
+        
+        var items = assets
             .filter { $0.type == type }
             .filter { trimmed.isEmpty ? true : $0.filename.localizedCaseInsensitiveContains(trimmed) }
-        return sortAssets(filtered)
-    }
-    
-    /// 주어진 에셋 배열을 뷰모델의 정렬 상태(`sort`)에 맞춰 정렬
-    /// - Parameter assets: 정렬 대상 에셋 배열
-    /// - Returns: 정렬 결과 배열
-    /// - Note:
-    ///   - `.recent`: 생성일 내림차순(최신 우선), 동일한 생성일은 파일명 오름차순으로 타이브레이크
-    ///   - `.nameAZ`: 파일명 오름차순(`localizedStandardCompare`) 정렬
-    func sortAssets(_ assets: [Asset]) -> [Asset] {
-        switch sort {
+        
+        if type == .sound {
+            switch originFilter {
+            case .basicOnly:
+                items = items.filter { $0.sound?.origin == .basic }
+            case .userOnly:
+                items = items.filter { $0.sound?.origin == .user }
+            }
+        }
+        
+        switch sortOrder {
         case .recent:
-            return assets.sorted {
+            items.sort {
                 if $0.createdAt == $1.createdAt { return $0.filename < $1.filename }
                 return $0.createdAt > $1.createdAt
             }
         case .nameAZ:
-            return assets.sorted {
-                $0.filename.localizedCompare($1.filename) == .orderedAscending
-            }
+            items.sort { $0.filename.localizedCompare($1.filename) == .orderedAscending }
         }
+        
+        return items
+    }
+    
+    /// 사운드 섹션이 현재 펼쳐져 있는지 여부를 반환
+    /// - Parameter ch: 확인할 사운드 채널
+    /// - Returns: 펼쳐져 있으면 `true`, 접혀 있으면 `false`
+    /// - Note: 아직 상태가 저장되지 않은 채널은 기본값으로 `true(펼침)`을 반환
+    func isExpanded(_ ch: SoundChannel) -> Bool {
+        expandedChannels[ch] ?? true
+    }
+    
+    /// 사운드 섹션 접힘/펼침 상태를 토글
+    /// - Parameter ch: 토글할 사운드 채널
+    /// - Note: 아직 상태가 없는 채널이면 기본값 `true(펼침)`을 넣어 초기화
+    func toggleChannel(_ ch: SoundChannel) {
+        expandedChannels[ch]?.toggle() ?? { expandedChannels[ch] = true }()
     }
 }
 

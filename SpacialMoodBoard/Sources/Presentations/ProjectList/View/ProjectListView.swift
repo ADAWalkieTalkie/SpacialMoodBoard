@@ -65,7 +65,7 @@ struct ProjectListView: View {
 
     private var headerView: some View {
         HStack(alignment: .center, spacing: 16) {
-            SortSegment(selection: $viewModel.sort)
+            SortSegment(selection: $viewModel.sort, group: .sort)
                 .frame(width: 188, height: 44)
 
             Spacer()
