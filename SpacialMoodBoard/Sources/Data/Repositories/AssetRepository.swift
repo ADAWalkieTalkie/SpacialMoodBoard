@@ -99,8 +99,18 @@ final class AssetRepository: AssetRepositoryInterface {
                 Asset(id: id, type: .sound, filename: name, filesize: meta.fileSize,
                       url: url, createdAt: meta.createdAt,
                       image: nil,
-                      sound: SoundAsset(channel: .ambient, duration: meta.duration, waveform: []))
+                      sound: SoundAsset(origin: .user, channel: .ambient, duration: meta.duration, waveform: []))
             )
+        }
+        
+        let builtins = soundService.listBuiltins(subdirectory: "BasicSoundAssets")
+        for a in builtins {
+            loaded.append(
+                Asset(id: a.id, type: .sound, filename: a.filename, filesize: a.filesize,
+                      url: a.url, createdAt: a.createdAt,
+                      image: nil,
+                      sound: a.sound)
+                )
         }
         
         loaded.sort { $0.createdAt > $1.createdAt }
@@ -150,7 +160,7 @@ final class AssetRepository: AssetRepositoryInterface {
             id: id, type: .sound, filename: newFilename, filesize: meta.fileSize,
             url: url, createdAt: meta.createdAt,
             image: nil,
-            sound: SoundAsset(channel: .ambient, duration: meta.duration, waveform: wf)
+            sound: SoundAsset(origin: .user, channel: .ambient, duration: meta.duration, waveform: wf)
         )
 
         assets.insert(asset, at: 0)
@@ -250,7 +260,7 @@ final class AssetRepository: AssetRepositoryInterface {
                 id: id, type: .sound, filename: newFilename, filesize: meta.fileSize,
                 url: url, createdAt: Date(),
                 image: nil,
-                sound: SoundAsset(channel: .ambient, duration: meta.duration, waveform: wf)
+                sound: SoundAsset(origin: .user, channel: .ambient, duration: meta.duration, waveform: wf)
             )
             assets.insert(dup, at: 0)
             notify()
