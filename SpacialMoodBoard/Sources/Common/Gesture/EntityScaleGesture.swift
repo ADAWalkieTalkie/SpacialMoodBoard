@@ -4,6 +4,7 @@ import RealityKit
 // MARK: - Entity Scale Gesture
 
 struct EntityScaleGesture: ViewModifier {
+    @Binding var selectedEntity: ModelEntity?
     let onScaleUpdate: (UUID, Float) -> Void
     
     @State private var initialScale: SIMD3<Float>? = nil
@@ -16,6 +17,11 @@ struct EntityScaleGesture: ViewModifier {
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onChanged { value in
                         let rootEntity = value.entity
+                        
+                        // 제스처 시작 시 Entity 선택
+                        if let modelEntity = rootEntity as? ModelEntity {
+                            selectedEntity = modelEntity
+                        }
                         
                         if initialScale == nil {
                             initialScale = rootEntity.scale
@@ -41,7 +47,13 @@ struct EntityScaleGesture: ViewModifier {
 
 // MARK: - View Extension
 extension View {
-    func entityScaleGesture(onScaleUpdate: @escaping (UUID, Float) -> Void) -> some View {
-        self.modifier(EntityScaleGesture(onScaleUpdate: onScaleUpdate))
+    func entityScaleGesture(
+        selectedEntity: Binding<ModelEntity?>,
+        onScaleUpdate: @escaping (UUID, Float) -> Void
+    ) -> some View {
+        self.modifier(EntityScaleGesture(
+            selectedEntity: selectedEntity,
+            onScaleUpdate: onScaleUpdate
+        ))
     }
 }

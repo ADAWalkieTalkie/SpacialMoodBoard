@@ -4,6 +4,7 @@ import RealityKit
 // MARK: - Entity Rotation Gesture
 
 struct EntityRotationGesture: ViewModifier {
+    @Binding var selectedEntity: ModelEntity?
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
     let snapAngleDegrees: Float
     
@@ -17,6 +18,11 @@ struct EntityRotationGesture: ViewModifier {
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onChanged { value in
                         let rootEntity = value.entity
+                        
+                        // 제스처 시작 시 Entity 선택
+                        if let modelEntity = rootEntity as? ModelEntity {
+                            selectedEntity = modelEntity
+                        }
                         
                         if initialOrientation == nil {
                             initialOrientation = rootEntity.orientation
@@ -56,13 +62,16 @@ struct EntityRotationGesture: ViewModifier {
             )
     }
 }
+
 // MARK: - View Extension
 extension View {
     func entityRotationGesture(
+        selectedEntity: Binding<ModelEntity?>,
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         snapAngleDegrees: Float = 15.0 // 기본값 15도
     ) -> some View {
         self.modifier(EntityRotationGesture(
+            selectedEntity: selectedEntity,
             onRotationUpdate: onRotationUpdate,
             snapAngleDegrees: snapAngleDegrees
         ))

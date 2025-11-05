@@ -4,6 +4,7 @@ import RealityKit
 // MARK: - Entity Drag Gesture
 
 struct EntityDragGesture: ViewModifier {
+    @Binding var selectedEntity: ModelEntity?
     let onPositionUpdate: (UUID, SIMD3<Float>) -> Void
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
     
@@ -17,6 +18,11 @@ struct EntityDragGesture: ViewModifier {
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onChanged { value in
                         let rootEntity = value.entity
+                        
+                        // 제스처 시작 시 Entity 선택
+                        if let modelEntity = rootEntity as? ModelEntity {
+                            selectedEntity = modelEntity
+                        }
                         
                         if initialPosition == nil {
                             initialPosition = rootEntity.position
@@ -61,10 +67,12 @@ struct EntityDragGesture: ViewModifier {
 // MARK: - View Extension
 extension View {
     func entityDragGesture(
+        selectedEntity: Binding<ModelEntity?>,
         onPositionUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void
     ) -> some View {
         self.modifier(EntityDragGesture(
+            selectedEntity: selectedEntity,
             onPositionUpdate: onPositionUpdate,
             onRotationUpdate: onRotationUpdate
         ))
