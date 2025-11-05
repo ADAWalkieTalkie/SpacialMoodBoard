@@ -63,6 +63,6 @@ struct EntityBoundBoxApplier {
         }
         
         guard let cg = image.cgImage else { return nil }
-        return try? TextureResource.generate(from: cg, options: .init(semantic: .color))
+        return try? TextureResource(image: cg, options: .init(semantic: .color))
     }
 }
