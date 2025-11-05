@@ -25,6 +25,7 @@ struct EntityRotationGesture: ViewModifier {
                         }
                         
                         if initialOrientation == nil {
+                            selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
                             initialOrientation = currentEntity.orientation
                         }
                         
@@ -56,6 +57,8 @@ struct EntityRotationGesture: ViewModifier {
                         // 최종 rotation을 Euler angles로 변환해서 저장
                         let finalRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, finalRotation)
+                        
+                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
                         initialOrientation = nil
                     }

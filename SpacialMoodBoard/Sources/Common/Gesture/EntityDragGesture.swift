@@ -25,6 +25,7 @@ struct EntityDragGesture: ViewModifier {
                         }
                         
                         if initialPosition == nil {
+                            selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
                             initialPosition = currentEntity.position
                         }
                         
@@ -57,6 +58,8 @@ struct EntityDragGesture: ViewModifier {
                         let eulerRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, eulerRotation)
                         onPositionUpdate(uuid, value.entity.position)
+                        
+                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
                         initialPosition = nil
                     }

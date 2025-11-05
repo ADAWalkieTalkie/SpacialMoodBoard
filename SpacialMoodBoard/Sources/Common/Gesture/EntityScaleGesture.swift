@@ -8,6 +8,7 @@ struct EntityScaleGesture: ViewModifier {
     let onScaleUpdate: (UUID, Float) -> Void
     
     @State private var initialScale: SIMD3<Float>? = nil
+    @State private var hasStartedGesture: Bool = false
     
     func body(content: Content) -> some View {
         content
@@ -18,10 +19,8 @@ struct EntityScaleGesture: ViewModifier {
                     .onChanged { value in
                         let currentEntity = value.entity
                         
-                        // 제스처 시작 시 Entity 선택
-                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
-                        
                         if initialScale == nil {
+                            selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
                             initialScale = currentEntity.scale
                         }
                         
@@ -36,6 +35,8 @@ struct EntityScaleGesture: ViewModifier {
                         
                         let finalScale = value.entity.scale.x // uniform scale이므로 x만 사용
                         onScaleUpdate(uuid, finalScale)
+
+                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
                         initialScale = nil
                     }
