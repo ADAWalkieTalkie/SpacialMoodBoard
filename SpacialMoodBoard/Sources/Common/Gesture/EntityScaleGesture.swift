@@ -16,18 +16,16 @@ struct EntityScaleGesture: ViewModifier {
                 MagnifyGesture()
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onChanged { value in
-                        let rootEntity = value.entity
+                        let currentEntity = value.entity
                         
                         // 제스처 시작 시 Entity 선택
-                        if let modelEntity = rootEntity as? ModelEntity {
-                            selectedEntity = modelEntity
-                        }
+                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
                         if initialScale == nil {
-                            initialScale = rootEntity.scale
+                            initialScale = currentEntity.scale
                         }
                         
-                        rootEntity.scale = (initialScale ?? .init(repeating: 1.0)) * Float(value.magnification)
+                        currentEntity.scale = (initialScale ?? .init(repeating: 1.0)) * Float(value.magnification)
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
