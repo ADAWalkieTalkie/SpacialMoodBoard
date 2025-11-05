@@ -75,15 +75,6 @@ struct SceneRealityView: View {
                     },
                     onScaleUpdate: { uuid, scale in
                         viewModel.updateObjectScale(id: uuid, scale: scale)
-                    },
-                    onBillboardableChange: { uuid, billboardable in
-                        viewModel.updateBillboardable(id: uuid, billboardable: billboardable)
-                    },
-                    getBillboardableState: { uuid in
-                        viewModel.getBillboardableState(id: uuid)
-                    },
-                    getHeadPosition: {
-                        return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
                     }
                 )
             }

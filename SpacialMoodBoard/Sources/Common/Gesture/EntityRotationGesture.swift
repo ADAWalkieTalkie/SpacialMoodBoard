@@ -5,7 +5,6 @@ import RealityKit
 
 struct EntityRotationGesture: ViewModifier {
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
-    let onBillboardableChange: (UUID, Bool) -> Void
     let snapAngleDegrees: Float
     
     @State private var initialOrientation: simd_quatf? = nil
@@ -51,8 +50,6 @@ struct EntityRotationGesture: ViewModifier {
                         // 최종 rotation을 Euler angles로 변환해서 저장
                         let finalRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, finalRotation)
-                        // 회전 제스처 실행시 billboardable을 false로 변경
-                        onBillboardableChange(uuid, false)
                         
                         initialOrientation = nil
                     }
@@ -63,12 +60,10 @@ struct EntityRotationGesture: ViewModifier {
 extension View {
     func entityRotationGesture(
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
-        onBillboardableChange: @escaping (UUID, Bool) -> Void,
         snapAngleDegrees: Float = 15.0 // 기본값 15도
     ) -> some View {
         self.modifier(EntityRotationGesture(
             onRotationUpdate: onRotationUpdate,
-            onBillboardableChange: onBillboardableChange,
             snapAngleDegrees: snapAngleDegrees
         ))
     }

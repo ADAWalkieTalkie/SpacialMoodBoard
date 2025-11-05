@@ -7,23 +7,17 @@ extension View {
         selectedEntity: Binding<ModelEntity?>,
         onPositionUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
-        onScaleUpdate: @escaping (UUID, Float) -> Void,
-        onBillboardableChange: @escaping (UUID, Bool) -> Void,
-        getBillboardableState: @escaping (UUID) -> Bool,
-        getHeadPosition: @escaping () -> SIMD3<Float>
+        onScaleUpdate: @escaping (UUID, Float) -> Void
     ) -> some View {
         self
             .entitySelectionGesture(selectedEntity: selectedEntity)
             .entityDragGesture(
                 onPositionUpdate: onPositionUpdate,
-                onRotationUpdate: onRotationUpdate,
-                getBillboardableState: getBillboardableState,
-                getHeadPosition: getHeadPosition
+                onRotationUpdate: onRotationUpdate
             )
             .entityScaleGesture(onScaleUpdate: onScaleUpdate)
             .entityRotationGesture(
-                onRotationUpdate: onRotationUpdate,
-                onBillboardableChange: onBillboardableChange
+                onRotationUpdate: onRotationUpdate
             )
     }
 }
