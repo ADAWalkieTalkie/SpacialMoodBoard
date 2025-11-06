@@ -17,6 +17,8 @@ struct EntityScaleGesture: ViewModifier {
                 MagnifyGesture()
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onChanged { value in
+                        if EntityClassifier.classify(value.entity) == .sound { return }
+                        
                         let currentEntity = value.entity
                         
                         if initialScale == nil {
