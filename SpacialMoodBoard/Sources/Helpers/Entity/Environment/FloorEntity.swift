@@ -129,11 +129,11 @@ class FloorEntity {
             } catch {
                 // 이미지 로드 실패 시 기본 머티리얼 사용
                 material = createMaterial()
-                opacity = 0.3  // 기본 상태: 반투명
+                opacity = 0.5  // 기본 상태: 반투명
             }
         } else {
             material = createMaterial()
-            opacity = 0.3  // 기본 상태: 반투명
+            opacity = 0.5  // 기본 상태: 반투명
         }
 
         // Plane 메시로 바닥 Entity 생성
