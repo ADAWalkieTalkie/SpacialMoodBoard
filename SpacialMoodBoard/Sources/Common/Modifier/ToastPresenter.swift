@@ -15,6 +15,7 @@ private struct ToastPresenter: ViewModifier {
     let subText: String
     let duration: TimeInterval
     let position: ToastPosition
+    let sfx: SFX?
     
     func body(content: Content) -> some View {
         ZStack {
@@ -28,6 +29,11 @@ private struct ToastPresenter: ViewModifier {
                         removal: .opacity
                     ))
                     .onAppear {
+                        if let sfx {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                SoundFX.shared.play(sfx)
+                            }
+                        }
                         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
                             withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
                         }
@@ -52,18 +58,23 @@ extension View {
     ///   - isPresented: 토스트 표시 여부를 제어하는 바인딩 값입니다. `true`로 설정 시 토스트가 나타나며, 일정 시간이 지나면 자동으로 `false`로 변경됨
     ///   - text: 토스트의 메인 텍스트.  예: `"라이브러리에 저장되었습니다."`
     ///   - subText: 토스트 하단에 표시할 보조 텍스트. 예: `"사진 3장이 추가됨"`
-    ///   - duration: 토스트가 화면에 표시되는 지속 시간(초). 기본값은 2초
+    ///   - duration: 토스트가 화면에 표시되는 지속 시간(초). 기본값은 1.3초
     ///   - position: 토스트가 표시될 위치. `.top`, `.center`, `.bottom` 중 하나를 선택 가능. 기본값 .center
     /// - Returns: 토스트가 적용된 뷰를 반환.
     func toast(isPresented: Binding<Bool>,
                text: String,
                subText: String,
-               duration: TimeInterval = 2.0,
-               position: ToastPosition = .center) -> some View {
+               duration: TimeInterval = 1.3,
+               position: ToastPosition = .center,
+               sfx: SFX? = nil
+    ) -> some View {
         modifier(ToastPresenter(isPresented: isPresented,
                                 text: text,
                                 subText: subText,
                                 duration: duration,
-                                position: position))
+                                position: position,
+                                sfx: sfx
+                               )
+        )
     }
 }
