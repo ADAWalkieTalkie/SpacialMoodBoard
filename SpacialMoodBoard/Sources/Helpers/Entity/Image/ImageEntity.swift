@@ -150,10 +150,9 @@ struct ImageEntity {
         guard let texture = loadTexture(from: asset.url) else { return }
         
         let material = createMaterial(from: texture)
-        let mesh = MeshResource.generateBox(
+        let mesh = MeshResource.generatePlane(
             width: size.width,
-            height: size.height,
-            depth: 0.01
+            height: size.height
         )
         
         let frontPlane = ModelEntity(mesh: mesh, materials: [material])
