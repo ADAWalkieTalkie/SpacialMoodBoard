@@ -16,7 +16,7 @@ extension SceneViewModel {
         if appStateManager.appState.isVolumeOpen {
             position = SIMD3<Float>(0, 0.1, 0.1)
         } else {
-            position = SIMD3<Float>(0, 1.5, -2.0)
+            position = SIMD3<Float>(0, 0.0, 0.0)
         }
 
         let newObject = SceneObject.createImage(

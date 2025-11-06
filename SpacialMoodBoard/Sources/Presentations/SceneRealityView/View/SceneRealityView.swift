@@ -111,8 +111,8 @@ struct SceneRealityView: View {
 
             // Immersive 전용: RealityKit Content
             if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
-//                rootEntity.addChild(immersiveContent)
-//                immersiveContent.position = [0, -0.1, 0]
+                rootEntity.addChild(immersiveContent)
+                immersiveContent.position = [0, -0.6, 0]
             }
 
             // Volume에서 설정된 회전 각도를 Immersive에도 적용
