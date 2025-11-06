@@ -5,7 +5,6 @@ struct ToolBarToggleButton: View {
     private let action: () -> Void
     private var isSelected: Bool
     
-    @State private var isHovering = false
     @Environment(\.colorScheme) private var scheme
     
     init(type: ToolBarToggleButtonEnum,
@@ -27,8 +26,6 @@ struct ToolBarToggleButton: View {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
-        .onHover { isHovering = $0 }
-        .animation(.easeInOut(duration: 0.18), value: isHovering)
         .animation(.easeInOut(duration: 0.18), value: isSelected)
         .accessibilityLabel(type.name)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
