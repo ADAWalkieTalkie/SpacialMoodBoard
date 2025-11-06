@@ -41,7 +41,7 @@ struct SceneRealityView: View {
 
             } update: { content, attachments in
                 // Volume 모드: base scale (0.2) × dynamic scale
-                if config.alignToWindowBottom {
+                if appStateManager.appState.isVolumeOpen {
                     rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
                 }
 
