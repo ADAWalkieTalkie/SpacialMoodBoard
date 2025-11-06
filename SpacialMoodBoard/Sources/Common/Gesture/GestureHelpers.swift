@@ -3,24 +3,61 @@ import RealityKit
 
 // MARK: - Entity Selection Helper
 
-/// Entity를 선택하고 일정 시간 후 자동으로 해제
+/// Entity를 선택하고 즉시 해제 (렌더링 사이클을 통한 선택 상태 업데이트용)
 /// - Parameters:
 ///   - entity: 선택할 Entity
 ///   - selectedEntity: 선택 상태를 저장할 Binding
-///   - duration: 자동 해제까지의 시간 (나노초, 기본값: 1초)
 @MainActor
 func selectEntityTemporarily(
     _ entity: Entity,
-    selectedEntity: Binding<ModelEntity?>,
-    duration: UInt64 = 100_000_000
+    selectedEntity: Binding<ModelEntity?>   
 ) {
     selectedEntity.wrappedValue = entity as? ModelEntity
-    
-    Task {
-        try? await Task.sleep(nanoseconds: duration)
+    // SwiftUI의 렌더링 사이클을 통해 선택 상태가 업데이트된 후
+    // 다음 렌더링 사이클에서 nil로 설정
+    DispatchQueue.main.async {
         selectedEntity.wrappedValue = nil
     }
 }
+
+
+// MARK: - Entity Boundary Helper
+
+/// Entity의 원본 bounds를 반환
+/// - Parameters:
+///   - entity: 원본 bounds를 계산할 Entity
+/// - Returns: Entity의 원본 bounds
+@MainActor
+func getOriginalEntityBounds(_ entity: ModelEntity) -> BoundingBox {    
+    // boundBox와 objectAttachment 자식들을 일시적으로 제거
+    let boundBoxes = entity.children.filter { $0.name == "boundBox" }
+    let attachments = entity.children.filter { $0.name == "objectAttachment" }
+    
+    // 자식들의 원본 위치 저장 (나중에 복원하기 위해)
+    var childPositions: [Entity: SIMD3<Float>] = [:]
+    (boundBoxes + attachments).forEach { child in
+        childPositions[child] = child.position
+    }
+    
+    boundBoxes.forEach { $0.removeFromParent() }
+    attachments.forEach { $0.removeFromParent() }
+    
+    // 원본 엔티티의 bounds 계산
+    let bounds = entity.visualBounds(relativeTo: nil)
+    
+    // boundBox와 attachment를 다시 추가 (원본 위치로)
+    boundBoxes.forEach { box in
+        entity.addChild(box)
+        box.position = childPositions[box] ?? box.position
+    }
+    attachments.forEach { attachment in
+        entity.addChild(attachment)
+        attachment.position = childPositions[attachment] ?? attachment.position
+    }
+    
+    return bounds
+}
+
 
 // MARK: - Gesture Helper Functions
 
@@ -53,6 +90,8 @@ func quaternionToEuler(_ quat: simd_quatf) -> SIMD3<Float> {
     return SIMD3<Float>(roll, pitch, yaw)
 }
 
+
+// MARK: - Rotation Angle Helper
 /// 쿼터니언에서 특정 축 기준 회전 각도 추출
 func extractRotationAngle(from quat: simd_quatf, around axis: SIMD3<Float>) -> Float {
     // 쿼터니언을 각도-축 형태로 변환

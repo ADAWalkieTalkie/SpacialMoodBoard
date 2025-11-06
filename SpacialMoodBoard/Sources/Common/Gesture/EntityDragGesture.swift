@@ -7,8 +7,11 @@ struct EntityDragGesture: ViewModifier {
     @Binding var selectedEntity: ModelEntity?
     let onPositionUpdate: (UUID, SIMD3<Float>) -> Void
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
+    let onGestureStart: (() -> Void)?
+    let onGestureEnd: (() -> Void)?
     
     @State private var initialPosition: SIMD3<Float>? = nil
+    @State private var minY: Float = 0  // 제스처 시작 시 한 번만 계산하여 저장
     
     func body(content: Content) -> some View {
         content
@@ -25,22 +28,23 @@ struct EntityDragGesture: ViewModifier {
                         }
                         
                         if initialPosition == nil {
+                            onGestureStart?()
                             selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
                             initialPosition = currentEntity.position
+                            
+                            // 제스처 시작 시 한 번만 minY 계산
+                            if let modelEntity = currentEntity as? ModelEntity {
+                                let bounds = getOriginalEntityBounds(modelEntity)
+                                let entityHeight = bounds.extents.y  // 전체 높이
+                                let halfHeight = entityHeight / 2.0  // 높이의 절반
+                                minY = halfHeight  // 중심점이 최소 halfHeight 이상이어야 하단이 y=0에 닿음
+                            }
                         }
                         
                         let movement = value.convert(value.translation3D, from: .global, to: .scene)
                         let newPosition = (initialPosition ?? .zero) + movement
 
-                        // 엔티티의 높이를 계산하여 하단이 y=0 아래로 내려가지 않도록 제한
-                        var minY: Float = 0
-                        if let modelEntity = currentEntity as? ModelEntity {
-                            let bounds = modelEntity.visualBounds(relativeTo: nil)
-                            let entityHeight = bounds.extents.y  // 전체 높이
-                            let halfHeight = entityHeight / 2.0  // 높이의 절반
-                            minY = halfHeight  // 중심점이 최소 halfHeight 이상이어야 하단이 y=0에 닿음
-                        }
-
+                        // 저장된 minY 값 사용
                         currentEntity.position = SIMD3<Float>(
                             newPosition.x,
                             max(minY, newPosition.y),
@@ -51,6 +55,7 @@ struct EntityDragGesture: ViewModifier {
                         guard let uuid = UUID(uuidString: value.entity.name) else {
                             print("❌ Entity name을 UUID로 변환 실패")
                             initialPosition = nil
+                            minY = 0
                             return
                         }
                         
@@ -60,8 +65,10 @@ struct EntityDragGesture: ViewModifier {
                         onPositionUpdate(uuid, value.entity.position)
                         
                         selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
-                        
+
+                        onGestureEnd?()
                         initialPosition = nil
+                        minY = 0
                     }
             )
     }
@@ -72,12 +79,16 @@ extension View {
     func entityDragGesture(
         selectedEntity: Binding<ModelEntity?>,
         onPositionUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
-        onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void
+        onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
+        onGestureStart: (() -> Void)?,
+        onGestureEnd: (() -> Void)?
     ) -> some View {
         self.modifier(EntityDragGesture(
             selectedEntity: selectedEntity,
             onPositionUpdate: onPositionUpdate,
-            onRotationUpdate: onRotationUpdate
+            onRotationUpdate: onRotationUpdate,
+            onGestureStart: onGestureStart,
+            onGestureEnd: onGestureEnd
         ))
     }
 }
