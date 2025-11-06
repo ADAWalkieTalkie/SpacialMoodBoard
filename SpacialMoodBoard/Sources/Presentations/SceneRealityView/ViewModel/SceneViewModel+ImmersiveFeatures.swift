@@ -40,9 +40,9 @@ extension SceneViewModel {
         // Volume 모드와 Immersive 모드에 따라 다른 초기 위치 설정
         let position: SIMD3<Float>
         if appStateManager.appState.isVolumeOpen {
-            position = SIMD3<Float>(0, 0.1, -1.0)
+            position = SIMD3<Float>(0, 0.1, 0.1)
         } else {
-            position = SIMD3<Float>(0, 1.5, -2.0)
+            position = SIMD3<Float>(0, 0, 0)
         }
 
         let soundObj = SceneObject.createAudio(
