@@ -57,7 +57,9 @@ struct ImageEditorView: View {
         .glassBackgroundEffect()
         .toast(isPresented: $viewModel.showSavedAlert,
                text: "에셋 추가 완료",
-               subText: "에셋이 라이브러리에 저장되었습니다.")
+               subText: "에셋이 라이브러리에 저장되었습니다.",
+               sfx: .addToLibrary
+        )
     }
 }
 
