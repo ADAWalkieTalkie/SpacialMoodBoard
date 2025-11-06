@@ -23,17 +23,13 @@ struct SceneRealityView: View {
             RealityView { content, attachments in
 
                 rootEntity.name = "RootEntity"
-                content.add(rootEntity)
-
                 await setupScene(content: content, rootEntity: rootEntity)
+                content.add(rootEntity)
 
                 let newHeadAnchor = AnchorEntity(.head)
                 headAnchor = newHeadAnchor
 
                 if config.useHeadAnchoredToolbar {
-                    // rootEntity 위치 설정
-                    rootEntity.position = SIMD3<Float>(0, 0, -4)
-
                     if let toolbar = attachments.entity(for: "headToolbar") {
                         // y: -0.3 = 시선보다 약간 아래
                         // z: -0.8 = 앞쪽으로 80cm
@@ -46,10 +42,7 @@ struct SceneRealityView: View {
             } update: { content, attachments in
                 // Volume 모드: base scale (0.2) × dynamic scale
                 if config.alignToWindowBottom {
-                    rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize, baseScale: config.scale)
-                } else {
-                    // Immersive 모드: scale 1.0 적용
-                    rootEntity.scale = [config.scale, config.scale, config.scale]
+                    rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
                 }
 
                 // MainActor에서 실행
@@ -65,8 +58,6 @@ struct SceneRealityView: View {
                         }
                     }
                 }
-                print("----------------루트 위치 SNAP SHOT----------------\n\(rootEntity.position)")
-                print("----------------바닥 위치 SNAP SHOT----------------\n\(rootEntity.findEntity(named: "floorRoot")?.position)")
             } attachments: {
                 Attachment(id: "headToolbar"){
                     ToolBarAttachment(viewModel: viewModel)
@@ -105,24 +96,22 @@ struct SceneRealityView: View {
         guard let floor = viewModel.getFloorEntity() else {
             return
         }
-
         // Volume Window일 때
-        if config.alignToWindowBottom {
+        if appStateManager.appState.isVolumeOpen {
             rootEntity.addChild(floor)
-
-            // Floor 하단 정렬
-            viewModel.alignFloorToWindowBottom(floor, windowHeight: Float(Self.defaultVolumeSize.height)) // VolumeWindow의 Height값
-
+            floor.transform.translation = [0, Float(Self.defaultVolumeSize.height / 2) * -1, 0]
+            
         // Immersive일 때
-        } else {
-            // Immersive/Minimap 모드: 기존 방식
-            floor.scale = config.floorSize
-            floor.position = [0, 0.1, 0]
+        } else if appStateManager.appState.isImmersiveOpen {
+            rootEntity.transform.translation = config.rootEntityPosition
+            floor.transform.translation = viewModel.getFloorPosition(windowHeight: Float(Self.defaultVolumeSize.height))
+            rootEntity.scale = config.rootEntityscale
             rootEntity.addChild(floor)
 
             // Immersive 전용: RealityKit Content
             if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
-                rootEntity.addChild(immersiveContent)
+//                rootEntity.addChild(immersiveContent)
+//                immersiveContent.position = [0, -0.1, 0]
             }
         }
     }

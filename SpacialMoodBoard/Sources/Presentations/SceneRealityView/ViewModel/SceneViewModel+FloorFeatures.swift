@@ -86,22 +86,6 @@ extension SceneViewModel {
         applyRotation(to: rootEntity, angle: rotationAngle, animated: false)
     }
 
-    func alignFloorToWindowBottom(
-        _ entity: Entity,
-        windowHeight: Float = 1,
-        padding: Float = 0
-    ) {
-        let bounds = entity.visualBounds(relativeTo: entity)
-        let contentMinY = bounds.min.y
-        let windowBottomY = -windowHeight / 2.0
-        let targetContentMinY = windowBottomY + padding
-        let offsetY = targetContentMinY - contentMinY
-
-        var transform = entity.transform
-        transform.translation.y = offsetY
-        entity.transform = transform
-    }
-
     // MARK: - Private Helpers
 
     private func applyRotation(to entity: Entity, angle: Float, animated: Bool) {
@@ -114,5 +98,10 @@ extension SceneViewModel {
         } else {
             entity.transform.rotation = rotation
         }
+    }
+    
+    /// 윈도우 height를 기반으로 floor의 위치를 반환한다.
+    func getFloorPosition(windowHeight: Float) -> SIMD3<Float> {
+        return [0, ((windowHeight / 2) * -1), 0]
     }
 }

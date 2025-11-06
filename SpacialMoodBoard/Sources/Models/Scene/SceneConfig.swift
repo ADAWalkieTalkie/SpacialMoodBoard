@@ -6,24 +6,20 @@ struct SceneConfig {
     var enableGestures: Bool = true
     var enableAttachments: Bool = true
     var alignToWindowBottom: Bool = false
-    var scale: Float = 5.0
+    var rootEntityscale: SIMD3<Float> = [1, 1, 1]
     var useHeadAnchoredToolbar: Bool = false
-    var floorSize: SIMD3<Float> = SIMD3(5, 0.001, 5)
+    var rootEntityPosition: SIMD3<Float> = [0, 0, 0]
 
 
     static let immersive = SceneConfig(
-        useHeadAnchoredToolbar: true 
+        alignToWindowBottom: false,
+        rootEntityscale: [8, 8, 8],
+        useHeadAnchoredToolbar: true,
+        rootEntityPosition: [0, 4, -4]
     )
 
     static let volume = SceneConfig(
         showRotationButton: true,
         alignToWindowBottom: true,
-        scale: 1
-    )
-
-    static let minimap = SceneConfig(
-        enableGestures: false,
-        enableAttachments: false,
-        scale: 0.3
     )
 }

@@ -23,7 +23,7 @@ extension SceneViewModel {
             assetId: asset.id,
             position: position,
             isEditable: true,
-            scale: 1.0,
+            scale: 0.3,
             rotation: SIMD3<Float>(0, 0, 0),
             crop: SIMD4<Float>(0, 0, 1, 1),
             billboardable: true
