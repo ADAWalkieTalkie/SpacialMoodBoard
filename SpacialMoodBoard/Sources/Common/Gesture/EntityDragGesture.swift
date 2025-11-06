@@ -27,18 +27,26 @@ struct EntityDragGesture: ViewModifier {
                         let movement = value.convert(value.translation3D, from: .global, to: .scene)
                         let newPosition = (initialPosition ?? .zero) + movement
 
-                        // 엔티티의 높이를 계산하여 하단이 y=0 아래로 내려가지 않도록 제한
-                        var minY: Float = 0
+                        // 엔티티의 높이를 계산하여 하단이 Floor 아래로 내려가지 않도록 제한
+                        var minY: Float = -10
                         if let modelEntity = rootEntity as? ModelEntity {
                             let bounds = modelEntity.visualBounds(relativeTo: nil)
-                            let entityHeight = bounds.extents.y  // 전체 높이
-                            let halfHeight = entityHeight / 2.0  // 높이의 절반
-                            minY = halfHeight  // 중심점이 최소 halfHeight 이상이어야 하단이 y=0에 닿음
+                            let halfHeight = bounds.extents.y / 2.0
+
+                            // Floor 엔티티를 찾아서 실제 씬 좌표 기준으로 minY 계산
+                            if let parent = rootEntity.parent,
+                               let floor = parent.findEntity(named: "floorRoot") {
+                                let floorWorldPosition = floor.position(relativeTo: nil)
+                                minY = floorWorldPosition.y + halfHeight
+                            } else {
+                                // Floor를 찾지 못한 경우: 기존 로직 (y=0 기준)
+                                minY = halfHeight
+                            }
                         }
 
                         rootEntity.position = SIMD3<Float>(
                             newPosition.x,
-                            max(minY, newPosition.y),
+                            max(-10, newPosition.y),
                             newPosition.z
                         )
                                                 

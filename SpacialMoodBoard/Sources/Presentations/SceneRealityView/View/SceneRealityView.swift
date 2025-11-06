@@ -65,6 +65,8 @@ struct SceneRealityView: View {
                         }
                     }
                 }
+                print("----------------루트 위치 SNAP SHOT----------------\n\(rootEntity.position)")
+                print("----------------바닥 위치 SNAP SHOT----------------\n\(rootEntity.findEntity(named: "floorRoot")?.position)")
             } attachments: {
                 Attachment(id: "headToolbar"){
                     ToolBarAttachment(viewModel: viewModel)

@@ -8,7 +8,7 @@ struct SceneConfig {
     var alignToWindowBottom: Bool = false
     var scale: Float = 5.0
     var useHeadAnchoredToolbar: Bool = false
-    var floorSize: SIMD3<Float> = SIMD3(5, 0.03, 5)
+    var floorSize: SIMD3<Float> = SIMD3(5, 0.001, 5)
 
 
     static let immersive = SceneConfig(
