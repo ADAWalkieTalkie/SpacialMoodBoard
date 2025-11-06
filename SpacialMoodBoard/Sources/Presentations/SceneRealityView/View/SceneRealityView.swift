@@ -114,6 +114,10 @@ struct SceneRealityView: View {
 //                rootEntity.addChild(immersiveContent)
 //                immersiveContent.position = [0, -0.1, 0]
             }
+
+            // Volume에서 설정된 회전 각도를 Immersive에도 적용
+            let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
+            rootEntity.transform.rotation = rotation
         }
     }
     
