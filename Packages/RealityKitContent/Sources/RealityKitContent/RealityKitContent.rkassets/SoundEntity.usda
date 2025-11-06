@@ -1,0 +1,29 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "Reality Composer Pro Version 2.0 (494.8.1)"
+    }
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Root"
+{
+    def "sound7_converter" (
+        active = true
+        customData = {
+            float3 rotationEulerHint = (-0.80032414, 0.017406672, -0.52333635)
+        }
+        prepend references = @sound7_converter.usdz@
+    )
+    {
+        float2 ui:nodegraph:node:pos = (20, 20)
+        int ui:nodegraph:node:stackingOrder = 1
+        quatf xformOp:orient = (0.8904903, -0.37421882, 0.108517125, -0.23497096)
+        float3 xformOp:scale = (0.03, 0.030000003, 0.030000005)
+        float3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+    }
+}
+
