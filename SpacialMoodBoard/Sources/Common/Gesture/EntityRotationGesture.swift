@@ -8,6 +8,7 @@ struct EntityRotationGesture: ViewModifier {
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
     let snapAngleDegrees: Float
     
+    @State private var lastSnapStep: Int? = nil
     @State private var initialOrientation: simd_quatf? = nil
     
     func body(content: Content) -> some View {
@@ -38,9 +39,16 @@ struct EntityRotationGesture: ViewModifier {
                         
                         // 로컬 Y축 기준 회전 각도 추출
                         let angle = extractRotationAngle(from: rotationQuat, around: localYAxis)
-
+                        let snapRad = snapAngleDegrees * .pi / 180
+                        
                         // 지정된 각도 단위로 스냅
                         let snappedAngle = snapAngle(angle, toDegrees: snapAngleDegrees)
+                        let currentStep = Int(round(snappedAngle / snapRad))
+
+                        if currentStep != lastSnapStep {
+                            lastSnapStep = currentStep
+                            SoundFX.shared.play(.rotationSceneObject, volume: 0.7)
+                        }
                         
                         // 월드 Y축 기준으로 회전
                         let worldYRotation = simd_quatf(angle: snappedAngle, axis: worldYAxis)
