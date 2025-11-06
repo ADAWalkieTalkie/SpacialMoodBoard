@@ -7,8 +7,11 @@ struct EntityRotationGesture: ViewModifier {
     @Binding var selectedEntity: ModelEntity?
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
     let snapAngleDegrees: Float
-    
+  
     @State private var lastSnapStep: Int? = nil
+  
+    let onGestureStart: (() -> Void)?
+    let onGestureEnd: (() -> Void)?
     @State private var initialOrientation: simd_quatf? = nil
     
     func body(content: Content) -> some View {
@@ -26,6 +29,7 @@ struct EntityRotationGesture: ViewModifier {
                         }
                         
                         if initialOrientation == nil {
+                            onGestureStart?()
                             selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
                             initialOrientation = currentEntity.orientation
                         }
@@ -68,6 +72,7 @@ struct EntityRotationGesture: ViewModifier {
                         
                         selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
+                        onGestureEnd?()
                         initialOrientation = nil
                     }
             )
@@ -79,12 +84,16 @@ extension View {
     func entityRotationGesture(
         selectedEntity: Binding<ModelEntity?>,
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
-        snapAngleDegrees: Float = 15.0 // 기본값 15도
+        snapAngleDegrees: Float = 15.0, // 기본값 15도
+        onGestureStart: (() -> Void)?,
+        onGestureEnd: (() -> Void)?
     ) -> some View {
         self.modifier(EntityRotationGesture(
             selectedEntity: selectedEntity,
             onRotationUpdate: onRotationUpdate,
-            snapAngleDegrees: snapAngleDegrees
+            snapAngleDegrees: snapAngleDegrees,
+            onGestureStart: onGestureStart,
+            onGestureEnd: onGestureEnd
         ))
     }
 }
