@@ -12,7 +12,7 @@ import RealityKit
 func selectEntityTemporarily(
     _ entity: Entity,
     selectedEntity: Binding<ModelEntity?>,
-    duration: UInt64 = 100_000_000
+    duration: UInt64 = 10_000_000
 ) {
     selectedEntity.wrappedValue = entity as? ModelEntity
     

@@ -7,6 +7,8 @@ struct EntityDragGesture: ViewModifier {
     @Binding var selectedEntity: ModelEntity?
     let onPositionUpdate: (UUID, SIMD3<Float>) -> Void
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
+    let onGestureStart: (() -> Void)?
+    let onGestureEnd: (() -> Void)?
     
     @State private var initialPosition: SIMD3<Float>? = nil
     
@@ -25,6 +27,7 @@ struct EntityDragGesture: ViewModifier {
                         }
                         
                         if initialPosition == nil {
+                            onGestureStart?()
                             selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
                             initialPosition = currentEntity.position
                         }
@@ -60,7 +63,8 @@ struct EntityDragGesture: ViewModifier {
                         onPositionUpdate(uuid, value.entity.position)
                         
                         selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
-                        
+
+                        onGestureEnd?()
                         initialPosition = nil
                     }
             )
@@ -72,12 +76,16 @@ extension View {
     func entityDragGesture(
         selectedEntity: Binding<ModelEntity?>,
         onPositionUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
-        onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void
+        onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
+        onGestureStart: (() -> Void)?,
+        onGestureEnd: (() -> Void)?
     ) -> some View {
         self.modifier(EntityDragGesture(
             selectedEntity: selectedEntity,
             onPositionUpdate: onPositionUpdate,
-            onRotationUpdate: onRotationUpdate
+            onRotationUpdate: onRotationUpdate,
+            onGestureStart: onGestureStart,
+            onGestureEnd: onGestureEnd
         ))
     }
 }

@@ -40,6 +40,18 @@ final class SceneViewModel {
     // MARK: - State
     var selectedSceneModel: SceneModel?
 
+    // Gesture 진행 중인지 추적하는 플래그
+    var isGestureActive: Bool = false
+    
+    // MARK: - Gesture State Management
+    func startGesture() {
+        isGestureActive = true
+    }
+    
+    func endGesture() {
+        isGestureActive = false
+    }
+
     // MARK: - Entity Management
     /// 현재 선택된 엔티티 (UI 상태 관리용)
     /// Note: entityMap과 floor 캐시는 entityRepository가 관리

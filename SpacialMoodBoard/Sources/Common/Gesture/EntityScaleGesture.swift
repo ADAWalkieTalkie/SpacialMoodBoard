@@ -6,9 +6,9 @@ import RealityKit
 struct EntityScaleGesture: ViewModifier {
     @Binding var selectedEntity: ModelEntity?
     let onScaleUpdate: (UUID, Float) -> Void
-    
+    let onGestureStart: (() -> Void)?
+    let onGestureEnd: (() -> Void)?
     @State private var initialScale: SIMD3<Float>? = nil
-    @State private var hasStartedGesture: Bool = false
     
     func body(content: Content) -> some View {
         content
@@ -20,6 +20,7 @@ struct EntityScaleGesture: ViewModifier {
                         let currentEntity = value.entity
                         
                         if initialScale == nil {
+                            onGestureStart?()
                             selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
                             initialScale = currentEntity.scale
                         }
@@ -38,6 +39,7 @@ struct EntityScaleGesture: ViewModifier {
 
                         selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
+                        onGestureEnd?()
                         initialScale = nil
                     }
             )
@@ -48,11 +50,15 @@ struct EntityScaleGesture: ViewModifier {
 extension View {
     func entityScaleGesture(
         selectedEntity: Binding<ModelEntity?>,
-        onScaleUpdate: @escaping (UUID, Float) -> Void
+        onScaleUpdate: @escaping (UUID, Float) -> Void,
+        onGestureStart: (() -> Void)?,
+        onGestureEnd: (() -> Void)?
     ) -> some View {
         self.modifier(EntityScaleGesture(
             selectedEntity: selectedEntity,
-            onScaleUpdate: onScaleUpdate
+            onScaleUpdate: onScaleUpdate,
+            onGestureStart: onGestureStart,
+            onGestureEnd: onGestureEnd
         ))
     }
 }
