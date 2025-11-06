@@ -113,6 +113,10 @@ struct SceneRealityView: View {
             // Floor 하단 정렬
             viewModel.alignFloorToWindowBottom(floor, windowHeight: Float(Self.defaultVolumeSize.height)) // VolumeWindow의 Height값
 
+            // Volume 모드에서도 저장된 회전 각도 적용
+            let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
+            rootEntity.transform.rotation = rotation
+
         // Immersive일 때
         } else {
             // Immersive/Minimap 모드: 기존 방식
@@ -124,6 +128,10 @@ struct SceneRealityView: View {
             if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
                 rootEntity.addChild(immersiveContent)
             }
+
+            // Volume에서 설정된 회전 각도를 Immersive에도 적용
+            let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
+            rootEntity.transform.rotation = rotation
         }
     }
     
