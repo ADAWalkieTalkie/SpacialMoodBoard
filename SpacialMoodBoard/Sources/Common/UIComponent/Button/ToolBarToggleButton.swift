@@ -33,18 +33,7 @@ struct ToolBarToggleButton: View {
         .accessibilityLabel(type.name)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .frame(width: 44, height: 44)
-        .overlay(alignment: .bottom) {
-            if isHovering {
-                Text(type.name)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .glassBackgroundEffect()
-                    .offset(y: 2)
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
-            }
-        }
+        .help(type.name)
     }
 }
 
