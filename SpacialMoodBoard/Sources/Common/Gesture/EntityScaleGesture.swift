@@ -17,6 +17,8 @@ struct EntityScaleGesture: ViewModifier {
                 MagnifyGesture()
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onChanged { value in
+                        if value.entity.components.has(SoundControllerComponent.self) { return } // 사운드 엔티티의 경우 바로 반환
+                        
                         let currentEntity = value.entity
                         
                         if initialScale == nil {
