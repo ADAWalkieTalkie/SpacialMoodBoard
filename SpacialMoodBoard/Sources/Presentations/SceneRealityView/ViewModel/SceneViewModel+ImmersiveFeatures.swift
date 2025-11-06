@@ -21,6 +21,7 @@ extension SceneViewModel {
         
         // SceneViewModel+SceneObject의 addSceneObject 사용
         addSceneObject(newObject, rootEntity: rootEntity)
+        SoundFX.shared.play(.assetOnVolume)
     }
     
     // MARK: - Add Sound Object
@@ -35,6 +36,7 @@ extension SceneViewModel {
         
         // SceneViewModel+SceneObject의 addSceneObject 사용
         addSceneObject(soundObj, rootEntity: rootEntity)
+        SoundFX.shared.play(.assetOnVolume)
     }
     
     // MARK: - 복제
