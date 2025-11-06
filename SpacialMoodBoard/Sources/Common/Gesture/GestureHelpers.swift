@@ -1,6 +1,27 @@
 import SwiftUI
 import RealityKit
 
+// MARK: - Entity Selection Helper
+
+/// Entity를 선택하고 일정 시간 후 자동으로 해제
+/// - Parameters:
+///   - entity: 선택할 Entity
+///   - selectedEntity: 선택 상태를 저장할 Binding
+///   - duration: 자동 해제까지의 시간 (나노초, 기본값: 1초)
+@MainActor
+func selectEntityTemporarily(
+    _ entity: Entity,
+    selectedEntity: Binding<ModelEntity?>,
+    duration: UInt64 = 100_000_000
+) {
+    selectedEntity.wrappedValue = entity as? ModelEntity
+    
+    Task {
+        try? await Task.sleep(nanoseconds: duration)
+        selectedEntity.wrappedValue = nil
+    }
+}
+
 // MARK: - Gesture Helper Functions
 
 /// Quaternion을 Euler angles (radians)로 변환

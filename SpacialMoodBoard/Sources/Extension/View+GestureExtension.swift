@@ -12,11 +12,16 @@ extension View {
         self
             .entitySelectionGesture(selectedEntity: selectedEntity)
             .entityDragGesture(
+                selectedEntity: selectedEntity,
                 onPositionUpdate: onPositionUpdate,
                 onRotationUpdate: onRotationUpdate
             )
-            .entityScaleGesture(onScaleUpdate: onScaleUpdate)
+            .entityScaleGesture(
+                selectedEntity: selectedEntity,
+                onScaleUpdate: onScaleUpdate
+            )
             .entityRotationGesture(
+                selectedEntity: selectedEntity,
                 onRotationUpdate: onRotationUpdate
             )
     }

@@ -4,9 +4,11 @@ import RealityKit
 // MARK: - Entity Scale Gesture
 
 struct EntityScaleGesture: ViewModifier {
+    @Binding var selectedEntity: ModelEntity?
     let onScaleUpdate: (UUID, Float) -> Void
     
     @State private var initialScale: SIMD3<Float>? = nil
+    @State private var hasStartedGesture: Bool = false
     
     func body(content: Content) -> some View {
         content
@@ -15,13 +17,14 @@ struct EntityScaleGesture: ViewModifier {
                 MagnifyGesture()
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onChanged { value in
-                        let rootEntity = value.entity
+                        let currentEntity = value.entity
                         
                         if initialScale == nil {
-                            initialScale = rootEntity.scale
+                            selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
+                            initialScale = currentEntity.scale
                         }
                         
-                        rootEntity.scale = (initialScale ?? .init(repeating: 1.0)) * Float(value.magnification)
+                        currentEntity.scale = (initialScale ?? .init(repeating: 1.0)) * Float(value.magnification)
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
@@ -32,6 +35,8 @@ struct EntityScaleGesture: ViewModifier {
                         
                         let finalScale = value.entity.scale.x // uniform scale이므로 x만 사용
                         onScaleUpdate(uuid, finalScale)
+
+                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
                         initialScale = nil
                     }
@@ -41,7 +46,13 @@ struct EntityScaleGesture: ViewModifier {
 
 // MARK: - View Extension
 extension View {
-    func entityScaleGesture(onScaleUpdate: @escaping (UUID, Float) -> Void) -> some View {
-        self.modifier(EntityScaleGesture(onScaleUpdate: onScaleUpdate))
+    func entityScaleGesture(
+        selectedEntity: Binding<ModelEntity?>,
+        onScaleUpdate: @escaping (UUID, Float) -> Void
+    ) -> some View {
+        self.modifier(EntityScaleGesture(
+            selectedEntity: selectedEntity,
+            onScaleUpdate: onScaleUpdate
+        ))
     }
 }
