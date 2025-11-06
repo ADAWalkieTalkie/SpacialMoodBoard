@@ -47,7 +47,11 @@ struct SceneRealityView: View {
 
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
-                    updateScene(content: content, rootEntity: rootEntity)
+
+                    // Gesture 진행 중이 아닐 때만 updateScene 호출
+                    if !viewModel.isGestureActive {
+                        updateScene(content: content, rootEntity: rootEntity)
+                    }
 
                     // Floor material 업데이트 (Asset ID → URL 자동 조회)
                     let currentFloorURL = viewModel.floorImageURL
@@ -75,6 +79,12 @@ struct SceneRealityView: View {
                     },
                     onScaleUpdate: { uuid, scale in
                         viewModel.updateObjectScale(id: uuid, scale: scale)
+                    },
+                    onGestureStart: {
+                        viewModel.startGesture()
+                    },
+                    onGestureEnd: {
+                        viewModel.endGesture()
                     }
                 )
             }
