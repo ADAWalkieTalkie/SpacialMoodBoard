@@ -11,7 +11,7 @@ struct SceneRealityView: View {
     @Binding var viewModel: SceneViewModel
     let config: SceneConfig
 
-    let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.3, -0.8)
+    let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.2, -0.5)
 
     @State private var headAnchor: AnchorEntity?
     @State private var rootEntity = Entity()
@@ -75,15 +75,6 @@ struct SceneRealityView: View {
                     },
                     onScaleUpdate: { uuid, scale in
                         viewModel.updateObjectScale(id: uuid, scale: scale)
-                    },
-                    onBillboardableChange: { uuid, billboardable in
-                        viewModel.updateBillboardable(id: uuid, billboardable: billboardable)
-                    },
-                    getBillboardableState: { uuid in
-                        viewModel.getBillboardableState(id: uuid)
-                    },
-                    getHeadPosition: {
-                        return headAnchor?.position(relativeTo: nil) ?? SIMD3<Float>(0, 1.6, 0)
                     }
                 )
             }

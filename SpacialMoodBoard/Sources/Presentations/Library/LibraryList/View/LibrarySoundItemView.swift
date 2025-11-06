@@ -13,6 +13,7 @@ struct LibrarySoundItemView: View {
     
     private let asset: Asset
     private let onRowTap: (() -> Void)?
+    private let allowRename: Bool
     
     @Environment(LibraryViewModel.self) private var viewModel
     @ObservedObject private var player = LibrarySoundPlayer.shared
@@ -28,9 +29,10 @@ struct LibrarySoundItemView: View {
     /// Init
     ///  - Parameter asset: 표시할 사운드 에셋(타입은 `.sound` 여야 함)
     ///  - Parameter onRowTap: LibrarySoundItemView 행 탭 콜백
-    init(asset: Asset, onRowTap: (() -> Void)? = nil) {
+    init(asset: Asset, allowRename: Bool = true , onRowTap: (() -> Void)? = nil) {
         precondition(asset.type == .sound, "LibrarySoundItemView는 .sound 에셋만 지원합니다.")
         self.asset = asset
+        self.allowRename = allowRename
         self.onRowTap = onRowTap
         self._draftTitle = State(initialValue: asset.filename.deletingPathExtension)
     }
@@ -124,16 +126,27 @@ struct LibrarySoundItemView: View {
             onRowTap?()
         }
         .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
-                            pressing: { p in withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p } },
-                            perform: { showRenamePopover = true }
+                            pressing: { p in
+            guard allowRename else { return }
+            withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p }
+        },
+                            perform: {
+            guard allowRename else { return }
+            showRenamePopover = true
+        }
         )
-        .popover(isPresented: $showRenamePopover, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+        .popover(
+            isPresented: Binding(
+                get: { allowRename && showRenamePopover },
+                set: { newVal in showRenamePopover = newVal }
+            ),
+            attachmentAnchor: .point(.bottom),
+            arrowEdge: .top
+        ) {
             RenamePopover(
                 id: asset.id,
                 title: $draftTitle,
-                onRename: {
-                    startInlineRename()
-                },
+                onRename: { startInlineRename() },
                 onDelete: { id in viewModel.deleteAsset(id: id) },
                 onCancel: { showRenamePopover = false }
             )
@@ -157,6 +170,7 @@ struct LibrarySoundItemView: View {
     /// 팝오버를 닫고 인라인 이름 수정 모드로 전환
     /// - 한 프레임 뒤에 포커스를 활성화하여 키보드가 즉시 올라오도록 함
     private func startInlineRename() {
+        guard allowRename else { return }
         showRenamePopover = false
         isRenaming = true
         DispatchQueue.main.async {
@@ -168,6 +182,7 @@ struct LibrarySoundItemView: View {
     /// - 공백이거나 기존 이름과 동일하면 무시
     /// - 커밋 후 편집 및 포커스 상태를 종료
     private func commitRenameIfNeeded() {
+        guard allowRename, isRenaming else { return }
         guard isRenaming else { return }
         defer {
             isRenaming = false

@@ -139,12 +139,12 @@ extension SceneViewModel {
         objectAttachment.scale = inverseScale
         
         entity.addChild(objectAttachment)
-
+        
         // Entity의 크기 계산 (visualBounds 사용)
         let bounds = entity.visualBounds(relativeTo: entity)
-        let width = bounds.extents.x
+        let width  = bounds.extents.x
         let height = bounds.extents.y
-        entityBoundBoxApplier.addBoundBox(to: entity, width: width, height: height)
+        entityBoundBoxApplier.addBoundAuto(to: entity, width: width, height: height)
         
         // Attachment 위치 설정
         topPositionAttachment(objectAttachment, relativeTo: entity)

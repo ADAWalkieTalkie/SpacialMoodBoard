@@ -8,6 +8,13 @@
 import Foundation
 
 enum SoundChannel: String, Codable, CaseIterable {
-    case ambient = "앰비언트"
-    case sfx     = "효과음"
+    case foley
+    case ambient
+    
+    var title: String {
+        switch self {
+        case .foley:   return "효과음"
+        case .ambient: return "앰비언트"
+        }
+    }
 }

@@ -82,23 +82,4 @@ extension SceneViewModel {
         
         return duplicatedObject
     }
-    
-    // MARK: - Billboardable 관련
-    
-    /// Billboardable 상태 조회
-    func getBillboardableState(id: UUID) -> Bool {
-        guard let object = sceneObjects.first(where: { $0.id == id }),
-              case .image(let attrs) = object.attributes else {
-            return false
-        }
-        return attrs.billboardable
-    }
-    
-    /// Billboardable 상태 변경
-    func updateBillboardable(id: UUID, billboardable: Bool) {
-        // ✅ SceneViewModel+SceneObject의 updateSceneObject 사용
-        updateSceneObject(with: id) { object in
-            object.setBillboardable(billboardable)
-        }
-    }
 }

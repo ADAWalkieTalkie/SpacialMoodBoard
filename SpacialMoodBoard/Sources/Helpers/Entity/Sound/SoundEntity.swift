@@ -7,11 +7,11 @@
 
 
 import RealityKit
+import RealityKitContent
 import Foundation
 import UIKit
 
 struct SoundEntity {
-    
     /// 선형 볼륨(0...1)을 데시벨(dB)로 변환
     /// - Note:
     ///   - 0에 가까운 값은 로그 변환 특성상 -무한대로 향하므로, 하한선(약 -80 dB)로 클램프
@@ -39,41 +39,35 @@ struct SoundEntity {
                        with asset: Asset
     ) -> ModelEntity? {
         guard case .audio(let audioAttrs) = sceneObject.attributes else {
-            print("❌ SoundEntity.create: .audio 타입 아님"); return nil
-        }
-        
-        guard let texture = try? TextureResource.load(named: "img_soundObject") else {
-            print("⚠️ SoundEntity.create: img_soundObject 텍스처 로드 실패")
+            print("❌ SoundEntity.create: .audio 타입 아님")
             return nil
         }
         
-        let baseWidth: Float = 0.18
-        let uiSize = UIImage(named: "img_soundObject")?.size ?? .init(width: 1, height: 1)
-        let aspect = uiSize.width > 0 ? (uiSize.height / uiSize.width) : 1.0
-        let width: Float  = baseWidth
-        let height: Float = baseWidth * Float(aspect)
-        
-        var unlit = UnlitMaterial(color: .white)
-        unlit.color = .init(texture: .init(texture))
-        unlit.blending = .transparent(opacity: 1.0)
-        
-        let mesh = MeshResource.generateBox(width: width, height: height, depth: 0.01)
-        let modelEntity = ModelEntity(mesh: mesh, materials: [unlit])
+        let modelEntity = ModelEntity()
         modelEntity.name = sceneObject.id.uuidString
-        // y축 위치를 0 이상으로 제한
-        let clampedPosition = SIMD3<Float>(
-            sceneObject.position.x,
-            max(0, sceneObject.position.y),
-            sceneObject.position.z
-        )
-        modelEntity.position = clampedPosition
         
-        modelEntity.collision = CollisionComponent(
-            shapes: [.generateBox(width: width, height: height, depth: 0.01)]
-        )
+        let p = sceneObject.position
+        modelEntity.position = [p.x, max(0, p.y), p.z]
         modelEntity.components.set(InputTargetComponent())
         modelEntity.components.set(HoverEffectComponent())
         modelEntity.components.set(BillboardComponent())
+        
+        Task {
+            do {
+                let prefab = try await Entity(named: "SoundEntity",
+                                              in: RealityKitContent.realityKitContentBundle)
+                let node = prefab.clone(recursive: true)
+                modelEntity.addChild(node)
+                
+                let b = node.visualBounds(relativeTo: node)
+                let ext = b.extents
+                modelEntity.collision = CollisionComponent(
+                    shapes: [.generateBox(width: ext.x, height: ext.y, depth: max(ext.z, 0.01))]
+                )
+            } catch {
+                print("⚠️ SoundEntity.create: 프리팹 로드 실패 - \(error)")
+            }
+        }
         
         Task {
             do {
@@ -82,17 +76,16 @@ struct SoundEntity {
                 
                 let res = try await AudioFileResource(contentsOf: asset.url, configuration: cfg)
                 let controller = modelEntity.prepareAudio(res)
-                
                 modelEntity.components.set(SoundControllerComponent(controller: controller))
-                SceneAudioCoordinator.shared.register(entityId: sceneObject.id, controller: controller)
                 
+                SceneAudioCoordinator.shared.register(entityId: sceneObject.id, controller: controller)
                 let db = linearToDecibels(Double(audioAttrs.volume))
                 SceneAudioCoordinator.shared.setGain(db, for: sceneObject.id)
                 
                 if audioAttrs.volume > 0 {
                     SceneAudioCoordinator.shared.play(sceneObject.id)
                 } else {
-                    SceneAudioCoordinator.shared.pause(sceneObject.id) // stop() 대신 pause가 복구에 유리
+                    SceneAudioCoordinator.shared.pause(sceneObject.id)
                 }
             } catch {
                 print("⚠️ SoundEntity.create: 오디오 로드 실패 - \(error)")
