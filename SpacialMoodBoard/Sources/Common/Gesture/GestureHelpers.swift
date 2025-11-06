@@ -3,21 +3,19 @@ import RealityKit
 
 // MARK: - Entity Selection Helper
 
-/// Entity를 선택하고 일정 시간 후 자동으로 해제
+/// Entity를 선택하고 즉시 해제 (렌더링 사이클을 통한 선택 상태 업데이트용)
 /// - Parameters:
 ///   - entity: 선택할 Entity
 ///   - selectedEntity: 선택 상태를 저장할 Binding
-///   - duration: 자동 해제까지의 시간 (나노초, 기본값: 1초)
 @MainActor
 func selectEntityTemporarily(
     _ entity: Entity,
-    selectedEntity: Binding<ModelEntity?>,
-    duration: UInt64 = 10_000_000
+    selectedEntity: Binding<ModelEntity?>   
 ) {
     selectedEntity.wrappedValue = entity as? ModelEntity
-    
-    Task {
-        try? await Task.sleep(nanoseconds: duration)
+    // SwiftUI의 렌더링 사이클을 통해 선택 상태가 업데이트된 후
+    // 다음 렌더링 사이클에서 nil로 설정
+    DispatchQueue.main.async {
         selectedEntity.wrappedValue = nil
     }
 }
