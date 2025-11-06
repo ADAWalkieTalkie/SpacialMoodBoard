@@ -18,8 +18,8 @@ struct EntityBoundBoxApplier {
     
     private func addRectBound(to entity: ModelEntity, width: Float, height: Float) {
         let offset: Float = 0.08
-        let expandedW = width  + offset * 2.5
-        let expandedH = height + offset * 2.5
+        let expandedW = width  + offset * 2.5 * 0.3
+        let expandedH = height + offset * 2.5 * 0.3
         
         let texW: CGFloat = 1024
         let texH: CGFloat = max(768, texW * CGFloat(expandedH / max(expandedW, 0.001)))
@@ -49,7 +49,7 @@ struct EntityBoundBoxApplier {
     
     private func addCircleBound(to entity: ModelEntity, diameter: Float) {
         let offset: Float = 0.04
-        let expandedD = diameter + offset * 2.5
+        let expandedD = diameter + offset * 2.5 * 0.3
 
         let texSize: CGFloat = 1024
         guard let tex = makeGlowCircleTexture(size: CGSize(width: texSize, height: texSize)) else { return }
