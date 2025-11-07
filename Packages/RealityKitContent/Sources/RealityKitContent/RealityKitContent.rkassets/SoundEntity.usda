@@ -10,6 +10,9 @@
 
 def Xform "Root"
 {
+    float3 xformOp:scale = (0.125, 0.125, 0.125)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
     def "sound7_converter" (
         active = true
         customData = {
