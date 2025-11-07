@@ -25,7 +25,7 @@ struct ViewModeUseCase {
     
     /// ViewMode OFF: 엔티티의 상호작용을 비활성화
     /// - Parameter entityIds: 처리할 엔티티 ID 배열
-    func viewModeOff(for entityIds: [UUID]) {
+    private func viewModeOff(for entityIds: [UUID]) {
         for id in entityIds {
             guard let entity = entityRepository.getEntity(for: id) else {
                 continue
@@ -41,7 +41,7 @@ struct ViewModeUseCase {
             case .sound:
                 // SoundEntity: InputTargetComponent 제거 + opacity 0
                 entity.components.remove(InputTargetComponent.self)
-                setMaterialOpacity(for: entity, opacity: 0.0)
+                SoundEntity.setIconVisible(false, on: entity)
                 
             case .floor, .unknown:
                 // FloorEntity와 알 수 없는 타입은 처리하지 않음
@@ -52,7 +52,7 @@ struct ViewModeUseCase {
     
     /// ViewMode ON: 엔티티의 상호작용을 활성화
     /// - Parameter entityIds: 처리할 엔티티 ID 배열
-    func viewModeOn(for entityIds: [UUID]) {
+    private func viewModeOn(for entityIds: [UUID]) {
         for id in entityIds {
             guard let entity = entityRepository.getEntity(for: id) else {
                 continue
@@ -68,7 +68,7 @@ struct ViewModeUseCase {
             case .sound:
                 // SoundEntity: InputTargetComponent 복원 + opacity 1
                 entity.components.set(InputTargetComponent())
-                setMaterialOpacity(for: entity, opacity: 1.0)
+                SoundEntity.setIconVisible(true, on: entity)
                 
             case .floor, .unknown:
                 // FloorEntity와 알 수 없는 타입은 처리하지 않음
@@ -87,32 +87,5 @@ struct ViewModeUseCase {
     func viewModeOnAll() {
         let allEntityIds = entityRepository.getCachedEntities().keys.map { $0 }
         viewModeOn(for: Array(allEntityIds))
-    }
-    
-    // MARK: - Private Helpers
-    
-    /// Entity의 Material opacity를 설정
-    /// - Parameters:
-    ///   - entity: Material을 변경할 Entity
-    ///   - opacity: 설정할 opacity 값 (0.0 ~ 1.0)
-    private func setMaterialOpacity(for entity: Entity, opacity: Float) {
-        guard let modelEntity = entity as? ModelEntity,
-              let materials = modelEntity.model?.materials else {
-            return
-        }
-        
-        // 기존 materials를 순회하며 UnlitMaterial만 수정
-        var updatedMaterials: [Material] = []
-        for material in materials {
-            if var unlitMaterial = material as? UnlitMaterial {
-                unlitMaterial.blending = .transparent(opacity: .init(floatLiteral: opacity))
-                updatedMaterials.append(unlitMaterial)
-            } else {
-                // UnlitMaterial이 아니면 그대로 유지
-                updatedMaterials.append(material)
-            }
-        }
-        
-        modelEntity.model?.materials = updatedMaterials
     }
 }

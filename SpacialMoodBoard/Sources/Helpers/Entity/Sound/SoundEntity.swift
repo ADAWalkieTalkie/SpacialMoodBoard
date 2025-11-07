@@ -57,6 +57,7 @@ struct SoundEntity {
                 let prefab = try await Entity(named: "SoundEntity",
                                               in: RealityKitContent.realityKitContentBundle)
                 let node = prefab.clone(recursive: true)
+                node.name = "SoundVisual"
                 modelEntity.addChild(node)
                 
                 let b = node.visualBounds(relativeTo: node)
@@ -92,5 +93,18 @@ struct SoundEntity {
             }
         }
         return modelEntity
+    }
+
+    // MARK: - Helper Methods
+
+    /// SoundEntity의 아이콘 가시성을 설정(ViewModeUseCase에서 사용)
+    /// - Parameters:
+    ///   - visible: 가시성 여부
+    ///   - entity: 설정할 SoundEntity
+    /// - Returns: 설정 결과
+    static func setIconVisible(_ visible: Bool, on modelEntity: ModelEntity) {
+        if let visual = modelEntity.children.first(where: { $0.name == "SoundVisual" }) {
+            visual.isEnabled = !visible
+        }
     }
 }
