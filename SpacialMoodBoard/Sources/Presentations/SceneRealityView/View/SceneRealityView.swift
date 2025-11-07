@@ -23,9 +23,8 @@ struct SceneRealityView: View {
             RealityView { content, attachments in
 
                 rootEntity.name = "RootEntity"
-                content.add(rootEntity)
-
                 await setupScene(content: content, rootEntity: rootEntity)
+                content.add(rootEntity)
 
                 let newHeadAnchor = AnchorEntity(.head)
                 headAnchor = newHeadAnchor
@@ -41,7 +40,8 @@ struct SceneRealityView: View {
                 }
 
             } update: { content, attachments in
-                if config.alignToWindowBottom {
+                // Volume 모드: base scale (0.2) × dynamic scale
+                if appStateManager.appState.isVolumeOpen {
                     rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
                 }
 
@@ -97,25 +97,27 @@ struct SceneRealityView: View {
         guard let floor = viewModel.getFloorEntity() else {
             return
         }
-
         // Volume Window일 때
-        if config.alignToWindowBottom {
+        if appStateManager.appState.isVolumeOpen {
             rootEntity.addChild(floor)
-
-            // Floor 하단 정렬
-            viewModel.alignFloorToWindowBottom(floor, windowHeight: Float(Self.defaultVolumeSize.height)) // VolumeWindow의 Height값
-
+            floor.transform.translation = [0, Float(Self.defaultVolumeSize.height / 2) * -1, 0]
+            
         // Immersive일 때
-        } else {
-            // Immersive/Minimap 모드: 기존 방식
-            floor.scale = config.floorSize
-            floor.position = [0, 0.1, 0]
+        } else if appStateManager.appState.isImmersiveOpen {
+            rootEntity.transform.translation = config.rootEntityPosition
+            floor.transform.translation = viewModel.getFloorPosition(windowHeight: Float(Self.defaultVolumeSize.height))
+            rootEntity.scale = config.rootEntityscale
             rootEntity.addChild(floor)
 
             // Immersive 전용: RealityKit Content
             if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
                 rootEntity.addChild(immersiveContent)
+                immersiveContent.position = [0, -0.6, 0]
             }
+
+            // Volume에서 설정된 회전 각도를 Immersive에도 적용
+            let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
+            rootEntity.transform.rotation = rotation
         }
     }
     

@@ -182,7 +182,6 @@ fileprivate struct ImageTabGridView: View {
                 ForEach(assets) { asset in
                     LibraryImageItemView(asset: asset)
                         .frame(width: 220, height: 272)
-                        .contentShape(RoundedRectangle(cornerRadius: 20))
                         .hoverEffect(.highlight)
                         .simultaneousGesture(
                             TapGesture().onEnded {

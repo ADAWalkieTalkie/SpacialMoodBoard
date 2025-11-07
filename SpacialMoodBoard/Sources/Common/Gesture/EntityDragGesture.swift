@@ -47,7 +47,7 @@ struct EntityDragGesture: ViewModifier {
                         // 저장된 minY 값 사용
                         currentEntity.position = SIMD3<Float>(
                             newPosition.x,
-                            max(minY, newPosition.y),
+                            max(-10, newPosition.y),
                             newPosition.z
                         )
                     }

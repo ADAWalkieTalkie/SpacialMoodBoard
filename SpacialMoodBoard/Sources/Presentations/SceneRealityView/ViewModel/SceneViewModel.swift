@@ -56,7 +56,10 @@ final class SceneViewModel {
     /// 현재 선택된 엔티티 (UI 상태 관리용)
     /// Note: entityMap과 floor 캐시는 entityRepository가 관리
     var selectedEntity: ModelEntity?
-    
+
+    /// Root Entity 참조 (회전 등의 작업에 사용)
+    weak var rootEntity: Entity?
+
     // 회전 각도 (Volume용)
     var rotationAngle: Float = 0
 
