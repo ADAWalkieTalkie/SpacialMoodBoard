@@ -21,7 +21,7 @@ struct ImageEntity {
 
         let imageEntity = ModelEntity()
         imageEntity.name = sceneObject.id.uuidString
-        imageEntity.position = calculateClampedPosition(from: sceneObject.position)
+        imageEntity.position = sceneObject.position
         
         let size = calculateSize(from: asset, imageAttrs: imageAttrs)
         
@@ -68,13 +68,13 @@ struct ImageEntity {
     }
     
     /// Position 계산 (y축 0 이상으로 제한)
-    private static func calculateClampedPosition(from position: SIMD3<Float>) -> SIMD3<Float> {
-        return SIMD3<Float>(
-            position.x,
-            max(0, position.y),
-            position.z
-        )
-    }
+//    private static func calculateClampedPosition(from position: SIMD3<Float>) -> SIMD3<Float> {
+//        return SIMD3<Float>(
+//            position.x,
+//            max(0, position.y),
+//            position.z
+//        )
+//    }
     
     /// Material 생성
     private static func createMaterial(from texture: TextureResource) -> UnlitMaterial {
