@@ -23,9 +23,9 @@ struct ViewModeUseCase {
         }
     }
     
-    /// ViewMode OFF: 엔티티의 상호작용을 비활성화
+    /// ViewMode ON: 엔티티의 상호작용을 활성화
     /// - Parameter entityIds: 처리할 엔티티 ID 배열
-    private func viewModeOff(for entityIds: [UUID]) {
+    private func viewModeOn(for entityIds: [UUID]) {
         for id in entityIds {
             guard let entity = entityRepository.getEntity(for: id) else {
                 continue
@@ -50,9 +50,9 @@ struct ViewModeUseCase {
         }
     }
     
-    /// ViewMode ON: 엔티티의 상호작용을 활성화
+    /// ViewMode OFF: 엔티티의 상호작용을 비활성화
     /// - Parameter entityIds: 처리할 엔티티 ID 배열
-    private func viewModeOn(for entityIds: [UUID]) {
+    private func viewModeOff(for entityIds: [UUID]) {
         for id in entityIds {
             guard let entity = entityRepository.getEntity(for: id) else {
                 continue

@@ -105,7 +105,7 @@ struct SoundEntity {
     /// - Returns: 설정 결과
     static func setIconVisible(_ visible: Bool, on modelEntity: ModelEntity) {
         if let visual = modelEntity.children.first(where: { $0.name == "SoundVisual" }) {
-            visual.isEnabled = !visible
+            visual.isEnabled = visible
         }
     }
 }
