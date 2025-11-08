@@ -59,6 +59,10 @@ struct ImageEditorView: View {
             isPresented: $viewModel.showSavedAlert,
             message: .addToLibrary
         )
+        .toast(
+            isPresented: $viewModel.showSaveFailedAlert,
+            message: .addToLibraryFail
+        )
     }
 }
 

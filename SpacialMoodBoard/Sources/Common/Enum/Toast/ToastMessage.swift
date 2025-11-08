@@ -7,6 +7,7 @@
 
 enum ToastMessage {
     case addToLibrary
+    case addToLibraryFail
     case loadingError
     case loadingImageEdit
     case loadingAssets
@@ -15,6 +16,8 @@ enum ToastMessage {
         switch self {
         case .addToLibrary:
             return "에셋 추가 완료"
+        case .addToLibraryFail:
+            return "에셋 추가 실패"
         case .loadingError:
             return "불러오기 오류"
         case .loadingImageEdit:
@@ -28,6 +31,8 @@ enum ToastMessage {
         switch self {
         case .addToLibrary:
             return "에셋이 라이브러리에 저장되었습니다."
+        case .addToLibraryFail:
+            return "라이브러리 저장에 실패했습니다."
         case .loadingError:
             return "에셋을 불러오는데 실패했습니다."
         default:
@@ -62,7 +67,7 @@ enum ToastMessage {
     
     var dismissMode: ToastDismissMode {
         switch self {
-        case .addToLibrary:
+        case .addToLibrary, .addToLibraryFail:
             return .auto(duration: 1.3)
         case .loadingError:
             return .manual
