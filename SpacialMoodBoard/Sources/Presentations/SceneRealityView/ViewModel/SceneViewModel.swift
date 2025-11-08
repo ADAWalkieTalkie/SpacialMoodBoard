@@ -15,6 +15,7 @@ final class SceneViewModel {
     let entityRepository: EntityRepositoryInterface
     let createObjectUseCase: CreateObjectUseCase
     let entityBoundBoxApplier = EntityBoundBoxApplier()
+    let attachmentSizeDeterminator = EntityAttachmentSizeDeterminator()
     private var needsEntitySync: Bool = false
 
     // MARK: - Initialization

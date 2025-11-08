@@ -10,6 +10,7 @@ extension SceneViewModel {
     private static let attachmentAutoRemoveDuration: TimeInterval = 5.0
     
     func updateAttachment(
+        headPosition: SIMD3<Float>,
         onDuplicate: @escaping () -> Void,
         onCrop: @escaping () -> Void,
         onDelete: @escaping () -> Void
@@ -33,6 +34,7 @@ extension SceneViewModel {
         case .image:
             addAttachment(
                 to: entity,
+                headPosition: headPosition, 
                 objectId: objectId,
                 objectType: objectType,
                 onDuplicate: onDuplicate,
@@ -65,6 +67,7 @@ extension SceneViewModel {
             
             addAttachment(
                 to: entity,
+                headPosition: headPosition,
                 objectId: objectId,
                 objectType: objectType,
                 initialVolume: initVol,
@@ -104,6 +107,7 @@ extension SceneViewModel {
     
     private func addAttachment(
         to entity: ModelEntity,
+        headPosition: SIMD3<Float>,
         objectId: UUID,
         objectType: AssetType,
         initialVolume: Double? = nil,
@@ -130,13 +134,22 @@ extension SceneViewModel {
         objectAttachment.components.set(attachment)
         objectAttachment.components.set(BillboardComponent())
         
-        /// attachment 스케일 유지
-        let inverseScale = SIMD3<Float>(
-            1.0 / entity.scale.x,
-            1.0 / entity.scale.y,
-            1.0 / entity.scale.z
+        // 거리 기반 스케일 계산
+        let entityWorldPosition = entity.position(relativeTo: nil)
+        let distanceBasedScale = attachmentSizeDeterminator.calculateScale(
+            headPosition: headPosition,
+            entityPosition: entityWorldPosition
         )
-        objectAttachment.scale = inverseScale
+        
+        // 부모 스케일 보정
+        let parentScale = entity.scale
+        let finalScale = SIMD3<Float>(
+            distanceBasedScale / parentScale.x,
+            distanceBasedScale / parentScale.y,
+            distanceBasedScale / parentScale.z
+        )
+        
+        objectAttachment.scale = finalScale
         
         entity.addChild(objectAttachment)
         
@@ -186,7 +199,7 @@ extension SceneViewModel {
         let objectBounds = parent.visualBounds(relativeTo: parent)
         let attachmentBounds = attachment.visualBounds(relativeTo: parent)
         
-        let yOffset = objectBounds.max.y + attachmentBounds.extents.y / 2 + 0.05
+        let yOffset = objectBounds.max.y + attachmentBounds.extents.y / 2 + 0.05 * 0.125
         attachment.position = SIMD3<Float>(0, yOffset, 0)
     }
     
