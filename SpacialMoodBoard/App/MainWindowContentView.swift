@@ -32,6 +32,9 @@ struct MainWindowContent: View {
                         ),
                         sceneViewModel: sceneViewModel
                     )
+                    .onBackground {
+                        appStateManager.closeProject()
+                    }
                 }
                 .environment(appStateManager)
                 .task {
@@ -68,19 +71,6 @@ struct MainWindowContent: View {
                     dismissWindow: { id in dismissWindow(id: id) },
                     dismissImmersiveSpace: { await dismissImmersiveSpace() }
                 )
-            }
-        }
-        .onDisappear {
-            Task { @MainActor in
-                // 앱 종료 시 모든 창 닫기
-                // Case 2: Immersive 상태에서 LibraryView 창 종료 시 Immersive도 함께 닫기
-                if appStateManager.appState.isImmersiveOpen {
-                    await dismissImmersiveSpace()
-                }
-                dismissWindow(id: "ImmersiveVolumeWindow")
-                // Immersive space가 완전히 닫힐 때까지 잠깐 대기
-                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초
-                exit(0)
             }
         }
     }

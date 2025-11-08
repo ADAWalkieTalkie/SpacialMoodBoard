@@ -56,8 +56,8 @@ class WindowCoordinator {
 
         // libraryWithImmersive → projectList: Immersive와 Volume 모두 닫기
         case (.libraryWithImmersive, .projectList):
+            openWindow("MainWindow")
             await dismissImmersiveSpace()
-            dismissWindow("ImmersiveVolumeWindow")
 
         default:
             // 다른 전환은 window 조작이 필요 없음
