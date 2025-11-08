@@ -47,7 +47,8 @@ struct SoundEntity {
         modelEntity.name = sceneObject.id.uuidString
         
         let p = sceneObject.position
-        modelEntity.position = [p.x, max(0, p.y), p.z]
+        modelEntity.position = p
+        modelEntity.scale = [0.3, 0.3, 0.3]
         modelEntity.components.set(InputTargetComponent())
         modelEntity.components.set(HoverEffectComponent())
         modelEntity.components.set(BillboardComponent())
