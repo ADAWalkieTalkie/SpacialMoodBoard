@@ -13,7 +13,6 @@ struct SceneRealityView: View {
     
     let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.2, -0.5)
     
-    @State private var headAnchor: AnchorEntity?
     @State private var rootEntity = Entity()
     
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
@@ -27,7 +26,7 @@ struct SceneRealityView: View {
                 content.add(rootEntity)
                 
                 let newHeadAnchor = AnchorEntity(.head)
-                headAnchor = newHeadAnchor
+                newHeadAnchor.name = "headAnchor"
                 
                 if config.useHeadAnchoredToolbar {
                     if let toolbar = attachments.entity(for: "headToolbar") {
@@ -53,14 +52,8 @@ struct SceneRealityView: View {
                         updateScene(content: content, rootEntity: rootEntity)
                     }
                     
-                    // Floor material 업데이트 (Asset ID → URL 자동 조회)
-                    let currentFloorURL = viewModel.floorImageURL
-                    if currentFloorURL != viewModel.appliedFloorImageURL,
-                       let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
-                        Task {
-                            viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
-                        }
-                    }
+                    // Attachment 업데이트
+                    updateAttachment(content: content, rootEntity: rootEntity)
                 }
             } attachments: {
                 Attachment(id: "headToolbar"){
@@ -131,17 +124,39 @@ struct SceneRealityView: View {
             rootEntity: rootEntity
         )
         
-        if config.enableAttachments {
-            guard let entity = viewModel.selectedEntity,
-                  let objectId = UUID(uuidString: entity.name) else { return }
-            
-            viewModel.updateAttachment(
-                onDuplicate: { _ = viewModel.duplicateObject(rootEntity: rootEntity) },
-                onCrop: { /* handle */ },
-                onDelete: {
-                    viewModel.removeSceneObject(id: objectId)
-                }
-            )
+        // Floor material 업데이트 (Asset ID → URL 자동 조회)
+        let currentFloorURL = viewModel.floorImageURL
+        if currentFloorURL != viewModel.appliedFloorImageURL,
+        let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
+            Task {
+                viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
+            }
         }
+    }
+    
+    // MARK: - Update Attachment
+    
+    private func updateAttachment(content: RealityViewContent, rootEntity: Entity) {
+        guard config.enableAttachments else { return }
+        
+        guard let entity = viewModel.selectedEntity,
+              let objectId = UUID(uuidString: entity.name) else { return }
+        
+        // headPosition 계산
+        let headPosition: SIMD3<Float>
+        if let headAnchor = content.entities.first(where: { $0.name == "headAnchor" }) {
+            headPosition = headAnchor.position(relativeTo: nil)
+        } else {
+            headPosition = SIMD3<Float>(0, 1.55, 0)  // 기본값
+        }
+        
+        viewModel.updateAttachment(
+            headPosition: headPosition,
+            onDuplicate: { _ = viewModel.duplicateObject(rootEntity: rootEntity) },
+            onCrop: { /* handle */ },
+            onDelete: {
+                viewModel.removeSceneObject(id: objectId)
+            }
+        )
     }
 }
