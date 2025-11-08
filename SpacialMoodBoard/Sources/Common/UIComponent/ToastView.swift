@@ -52,14 +52,13 @@ struct ToastView: View {
                         .padding(.vertical, 12)
                 }
                 .buttonStyle(.plain)
-                .clipShape(Circle())
-                .contentShape(Circle())
+                .clipShape(Capsule())
+                .contentShape(Capsule())
             }
         }
         .padding(.horizontal, message.animationName != nil ? 44 : 25)
         .padding(.vertical, message.animationName != nil ? 24 : 25)
         .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: 32, style: .continuous))
-        .allowsHitTesting(false)
         .accessibilityAddTraits(.isStaticText)
     }
 }

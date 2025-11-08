@@ -65,20 +65,20 @@ final class AssetRepository: AssetRepositoryInterface {
         project = new
         assets = []
         notify()
-        await reload()
+        try? await reload()
     }
     
     // MARK: - Load
     
-    func reload() async {
+    func reload() async throws {
         var loaded: [Asset] = []
         
         // 1) 이미지
-        let imageNames = (try? imageService.list(project: project)) ?? []
+        let imageNames = try imageService.list(project: project)
         for name in imageNames {
             let url = imageService.url(project: project, filename: name)
             let meta = imageService.meta(for: url)
-            let contentHash = (try? imageService.sha256Hex(url: url)) ?? UUID().uuidString
+            let contentHash = try imageService.sha256Hex(url: url)
             let id = Self.composeId(contentHash: contentHash, filename: name)
             loaded.append(
                 Asset(id: id, type: .image, filename: name, filesize: meta.fileSize,
@@ -89,11 +89,11 @@ final class AssetRepository: AssetRepositoryInterface {
         }
         
         // 2) 사운드(일단 파형 비움)
-        let soundNames = (try? soundService.list(project: project)) ?? []
+        let soundNames = try soundService.list(project: project)
         for name in soundNames {
             let url = soundService.url(project: project, filename: name)
             let meta = soundService.meta(for: url)
-            let contentHash = (try? soundService.sha256Hex(url: url)) ?? UUID().uuidString
+            let contentHash = try soundService.sha256Hex(url: url)
             let id = Self.composeId(contentHash: contentHash, filename: name)
             loaded.append(
                 Asset(id: id, type: .sound, filename: name, filesize: meta.fileSize,
@@ -103,6 +103,7 @@ final class AssetRepository: AssetRepositoryInterface {
             )
         }
         
+        // 3) 기본 내장 사운드
         let builtins = soundService.listBuiltins(subdirectory: "BasicSoundAssets")
         for a in builtins {
             loaded.append(

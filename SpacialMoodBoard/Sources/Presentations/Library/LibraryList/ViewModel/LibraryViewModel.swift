@@ -46,6 +46,7 @@ final class LibraryViewModel {
         }
     }
 
+    var showLoadErrorToast = false
     var showDropDock = false
     var showFileImporter = false
     var editorImages: [UIImage] = []
@@ -84,8 +85,13 @@ final class LibraryViewModel {
     // MARK: - Methods
     
     func loadAssets() async {
-        await assetRepository.reload()
-        syncFromRepo()
+        do {
+            try await assetRepository.reload()
+            syncFromRepo()
+            showLoadErrorToast = false
+        } catch {
+            showLoadErrorToast = true
+        }
     }
     
     private func syncFromRepo() {

@@ -15,6 +15,7 @@ struct LibraryView: View {
     @State private var viewModel: LibraryViewModel
     @State private var sceneViewModel: SceneViewModel
     @State private var photoSelection: [PhotosPickerItem] = []
+    @State private var showLoadErrorToast = false
     @State private var showLoadingToast = false
     @Environment(AppStateManager.self) private var appStateManager
     
@@ -94,6 +95,14 @@ struct LibraryView: View {
                 print("파일 가져오기 실패:", err.localizedDescription)
             }
         }
+        .task { await viewModel.loadAssets() }
+        .onChange(of: viewModel.showLoadErrorToast) { _, now in
+            showLoadErrorToast = now
+        }
+        .toast(
+            isPresented: $showLoadErrorToast,
+            message: .loadingError
+        )
         .onChange(of: viewModel.isPreparingImages) { _, now in
             if now { showLoadingToast = true }
             else { showLoadingToast = false }
@@ -114,7 +123,6 @@ struct LibraryView: View {
                 }
             }
         }
-        .task { await viewModel.loadAssets() }
         .environment(viewModel)
         .environment(sceneViewModel)
     }
