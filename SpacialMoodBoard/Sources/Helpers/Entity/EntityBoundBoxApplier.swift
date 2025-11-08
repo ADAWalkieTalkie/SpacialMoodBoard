@@ -48,13 +48,13 @@ struct EntityBoundBoxApplier {
     // MARK: - Internal: Circle (사운드)
     
     private func addCircleBound(to entity: ModelEntity, diameter: Float) {
-        let offset: Float = 0.04
+        let offset: Float = 0.08
         let expandedD = diameter + offset * 2.5 * 0.3
 
         let texSize: CGFloat = 1024
         guard let tex = makeGlowCircleTexture(size: CGSize(width: texSize, height: texSize)) else { return }
 
-        let plane = MeshResource.generateBox(width: expandedD, height: expandedD, depth: 0.001)
+        let plane = MeshResource.generateBox(width: expandedD/2, height: expandedD/2, depth: 0.001)
 
         var mat = PhysicallyBasedMaterial()
         mat.baseColor = .init(texture: .init(tex))
