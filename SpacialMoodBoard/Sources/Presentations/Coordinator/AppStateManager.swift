@@ -22,12 +22,13 @@ class AppStateManager {
         case projectList
         case libraryWithVolume(Project)
         case libraryWithImmersive(Project)
+        case closedApp
 
         /// 현재 상태와 연관된 `Project` 객체를 반환.
         /// `projectList` 상태일 경우 `nil`을 반환.
         var selectedProject: Project? {
             switch self {
-            case .projectList:
+            case .projectList, .closedApp:
                 return nil
             case .libraryWithVolume(let project), .libraryWithImmersive(let project):
                 return project
@@ -89,5 +90,11 @@ class AppStateManager {
             return
         }
         appState = .libraryWithVolume(project)
+    }
+    
+    func closeApp() {
+        selectedScene = nil
+        
+        appState = .closedApp
     }
 }

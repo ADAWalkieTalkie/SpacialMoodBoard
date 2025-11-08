@@ -59,6 +59,11 @@ class WindowCoordinator {
             dismissWindow("MainWindow")
             openWindow("MainWindow")
             await dismissImmersiveSpace()
+            
+        case (.libraryWithVolume, .closedApp):
+            dismissWindow("ImmersiveVolumeWindow")
+            dismissWindow("MainWindow")
+            exit(0)
 
         default:
             // 다른 전환은 window 조작이 필요 없음

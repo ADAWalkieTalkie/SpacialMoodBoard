@@ -33,7 +33,12 @@ struct MainWindowContent: View {
                         sceneViewModel: sceneViewModel
                     )
                     .onBackground {
-                        appStateManager.closeProject()
+                        if appStateManager.appState.isImmersiveOpen {
+                            appStateManager.closeProject()
+                        } else {
+                            appStateManager.closeApp()
+                        }
+                        
                     }
                 }
                 .environment(appStateManager)
