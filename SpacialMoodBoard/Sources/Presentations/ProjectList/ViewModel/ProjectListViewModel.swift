@@ -81,7 +81,7 @@ final class ProjectListViewModel {
         do {
             // 파일이 있으면 로드
             if sceneModelStorage.exists(projectName: project.title) {
-                var sceneModel = try sceneModelStorage.load(
+                let sceneModel = try sceneModelStorage.load(
                     projectName: project.title,
                     projectId: project.id
                 )
