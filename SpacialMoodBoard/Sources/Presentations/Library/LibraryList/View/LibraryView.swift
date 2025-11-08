@@ -15,6 +15,7 @@ struct LibraryView: View {
     @State private var viewModel: LibraryViewModel
     @State private var sceneViewModel: SceneViewModel
     @State private var photoSelection: [PhotosPickerItem] = []
+    @State private var showLoadingToast = false
     @Environment(AppStateManager.self) private var appStateManager
     
     // MARK: - Init
@@ -93,6 +94,15 @@ struct LibraryView: View {
                 print("파일 가져오기 실패:", err.localizedDescription)
             }
         }
+        .onChange(of: viewModel.isPreparingImages) { _, now in
+            if now { showLoadingToast = true }
+            else { showLoadingToast = false }
+        }
+        .toast(
+            isPresented: $showLoadingToast,
+            message: .loadingImageEdit,
+            dismissWhen: { !viewModel.isPreparingImages }
+        )
         .fullScreenCover(isPresented: $viewModel.showEditor) {
             ImageEditorView(
                 images: viewModel.editorImages,

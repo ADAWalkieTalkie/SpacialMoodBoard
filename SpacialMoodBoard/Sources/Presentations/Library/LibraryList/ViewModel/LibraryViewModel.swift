@@ -50,6 +50,7 @@ final class LibraryViewModel {
     var showFileImporter = false
     var editorImages: [UIImage] = []
     var editorPreferredNames: [String?] = []
+    var isPreparingImages = false
     var showEditor = false
     
     // MARK: - Init
@@ -187,19 +188,22 @@ extension LibraryViewModel {
     ///   - kind: 임포트 대상 종류(.image / .sound). 보통 현재 탭 상태를 반영
     ///   - source: 임포트 소스(드래그드롭/포토피커/클립보드/파일URL)
     private func runImport(kind: AssetType, source: ImportRequest.Source) async {
+        isPreparingImages = true
+        defer { isPreparingImages = false }
+        
         let request = ImportRequest(
             kind: kind,
             source: source,
             projectName: projectName,
             limit: 10
         )
+        
         do {
             let result = try await importUseCase.execute(request)
             switch result {
             case .images(let images):
                 let names = Array(editorPreferredNames.prefix(images.count))
                 let padded = names + Array(repeating: nil, count: max(0, images.count - names.count))
-                
                 await presentEditor(with: images, preferredNames: padded)
             case .soundsSaved:
                 syncFromRepo()
