@@ -10,9 +10,9 @@ import SwiftUI
 struct LibraryImageItemView: View {
     
     // MARK: - Properties
-
+    
     private let asset: Asset
-
+    
     @Environment(LibraryViewModel.self) private var viewModel
     @Environment(SceneViewModel.self) private var sceneViewModel
     @State private var showRenamePopover = false
@@ -54,19 +54,26 @@ struct LibraryImageItemView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    if isRenaming {
-                        SelectAllTextField(
-                            text: $draftTitle,
-                            isFirstResponder: $isTextFieldFocused,
-                            onSubmit: { commitRenameIfNeeded() }
-                        )
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 26)
-                    } else {
-                        Text(asset.filename.deletingPathExtension)
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
+                    HStack(spacing: 2) {
+                        if isRenaming {
+                            SelectAllTextField(
+                                text: $draftTitle,
+                                isFirstResponder: $isTextFieldFocused,
+                                onSubmit: { commitRenameIfNeeded() }
+                            )
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 26)
+                        } else {
+                            Text(asset.filename.deletingPathExtension)
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                        }
+                        
+                        if sceneViewModel.spacialEnvironment.floorAssetId == asset.id {
+                            Image(.icFloorMark)
+                            
+                        }
                     }
                     
                     Text(Self.formatDate(asset.createdAt))
