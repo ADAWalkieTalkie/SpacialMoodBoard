@@ -29,7 +29,6 @@ extension SceneViewModel {
             if let entity = oldValue {
                 removeAttachment(from: entity)
             }
-            currentAttachmentEntity = nil
             return
         }
         
@@ -91,9 +90,6 @@ extension SceneViewModel {
             addSoundEditBarAttachment(to: entity, objectId: objectId, objectType: objectType, sceneObject: sceneObject)
         }
         
-        // 현재 attachment entity 저장
-        currentAttachmentEntity = entity
-        
         // 타이머 생성 및 시작 (entity를 캡처)
         attachmentTimer = FunctionTimer(duration: 5.0) { [weak self] in
             guard let self else { return }
@@ -105,8 +101,6 @@ extension SceneViewModel {
             if self.selectedEntity?.name == entity.name {
                 self.selectedEntity = nil
             }
-            
-            self.currentAttachmentEntity = nil
         }
         attachmentTimer?.start()
     }

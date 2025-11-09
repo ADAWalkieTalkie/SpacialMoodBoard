@@ -58,7 +58,6 @@ final class SceneViewModel {
             handleSelectedEntityChange(oldValue: oldValue, newValue: selectedEntity)
         }
     }
-    var currentAttachmentEntity: ModelEntity?
     var attachmentTimer: FunctionTimer?
 
     /// Root Entity 참조 (회전 등의 작업에 사용)
