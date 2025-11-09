@@ -69,51 +69,15 @@ extension SceneViewModel {
     
     // MARK: - Private Helpers
     
-    /// Entity에 attachment를 추가하고 타이머 시작
-    private func addAttachmentAndStartTimer(for entity: ModelEntity) {
-        guard let objectId = UUID(uuidString: entity.name),
-              let sceneObject = sceneObjects.first(where: { $0.id == objectId })
-        else { return }
-        
-        let objectType = sceneObject.type
-        
-        // 기존 타이머 취소
-        attachmentTimer?.cancel()
-        attachmentTimer = nil
-        
-        // Attachment 추가
-        switch objectType {
-        case .image:
-            addImageEditBarAttachment(to: entity, objectId: objectId, objectType: objectType)
-            
-        case .sound:
-            addSoundEditBarAttachment(to: entity, objectId: objectId, objectType: objectType, sceneObject: sceneObject)
-        }
-        
-        // 타이머 생성 및 시작 (entity를 캡처)
-        attachmentTimer = FunctionTimer(duration: 5.0) { [weak self] in
-            guard let self else { return }
-            
-            // 타이머 생성 시점의 entity 사용
-            self.removeAttachment(from: entity)
-            
-            // selectedEntity가 여전히 같은 entity면 nil로 설정
-            if self.selectedEntity?.name == entity.name {
-                self.selectedEntity = nil
-            }
-        }
-        attachmentTimer?.start()
-    }
-    
     /// 모든 attachment 제거 (안전성을 위한 함수)
-    private func removeAllAttachments() {
+    func removeAllAttachments() {
         for entity in entityRepository.getCachedEntities().values {
             removeAttachment(from: entity)
         }
     }
 
     /// 특정 Entity의 attachment만 제거
-    private func removeAttachment(from entity: ModelEntity) {
+    func removeAttachment(from entity: ModelEntity) {
         // boundBox 제거
         entityBoundBoxApplier.removeBoundBox(from: entity)
 
@@ -126,5 +90,5 @@ extension SceneViewModel {
         entity.children
             .filter { $0.name == "soundNameAttachment" }
             .forEach { $0.removeFromParent() }
-    }
+        }
 }
