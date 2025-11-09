@@ -21,10 +21,13 @@ struct EntityScaleGesture: ViewModifier {
                         
                         let currentEntity = value.entity
                         
-                        if initialScale == nil {
-                            onGestureStart?()
-                            selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
-                            initialScale = currentEntity.scale
+                        if let modelEntity = currentEntity as? ModelEntity {
+                            if initialScale == nil {
+                                // 제스처 시작 시에만 선택
+                                selectedEntity = modelEntity
+                                onGestureStart?()
+                                initialScale = currentEntity.scale
+                            }
                         }
                         
                         currentEntity.scale = (initialScale ?? .init(repeating: 1.0)) * Float(value.magnification)
@@ -38,8 +41,6 @@ struct EntityScaleGesture: ViewModifier {
                         
                         let finalScale = value.entity.scale.x // uniform scale이므로 x만 사용
                         onScaleUpdate(uuid, finalScale)
-
-                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
                         onGestureEnd?()
                         initialScale = nil
