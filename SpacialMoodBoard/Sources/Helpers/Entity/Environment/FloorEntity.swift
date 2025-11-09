@@ -59,7 +59,7 @@ class FloorEntity {
     /// - Note: 3D 공간의 중심에 배치됩니다
     static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
     
-    static let defaultHumanScaleSize = SIMD3<Float>(x: 0.21, y:0.21, z: 0.21)
+    static let defaultHumanScaleSize = SIMD2<Float>(x: 0.11, y: 0.22)
 
     // MARK: - Initialization
 
@@ -98,6 +98,10 @@ class FloorEntity {
 
         floor.name = "floorRoot"
 
+        let humanScaleEntity = await FloorEntity.createHumanScaleObject(size: defaultHumanScaleSize)
+
+        floor.addChild(humanScaleEntity)
+
         return floor
     }
 
@@ -120,22 +124,18 @@ class FloorEntity {
         async -> ModelEntity
     {
         let material: PhysicallyBasedMaterial
-        let opacity: Float
 
         // 머티리얼 생성: 이미지 텍스처 또는 기본 머티리얼
         if let imageURL = materialImageURL {
             do {
                 let texture = try await TextureResource(contentsOf: imageURL)
                 material = createMaterial(texture: texture)
-                opacity = 1.0  // 이미지가 있을 때: 완전 불투명
             } catch {
                 // 이미지 로드 실패 시 기본 머티리얼 사용
                 material = createMaterial()
-                opacity = 0.5  // 기본 상태: 반투명
             }
         } else {
             material = createMaterial()
-            opacity = 0.5  // 기본 상태: 반투명
         }
 
         // Plane 메시로 바닥 Entity 생성
@@ -146,9 +146,6 @@ class FloorEntity {
 
         // Floor 위치 설정
         floor.position = position
-
-        // Floor 투명도 설정 (이미지 있을 때 1.0, 없을 때 0.3)
-        floor.components[OpacityComponent.self] = .init(opacity: opacity)
 
         return floor
     }
@@ -176,16 +173,51 @@ class FloorEntity {
         // 베이스 컬러 설정: 텍스처 또는 흰색
         if let texture {
             material.baseColor = .init(texture: .init(texture))
+            material.blending = .transparent(opacity: 1.0)
         } else {
             material.baseColor.tint = .init(.white)
+            material.blending = .transparent(opacity: 0.5)
         }
 
-        // 비금속 재질로 설정 (나무, 천, 플라스틱 등)
         material.metallic = 0.0
-
-        // 거친 표면으로 설정 (자연스러운 확산 반사)
         material.roughness = 0.8
 
         return material
+    }
+    
+    // MARK: - Human Scale Entity 생성
+    @MainActor
+    static func createHumanScaleObject(size: SIMD2<Float>) async -> ModelEntity {
+        var material = PhysicallyBasedMaterial()
+
+        do {
+            if let uiImage = UIImage(named: "HumanScaleGuide10"),
+               let cgImage = uiImage.cgImage {
+                let texture = try await TextureResource(image: cgImage, options: .init(semantic: .color))
+
+                material.baseColor = .init(texture: .init(texture))
+                material.emissiveColor = .init(texture: .init(texture))
+                material.emissiveIntensity = 10.0
+                material.metallic = .init(floatLiteral: 0.0)
+                material.roughness = .init(floatLiteral: 0.8)
+                material.faceCulling = .none
+                material.blending = .transparent(opacity: .init(texture: .init(texture)))
+                material.opacityThreshold = 0.3
+            } else {
+                print("HumanScale Load 실패: Asset Catalog에서 이미지를 찾을 수 없습니다")
+            }
+        } catch {
+            print("HumanScale Load 실패: \(error)")
+            print(error.localizedDescription)
+        }
+        
+        let humanScaleEntity = ModelEntity(
+                mesh: .generatePlane(width: size.x, height: size.y),
+                materials: [material]
+            )
+
+        humanScaleEntity.position = [0, (size.y / 2.55) , 0]
+
+        return humanScaleEntity
     }
 }
