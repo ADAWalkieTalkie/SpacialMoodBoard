@@ -58,7 +58,7 @@ struct SceneRealityView: View {
                     if currentFloorURL != viewModel.appliedFloorImageURL,
                        let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
                         Task {
-                            viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
+                            await viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
                         }
                     }
                 }
