@@ -63,7 +63,7 @@ protocol EntityRepositoryInterface {
     /// - 없으면 FloorEntity.create()로 새로 생성 후 캐싱
     /// - Parameter floorImageURL: Floor 이미지 URL (AssetRepository에서 조회된 URL)
     /// - Returns: Floor ModelEntity, 생성 실패 시 nil
-    func getOrCreateFloorEntity(floorImageURL: URL?) -> ModelEntity?
+    func getOrCreateFloorEntity(floorImageURL: URL?) async -> ModelEntity?
 
     /// Floor 엔티티 캐시를 삭제 (다음 호출 시 재생성됨)
     func clearFloorCache()

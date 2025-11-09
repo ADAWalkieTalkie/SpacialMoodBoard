@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "sample_image_1.jpg",
+      "filename" : "HumanScaleGuide9.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "HumanScaleGuide9 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "HumanScaleGuide9 2.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

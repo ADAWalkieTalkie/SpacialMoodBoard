@@ -58,6 +58,8 @@ class FloorEntity {
     /// 바닥의 기본 위치 (원점)
     /// - Note: 3D 공간의 중심에 배치됩니다
     static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
+    
+    static let defaultHumanScaleSize = SIMD3<Float>(x: 0.21, y:0.21, z: 0.21)
 
     // MARK: - Initialization
 
@@ -86,9 +88,9 @@ class FloorEntity {
     @MainActor
     static func create(
         materialImageURL: URL?
-    ) -> ModelEntity {
+    ) async -> ModelEntity {
 
-        let floor = createFloor(
+        let floor = await createFloor(
             size: Self.defaultFloorSize,
             position: Self.defaultFloorPosition,
             materialImageURL: materialImageURL
@@ -115,7 +117,7 @@ class FloorEntity {
     /// - Note: 투명도는 이미지 유무에 따라 조건부로 설정됩니다 (이미지 있음: 1.0, 없음: 0.3)
     @MainActor
     static private func createFloor(size: SIMD2<Float>, position: SIMD3<Float>, materialImageURL: URL?)
-        -> ModelEntity
+        async -> ModelEntity
     {
         let material: PhysicallyBasedMaterial
         let opacity: Float
@@ -123,7 +125,7 @@ class FloorEntity {
         // 머티리얼 생성: 이미지 텍스처 또는 기본 머티리얼
         if let imageURL = materialImageURL {
             do {
-                let texture = try TextureResource.load(contentsOf: imageURL)
+                let texture = try await TextureResource(contentsOf: imageURL)
                 material = createMaterial(texture: texture)
                 opacity = 1.0  // 이미지가 있을 때: 완전 불투명
             } catch {
