@@ -121,5 +121,10 @@ extension SceneViewModel {
         entity.children
             .filter { $0.name == "objectAttachment" }
             .forEach { $0.removeFromParent() }
+
+        // soundNameAttachment 제거 추가
+        entity.children
+            .filter { $0.name == "soundNameAttachment" }
+            .forEach { $0.removeFromParent() }
     }
 }

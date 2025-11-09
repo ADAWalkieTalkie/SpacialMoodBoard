@@ -111,6 +111,40 @@ extension SceneViewModel {
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity)
     }
 
+    private func addSoundNameAttachment(to entity: ModelEntity, sceneObject: SceneObject) {
+        // 1. assetId로 Asset 찾기
+        guard let asset = assetRepository.asset(withId: sceneObject.assetId) else {
+            print("⚠️ Asset not found for assetId: \(sceneObject.assetId)")
+            return
+        }
+        
+        // 2. filename 추출
+        let filename = asset.filename
+        
+        // 3. Attachment Entity 생성
+        let nameAttachment = Entity()
+        nameAttachment.name = "soundNameAttachment"
+        
+        // 4. ViewAttachmentComponent 생성
+        let attachment = ViewAttachmentComponent(
+            rootView: SoundNameAttachment(filename: filename)
+        )
+        nameAttachment.components.set(attachment)
+        nameAttachment.components.set(BillboardComponent())
+        
+        // 5. 스케일 유지
+        let inverseScale = SIMD3<Float>(
+            1.0 / entity.scale.x,
+            1.0 / entity.scale.y,
+            1.0 / entity.scale.z
+        )
+        nameAttachment.scale = inverseScale
+        
+        // 6. 위치 설정 (아래에 배치)
+        entity.addChild(nameAttachment)
+        AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
+    }
+
 
     // MARK: - dB ↔︎ Linear 변환
     
