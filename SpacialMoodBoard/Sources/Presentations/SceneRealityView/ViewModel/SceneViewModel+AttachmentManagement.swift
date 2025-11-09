@@ -6,92 +6,119 @@ import SwiftUI
 
 extension SceneViewModel {
     
-    // Attachment 자동 제거 시간 설정 (초 단위)
-    private static let attachmentAutoRemoveDuration: TimeInterval = 5.0
-    
-    func updateAttachment(
-        onDuplicate: @escaping () -> Void,
-        onCrop: @escaping () -> Void,
-        onDelete: @escaping () -> Void
-    ) {
-        // 기존 타이머 취소
-        attachmentTimerTask?.cancel()
-        attachmentTimerTask = nil
+    // MARK: - Entity Selection Handler
+    /// selectedEntity 변화를 처리하는 핵심 로직
+    func handleSelectedEntityChange(oldValue: ModelEntity?, newValue: ModelEntity?) {
+        let oldName = oldValue?.name
+        let newName = newValue?.name
         
-        // 기존 attachment 모두 제거
-        removeAllAttachments()
+        // 케이스 1: nil → nil (아무것도 안 함)
+        guard oldName != nil || newName != nil else { return }
         
-        // 선택된 Entity에 attachment 추가
-        guard let entity = selectedEntity,
-              let objectId = UUID(uuidString: entity.name)
-        else { return }
+        // 케이스 2: entity → 같은 entity (중복 클릭)
+        if let oldName = oldName, let newName = newName, oldName == newName {
+            attachmentTimer?.reset()
+            return
+        }
         
-        guard let sceneObject = sceneObjects.first(where: { $0.id == objectId }) else { return }
-        let objectType = sceneObject.type
-        
-        switch objectType {
-        case .image:
-            addAttachment(
-                to: entity,
-                objectId: objectId,
-                objectType: objectType,
-                onDuplicate: onDuplicate,
-                onCrop: onCrop,
-                onDelete: onDelete
-            )
+        // 케이스 3: entity → nil (선택 해제)
+        if oldName != nil && newName == nil {
+            attachmentTimer?.cancel()
+            attachmentTimer = nil
             
-        case .sound:
-            let initVol: Double = sceneObject.audioVolumeOrDefault
-            
-            let onVolumeChange: (Double) -> Void = { [weak self] newValue in
-                guard let self else { return }
-                
-                self.updateSceneObject(with: objectId) { obj in
-                    obj.setVolume(Float(newValue))
-                }
-                
-                let clamped = max(0.0, min(newValue, 1.0))
-                let db: Float = Float(self.linearToDecibels(clamped))
-                SceneAudioCoordinator.shared.setGain(Audio.Decibel(db), for: objectId)
-                
-                if newValue == 0 {
-                    SceneAudioCoordinator.shared.pause(objectId)
-                } else {
-                    SceneAudioCoordinator.shared.play(objectId)
-                }
-                
-                self.scheduleSceneAutosaveDebounced()
+            if let entity = oldValue {
+                removeAttachment(from: entity)
+            }
+            currentAttachmentEntity = nil
+            return
+        }
+        
+        // 케이스 4: nil → entity (새로운 선택)
+        if oldName == nil && newName != nil {
+            if let entity = newValue {
+                addAttachmentAndStartTimer(for: entity)
+            }
+            return
+        }
+        
+        // 케이스 5: entity → 다른 entity (선택 변경)
+        if let oldName = oldName, let newName = newName, oldName != newName {
+            // 기존 entity에서 attachment 제거
+            if let oldEntity = oldValue {
+                removeAttachment(from: oldEntity)
             }
             
-            addAttachment(
-                to: entity,
-                objectId: objectId,
-                objectType: objectType,
-                initialVolume: initVol,
-                onVolumeChange: onVolumeChange,
-                onDelete: onDelete
-            )
+            // 새 entity에 attachment 추가
+            if let newEntity = newValue {
+                addAttachmentAndStartTimer(for: newEntity)
+            }
+            return
         }
-
-        // 5초 후 자동 제거 타이머 시작
-        startAttachmentAutoRemoveTimer(for: entity, duration: Self.attachmentAutoRemoveDuration)
+    }
+    
+    // MARK: - Timer Control (Public)
+    
+    /// 타이머를 리셋 (외부에서 호출 가능)
+    func resetAttachmentTimer() {
+        attachmentTimer?.reset()
+    }
+    
+    /// 타이머를 멈춤 (외부에서 호출 가능)
+    func cancelAttachmentTimer() {
+        attachmentTimer?.cancel()
     }
     
     // MARK: - Private Helpers
-
+    
+    /// Entity에 attachment를 추가하고 타이머 시작
+    private func addAttachmentAndStartTimer(for entity: ModelEntity) {
+        guard let objectId = UUID(uuidString: entity.name),
+              let sceneObject = sceneObjects.first(where: { $0.id == objectId })
+        else { return }
+        
+        let objectType = sceneObject.type
+        
+        // 기존 타이머 취소
+        attachmentTimer?.cancel()
+        attachmentTimer = nil
+        
+        // Attachment 추가
+        switch objectType {
+        case .image:
+            addImageEditBarAttachment(to: entity, objectId: objectId, objectType: objectType)
+            
+        case .sound:
+            addSoundEditBarAttachment(to: entity, objectId: objectId, objectType: objectType, sceneObject: sceneObject)
+        }
+        
+        // 현재 attachment entity 저장
+        currentAttachmentEntity = entity
+        
+        // 타이머 생성 및 시작 (entity를 캡처)
+        attachmentTimer = FunctionTimer(duration: 5.0) { [weak self] in
+            guard let self else { return }
+            
+            // 타이머 생성 시점의 entity 사용
+            self.removeAttachment(from: entity)
+            
+            // selectedEntity가 여전히 같은 entity면 nil로 설정
+            if self.selectedEntity?.name == entity.name {
+                self.selectedEntity = nil
+            }
+            
+            self.currentAttachmentEntity = nil
+        }
+        attachmentTimer?.start()
+    }
+    
+    /// 모든 attachment 제거 (안전성을 위한 함수)
     private func removeAllAttachments() {
         for entity in entityRepository.getCachedEntities().values {
-            // boundBox 제거
-            entityBoundBoxApplier.removeBoundBox(from: entity)
-            
-            // attachment 제거
-            entity.children
-                .filter { $0.name == "objectAttachment" }
-                .forEach { $0.removeFromParent() }
+            removeAttachment(from: entity)
         }
     }
 
-    // 특정 Entity의 attachment만 제거
+    /// 특정 Entity의 attachment만 제거
     private func removeAttachment(from entity: ModelEntity) {
         // boundBox 제거
         entityBoundBoxApplier.removeBoundBox(from: entity)
@@ -100,108 +127,5 @@ extension SceneViewModel {
         entity.children
             .filter { $0.name == "objectAttachment" }
             .forEach { $0.removeFromParent() }
-    }
-    
-    private func addAttachment(
-        to entity: ModelEntity,
-        objectId: UUID,
-        objectType: AssetType,
-        initialVolume: Double? = nil,
-        onVolumeChange: ((Double) -> Void)? = nil,
-        onDuplicate: (() -> Void)? = nil,
-        onCrop: (() -> Void)? = nil,
-        onDelete: @escaping () -> Void
-    ) {
-        let objectAttachment = Entity()
-        objectAttachment.name = "objectAttachment"
-        
-        // ViewAttachmentComponent 생성
-        let attachment = ViewAttachmentComponent(
-            rootView: EditBarAttachment(
-                objectId: objectId,
-                objectType: objectType,
-                initialVolume: initialVolume ?? 1.0,
-                onVolumeChange: onVolumeChange,
-                onDuplicate: onDuplicate,
-                onCrop: onCrop,
-                onDelete: onDelete
-            )
-        )
-        objectAttachment.components.set(attachment)
-        objectAttachment.components.set(BillboardComponent())
-        
-        /// attachment 스케일 유지
-        let inverseScale = SIMD3<Float>(
-            1.0 / entity.scale.x,
-            1.0 / entity.scale.y,
-            1.0 / entity.scale.z
-        )
-        objectAttachment.scale = inverseScale
-        
-        entity.addChild(objectAttachment)
-        
-        // Entity의 크기 계산 (visualBounds 사용)
-        let bounds = entity.visualBounds(relativeTo: entity)
-        let width  = bounds.extents.x
-        let height = bounds.extents.y
-        entityBoundBoxApplier.addBoundAuto(to: entity, width: width, height: height)
-        
-        // Attachment 위치 설정
-        topPositionAttachment(objectAttachment, relativeTo: entity)
-    }
-
-    /// 설정된 시간 후 attachment 자동 제거 타이머 시작
-    /// - Parameters:
-    ///   - entity: Attachment가 있는 Entity
-    ///   - duration: 자동 제거까지의 시간 (초 단위)
-    private func startAttachmentAutoRemoveTimer(for entity: ModelEntity, duration: TimeInterval) {
-        // 기존 타이머 취소
-        attachmentTimerTask?.cancel()
-        
-        // 나노초로 변환
-        let nanoseconds = UInt64(duration * 1_000_000_000)
-        
-        // 새로운 타이머 시작
-        attachmentTimerTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: nanoseconds)
-            
-            // 타이머가 취소되지 않았고 entity가 여전히 존재하는지 확인
-            guard !Task.isCancelled,
-                  let self = self,
-                  entity.parent != nil else {
-                return
-            }
-            
-            await MainActor.run {
-                // attachment가 여전히 존재하는지 확인 후 제거
-                if entity.children.contains(where: { $0.name == "objectAttachment" }) {
-                    self.removeAttachment(from: entity)
-                }
-            }
-        }
-    }
-    
-    // 상단 위치로 Attachment 설정(EditBarAttachment 위치)
-    private func topPositionAttachment(_ attachment: Entity, relativeTo parent: Entity) {
-        let objectBounds = parent.visualBounds(relativeTo: parent)
-        let attachmentBounds = attachment.visualBounds(relativeTo: parent)
-        
-        let yOffset = objectBounds.max.y + attachmentBounds.extents.y / 2 + 0.05
-        attachment.position = SIMD3<Float>(0, yOffset, 0)
-    }
-    
-    private func centerPositionAttachment(_ attachment: Entity, relativeTo parent: Entity) {
-        attachment.position = SIMD3<Float>(0, 0, 0.1)
-    }
-    
-    // MARK: - dB ↔︎ Linear 변환
-    
-    func linearToDecibels(_ x: Double) -> RealityKit.Audio.Decibel {
-        guard x > 0 else { return -80 }
-        return max(20.0 * log10(x), -80.0)
-    }
-    
-    func decibelsToLinear(_ db: RealityKit.Audio.Decibel) -> Double {
-        pow(10.0, db / 20.0)
     }
 }

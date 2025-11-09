@@ -51,9 +51,15 @@ final class SceneViewModel {
     }
 
     // MARK: - Entity Management
-    /// 현재 선택된 엔티티 (UI 상태 관리용)
-    /// Note: entityMap과 floor 캐시는 entityRepository가 관리
-    var selectedEntity: ModelEntity?
+
+    /// Attachment 관련 상태 관리
+    var selectedEntity: ModelEntity? {
+        didSet {
+            handleSelectedEntityChange(oldValue: oldValue, newValue: selectedEntity)
+        }
+    }
+    var currentAttachmentEntity: ModelEntity?
+    var attachmentTimer: FunctionTimer?
 
     /// Root Entity 참조 (회전 등의 작업에 사용)
     weak var rootEntity: Entity?
@@ -92,9 +98,6 @@ final class SceneViewModel {
     
     // 자동 저장을 디바운스하기 위한 예약 작업 핸들러
     private var autosaveWorkItem: DispatchWorkItem?
-
-    // 5초 타이머를 관리하기 위한 Task 저장
-    var attachmentTimerTask: Task<Void, Never>?
     
     
     // MARK: - Cleanup
@@ -103,8 +106,7 @@ final class SceneViewModel {
         entityRepository.clearAllCaches()
         selectedEntity = nil
         rotationAngle = 0
-        attachmentTimerTask?.cancel()
-        attachmentTimerTask = nil
+        selectedEntity = nil
     }
 
     // MARK: - Scene Persistence
