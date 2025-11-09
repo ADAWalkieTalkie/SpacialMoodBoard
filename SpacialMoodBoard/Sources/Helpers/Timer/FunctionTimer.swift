@@ -2,7 +2,7 @@ import Foundation
 
 /// 리셋과 취소가 가능한 간단한 타이머
 @MainActor
-final class Timer {
+final class FunctionTimer {
     
     // MARK: - Properties
     
@@ -40,7 +40,7 @@ final class Timer {
             
             guard !Task.isCancelled else { return }
             
-            await self.complete()
+            self.complete()
         }
     }
     
@@ -55,11 +55,7 @@ final class Timer {
         timerTask?.cancel()
         timerTask = nil
     }
-    
-    /// 타이머 완료 시 실행될 클로저 설정
-    func setOnComplete(_ handler: @escaping () -> Void) {
-        self.onComplete = handler
-    }
+
     
     // MARK: - Private Methods
     
@@ -69,6 +65,6 @@ final class Timer {
     }
     
     deinit {
-        cancel()
+        timerTask?.cancel()
     }
 }

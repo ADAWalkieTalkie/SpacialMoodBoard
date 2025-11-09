@@ -40,14 +40,12 @@ final class SceneViewModel {
     // MARK: - State
     var selectedSceneModel: SceneModel?
 
+    // MARK: - Gesture State Management
     // Gesture 진행 중인지 추적하는 플래그
     var isGestureActive: Bool = false
-    
-    // MARK: - Gesture State Management
     func startGesture() {
         isGestureActive = true
     }
-    
     func endGesture() {
         isGestureActive = false
     }
