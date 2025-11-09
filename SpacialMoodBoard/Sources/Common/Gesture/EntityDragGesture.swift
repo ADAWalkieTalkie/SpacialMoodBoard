@@ -25,15 +25,10 @@ struct EntityDragGesture: ViewModifier {
                         // 제스처 시작 시 Entity 선택
                         if let modelEntity = currentEntity as? ModelEntity {
                             selectedEntity = modelEntity
-                        }
-                        
-                        if initialPosition == nil {
-                            onGestureStart?()
-                            selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
-                            initialPosition = currentEntity.position
-                            
-                            // 제스처 시작 시 한 번만 minY 계산
-                            if let modelEntity = currentEntity as? ModelEntity {
+                            if initialPosition == nil {
+                                onGestureStart?()
+                                initialPosition = currentEntity.position
+                                
                                 let bounds = getOriginalEntityBounds(modelEntity)
                                 let entityHeight = bounds.extents.y  // 전체 높이
                                 let halfHeight = entityHeight / 2.0  // 높이의 절반
@@ -63,8 +58,6 @@ struct EntityDragGesture: ViewModifier {
                         let eulerRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, eulerRotation)
                         onPositionUpdate(uuid, value.entity.position)
-                        
-                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
 
                         onGestureEnd?()
                         initialPosition = nil

@@ -25,13 +25,12 @@ struct EntityRotationGesture: ViewModifier {
                         
                         // 제스처 시작 시 Entity 선택
                         if let modelEntity = currentEntity as? ModelEntity {
-                            selectedEntity = modelEntity
-                        }
-                        
-                        if initialOrientation == nil {
-                            onGestureStart?()
-                            selectEntityTemporarily(currentEntity, selectedEntity: $selectedEntity)
-                            initialOrientation = currentEntity.orientation
+                            if initialOrientation == nil {
+                                // 제스처 시작 시에만 선택
+                                selectedEntity = modelEntity
+                                onGestureStart?()
+                                initialOrientation = currentEntity.orientation
+                            }
                         }
                         
                         // 제스처 회전을 월드 공간의 Y축(수직축)으로만 제한
@@ -69,8 +68,6 @@ struct EntityRotationGesture: ViewModifier {
                         // 최종 rotation을 Euler angles로 변환해서 저장
                         let finalRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, finalRotation)
-                        
-                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
                         
                         onGestureEnd?()
                         initialOrientation = nil
