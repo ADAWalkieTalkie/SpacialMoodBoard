@@ -7,42 +7,78 @@
 
 import SwiftUI
 
-enum ToastPosition { case top, center, bottom }
-
 private struct ToastPresenter: ViewModifier {
-    @Binding var isPresented: Bool
-    let text: String
-    let subText: String
-    let duration: TimeInterval
-    let position: ToastPosition
-    let sfx: SFX?
+    @Binding private var isPresented: Bool
+    private let message: ToastMessage
+    private let dismissWhen: (() -> Bool)?
+    
+    /// init
+    /// - Parameters:
+    ///   - isPresented: 토스트 표시 여부를 제어하는 바인딩 값. `true`일 때 토스트가 화면에 나타남
+    ///   - message: 표시할 토스트 메시지(`ToastMessage` 열거형). 텍스트, 위치, 사운드, 해제 모드 등의 정보를 포함
+    ///   - dismissWhen: `.external` 모드일 때 토스트를 닫을지 여부를 반환하는 조건 클로저(옵셔널)
+    init(isPresented: Binding<Bool>, message: ToastMessage, dismissWhen: (() -> Bool)? = nil) {
+        self._isPresented = isPresented
+        self.message = message
+        self.dismissWhen = dismissWhen
+    }
     
     func body(content: Content) -> some View {
         ZStack {
             content
             
             if isPresented {
-                ToastView(text: text, subText: subText)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(for: position))
-                    .transition(.asymmetric(
-                        insertion: .opacity,
-                        removal: .opacity
-                    ))
-                    .onAppear {
-                        if let sfx {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                SoundFX.shared.play(sfx)
-                            }
+                ToastView(
+                    message: message,
+                    dismissAction: { withAnimation(.easeInOut) { isPresented = false } }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(for: message.position))
+                .transition(.opacity)
+                .onAppear {
+                    if let sfx = message.sfx {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            SoundFX.shared.play(sfx)
                         }
+                    }
+                    
+                    let _: ToastDismissMode = {
+                        switch message.dismissMode {
+                        case .external:
+                            return .external(shouldDismiss: dismissWhen)
+                        default:
+                            return message.dismissMode
+                        }
+                    }()
+                    
+                    switch message.dismissMode {
+                    case let .auto(duration):
                         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
                             withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
                         }
+                    case let .external(shouldDismiss):
+                        if let shouldDismiss {
+                            Task { @MainActor in
+                                while isPresented {
+                                    try? await Task.sleep(for: .milliseconds(300))
+                                    if shouldDismiss() {
+                                        withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                    case .manual:
+                        break
                     }
+                }
             }
         }
         .animation(.easeInOut(duration: 0.18), value: isPresented)
     }
     
+    /// ToastPosition에 따라 Alignment를 반환
+    /// - Parameter position: `.top`, `.center`, `.bottom`
+    /// - Returns: 해당 위치에 맞는 Alignment 값
     private func alignment(for position: ToastPosition) -> Alignment {
         switch position {
         case .top:    return .top
@@ -53,28 +89,19 @@ private struct ToastPresenter: ViewModifier {
 }
 
 extension View {
-    /// 텍스트와 서브텍스트가 포함된 토스트를 표시합니다. 지정된 시간 후 자동으로 사라짐
+    /// ToastMessage enum 기반으로 토스트 표시
     /// - Parameters:
-    ///   - isPresented: 토스트 표시 여부를 제어하는 바인딩 값입니다. `true`로 설정 시 토스트가 나타나며, 일정 시간이 지나면 자동으로 `false`로 변경됨
-    ///   - text: 토스트의 메인 텍스트.  예: `"라이브러리에 저장되었습니다."`
-    ///   - subText: 토스트 하단에 표시할 보조 텍스트. 예: `"사진 3장이 추가됨"`
-    ///   - duration: 토스트가 화면에 표시되는 지속 시간(초). 기본값은 1.3초
-    ///   - position: 토스트가 표시될 위치. `.top`, `.center`, `.bottom` 중 하나를 선택 가능. 기본값 .center
-    /// - Returns: 토스트가 적용된 뷰를 반환.
-    func toast(isPresented: Binding<Bool>,
-               text: String,
-               subText: String,
-               duration: TimeInterval = 1.3,
-               position: ToastPosition = .center,
-               sfx: SFX? = nil
+    ///   - isPresented: 표시 여부 바인딩 값
+    ///   - message: ToastMessage 열거형 (title, subtitle, dismissMode, position, sfx 모두 포함)
+    func toast(
+        isPresented: Binding<Bool>,
+        message: ToastMessage,
+        dismissWhen: (() -> Bool)? = nil
     ) -> some View {
-        modifier(ToastPresenter(isPresented: isPresented,
-                                text: text,
-                                subText: subText,
-                                duration: duration,
-                                position: position,
-                                sfx: sfx
-                               )
+        modifier(ToastPresenter(
+            isPresented: isPresented,
+            message: message,
+            dismissWhen: dismissWhen)
         )
     }
 }

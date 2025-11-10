@@ -24,7 +24,7 @@ protocol AssetRepositoryInterface: AnyObject {
 
     /// 디스크/서비스로부터 에셋 목록을 재로딩하여 `assets`를 갱신합니다.
     /// - Note: 파형 등 부가 메타는 비동기로 채워질 수 있습니다.
-    func reload() async
+    func reload() async throws
 
     // MARK: 조회
 
