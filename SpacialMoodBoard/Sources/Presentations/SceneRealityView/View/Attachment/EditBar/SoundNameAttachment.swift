@@ -5,7 +5,7 @@ struct SoundNameAttachment: View {
     let filename: String
     
     var body: some View {
-        Text(filename)
+        Text(filename.deletingPathExtension)
             .font(.system(size: 15, weight: .medium))
             .foregroundStyle(.white)
             .padding(.horizontal, 12)
