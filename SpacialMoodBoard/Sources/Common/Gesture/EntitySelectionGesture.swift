@@ -13,20 +13,22 @@ struct EntitySelectionGesture: ViewModifier {
                 SpatialTapGesture()
                     .targetedToEntity(where: .has(InputTargetComponent.self))
                     .onEnded { value in
-                        selectEntityTemporarily(value.entity, selectedEntity: $selectedEntity)
+                        // Entity 선택 (didSet에서 자동으로 attachment 처리)
+                        if let modelEntity = value.entity as? ModelEntity {
+                            selectedEntity = modelEntity
+                        }
                     }
             )
-            // 현재로는 빈칸을 selectedEntity가 nil이 되어도 아무 일도 일어나지 못함.
-            // .gesture(
-            //     // 선택 해제 - 빈 공간 탭 Gesture
-            //     SpatialTapGesture()
-            //         .onEnded { _ in
-            //             if selectedEntity != nil {
-            //                 selectedEntity = nil
-            //                 print("🔄 선택 해제 (빈 공간 탭)")
-            //             }
-            //         }
-            // )
+            .gesture(
+                // 선택 해제 - 빈 공간 탭 Gesture
+                SpatialTapGesture()
+                    .onEnded { _ in
+                        if selectedEntity != nil {
+                            selectedEntity = nil
+                            print("🔄 선택 해제 (빈 공간 탭)")
+                        }
+                    }
+            )
     }
 }
 

@@ -26,8 +26,7 @@ extension SceneViewModel {
     }
     
     /// Floor 엔티티를 가져오거나 생성
-    func getFloorEntity() -> ModelEntity? {
-        return entityRepository.getOrCreateFloorEntity(floorImageURL: self.floorImageURL)
+    func getFloorEntity() async -> ModelEntity? {
+        return await entityRepository.getOrCreateFloorEntity(floorImageURL: self.floorImageURL)
     }
-
 }

@@ -55,10 +55,13 @@ struct ImageEditorView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassBackgroundEffect()
-        .toast(isPresented: $viewModel.showSavedAlert,
-               text: "에셋 추가 완료",
-               subText: "에셋이 라이브러리에 저장되었습니다.",
-               sfx: .addToLibrary
+        .toast(
+            isPresented: $viewModel.showSavedAlert,
+            message: .addToLibrary
+        )
+        .toast(
+            isPresented: $viewModel.showSaveFailedAlert,
+            message: .addToLibraryFail
         )
     }
 }
@@ -229,6 +232,7 @@ fileprivate struct ImageStageView: View {
 /// 라이브러리 추가 버튼
 fileprivate struct AddToLibraryButton: View {
     @Bindable var viewModel: ImageEditorViewModel
+    @State private var scale: CGFloat = 1.0
     
     var body: some View {
         VStack {
@@ -253,6 +257,7 @@ fileprivate struct AddToLibraryButton: View {
                 .blur(radius: 15)
                 .opacity( viewModel.isAddTargeted ? 0.5 : 0.0)
             )
+            .scaleEffect(scale)
             .contentShape(Capsule())
         }
         .frame(height: 104)
@@ -260,6 +265,17 @@ fileprivate struct AddToLibraryButton: View {
         .padding(.horizontal, 140)
         .onDrop(of: viewModel.dropTypes, isTargeted: $viewModel.isAddTargeted) { providers in
             viewModel.handleDropToAdd(providers: providers)
+        }
+        .onChange(of: viewModel.isAddTargeted) { _, newValue in
+            if newValue {
+                withAnimation(.spring(response: 0.25, dampingFraction: 0.5)) {
+                    scale = 1.16
+                }
+            } else {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
+                    scale = 1.0
+                }
+            }
         }
     }
 }

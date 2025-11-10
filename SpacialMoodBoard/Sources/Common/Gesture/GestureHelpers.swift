@@ -1,25 +1,6 @@
 import SwiftUI
 import RealityKit
 
-// MARK: - Entity Selection Helper
-
-/// Entity를 선택하고 즉시 해제 (렌더링 사이클을 통한 선택 상태 업데이트용)
-/// - Parameters:
-///   - entity: 선택할 Entity
-///   - selectedEntity: 선택 상태를 저장할 Binding
-@MainActor
-func selectEntityTemporarily(
-    _ entity: Entity,
-    selectedEntity: Binding<ModelEntity?>   
-) {
-    selectedEntity.wrappedValue = entity as? ModelEntity
-    // SwiftUI의 렌더링 사이클을 통해 선택 상태가 업데이트된 후
-    // 다음 렌더링 사이클에서 nil로 설정
-    DispatchQueue.main.async {
-        selectedEntity.wrappedValue = nil
-    }
-}
-
 
 // MARK: - Entity Boundary Helper
 

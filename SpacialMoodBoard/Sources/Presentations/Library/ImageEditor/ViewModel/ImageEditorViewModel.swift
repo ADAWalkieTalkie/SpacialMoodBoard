@@ -29,6 +29,7 @@ final class ImageEditorViewModel {
     // 선택 상태/알림 등
     var selectedIndex: Int = 0
     var showSavedAlert: Bool = false
+    var showSaveFailedAlert: Bool = false
     var isAddTargeted: Bool = false
     var showAddedPopover: Bool = false
     private(set) var addedURLs: [URL] = []
@@ -87,6 +88,8 @@ final class ImageEditorViewModel {
                 onAddToLibrary([url])
                 addedURLs.append(url)
                 showSavedAlert = true
+            } else {
+                showSaveFailedAlert = true
             }
         }
     }

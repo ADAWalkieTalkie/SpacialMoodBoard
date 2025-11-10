@@ -51,9 +51,6 @@ struct SceneRealityView: View {
                     if !viewModel.isGestureActive {
                         updateScene(content: content, rootEntity: rootEntity)
                     }
-                    
-                    // Attachment 업데이트
-                    updateAttachment(content: content, rootEntity: rootEntity)
                 }
             } attachments: {
                 Attachment(id: "headToolbar"){
@@ -87,7 +84,7 @@ struct SceneRealityView: View {
     // MARK: - Setup Scene
     
     private func setupScene(content: RealityViewContent, rootEntity: Entity) async {
-        guard let floor = viewModel.getFloorEntity() else {
+        guard let floor = await viewModel.getFloorEntity() else {
             return
         }
         // Volume Window일 때
@@ -129,34 +126,8 @@ struct SceneRealityView: View {
         if currentFloorURL != viewModel.appliedFloorImageURL,
         let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
             Task {
-                viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
+                await viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
             }
         }
-    }
-    
-    // MARK: - Update Attachment
-    
-    private func updateAttachment(content: RealityViewContent, rootEntity: Entity) {
-        guard config.enableAttachments else { return }
-        
-        guard let entity = viewModel.selectedEntity,
-              let objectId = UUID(uuidString: entity.name) else { return }
-        
-        // headPosition 계산
-        let headPosition: SIMD3<Float>
-        if let headAnchor = content.entities.first(where: { $0.name == "headAnchor" }) {
-            headPosition = headAnchor.position(relativeTo: nil)
-        } else {
-            headPosition = SIMD3<Float>(0, 1.55, 0)  // 기본값
-        }
-        
-        viewModel.updateAttachment(
-            headPosition: headPosition,
-            onDuplicate: { _ = viewModel.duplicateObject(rootEntity: rootEntity) },
-            onCrop: { /* handle */ },
-            onDelete: {
-                viewModel.removeSceneObject(id: objectId)
-            }
-        )
     }
 }
