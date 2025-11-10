@@ -123,7 +123,7 @@ class FloorEntity {
         var material = PhysicallyBasedMaterial()
 
         do {
-            if let uiImage = UIImage(named: "HumanScaleGuide10"),
+            if let uiImage = UIImage(named: "img_humanScaleGuide"),
                let cgImage = uiImage.cgImage {
                 let texture = try await TextureResource(image: cgImage, options: .init(semantic: .color))
 
