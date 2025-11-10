@@ -19,14 +19,14 @@ extension SceneViewModel {
     /// - Parameters:
     ///   - floor: 업데이트할 floor entity
     ///   - imageURL: 새로운 floor 이미지 URL (nil이면 기본 회색 material)
-    func updateFloorMaterial(on floor: ModelEntity, with imageURL: URL?) {
+    func updateFloorMaterial(on floor: ModelEntity, with imageURL: URL?) async {
         do {
             let material: PhysicallyBasedMaterial
             let opacity: Float
 
             if let imageURL = imageURL {
                 // 이미지가 있을 때: opacity 1.0 (완전 불투명)
-                let texture = try TextureResource.load(contentsOf: imageURL)
+                let texture = try await TextureResource(contentsOf: imageURL)
                 material = FloorEntity.createMaterial(texture: texture)
                 opacity = 1.0
             } else {
