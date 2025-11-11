@@ -111,6 +111,8 @@ struct SceneRealityView: View {
             rootEntity.transform.translation = config.rootEntityPosition
             floor.transform.translation = viewModel.getFloorPosition(windowHeight: Float(Self.defaultVolumeSize.height))
             rootEntity.scale = config.rootEntityscale
+            let humanScaleEntity = floor.findEntity(named: "humanScaleEntity")
+            floor.removeChild(humanScaleEntity!)
             rootEntity.addChild(floor)
             
             // Immersive 전용: RealityKit Content
