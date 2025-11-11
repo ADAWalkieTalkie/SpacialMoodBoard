@@ -104,8 +104,6 @@ final class SceneViewModel {
     func reset() {
         entityRepository.clearAllCaches()
         selectedEntity = nil
-        rotationAngle = 0
-        selectedEntity = nil
     }
 
     // MARK: - Scene Persistence
