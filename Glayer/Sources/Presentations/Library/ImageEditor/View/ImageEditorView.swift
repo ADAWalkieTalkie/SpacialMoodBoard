@@ -75,7 +75,7 @@ fileprivate struct ImageSidebarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             HStack {
-                Text("이미지 모음")
+                Text(String(localized: "library.imageCollection"))
                     .font(.system(size: 29, weight: .bold))
                     .foregroundStyle(.primary)
                 
@@ -153,7 +153,7 @@ fileprivate struct EditorToolbarView: View {
             
             HStack(spacing: 24) {
                 CapsuleTextButton(
-                    title: "추가된 에셋",
+                    title: String(localized: "library.addedAssets"),
                     type: .imageEditorView,
                     action: {viewModel.showAddedPopover = true}
                 )
@@ -161,9 +161,9 @@ fileprivate struct EditorToolbarView: View {
                     AddedAssetsPreview(urls: viewModel.addedURLs)
                         .frame(width: 380, height: 362)
                 }
-                
+
                 CapsuleTextButton(
-                    title: "완료",
+                    title: String(localized: "action.done"),
                     type: .imageEditorView,
                     action: { dismiss() }
                 )
@@ -171,7 +171,7 @@ fileprivate struct EditorToolbarView: View {
         }
         .frame(maxWidth: .infinity)
         .overlay(
-            Text("이미지 편집")
+            Text(String(localized: "library.imageEditor"))
                 .font(.system(size: 29, weight: .bold)),
             alignment: .center
         )
@@ -209,7 +209,7 @@ fileprivate struct ImageStageView: View {
                         .keyboardShortcut(.leftArrow, modifiers: [])
                         .keyboardShortcut(.rightArrow, modifiers: [])
                 } else {
-                    Text("이미지가 없습니다.")
+                    Text(String(localized: "library.noImages"))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -237,7 +237,7 @@ fileprivate struct AddToLibraryButton: View {
     var body: some View {
         VStack {
             Button(action: viewModel.addCurrentToLibrary) {
-                Text("라이브러리에 추가")
+                Text(String(localized: "library.addToLibrary"))
                     .font(.system(size: 19, weight: .medium))
                     .padding(.horizontal, 20)
                     .padding(.vertical, 15)

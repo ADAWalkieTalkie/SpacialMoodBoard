@@ -62,14 +62,14 @@ struct DropDockOverlayView: View {
                 .onTapGesture { isPresented = false }
             
             VStack(alignment: .center, spacing: 16) {
-                Text("이미지 가져오기")
+                Text(String(localized: "import.images"))
                     .font(.system(size: 17, weight: .bold))
-                
+
                 DropDockCard()
-                
+
                 HStack(alignment: .center, spacing: 24.5) {
                     CapsuleTextButton(
-                        title: "파일",
+                        title: String(localized: "import.file"),
                         type: .dropDockOverlayView,
                         action:
                             {
@@ -77,11 +77,11 @@ struct DropDockOverlayView: View {
                                 isPresented = false
                             }
                     )
-                    
+
                     PhotosPicker(selection: $viewModel.photoSelection,
                                  maxSelectionCount: 10,
                                  matching: .images) {
-                        Text("사진")
+                        Text(String(localized: "import.photo"))
                             .font(.system(size: 17, weight: .medium))
                             .padding(.horizontal, 26)
                             .padding(.vertical, 6.5)
@@ -91,9 +91,9 @@ struct DropDockOverlayView: View {
                                  .clipShape(Capsule())
                                  .contentShape(Capsule())
                                  .hoverEffect(.highlight)
-                    
+
                     CapsuleTextButton(
-                        title: "붙여넣기",
+                        title: String(localized: "import.paste"),
                         type: .dropDockOverlayView,
                         action: { viewModel.pasteFromClipboard() }
                     )
@@ -127,7 +127,7 @@ fileprivate struct DropDockCard: View {
         VStack(spacing: 8) {
             Image(systemName: "photo")
                 .font(.system(size: 27, weight: .medium))
-            Text("이미지 드래그 앤 드롭하기")
+            Text(String(localized: "import.dragAndDrop"))
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(.primary)
         }

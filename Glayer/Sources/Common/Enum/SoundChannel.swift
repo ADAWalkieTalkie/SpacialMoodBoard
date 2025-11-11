@@ -13,8 +13,8 @@ enum SoundChannel: String, Codable, CaseIterable {
     
     var title: String {
         switch self {
-        case .foley:   return "효과음"
-        case .ambient: return "앰비언트"
+        case .foley:   return String(localized: "sound.effect")
+        case .ambient: return String(localized: "sound.ambient")
         }
     }
 }

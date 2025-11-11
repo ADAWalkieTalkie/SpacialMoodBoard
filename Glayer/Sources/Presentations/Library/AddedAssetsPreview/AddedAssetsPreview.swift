@@ -42,7 +42,7 @@ struct AddedAssetsPreview: View {
 /// 섹션 타이틀 헤더
 fileprivate struct SectionHeaderView: View {
     var body: some View {
-        Text("추가된 에셋")
+        Text(String(localized: "library.addedAssets"))
             .foregroundStyle(.primary)
             .font(.system(size: 17, weight: .bold))
     }
@@ -51,7 +51,7 @@ fileprivate struct SectionHeaderView: View {
 /// 비어있을 때 문구
 fileprivate struct EmptyStateView: View {
     var body: some View {
-        Text("아직 추가된 에셋이 없어요.")
+        Text(String(localized: "library.noAddedAssets"))
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity)
             .frame(maxHeight: .infinity)

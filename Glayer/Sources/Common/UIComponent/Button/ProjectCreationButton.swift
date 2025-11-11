@@ -23,7 +23,7 @@ struct ProjectCreationButton: View {
                     plusCircle
                 }
 
-                Text("새 프로젝트")
+                Text(String(localized: "project.new"))
                     .font(.system(size: 20))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)

@@ -64,7 +64,7 @@ struct RenamePopover: View {
                     onRename()
                     onCancel()
                 } label: {
-                    rowLabel("이름 변경", system: "pencil")
+                    rowLabel(String(localized: "action.rename"), system: "pencil")
                 }
                 .buttonStyle(.plain)
             }
@@ -75,9 +75,9 @@ struct RenamePopover: View {
                     onCancel()
                 } label: {
                     if isCurrentFloorImage {
-                        rowLabel("바닥 이미지 제거", system: "square.dashed")
+                        rowLabel(String(localized: "floor.remove"), system: "square.dashed")
                     } else {
-                        rowLabel("바닥 추가", system: "square.on.square.dashed")
+                        rowLabel(String(localized: "floor.add"), system: "square.on.square.dashed")
                     }
                 }
                 .buttonStyle(.plain)
@@ -88,7 +88,7 @@ struct RenamePopover: View {
                     onDuplicate(id, title)
                     onCancel()
                 } label: {
-                    rowLabel("복제하기", system: "plus.square.on.square")
+                    rowLabel(String(localized: "action.duplicate"), system: "plus.square.on.square")
                 }
                 .buttonStyle(.plain)
             }
@@ -98,7 +98,7 @@ struct RenamePopover: View {
                     onDelete(id)
                     onCancel()
                 } label: {
-                    rowLabel("삭제하기", system: "trash")
+                    rowLabel(String(localized: "action.delete"), system: "trash")
                 }
                 .buttonStyle(.plain)
             }

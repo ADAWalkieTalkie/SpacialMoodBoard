@@ -105,18 +105,15 @@ struct ProjectItemView: View {
             if !focused { commitRenameIfNeeded() }
         }
         .alert(
-            String(
-                localized: "해당 프로젝트를 삭제하시겠습니까?",
-                comment: "Delete project confirmation"
-            ),
+            String(localized: "project.delete.confirmation"),
             isPresented: $showDeleteAlert
         ) {
             Button(
-                String(localized: "아니오", comment: "Cancel button"),
+                String(localized: "action.no"),
                 role: .cancel
             ) {}
             Button(
-                String(localized: "예", comment: "Confirm button"),
+                String(localized: "action.yes"),
                 role: .destructive
             ) {
                 viewModel.deleteProject(project: project)
