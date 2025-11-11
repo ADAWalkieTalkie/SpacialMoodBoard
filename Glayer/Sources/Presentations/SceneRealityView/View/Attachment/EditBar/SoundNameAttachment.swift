@@ -13,6 +13,7 @@ struct SoundNameAttachment: View {
             .background(
                 Capsule().fill(.ultraThinMaterial)
             )
+            .glassBackgroundEffect()
     }
 }
 
