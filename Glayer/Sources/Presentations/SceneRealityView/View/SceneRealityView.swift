@@ -47,19 +47,9 @@ struct SceneRealityView: View {
                 
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
-                    
                     // Gesture 진행 중이 아닐 때만 updateScene 호출
                     if !viewModel.isGestureActive {
                         updateScene(content: content, rootEntity: rootEntity)
-                    }
-                    
-                    // Floor material 업데이트 (Asset ID → URL 자동 조회)
-                    let currentFloorURL = viewModel.floorImageURL
-                    if currentFloorURL != viewModel.appliedFloorImageURL,
-                       let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
-                        Task {
-                            await viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
-                        }
                     }
                 }
             } attachments: {
@@ -136,5 +126,16 @@ struct SceneRealityView: View {
             sceneObjects: sceneObjects,
             rootEntity: rootEntity
         )
+        updateFloorMaterial(content: content, rootEntity: rootEntity)
+    }
+
+    private func updateFloorMaterial(content: RealityViewContent, rootEntity: Entity) {
+        let currentFloorURL = viewModel.floorImageURL
+        if currentFloorURL != viewModel.appliedFloorImageURL,
+        let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
+            Task {
+                await viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
+            }
+        }
     }
 }
