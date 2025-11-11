@@ -36,7 +36,8 @@ struct EntityDragGesture: ViewModifier {
                             }
                         }
                         
-                        let movement = value.convert(value.translation3D, from: .global, to: .scene)
+                        // 부모(rootEntity)의 회전을 반영하기 위해 parent 좌표계로 변환
+                        let movement = value.convert(value.translation3D, from: .global, to: currentEntity.parent!)
                         let newPosition = (initialPosition ?? .zero) + movement
 
                         // 저장된 minY 값 사용
