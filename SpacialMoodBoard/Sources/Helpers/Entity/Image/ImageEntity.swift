@@ -24,22 +24,17 @@ struct ImageEntity {
         imageEntity.position = sceneObject.position
         
         let size = calculateSize(from: asset, imageAttrs: imageAttrs)
-        
-        Self.createFrontPlane(
-            to: imageEntity,
-            from: sceneObject,
-            with: asset,
-            imageAttrs: imageAttrs,
-            size: size
-        )
-        Self.createBackPlane(
-            to: imageEntity,
-            from: sceneObject,
-            with: asset,
-            imageAttrs: imageAttrs,
-            size: size
-        )
-        
+
+        Task { @MainActor in
+            await Self.createPlane(
+                to: imageEntity,
+                from: sceneObject,
+                with: asset,
+                imageAttrs: imageAttrs,
+                size: size
+            )
+        }
+
         // 충돌 및 입력 처리를 위한 설정
         imageEntity.collision = CollisionComponent(
             shapes: [.generateBox(width: size.width, height: size.height, depth: 0.001)]
@@ -76,12 +71,15 @@ struct ImageEntity {
 //        )
 //    }
     
-    /// Material 생성
-    private static func createMaterial(from texture: TextureResource) -> UnlitMaterial {
+    /// Material 생성 (텍스처 로딩 및 양면 렌더링 지원)
+    private static func createMaterial(from url: URL) async -> UnlitMaterial? {
+        guard let texture = await loadTexture(from: url) else { return nil }
+
         var material = UnlitMaterial(color: .white)
         material.color = .init(texture: .init(texture))
         material.blending = .transparent(opacity: 1.0)
         material.opacityThreshold = 0.01
+        material.faceCulling = .none
         return material
     }
     
@@ -100,89 +98,37 @@ struct ImageEntity {
         )
     }
     
-    /// 텍스처 로드 (일반)
-    private static func loadTexture(from url: URL) -> TextureResource? {
-        return try? TextureResource.load(contentsOf: url)
-    }
-    
-    /// 텍스처 로드 (좌우 반전)
-    private static func loadFlippedTexture(from url: URL) -> TextureResource? {
-        guard let imageData = try? Data(contentsOf: url),
-              let uiImage = UIImage(data: imageData),
-              let cgImage = uiImage.cgImage else { return nil }
-        
-        let cgwidth = cgImage.width
-        let cgheight = cgImage.height
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        
-        guard let context = CGContext(
-            data: nil,
-            width: cgwidth,
-            height: cgheight,
-            bitsPerComponent: 8,
-            bytesPerRow: cgwidth * 4,
-            space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ) else { return nil }
-        
-        // 좌우 반전을 위한 변환 적용
-        context.translateBy(x: CGFloat(cgwidth), y: 0)
-        context.scaleBy(x: -1.0, y: 1.0)
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgwidth, height: cgheight))
-        
-        guard let flippedCGImage = context.makeImage() else { return nil }
-        
-        return try? TextureResource(
-            image: flippedCGImage,
-            options: .init(semantic: .color)
-        )
+    /// 텍스처 로드
+    private static func loadTexture(from url: URL) async -> TextureResource? {
+        do {
+            return try await TextureResource(contentsOf: url)
+        } catch {
+            print("⚠️ 이미지 텍스처 로드 실패: \(error.localizedDescription)")
+            return nil
+        }
     }
 
     // MARK: - Plane Creation Methods
-    
-    private static func createFrontPlane(
-        to imageEntity: ModelEntity,
-        from sceneObject: SceneObject,
-        with asset: Asset,
-        imageAttrs: ImageAttributes,
-        size: (width: Float, height: Float)
-    ) {
-        guard let texture = loadTexture(from: asset.url) else { return }
-        
-        let material = createMaterial(from: texture)
-        let mesh = MeshResource.generatePlane(
-            width: size.width,
-            height: size.height
-        )
-        
-        let frontPlane = ModelEntity(mesh: mesh, materials: [material])
-        frontPlane.position = SIMD3<Float>(0, 0, 0.0005)
-        
-        applyRotation(to: frontPlane, rotation: imageAttrs.rotation)
-        
-        imageEntity.addChild(frontPlane)
-    }
 
-    private static func createBackPlane(
+    private static func createPlane(
         to imageEntity: ModelEntity,
         from sceneObject: SceneObject,
         with asset: Asset,
         imageAttrs: ImageAttributes,
         size: (width: Float, height: Float)
-    ) {
-        guard let texture = loadFlippedTexture(from: asset.url) else { return }
-        
-        let material = createMaterial(from: texture)
+    ) async {
+        guard let material = await createMaterial(from: asset.url) else { return }
+
         let mesh = MeshResource.generatePlane(
             width: size.width,
             height: size.height
         )
-        
-        let backPlane = ModelEntity(mesh: mesh, materials: [material])
-        backPlane.position = SIMD3<Float>(0, 0, -0.0005)
-        
-        applyRotation(to: backPlane, rotation: imageAttrs.rotation, yAxisOffset: .pi)
-        
-        imageEntity.addChild(backPlane)
+
+        let plane = ModelEntity(mesh: mesh, materials: [material])
+        plane.position = SIMD3<Float>(0, 0, 0)
+
+        applyRotation(to: plane, rotation: imageAttrs.rotation)
+
+        imageEntity.addChild(plane)
     }
 }
