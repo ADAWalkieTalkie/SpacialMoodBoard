@@ -50,22 +50,6 @@ final class ProjectService: ProjectServiceInterface {
     
         do {
             let existingProjects = try modelContext.fetch(descriptor)
-      
-            if existingProjects.isEmpty {
-                for mockProject in Project.mockData {
-                    modelContext.insert(mockProject)
-                }
-        
-                try modelContext.save()
-        
-#if DEBUG
-                print("[SwiftData] ✅ Initial mock data loaded: \(Project.mockData.count) projects")
-#endif
-            } else {
-#if DEBUG
-                print("[SwiftData] ℹ️ Data already exists: \(existingProjects.count) projects")
-#endif
-            }
         } catch {
 #if DEBUG
             print("[SwiftData] ❌ Failed to load initial data: \(error)")
