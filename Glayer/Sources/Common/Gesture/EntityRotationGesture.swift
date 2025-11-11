@@ -33,12 +33,19 @@ struct EntityRotationGesture: ViewModifier {
                             }
                         }
                         
-                        // 제스처 회전을 월드 공간의 Y축(수직축)으로만 제한
+                        // 제스처 회전을 Y축(수직축)으로만 제한
                         let rotationQuat = simd_quatf(value.rotation)
-                        
-                        // 월드 Y축을 Entity의 로컬 좌표계로 변환
-                        let worldYAxis = SIMD3<Float>(0, 1, 0) // 0, 1, 0 대신 1, 1, 1로 변경(모든 축을 고려)
-                        let localYAxis = currentEntity.orientation.inverse.act(worldYAxis)
+
+                        // 부모(rootEntity)가 회전되어 있을 경우를 고려하여 부모의 Y축을 사용
+                        let parentYAxis: SIMD3<Float>
+                        if let parent = currentEntity.parent {
+                            parentYAxis = parent.orientation.act(SIMD3<Float>(0, 1, 0))
+                        } else {
+                            parentYAxis = SIMD3<Float>(0, 1, 0) // fallback to world Y
+                        }
+
+                        // 부모 Y축을 Entity의 로컬 좌표계로 변환
+                        let localYAxis = currentEntity.orientation.inverse.act(parentYAxis)
                         
                         // 로컬 Y축 기준 회전 각도 추출
                         let angle = extractRotationAngle(from: rotationQuat, around: localYAxis)
@@ -53,10 +60,10 @@ struct EntityRotationGesture: ViewModifier {
                             SoundFX.shared.play(.rotationSceneObject, volume: 0.7)
                         }
                         
-                        // 월드 Y축 기준으로 회전
-                        let worldYRotation = simd_quatf(angle: snappedAngle, axis: worldYAxis)
-                        
-                        currentEntity.orientation = worldYRotation * (initialOrientation ?? simd_quatf(angle: 0, axis: [0, 1, 0]))
+                        // 부모 Y축 기준으로 회전
+                        let yRotation = simd_quatf(angle: snappedAngle, axis: parentYAxis)
+
+                        currentEntity.orientation = yRotation * (initialOrientation ?? simd_quatf(angle: 0, axis: [0, 1, 0]))
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {

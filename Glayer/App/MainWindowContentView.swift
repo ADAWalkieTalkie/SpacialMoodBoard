@@ -60,6 +60,9 @@ struct MainWindowContent: View {
                     )
                 )
                 .modelContainer(modelContainer)
+                .onAppear {
+                    sceneViewModel.resetRotation()
+                }
             }
         }
         // MARK: - Centralized Window Management (WindowCoordinator)
