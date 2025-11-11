@@ -130,21 +130,14 @@ extension SceneViewModel {
         )
         objectAttachment.components.set(attachment)
         objectAttachment.components.set(BillboardComponent())
-        
-        // 거리 기반 스케일 계산
-        let entityWorldPosition = entity.position(relativeTo: nil)
-        let distanceBasedScale = EntityAttachmentSizeDeterminator.calculateScale(
-            headPosition: headPosition,
-            entityPosition: entityWorldPosition
-        )
-        
+
         /// attachment 스케일 보정
-        let parentScale = entity.scale
-        let finalScale = SIMD3<Float>(
-            distanceBasedScale / parentScale.x,
-            distanceBasedScale / parentScale.y,
-            distanceBasedScale / parentScale.z
+        let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
+            headPosition: headPosition,
+            entity: entity,
+            isVolumeMode: appStateManager.appState.isVolumeOpen
         )
+
         objectAttachment.scale = finalScale
         
         entity.addChild(objectAttachment)
@@ -179,20 +172,12 @@ extension SceneViewModel {
         )
         nameAttachment.components.set(attachment)
         nameAttachment.components.set(BillboardComponent())
-        
-        // 거리 기반 스케일 계산
-        let entityWorldPosition = entity.position(relativeTo: nil)
-        let distanceBasedScale = EntityAttachmentSizeDeterminator.calculateScale(
+
+        /// attachment 스케일 보정
+        let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
             headPosition: headPosition,
-            entityPosition: entityWorldPosition
-        )
-        
-        // 부모 엔티티 스케일 보정
-        let parentScale = entity.scale
-        let finalScale = SIMD3<Float>(
-            distanceBasedScale / parentScale.x,
-            distanceBasedScale / parentScale.y,
-            distanceBasedScale / parentScale.z
+            entity: entity,
+            isVolumeMode: appStateManager.appState.isVolumeOpen
         )
         
         nameAttachment.scale = finalScale
