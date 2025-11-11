@@ -9,11 +9,14 @@
 /* Begin PBXBuildFile section */
 		186F00402E8DA1E800193A85 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 186F003F2E8DA1E800193A85 /* RealityKitContent */; };
 		2D768B702EBF6AC400E90D6B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 2D768B6F2EBF6AC400E90D6B /* Lottie */; };
+		5FA673682EC3671300EB4423 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5FA673662EC3671300EB4423 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		186F003A2E8DA1E800193A85 /* Glayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Glayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		186F003E2E8DA1E800193A85 /* RealityKitContent */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = RealityKitContent; sourceTree = "<group>"; };
+		5FA673642EC3671300EB4423 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5FA673652EC3671300EB4423 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -53,6 +56,7 @@
 		186F00312E8DA1E800193A85 = {
 			isa = PBXGroup;
 			children = (
+				5FA673672EC3671300EB4423 /* Resource */,
 				186F003C2E8DA1E800193A85 /* Glayer */,
 				186F003D2E8DA1E800193A85 /* Packages */,
 				186F003B2E8DA1E800193A85 /* Products */,
@@ -73,6 +77,14 @@
 				186F003E2E8DA1E800193A85 /* RealityKitContent */,
 			);
 			path = Packages;
+			sourceTree = "<group>";
+		};
+		5FA673672EC3671300EB4423 /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				5FA673662EC3671300EB4423 /* Localizable.strings */,
+			);
+			path = Resource;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -118,10 +130,11 @@
 				};
 			};
 			buildConfigurationList = 186F00352E8DA1E800193A85 /* Build configuration list for PBXProject "Glayer" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ko,
 				Base,
 			);
 			mainGroup = 186F00312E8DA1E800193A85;
@@ -144,6 +157,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FA673682EC3671300EB4423 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,6 +172,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		5FA673662EC3671300EB4423 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5FA673642EC3671300EB4423 /* ko */,
+				5FA673652EC3671300EB4423 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		186F004C2E8DA1F100193A85 /* Debug */ = {

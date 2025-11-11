@@ -46,7 +46,7 @@ struct ToastView: View {
             
             if case .manual = message.dismissMode {
                 Button(action: { dismissAction?() }) {
-                    Text("확인")
+                    Text(String(localized: "action.confirm"))
                         .font(.system(size: 17, weight: .semibold))
                         .padding(.horizontal, 99)
                         .padding(.vertical, 12)

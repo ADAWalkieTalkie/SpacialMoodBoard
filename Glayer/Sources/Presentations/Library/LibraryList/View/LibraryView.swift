@@ -39,15 +39,15 @@ struct LibraryView: View {
                     ImageTabGridView(
                         assets: viewModel.filteredAndSorted(type: .image, key: viewModel.searchText)
                     )
-                    .tabItem { Label("이미지", systemImage: "photo.fill") }
+                    .tabItem { Label(String(localized: "library.image"), systemImage: "photo.fill") }
                     .tag(AssetType.image)
-                    
+
                     SoundTabListView(
                         assets: viewModel.filteredAndSorted(type: .sound, key: viewModel.searchText)
                     )
                     .tabItem {
                         Label {
-                            Text("사운드")
+                            Text(String(localized: "library.sound"))
                         } icon: {
                             Image(.icBeamNote)
                                 .renderingMode(.template)
@@ -174,7 +174,7 @@ struct LibraryView: View {
                 }
             }
             .overlay(
-                Text("라이브러리")
+                Text(String(localized: "library.title"))
                     .font(.system(size: 29, weight: .bold)),
                 alignment: .center
             )

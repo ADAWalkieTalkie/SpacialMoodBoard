@@ -74,7 +74,7 @@ struct ProjectListView: View {
                 .frame(width: 305, height: 44)
         }
         .overlay(
-            Text("프로젝트")
+            Text(String(localized: "project.title"))
                 .font(.system(size: 29, weight: .bold)),
             alignment: .center
         )

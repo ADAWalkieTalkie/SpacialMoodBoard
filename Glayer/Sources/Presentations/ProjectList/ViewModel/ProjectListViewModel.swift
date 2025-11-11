@@ -41,18 +41,18 @@ final class ProjectListViewModel {
     
     /// 고유한 프로젝트 제목 생성 ("무제1", "무제2", ...)
     private func generateUniqueProjectTitle() -> String {
-        let prefix = "무제"
-        
+        let prefix = String(localized: "project.untitled")
+
         // 기존 프로젝트 중 "무제" + 숫자 형태의 제목에서 숫자 추출
         let numbers = projects.compactMap { project -> Int? in
             guard project.title.hasPrefix(prefix) else { return nil }
             let numberPart = project.title.dropFirst(prefix.count)
             return Int(numberPart)
         }
-        
+
         // 가장 큰 숫자 찾기 (없으면 0)
         let maxNumber = numbers.max() ?? 0
-        
+
         // 다음 숫자로 제목 생성
         return "\(prefix)\(maxNumber + 1)"
     }
@@ -86,7 +86,7 @@ final class ProjectListViewModel {
                 
                 // Floor 로드는 SceneViewModel에서 AssetRepository를 통해 처리됨
                 // (floorAssetId → Asset 조회 → URL 획득)
-                print("📂 Floor Asset ID: \(sceneModel.spacialEnvironment.floorAssetId ?? "없음")")
+                print("📂 Floor Asset ID: \(sceneModel.spacialEnvironment.floorAssetId ?? String(localized: "project.none"))")
                 
                 print("📂 기존 SceneModel 로드 완료")
                 return sceneModel

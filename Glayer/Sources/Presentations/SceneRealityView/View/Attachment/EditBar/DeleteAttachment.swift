@@ -7,7 +7,7 @@ struct DeleteAttachment: View {
 
     var body: some View {
         VStack {
-            Text("'" + assetName + "'을(를) \n 삭제하시겠습니까?")
+            Text(String(format: String(localized: "delete.confirmation"), "'\(assetName)'"))
                 .font(.system(size: 20))
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
@@ -20,7 +20,7 @@ struct DeleteAttachment: View {
             Button(action: {
                 onDelete()
             }) {
-                Text("삭제")
+                Text(String(localized: "action.delete"))
             }
             .buttonStyle(.borderedProminent)
             .tint(.red)
@@ -28,7 +28,7 @@ struct DeleteAttachment: View {
             Button(action: {
                 onCancel()
             }) {
-                Text("취소")
+                Text(String(localized: "action.cancel"))
             }
             .buttonStyle(.bordered)
             .tint(.gray)
@@ -39,5 +39,5 @@ struct DeleteAttachment: View {
 }
 
 #Preview {
-    DeleteAttachment(assetName: "test", onDelete: { print("삭제") }, onCancel: { print("취소") })
+    DeleteAttachment(assetName: "test", onDelete: { print("Delete") }, onCancel: { print("Cancel") })
 }

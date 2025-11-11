@@ -1,0 +1,61 @@
+/*
+  Localizable.strings (Korean)
+  SpacialMoodBoard
+*/
+
+// MARK: - Sort Order
+"sort.mostRecent" = "최신순";
+"sort.byName" = "이름순";
+"sort.basicAssets" = "기본 에셋";
+"sort.userAdded" = "직접 추가";
+
+// MARK: - Sound Channel
+"sound.effect" = "효과음";
+"sound.ambient" = "앰비언트";
+
+// MARK: - Common Actions
+"action.confirm" = "확인";
+"action.done" = "완료";
+"action.rename" = "이름 변경";
+"action.duplicate" = "복제하기";
+"action.delete" = "삭제하기";
+"action.cancel" = "취소";
+"action.copy" = "복사";
+"action.crop" = "크롭";
+"action.yes" = "예";
+"action.no" = "아니오";
+
+// MARK: - Floor Image
+"floor.remove" = "바닥 이미지 제거";
+"floor.add" = "바닥 이미지 추가";
+
+// MARK: - Mode
+"mode.label" = "모드";
+
+// MARK: - Project
+"project.title" = "프로젝트";
+"project.new" = "새 프로젝트";
+"project.untitled" = "무제";
+"project.none" = "없음";
+"project.delete.confirmation" = "해당 프로젝트를 삭제하시겠습니까?";
+
+// MARK: - Import
+"import.images" = "이미지 가져오기";
+"import.file" = "파일";
+"import.photo" = "사진";
+"import.paste" = "붙여넣기";
+"import.dragAndDrop" = "이미지 드래그 앤 드롭하기";
+
+// MARK: - Library
+"library.title" = "라이브러리";
+"library.image" = "이미지";
+"library.sound" = "사운드";
+"library.imageCollection" = "이미지 모음";
+"library.imageEditor" = "이미지 편집";
+"library.noImages" = "이미지가 없습니다.";
+"library.addToLibrary" = "라이브러리에 추가";
+"library.addedAssets" = "추가된 에셋";
+"library.noAddedAssets" = "아직 추가된 에셋이 없어요.";
+
+// MARK: - Delete Confirmation
+"delete.confirmation" = "%@을(를) \n 삭제하시겠습니까?";

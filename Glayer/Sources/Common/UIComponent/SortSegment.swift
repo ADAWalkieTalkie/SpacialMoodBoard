@@ -72,7 +72,7 @@ struct SortSegment: View {
     // MARK: - Body
 
     var body: some View {
-        Picker("모드", selection: coercedSelection) {
+        Picker(String(localized: "mode.label"), selection: coercedSelection) {
             ForEach(options) { mode in
                 Text(mode.title).tag(mode)
             }
