@@ -25,6 +25,10 @@ final class FunctionTimer {
         self.duration = duration
         self.onComplete = onComplete
     }
+        
+    deinit {
+        timerTask?.cancel()
+    }
     
     // MARK: - Public Methods
     
@@ -62,9 +66,5 @@ final class FunctionTimer {
     private func complete() {
         timerTask = nil
         onComplete?()
-    }
-    
-    deinit {
-        timerTask?.cancel()
     }
 }
