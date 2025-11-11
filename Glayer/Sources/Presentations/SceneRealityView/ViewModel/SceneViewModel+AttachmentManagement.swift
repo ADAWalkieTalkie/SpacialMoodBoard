@@ -56,6 +56,34 @@ extension SceneViewModel {
             return
         }
     }
+
+    /// 선택된 Entity의 Attachment 스케일 업데이트 (실시간 반영)
+    func updateAttachmentScales() {
+        guard let entity = selectedEntity else { return }
+        
+        let headPosition = userSpatialState.userPosition
+        let isVolumeMode = appStateManager.appState.isVolumeOpen
+        
+        // objectAttachment 스케일 업데이트
+        if let objectAttachment = entity.children.first(where: { $0.name == "objectAttachment" }) {
+            let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
+                headPosition: headPosition,
+                entity: entity,
+                isVolumeMode: isVolumeMode
+            )
+            objectAttachment.scale = finalScale
+        }
+        
+        // soundNameAttachment 스케일 업데이트
+        if let nameAttachment = entity.children.first(where: { $0.name == "soundNameAttachment" }) {
+            let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
+                headPosition: headPosition,
+                entity: entity,
+                isVolumeMode: isVolumeMode
+            )
+            nameAttachment.scale = finalScale
+        }
+    }
     
     // MARK: - Timer Control (Public)
     
