@@ -40,6 +40,23 @@ struct SceneRealityView: View {
                 }
                 
             } update: { content, attachments in
+
+                // Head Anchor 위치 추적 및 동기화
+                if let headAnchor = headAnchor {
+                    // Volume과 Immersive 모드에 따라 다른 기준점 사용
+                    let headPosition: SIMD3<Float>
+                    
+                    if appStateManager.appState.isVolumeOpen {
+                        // Volume 모드: rootEntity 기준 (로컬 좌표계)
+                        headPosition = headAnchor.position(relativeTo: rootEntity)
+                    } else {
+                        // Immersive 모드: 월드 좌표계
+                        headPosition = headAnchor.position(relativeTo: nil)
+                    }
+                    
+                    viewModel.updateUserPosition(headPosition)
+                }
+
                 // Volume 모드: base scale (0.2) × dynamic scale
                 if appStateManager.appState.isVolumeOpen {
                     rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)

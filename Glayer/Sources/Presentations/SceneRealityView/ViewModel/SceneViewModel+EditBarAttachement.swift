@@ -4,11 +4,11 @@ import SwiftUI
 // MARK: - EditBarAttachment
 
 extension SceneViewModel {
-
+    
     // MARK: - Add Attachment
-
+    
     /// Entity에 attachment를 추가하고 타이머 시작
-    func addAttachmentAndStartTimer(for entity: ModelEntity) {
+    func addAttachmentAndStartTimer(for entity: ModelEntity, headPosition: SIMD3<Float>) {
         guard let objectId = UUID(uuidString: entity.name),
               let sceneObject = sceneObjects.first(where: { $0.id == objectId })
         else { return }
@@ -22,11 +22,11 @@ extension SceneViewModel {
         // Attachment 추가
         switch objectType {
         case .image:
-            addImageEditBarAttachment(to: entity, objectId: objectId, objectType: objectType)
+            addImageEditBarAttachment(to: entity, headPosition: headPosition, objectId: objectId, objectType: objectType)
             
         case .sound:
-            addSoundEditBarAttachment(to: entity, objectId: objectId, objectType: objectType, sceneObject: sceneObject)
-            addSoundNameAttachment(to: entity, sceneObject: sceneObject)
+            addSoundEditBarAttachment(to: entity, headPosition: headPosition, objectId: objectId, objectType: objectType, sceneObject: sceneObject)
+            addSoundNameAttachment(to: entity, headPosition: headPosition, sceneObject: sceneObject)
         }
         
         // 타이머 생성 및 시작 (entity를 캡처)
@@ -43,11 +43,12 @@ extension SceneViewModel {
         }
         attachmentTimer?.start()
     }
-
+    
     /// Image Attachment 추가
-    private func addImageEditBarAttachment(to entity: ModelEntity, objectId: UUID, objectType: AssetType) {
+    private func addImageEditBarAttachment(to entity: ModelEntity, headPosition: SIMD3<Float>, objectId: UUID, objectType: AssetType) {
         addEditBarAttachment(
             to: entity,
+            headPosition: headPosition,
             objectId: objectId,
             objectType: objectType,
             onDuplicate: { [weak self] in
@@ -64,7 +65,7 @@ extension SceneViewModel {
     }
     
     /// Sound Attachment 추가
-    private func addSoundEditBarAttachment(to entity: ModelEntity, objectId: UUID, objectType: AssetType, sceneObject: SceneObject) {
+    private func addSoundEditBarAttachment(to entity: ModelEntity, headPosition: SIMD3<Float>, objectId: UUID, objectType: AssetType, sceneObject: SceneObject) {
         let initVol: Double = sceneObject.audioVolumeOrDefault
         
         let onVolumeChange: (Double) -> Void = { [weak self] newValue in
@@ -89,6 +90,7 @@ extension SceneViewModel {
         
         addEditBarAttachment(
             to: entity,
+            headPosition: headPosition,
             objectId: objectId,
             objectType: objectType,
             initialVolume: initVol,
@@ -98,10 +100,11 @@ extension SceneViewModel {
             }
         )
     }
-
+    
     /// Attachment 추가
     private func addEditBarAttachment(
         to entity: ModelEntity,
+        headPosition: SIMD3<Float>,
         objectId: UUID,
         objectType: AssetType,
         initialVolume: Double? = nil,
@@ -128,13 +131,21 @@ extension SceneViewModel {
         objectAttachment.components.set(attachment)
         objectAttachment.components.set(BillboardComponent())
         
-        /// attachment 스케일 유지
-        let inverseScale = SIMD3<Float>(
-            1.0 / entity.scale.x,
-            1.0 / entity.scale.y,
-            1.0 / entity.scale.z
+        // 거리 기반 스케일 계산
+        let entityWorldPosition = entity.position(relativeTo: nil)
+        let distanceBasedScale = EntityAttachmentSizeDeterminator.calculateScale(
+            headPosition: headPosition,
+            entityPosition: entityWorldPosition
         )
-        objectAttachment.scale = inverseScale
+        
+        /// attachment 스케일 보정
+        let parentScale = entity.scale
+        let finalScale = SIMD3<Float>(
+            distanceBasedScale / parentScale.x,
+            distanceBasedScale / parentScale.y,
+            distanceBasedScale / parentScale.z
+        )
+        objectAttachment.scale = finalScale
         
         entity.addChild(objectAttachment)
         
@@ -143,12 +154,12 @@ extension SceneViewModel {
         let width  = bounds.extents.x
         let height = bounds.extents.y
         EntityBoundBoxApplier.addBoundAuto(to: entity, width: width, height: height)
-
+        
         // Attachment 위치 설정 (상단)
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity)
     }
-
-    private func addSoundNameAttachment(to entity: ModelEntity, sceneObject: SceneObject) {
+    
+    private func addSoundNameAttachment(to entity: ModelEntity, headPosition: SIMD3<Float>, sceneObject: SceneObject) {
         // 1. assetId로 Asset 찾기
         guard let asset = assetRepository.asset(withId: sceneObject.assetId) else {
             print("⚠️ Asset not found for assetId: \(sceneObject.assetId)")
@@ -169,20 +180,29 @@ extension SceneViewModel {
         nameAttachment.components.set(attachment)
         nameAttachment.components.set(BillboardComponent())
         
-        // 5. 스케일 유지
-        let inverseScale = SIMD3<Float>(
-            1.0 / entity.scale.x,
-            1.0 / entity.scale.y,
-            1.0 / entity.scale.z
+        // 거리 기반 스케일 계산
+        let entityWorldPosition = entity.position(relativeTo: nil)
+        let distanceBasedScale = EntityAttachmentSizeDeterminator.calculateScale(
+            headPosition: headPosition,
+            entityPosition: entityWorldPosition
         )
-        nameAttachment.scale = inverseScale
+        
+        // 부모 엔티티 스케일 보정
+        let parentScale = entity.scale
+        let finalScale = SIMD3<Float>(
+            distanceBasedScale / parentScale.x,
+            distanceBasedScale / parentScale.y,
+            distanceBasedScale / parentScale.z
+        )
+        
+        nameAttachment.scale = finalScale
         
         // 6. 위치 설정 (아래에 배치)
         entity.addChild(nameAttachment)
         AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
     }
-
-
+    
+    
     // MARK: - dB ↔︎ Linear 변환
     
     func linearToDecibels(_ x: Double) -> RealityKit.Audio.Decibel {

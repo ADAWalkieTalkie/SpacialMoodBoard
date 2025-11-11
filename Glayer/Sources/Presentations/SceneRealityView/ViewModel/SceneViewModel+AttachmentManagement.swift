@@ -32,10 +32,12 @@ extension SceneViewModel {
             return
         }
         
+        let headPosition = userSpatialState.userPosition
+        
         // 케이스 4: nil → entity (새로운 선택)
         if oldName == nil && newName != nil {
             if let entity = newValue {
-                addAttachmentAndStartTimer(for: entity)
+                addAttachmentAndStartTimer(for: entity, headPosition: headPosition)
             }
             return
         }
@@ -49,7 +51,7 @@ extension SceneViewModel {
             
             // 새 entity에 attachment 추가
             if let newEntity = newValue {
-                addAttachmentAndStartTimer(for: newEntity)
+                addAttachmentAndStartTimer(for: newEntity, headPosition: headPosition)
             }
             return
         }
