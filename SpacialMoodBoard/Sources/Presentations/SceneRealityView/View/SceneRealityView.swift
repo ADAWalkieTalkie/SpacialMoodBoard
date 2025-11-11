@@ -101,12 +101,18 @@ struct SceneRealityView: View {
         if appStateManager.appState.isVolumeOpen {
             rootEntity.addChild(floor)
             floor.transform.translation = [0, Float(Self.defaultVolumeSize.height / 2) * -1, 0]
-            
+
+            // Volume에서 설정된 회전 각도 적용
+            let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
+            rootEntity.transform.rotation = rotation
+
             // Immersive일 때
         } else if appStateManager.appState.isImmersiveOpen {
             rootEntity.transform.translation = config.rootEntityPosition
             floor.transform.translation = viewModel.getFloorPosition(windowHeight: Float(Self.defaultVolumeSize.height))
             rootEntity.scale = config.rootEntityscale
+            let humanScaleEntity = floor.findEntity(named: "humanScaleEntity")
+            floor.removeChild(humanScaleEntity!)
             rootEntity.addChild(floor)
             
             // Immersive 전용: RealityKit Content

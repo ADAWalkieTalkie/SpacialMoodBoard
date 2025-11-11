@@ -18,9 +18,6 @@ struct VolumeSceneView: View {
                     viewModel: $viewModel,
                     config: .volume
                 )
-                .onAppear {
-                    viewModel.resetRotation()
-                }
                 .onDisappear {
                     viewModel.reset()
 
