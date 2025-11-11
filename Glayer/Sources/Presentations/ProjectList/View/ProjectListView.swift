@@ -10,6 +10,8 @@ import SwiftUI
 
 struct ProjectListView: View {
     @State private var viewModel: ProjectListViewModel
+    // DEBUG: WindowScene 디버그 윈도우 열기용 (디버그 완료 후 제거)
+    @Environment(\.openWindow) private var openWindow
 
     init(viewModel: ProjectListViewModel) {
         _viewModel = State(wrappedValue: viewModel)
@@ -72,6 +74,18 @@ struct ProjectListView: View {
 
             CenteredVisionSearchBar(text: $viewModel.searchText)
                 .frame(width: 305, height: 44)
+
+            // MARK: DEBUG - WindowScene 디버그 버튼
+            // TODO: 디버그 완료 후 이 버튼을 제거하세요 (Line 78-86)
+            Button {
+                openWindow(id: "WindowSceneDebug")
+            } label: {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 20))
+            }
+            .buttonStyle(.borderless)
+            .help("Window Scene 정보 보기")
+            // END DEBUG
         }
         .overlay(
             Text(String(localized: "project.title"))
