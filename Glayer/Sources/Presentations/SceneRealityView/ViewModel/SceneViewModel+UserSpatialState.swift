@@ -20,4 +20,48 @@ extension SceneViewModel {
         state.userPosition = position
         userSpatialState = state
     }
+
+    /// View Mode 토글
+    func toggleViewMode() {
+        // userSpatialState의 viewMode 토글
+        var state = userSpatialState
+        state.viewMode.toggle()
+        userSpatialState = state
+        
+        // ViewModeUseCase 실행
+        let viewModeUseCase = ViewModeUseCase(
+            entityRepository: entityRepository,
+            viewMode: state.viewMode
+        )
+        viewModeUseCase.execute()
+        
+        // Scene 자동 저장
+        scheduleSceneAutosaveDebounced()
+    }
+    
+    /// Paused 상태 토글
+    func togglePause() {
+        // userSpatialState의 paused 토글
+        var state = userSpatialState
+        state.paused.toggle()
+        userSpatialState = state
+        
+        // SceneAudioCoordinator에 전역 음소거 설정
+        SceneAudioCoordinator.shared.setGlobalMute(state.paused)
+        
+        // Scene 자동 저장
+        scheduleSceneAutosaveDebounced()
+    }
+    
+    /// Paused 상태 업데이트 (직접 값 설정)
+    func updatePausedState(_ paused: Bool) {
+        var state = userSpatialState
+        state.paused = paused
+        userSpatialState = state
+        
+        // SceneAudioCoordinator에 전역 음소거 설정
+        SceneAudioCoordinator.shared.setGlobalMute(paused)
+        
+        scheduleSceneAutosaveDebounced()
+    }
 }
