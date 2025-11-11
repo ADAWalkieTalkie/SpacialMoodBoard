@@ -1,6 +1,7 @@
 import RealityKit
 
 enum EntityAttachmentSizeDeterminator {
+    static let scaleFactor: Float = 1
 
     /// Attachment의 최종 스케일 계산 (모든 보정 포함)
     /// - Parameters:
@@ -29,9 +30,9 @@ enum EntityAttachmentSizeDeterminator {
         // 4. 부모 엔티티 스케일 보정
         let parentScale = entity.scale
         let finalScale = SIMD3<Float>(
-            adjustedScale / parentScale.x,
-            adjustedScale / parentScale.y,
-            adjustedScale / parentScale.z
+            adjustedScale / parentScale.x * scaleFactor,
+            adjustedScale / parentScale.y * scaleFactor,
+            adjustedScale / parentScale.z * scaleFactor
         )
         
         return finalScale

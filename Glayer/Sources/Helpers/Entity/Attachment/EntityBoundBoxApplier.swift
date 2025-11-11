@@ -30,12 +30,13 @@ enum EntityBoundBoxApplier {
             cornerRadius: cornerRadius
         ) else { return }
         
-        let plane = MeshResource.generateBox(width: expandedW, height: expandedH, depth: 0.001)
+        let plane = MeshResource.generatePlane(width: expandedW, height: expandedH)
         var mat = PhysicallyBasedMaterial()
         mat.baseColor = .init(texture: .init(tex))
         mat.emissiveColor = .init(texture: .init(tex))
         mat.emissiveIntensity = 1.5
         mat.blending = .transparent(opacity: 1.0)
+        mat.faceCulling = .none
         
         let bound = ModelEntity(mesh: plane, materials: [mat])
         bound.name = "boundBox"
@@ -54,13 +55,14 @@ enum EntityBoundBoxApplier {
         let texSize: CGFloat = 1024
         guard let tex = makeGlowCircleTexture(size: CGSize(width: texSize, height: texSize)) else { return }
 
-        let plane = MeshResource.generateBox(width: expandedD/2, height: expandedD/2, depth: 0.001)
+        let plane = MeshResource.generatePlane(width: expandedD/2, height: expandedD/2)
 
         var mat = PhysicallyBasedMaterial()
         mat.baseColor = .init(texture: .init(tex))
         mat.emissiveColor = .init(texture: .init(tex))
         mat.emissiveIntensity = 1.5
         mat.blending = .transparent(opacity: 1.0)
+        mat.faceCulling = .none
 
         let bound = ModelEntity(mesh: plane, materials: [mat])
         bound.name = "boundBox"
