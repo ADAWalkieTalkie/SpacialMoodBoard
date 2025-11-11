@@ -44,19 +44,6 @@ final class ProjectService: ProjectServiceInterface {
   
     // MARK: - ProjectRepositoryInterface Protocol Implementation
   
-    /// 앱 최초 실행 시 초기 mock 데이터 로드
-    func loadInitialData() {
-        let descriptor = FetchDescriptor<Project>()
-    
-        do {
-            let existingProjects = try modelContext.fetch(descriptor)
-        } catch {
-#if DEBUG
-            print("[SwiftData] ❌ Failed to load initial data: \(error)")
-#endif
-        }
-    }
-  
     /// 모든 프로젝트 조회 (updatedAt 기준 최신순 정렬)
     /// - Returns: 프로젝트 배열, 에러 시 빈 배열 반환
     func fetchProjects() -> [Project] {

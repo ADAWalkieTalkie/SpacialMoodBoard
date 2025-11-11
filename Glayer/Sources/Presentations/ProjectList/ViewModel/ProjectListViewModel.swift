@@ -32,8 +32,6 @@ final class ProjectListViewModel {
         self.appStateManager = appStateManager
         self.projectRepository = projectRepository
         
-        // 초기 데이터 로드 (향후 Task { await ... } 형태로 변경)
-        projectRepository.loadInitialData()
         refreshProjects()
     }
     

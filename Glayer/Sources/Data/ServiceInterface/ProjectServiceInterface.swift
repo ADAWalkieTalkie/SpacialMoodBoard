@@ -19,9 +19,7 @@ enum ProjectRepositoryError: Error {
 /// 프로젝트 데이터에 대한 CRUD 작업을 정의하는 프로토콜
 /// - Note: 프로토콜은 데이터 계층의 책임만 가지며, UI 상태(AppSceneState)에 의존하지 않습니다.
 protocol ProjectServiceInterface {
-    /// 초기 데이터 불러오는 작업
-    func loadInitialData()
-
+    
     /// 모든 프로젝트를 최신순으로 정렬하여 반환
     func fetchProjects() -> [Project]
 
