@@ -142,7 +142,7 @@ extension SceneViewModel {
         let bounds = entity.visualBounds(relativeTo: entity)
         let width  = bounds.extents.x
         let height = bounds.extents.y
-        entityBoundBoxApplier.addBoundAuto(to: entity, width: width, height: height)
+        EntityBoundBoxApplier.addBoundAuto(to: entity, width: width, height: height)
 
         // Attachment 위치 설정 (상단)
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity)

@@ -79,7 +79,7 @@ extension SceneViewModel {
     /// 특정 Entity의 attachment만 제거
     func removeAttachment(from entity: ModelEntity) {
         // boundBox 제거
-        entityBoundBoxApplier.removeBoundBox(from: entity)
+        EntityBoundBoxApplier.removeBoundBox(from: entity)
 
         // objectAttachment 제거
         entity.children
