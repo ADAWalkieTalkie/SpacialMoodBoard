@@ -27,6 +27,7 @@ extension SceneViewModel {
         var state = userSpatialState
         state.viewMode.toggle()
         userSpatialState = state
+        selectedEntity = nil
         
         // ViewModeUseCase 실행
         let viewModeUseCase = ViewModeUseCase(
@@ -34,9 +35,6 @@ extension SceneViewModel {
             viewMode: state.viewMode
         )
         viewModeUseCase.execute()
-        
-        // Scene 자동 저장
-        scheduleSceneAutosaveDebounced()
     }
     
     /// Paused 상태 토글
@@ -48,9 +46,6 @@ extension SceneViewModel {
         
         // SceneAudioCoordinator에 전역 음소거 설정
         SceneAudioCoordinator.shared.setGlobalMute(state.paused)
-        
-        // Scene 자동 저장
-        scheduleSceneAutosaveDebounced()
     }
     
     /// Paused 상태 업데이트 (직접 값 설정)
@@ -61,7 +56,5 @@ extension SceneViewModel {
         
         // SceneAudioCoordinator에 전역 음소거 설정
         SceneAudioCoordinator.shared.setGlobalMute(paused)
-        
-        scheduleSceneAutosaveDebounced()
     }
 }
