@@ -28,11 +28,13 @@ struct CircleFillButton: View {
     
     var body: some View {
         Button(action: action) {
-            Image(systemName: type.systemName)
-                .font(type.font)
+            VStack {
+                Image(systemName: type.systemName)
+                    .font(type.font)
+            }
+            .frame(width: type.size, height: type.size)
         }
         .circleButtonStyle(type.buttonStyle)
-        .frame(width: type.size, height: type.size)
         .clipShape(Circle())
     }
 }

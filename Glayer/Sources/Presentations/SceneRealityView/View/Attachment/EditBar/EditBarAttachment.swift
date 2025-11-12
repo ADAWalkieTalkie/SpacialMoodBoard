@@ -90,7 +90,7 @@ struct EditBarAttachment: View {
                         }
                     }
                 )
-                .frame(width: 100)
+                .frame(width: 120)
                 .frame(maxHeight: .infinity)
                 .hoverEffect()
                 .accessibilityLabel("Volume")
