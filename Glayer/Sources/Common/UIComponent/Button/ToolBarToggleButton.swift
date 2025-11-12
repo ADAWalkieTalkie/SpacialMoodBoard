@@ -19,6 +19,7 @@ struct ToolBarToggleButton: View {
     var body: some View {
         Button(action: action) {
             type.image
+                .renderingMode(.template)
                 .font(.system(size: 19, weight: .medium))
                 .foregroundStyle(isSelected ? .black : .white)
                 .frame(width: 44, height: 44)
@@ -26,10 +27,10 @@ struct ToolBarToggleButton: View {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+        .clipShape(Circle())
         .animation(.easeInOut(duration: 0.18), value: isSelected)
         .accessibilityLabel(type.name)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .frame(width: 44, height: 44)
         .help(type.name)
     }
 }
