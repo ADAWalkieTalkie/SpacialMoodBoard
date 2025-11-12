@@ -77,6 +77,11 @@ struct CapsuleVolumeSlider: View {
             .padding(.horizontal, 10)
             .contentShape(Capsule())
             .frame(maxHeight: .infinity)
+            .onChange(of: value) { _, new in
+                if !isDragging {
+                    internalValue = new
+                }
+            }
             .highPriorityGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { g in

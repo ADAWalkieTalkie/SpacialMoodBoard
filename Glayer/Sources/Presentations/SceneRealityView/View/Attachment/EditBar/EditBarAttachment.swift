@@ -9,6 +9,7 @@ struct EditBarAttachment: View {
     
     private let onDuplicate: (() -> Void)?
     private let onCrop: (() -> Void)?
+    private let onVolumeChanging: ((Double) -> Void)?
     private let onVolumeChange: ((Double) -> Void)?
     private let onDelete: () -> Void
     
@@ -31,6 +32,7 @@ struct EditBarAttachment: View {
         objectId: UUID,
         objectType: AssetType,
         initialVolume: Double = 1.0,
+        onVolumeChanging: ((Double) -> Void)? = nil,
         onVolumeChange: ((Double) -> Void)? = nil,
         onDuplicate: (() -> Void)? = nil,
         onCrop: (() -> Void)? = nil,
@@ -39,6 +41,7 @@ struct EditBarAttachment: View {
         self.objectId = objectId
         self.objectType = objectType
         self._volume = State(initialValue: min(max(initialVolume, 0.0), 1.0))
+        self.onVolumeChanging = onVolumeChanging
         self.onVolumeChange = onVolumeChange
         self.onDuplicate = onDuplicate
         self.onCrop = onCrop
@@ -54,10 +57,10 @@ struct EditBarAttachment: View {
             switch objectType {
             case .image:
                 // 크롭 버튼
-//                if let onCrop {
-//                    CircleFillButton(type: .crop, action: onCrop)
-//                        .accessibilityLabel("Crop")
-//                }
+                //                if let onCrop {
+                //                    CircleFillButton(type: .crop, action: onCrop)
+                //                        .accessibilityLabel("Crop")
+                //                }
                 // 복사 버튼
                 if let onDuplicate {
                     CircleFillButton(type: .duplicate, action: onDuplicate)
@@ -82,6 +85,7 @@ struct EditBarAttachment: View {
                             } else {
                                 isMuted = true
                             }
+                            onVolumeChanging?(newValue)
                         }
                     ),
                     onEditingChanged: { isEditing in
@@ -114,11 +118,13 @@ struct EditBarAttachment: View {
             let restore = max(lastNonZeroVolume, 0.1)
             volume = restore
             isMuted = false
+            onVolumeChanging?(restore)
             onVolumeChange?(restore)
         } else {
             lastNonZeroVolume = volume > 0 ? volume : lastNonZeroVolume
             volume = 0
             isMuted = true
+            onVolumeChanging?(0)
             onVolumeChange?(0)
         }
     }
