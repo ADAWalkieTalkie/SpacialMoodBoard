@@ -97,6 +97,8 @@ struct GlayerApp: App {
                 viewModel: sceneViewModel
             )
             .environment(appStateManager)
+            // VolumetricWindow 마진
+            .preferredWindowClippingMargins(.all, 500)
             
         }
         .windowStyle(.volumetric)
