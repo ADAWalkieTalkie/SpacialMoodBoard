@@ -63,6 +63,9 @@ struct ToolBarAttachment: View {
                 switch await openImmersiveSpace(id: "ImmersiveScene") {
                 case .opened:
                     await appStateManager.openImmersive()
+                    if let paused = appStateManager.selectedScene?.userSpatialState.paused {
+                        SceneAudioCoordinator.shared.setGlobalMute(paused)
+                    }
                 case .userCancelled, .error:
                     print("⚠️ Immersive Space 열기 실패")
                 @unknown default:

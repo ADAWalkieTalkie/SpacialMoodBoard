@@ -17,6 +17,7 @@ struct LibraryView: View {
     @State private var photoSelection: [PhotosPickerItem] = []
     @State private var showLoadErrorToast = false
     @State private var showLoadingToast = false
+    @State private var showAddedToast = false
     @Environment(AppStateManager.self) private var appStateManager
     
     // MARK: - Init
@@ -37,13 +38,15 @@ struct LibraryView: View {
                 
                 TabView(selection: $viewModel.assetType) {
                     ImageTabGridView(
-                        assets: viewModel.filteredAndSorted(type: .image, key: viewModel.searchText)
+                        assets: viewModel.filteredAndSorted(type: .image, key: viewModel.searchText),
+                        onAdded: { showAddedToast = true }
                     )
                     .tabItem { Label(String(localized: "library.image"), systemImage: "photo.fill") }
                     .tag(AssetType.image)
 
                     SoundTabListView(
-                        assets: viewModel.filteredAndSorted(type: .sound, key: viewModel.searchText)
+                        assets: viewModel.filteredAndSorted(type: .sound, key: viewModel.searchText),
+                        onAdded: { showAddedToast = true }
                     )
                     .tabItem {
                         Label {
@@ -55,6 +58,7 @@ struct LibraryView: View {
                     }
                     .tag(AssetType.sound)
                 }
+                .toast(isPresented: $showAddedToast, message: .addToVolume)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.bottom, 20)
@@ -103,14 +107,13 @@ struct LibraryView: View {
             isPresented: $showLoadErrorToast,
             message: .loadingError
         )
-        .onChange(of: viewModel.isPreparingImages) { _, now in
+        .onChange(of: viewModel.isPreparingImagesToast) { _, now in
             if now { showLoadingToast = true }
             else { showLoadingToast = false }
         }
         .toast(
             isPresented: $showLoadingToast,
-            message: .loadingImageEdit,
-            dismissWhen: { !viewModel.isPreparingImages }
+            message: .loadingImageEdit
         )
         .fullScreenCover(isPresented: $viewModel.showEditor) {
             ImageEditorView(
@@ -191,6 +194,7 @@ struct LibraryView: View {
 
 fileprivate struct ImageTabGridView: View {
     let assets: [Asset]
+    let onAdded: () -> Void
     @Environment(SceneViewModel.self) private var sceneViewModel
     
     var body: some View {
@@ -203,7 +207,10 @@ fileprivate struct ImageTabGridView: View {
                         .hoverEffect(.highlight)
                         .simultaneousGesture(
                             TapGesture().onEnded {
-                                sceneViewModel.addImageObject(from: asset)
+                                do {
+                                    _ = try sceneViewModel.addImageObject(from: asset)
+                                    onAdded()
+                                } catch { }
                             }
                         )
                 }
@@ -215,6 +222,7 @@ fileprivate struct ImageTabGridView: View {
 
 fileprivate struct SoundTabListView: View {
     let assets: [Asset]
+    let onAdded: () -> Void
     @Environment(SceneViewModel.self) private var sceneViewModel
     @Environment(LibraryViewModel.self) private var viewModel
     
@@ -233,7 +241,10 @@ fileprivate struct SoundTabListView: View {
                                 asset: asset,
                                 allowRename: true
                             ) {
-                                sceneViewModel.addSoundObject(from: asset)
+                                do {
+                                    _ = try sceneViewModel.addSoundObject(from: asset)
+                                    onAdded()
+                                } catch { }
                             }
                             .frame(height: 56)
                         }
@@ -249,7 +260,7 @@ fileprivate struct SoundTabListView: View {
                                     action: { viewModel.toggleChannel(ch) }
                                 )
                                 .frame(maxWidth: .infinity, alignment: .leading)
-
+                                
                                 if viewModel.isExpanded(ch) {
                                     LazyVStack(spacing: 12) {
                                         ForEach(items) { asset in
@@ -257,7 +268,10 @@ fileprivate struct SoundTabListView: View {
                                                 asset: asset,
                                                 allowRename: false
                                             ) {
-                                                sceneViewModel.addSoundObject(from: asset)
+                                                do {
+                                                    _ = try sceneViewModel.addSoundObject(from: asset)
+                                                    onAdded()
+                                                } catch { }
                                             }
                                             .frame(height: 56)
                                         }

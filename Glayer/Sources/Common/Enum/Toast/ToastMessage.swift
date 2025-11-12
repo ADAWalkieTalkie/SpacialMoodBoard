@@ -5,36 +5,50 @@
 //  Created by jeongminji on 11/8/25.
 //
 
+import SwiftUI
+
 enum ToastMessage {
     case addToLibrary
     case addToLibraryFail
     case loadingError
     case loadingImageEdit
     case loadingAssets
+    case addToVolume
     
     var title: String {
         switch self {
         case .addToLibrary:
-            return "에셋 추가 완료"
+            return String(localized: "toast.addToLibrary.title")
         case .addToLibraryFail:
-            return "에셋 추가 실패"
+            return String(localized: "toast.addToLibraryFail.title")
         case .loadingError:
-            return "불러오기 오류"
+            return String(localized: "toast.loadingError.title")
         case .loadingImageEdit:
-            return "이미지 편집 준비 중"
+            return String(localized: "toast.loadingImageEdit.title")
         case .loadingAssets:
-            return "에셋 불러오는 중"
+            return String(localized: "toast.loadingAssets.title")
+        case .addToVolume:
+            return String(localized: "toast.addToVolume.title")
+        }
+    }
+    
+    var titleFont: Font {
+        switch self {
+        case .addToVolume:
+            return .system(size: 19, weight: .medium)
+        default:
+            return .system(size: 19, weight: .bold)
         }
     }
     
     var subtitle: String? {
         switch self {
         case .addToLibrary:
-            return "에셋이 라이브러리에 저장되었습니다."
+            return String(localized: "toast.addToLibrary.subtitle")
         case .addToLibraryFail:
-            return "라이브러리 저장에 실패했습니다."
+            return String(localized: "toast.addToLibraryFail.subtitle")
         case .loadingError:
-            return "에셋을 불러오는데 실패했습니다."
+            return String(localized: "toast.loadingError.subtitle")
         default:
             return nil
         }
@@ -58,21 +72,54 @@ enum ToastMessage {
         }
     }
     
+    var image: Image? {
+        switch self {
+        case .addToVolume:
+            return Image(systemName: "checkmark.circle")
+        default:
+            return nil
+        }
+    }
+    
     var position: ToastPosition {
         switch self {
+        case .addToVolume:
+            return .bottom
         default:
-                .center
+            return .center
         }
     }
     
     var dismissMode: ToastDismissMode {
         switch self {
-        case .addToLibrary, .addToLibraryFail:
-            return .auto(duration: 1.3)
         case .loadingError:
             return .manual
         case .loadingImageEdit, .loadingAssets:
             return .external()
+        default:
+            return .auto(duration: 1.3)
+        }
+    }
+    
+    var textPadding: (h: CGFloat, v: CGFloat) {
+        switch self {
+        case .loadingAssets:
+            return (16, 8)
+        case .addToVolume:
+            return (0,  0)
+        default:
+            return (4, 8)
+        }
+    }
+    
+    var bodyPadding: (h: CGFloat, v: CGFloat) {
+        switch self {
+        case .loadingAssets:
+            return (24, 24)
+        case .addToVolume:
+            return (24,  20)
+        default:
+            return (25, 25)
         }
     }
 }

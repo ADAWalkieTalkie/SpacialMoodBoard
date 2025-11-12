@@ -68,23 +68,22 @@ extension SceneViewModel {
     private func addSoundEditBarAttachment(to entity: ModelEntity, headPosition: SIMD3<Float>, objectId: UUID, objectType: AssetType, sceneObject: SceneObject) {
         let initVol: Double = sceneObject.audioVolumeOrDefault
         
-        let onVolumeChange: (Double) -> Void = { [weak self] newValue in
-            guard let self else { return }
-            
-            self.updateSceneObject(with: objectId) { obj in
-                obj.setVolume(Float(newValue))
-            }
-            
+        let onVolumeChanging: (Double) -> Void = { newValue in
             let clamped = max(0.0, min(newValue, 1.0))
             let db: Float = Float(self.linearToDecibels(clamped))
             SceneAudioCoordinator.shared.setGain(Audio.Decibel(db), for: objectId)
-            
-            if newValue == 0 {
+            if clamped == 0 {
                 SceneAudioCoordinator.shared.pause(objectId)
             } else {
                 SceneAudioCoordinator.shared.play(objectId)
             }
-            
+        }
+
+        let onVolumeChange: (Double) -> Void = { [weak self] newValue in
+            guard let self else { return }
+            self.updateSceneObject(with: objectId) { obj in
+                obj.setVolume(Float(newValue))
+            }
             self.scheduleSceneAutosaveDebounced()
         }
         
@@ -94,6 +93,7 @@ extension SceneViewModel {
             objectId: objectId,
             objectType: objectType,
             initialVolume: initVol,
+            onVolumeChanging: onVolumeChanging,
             onVolumeChange: onVolumeChange,
             onDelete: { [weak self] in
                 self?.removeSceneObject(id: objectId)
@@ -108,6 +108,7 @@ extension SceneViewModel {
         objectId: UUID,
         objectType: AssetType,
         initialVolume: Double? = nil,
+        onVolumeChanging: ((Double) -> Void)? = nil,
         onVolumeChange: ((Double) -> Void)? = nil,
         onDuplicate: (() -> Void)? = nil,
         onCrop: (() -> Void)? = nil,
@@ -122,6 +123,7 @@ extension SceneViewModel {
                 objectId: objectId,
                 objectType: objectType,
                 initialVolume: initialVolume ?? 1.0,
+                onVolumeChanging: onVolumeChanging,
                 onVolumeChange: onVolumeChange,
                 onDuplicate: onDuplicate,
                 onCrop: onCrop,
