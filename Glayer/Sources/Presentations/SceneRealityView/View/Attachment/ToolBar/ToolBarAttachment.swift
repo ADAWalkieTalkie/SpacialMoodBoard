@@ -38,7 +38,7 @@ struct ToolBarAttachment: View {
             
             // 일시정지 버튼
             ToolBarToggleButton(
-                type: .pause(isOn: isPaused),
+                type: .mute(isOn: isPaused),
                 isSelected: isPaused,
                 action: togglePause
             )
