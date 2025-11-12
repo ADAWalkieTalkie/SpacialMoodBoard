@@ -14,7 +14,6 @@ final class SceneViewModel {
     let assetRepository: AssetRepositoryInterface
     let entityRepository: EntityRepositoryInterface
     let createObjectUseCase: CreateObjectUseCase
-    let entityBoundBoxApplier = EntityBoundBoxApplier()
     private var needsEntitySync: Bool = false
 
     // MARK: - Initialization
