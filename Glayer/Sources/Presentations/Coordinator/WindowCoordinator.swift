@@ -34,6 +34,7 @@ class WindowCoordinator {
         to newState: AppStateManager.AppState,
         openWindow: @escaping (String) -> Void,
         dismissWindow: @escaping (String) -> Void,
+        openImmersiveSpace: @escaping (String) async -> Void,
         dismissImmersiveSpace: @escaping () async -> Void
     ) async {
         switch (oldState, newState) {
@@ -45,10 +46,12 @@ class WindowCoordinator {
         // libraryWithVolume → libraryWithImmersive: Volume 윈도우 닫기 (Immersive가 대체)
         case (.libraryWithVolume, .libraryWithImmersive):
             dismissWindow("ImmersiveVolumeWindow")
+            await openImmersiveSpace("ImmersiveScene")
 
         // libraryWithImmersive → libraryWithVolume: Volume 윈도우 다시 열기
         case (.libraryWithImmersive, .libraryWithVolume):
             openWindow("ImmersiveVolumeWindow")
+            await dismissImmersiveSpace()
 
         // libraryWithVolume → projectList: Volume 윈도우 닫기
         case (.libraryWithVolume, .projectList):

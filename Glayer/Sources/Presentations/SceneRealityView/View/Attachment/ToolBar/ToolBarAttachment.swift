@@ -2,8 +2,6 @@ import SwiftUI
 
 struct ToolBarAttachment: View {
     @Environment(AppStateManager.self) private var appStateManager
-    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
-    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
 
     let viewModel: SceneViewModel
     
@@ -56,18 +54,10 @@ struct ToolBarAttachment: View {
             // 현재 상태에 따라 Immersive 모드 열기/닫기
             if isImmersiveOpen {
                 // Immersive 닫기
-                await appStateManager.closeImmersive()
-                await dismissImmersiveSpace()
+                appStateManager.closeImmersive()
             } else {
                 // Immersive 열기
-                switch await openImmersiveSpace(id: "ImmersiveScene") {
-                case .opened:
-                    await appStateManager.openImmersive()
-                case .userCancelled, .error:
-                    print("⚠️ Immersive Space 열기 실패")
-                @unknown default:
-                    print("⚠️ Immersive Space 알 수 없는 에러")
-                }
+                appStateManager.openImmersive()
             }
         }
     }

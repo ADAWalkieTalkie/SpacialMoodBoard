@@ -3,6 +3,7 @@ import SwiftData
 
 struct MainWindowContent: View {
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openWindow) private var openWindow
 
@@ -77,6 +78,7 @@ struct MainWindowContent: View {
                     to: newState,
                     openWindow: { id in openWindow(id: id) },
                     dismissWindow: { id in dismissWindow(id: id) },
+                    openImmersiveSpace: { id in await openImmersiveSpace(id: id) },
                     dismissImmersiveSpace: { await dismissImmersiveSpace() }
                 )
             }
