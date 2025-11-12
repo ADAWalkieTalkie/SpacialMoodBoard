@@ -7,6 +7,7 @@ enum HumanScaleEntity {
     
     /// 휴먼 스케일 오브젝트 기본 크기
     static let defaultSize = SIMD2<Float>(x: 0.11, y: 0.22)
+    static let defaultTranslation = SIMD3<Float>(x: 0, y: 0.85/8, z: 0)
     
     /// 휴먼 스케일 가이드 Entity를 생성합니다
     /// - Parameter size: 스케일 가이드 크기
@@ -44,6 +45,7 @@ enum HumanScaleEntity {
         )
         
         humanScaleEntity.name = "humanScaleEntity"
+        humanScaleEntity.transform.translation = defaultTranslation
 
         return humanScaleEntity
     }
