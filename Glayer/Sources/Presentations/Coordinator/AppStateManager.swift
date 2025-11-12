@@ -22,6 +22,7 @@ class AppStateManager {
         case projectList
         case libraryWithVolume(Project)
         case libraryWithImmersive(Project)
+        case viewModeInImmersive(Project)
         case closedApp
 
         /// 현재 상태와 연관된 `Project` 객체를 반환.
@@ -30,7 +31,7 @@ class AppStateManager {
             switch self {
             case .projectList, .closedApp:
                 return nil
-            case .libraryWithVolume(let project), .libraryWithImmersive(let project):
+            case .libraryWithVolume(let project), .libraryWithImmersive(let project), .viewModeInImmersive(let project):
                 return project
             }
         }
@@ -42,6 +43,11 @@ class AppStateManager {
 
         var isImmersiveOpen: Bool {
             if case .libraryWithImmersive = self { return true }
+            return false
+        }
+        
+        var isViewModeInImmersive: Bool {
+            if case .viewModeInImmersive(let project) = self { return true }
             return false
         }
     }
@@ -98,6 +104,24 @@ class AppStateManager {
             return
         }
         appState = .libraryWithVolume(project)
+    }
+    
+    func viewModeActivateInImmersive() {
+        guard case .libraryWithImmersive(let project) = appState else {
+            print("⚠️ Cannot activate viewMode: not in libraryWithImmersive state")
+            return
+        }
+        
+        appState = .viewModeInImmersive(project)
+    }
+    
+    func viewModeDeActivateInImmersive() {
+        guard case .viewModeInImmersive(let project) = appState else {
+            print("⚠️ Cannot deactivate viewMode: not in libraryWithImmersive state")
+            return
+        }
+        
+        appState = .libraryWithImmersive(project)
     }
     
     func closeApp() {

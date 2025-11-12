@@ -74,6 +74,12 @@ struct ToolBarAttachment: View {
             viewMode: scene.userSpatialState.viewMode
         )
         viewModeUseCase.execute()
+            
+        if appStateManager.appState.isViewModeInImmersive {
+            appStateManager.viewModeDeActivateInImmersive()
+        } else {
+            appStateManager.viewModeActivateInImmersive()
+        }
     }
 
     /// 일시정지 버튼 핸들러
