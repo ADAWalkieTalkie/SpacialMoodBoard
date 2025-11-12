@@ -8,7 +8,12 @@ extension SceneViewModel {
     // MARK: - Add Image Object
     
     /// ImageEditor나 Library에서 호출 (anchor는 SceneRealityView에서 전달)
-    func addImageObject(from asset: Asset, rootEntity: Entity? = nil) {
+    @discardableResult
+    func addImageObject(from asset: Asset, rootEntity: Entity? = nil) throws -> SceneObject {
+        guard asset.type == .image else {
+            throw NSError(domain: "Scene", code: 1)
+        }
+        
         // Volume 모드와 Immersive 모드에 따라 다른 초기 위치 설정
         // Volume: window 중앙 (y=0.1m, z=-1.0m) - 1m 크기 volume 내에서 보이도록
         // Immersive: 사용자 눈높이 (y=1.5m, z=-2.0m) - 기존 동작 유지
@@ -32,11 +37,16 @@ extension SceneViewModel {
         // SceneViewModel+SceneObject의 addSceneObject 사용
         addSceneObject(newObject, rootEntity: rootEntity)
         SoundFX.shared.play(.assetOnVolume)
+        return newObject
     }
     
     // MARK: - Add Sound Object
 
-    func addSoundObject(from asset: Asset, rootEntity: Entity? = nil) {
+    func addSoundObject(from asset: Asset, rootEntity: Entity? = nil) throws -> SceneObject {
+        guard asset.type == .sound else {
+            throw NSError(domain: "Scene", code: 1)
+        }
+        
         // Volume 모드와 Immersive 모드에 따라 다른 초기 위치 설정
         let position: SIMD3<Float>
         if appStateManager.appState.isVolumeOpen {
@@ -55,6 +65,7 @@ extension SceneViewModel {
         // SceneViewModel+SceneObject의 addSceneObject 사용
         addSceneObject(soundObj, rootEntity: rootEntity)
         SoundFX.shared.play(.assetOnVolume)
+        return soundObj
     }
     
     // MARK: - 복제
