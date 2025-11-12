@@ -105,7 +105,7 @@ struct SceneRealityView: View {
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
             rootEntity.transform.rotation = rotation
 
-            // Immersive일 때
+        // Immersive일 때
         } else if appStateManager.appState.isImmersiveOpen {
             rootEntity.transform.translation = config.rootEntityPosition
             floor.transform.translation = viewModel.getFloorPosition(windowHeight: Float(Self.defaultVolumeSize.height))
@@ -115,8 +115,7 @@ struct SceneRealityView: View {
             
             // Immersive 전용: RealityKit Content
             if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
-                rootEntity.addChild(immersiveContent)
-                immersiveContent.position = [0, -0.6, 0]
+                floor.addChild(immersiveContent)
             }
             
             // Volume에서 설정된 회전 각도를 Immersive에도 적용
