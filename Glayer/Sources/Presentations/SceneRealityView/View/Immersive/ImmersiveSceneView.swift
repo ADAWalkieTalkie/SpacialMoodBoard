@@ -16,6 +16,9 @@ struct ImmersiveSceneView: View {
             viewModel: $viewModel,
             config: .immersive
         )
+        .onInactive {
+            appStateManager.openVolume()
+        }
         .onDisappear {
             viewModel.reset()
         }

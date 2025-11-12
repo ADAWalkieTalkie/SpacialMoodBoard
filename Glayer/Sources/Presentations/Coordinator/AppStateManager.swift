@@ -73,6 +73,14 @@ class AppStateManager {
         selectedScene = nil
         appState = .projectList
     }
+    
+    func openVolume() {
+        guard case .libraryWithImmersive(let project) = appState else {
+            print("⚠️ Cannot open volume: not in libraryWithImmersive state")
+            return
+        }
+        appState = .libraryWithVolume(project)
+    }
 
     /// Immersive 모드를 여는 상태로 전환
     func openImmersive() {
