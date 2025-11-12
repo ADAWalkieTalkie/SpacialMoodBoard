@@ -75,7 +75,7 @@ class AppStateManager {
     }
 
     /// Immersive 모드를 여는 상태로 전환
-    func openImmersive() async {
+    func openImmersive() {
         guard case .libraryWithVolume(let project) = appState else {
             print("⚠️ Cannot open immersive: not in libraryWithVolume state")
             return
@@ -84,7 +84,7 @@ class AppStateManager {
     }
 
     /// Immersive 모드를 닫고 Volume으로 돌아가는 상태로 전환
-    func closeImmersive() async {
+    func closeImmersive() {
         guard case .libraryWithImmersive(let project) = appState else {
             print("⚠️ Cannot close immersive: not in libraryWithImmersive state")
             return
