@@ -47,11 +47,6 @@ class FloorEntity {
 
         floor.name = "floorRoot"
 
-        let humanScaleEntity = await FloorEntity.createHumanScaleObject(size: defaultHumanScaleSize)
-        humanScaleEntity.name = "humanScaleEntity"
-
-        floor.addChild(humanScaleEntity)
-
         return floor
     }
 

@@ -94,6 +94,10 @@ struct SceneRealityView: View {
         }
         // Volume Window일 때
         if appStateManager.appState.isVolumeOpen {
+
+            let humanScaleEntity = await HumanScaleEntity.create()
+            floor.addChild(humanScaleEntity)
+
             rootEntity.addChild(floor)
             floor.transform.translation = [0, Float(Self.defaultVolumeSize.height / 2) * -1, 0]
 
@@ -106,8 +110,7 @@ struct SceneRealityView: View {
             rootEntity.transform.translation = config.rootEntityPosition
             floor.transform.translation = viewModel.getFloorPosition(windowHeight: Float(Self.defaultVolumeSize.height))
             rootEntity.scale = config.rootEntityscale
-            let humanScaleEntity = floor.findEntity(named: "humanScaleEntity")
-            floor.removeChild(humanScaleEntity!)
+            
             rootEntity.addChild(floor)
             
             // Immersive 전용: RealityKit Content
