@@ -41,6 +41,11 @@ final class SceneAudioCoordinator {
     ///   - controller: 등록할 `AudioPlaybackController` 인스턴스
     func register(entityId: UUID, controller: AudioPlaybackController) {
         controllers[entityId] = WeakController(controller: controller)
+
+        if isGlobalMute {
+            controller.pause()
+            playing.remove(entityId)
+        }
     }
     
     /// 삭제된 엔티티의 컨트롤러를 등록 목록에서 제거
@@ -66,6 +71,10 @@ final class SceneAudioCoordinator {
     /// - Parameter id: 엔티티 UUID
     func play(_ id: UUID) {
         guard let c = controller(for: id) else { return }
+        guard !isGlobalMute else {
+            playing.remove(id)
+            return
+        }
         c.play()
         playing.insert(id)
     }
