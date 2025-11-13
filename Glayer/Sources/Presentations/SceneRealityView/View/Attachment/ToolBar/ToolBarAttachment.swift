@@ -15,13 +15,7 @@ struct ToolBarAttachment: View {
     
     // 최소화 모드
     private var isLibraryMinimized: Bool {
-        // 보기모드 활성화 되어있으면 최소화도 자동 비활성화
-        
-        if isViewModeEnabled {
-            false
-        } else {
-            !appStateManager.showLibrary
-        }
+        appStateManager.libraryMinimized
     }
     
     // 낮밤 모드
@@ -154,11 +148,14 @@ struct ToolBarAttachment: View {
     /// 뷰 모드 토글 핸들러
     private func toggleViewMode() {
         viewModel.toggleViewMode()
+        if isViewModeEnabled {
+            appStateManager.libraryMinimized = false
+        }
     }
     
     private func toggleMinimize() {
         if !isViewModeEnabled {
-            appStateManager.toggleLibraryVisibility()
+            appStateManager.libraryMinimized.toggle()
         }
     }
     
@@ -172,8 +169,8 @@ struct ToolBarAttachment: View {
     /// 일시정지 버튼 핸들러
     private func togglePause() {
         viewModel.togglePause()
-        print("isLibraryOpen \(appStateManager.isLibraryOpen())")
-        print("showLibrary \(appStateManager.showLibrary)")
+//        print("isLibraryOpen \(appStateManager.isLibraryOpen())")
+//        print("showLibrary \(appStateManager.showLibrary)")
     }
     
     

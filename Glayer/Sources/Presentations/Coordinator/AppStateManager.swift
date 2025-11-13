@@ -59,6 +59,8 @@ class AppStateManager {
     /// Immersive에서 viewMode 상태일 때 false로 설정되어 LibraryView만 숨김
     private(set) var showLibrary: Bool = true
     
+    var libraryMinimized: Bool = false
+    
     // MARK: - State Transition Methods
     
     /// 프로젝트를 선택하고 `libraryWithVolume` 상태로 전환.
@@ -113,8 +115,8 @@ class AppStateManager {
             print("⚠️ Cannot activate viewMode: not in libraryWithImmersive state")
             return true
         }
-        
-        return showLibrary
+
+        return showLibrary && !libraryMinimized
     }
     
     func closeApp() {
