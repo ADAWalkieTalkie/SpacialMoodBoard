@@ -36,9 +36,7 @@ extension SceneViewModel {
         )
         viewModeUseCase.execute()
         
-        if appStateManager.appState.isImmersiveOpen {
-            appStateManager.toggleLibraryVisibility()
-        }
+        appStateManager.toggleLibraryVisibility()
     }
     
     /// Paused 상태 토글

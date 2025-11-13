@@ -35,7 +35,7 @@ enum ToolBarToggleButtonEnum {
     var image: Image {
         switch self {
         case .volumeControl:
-            return Image(.icVolumeControl)
+            return Image("ic_volumeControl")
         case .fullImmersive:
             return Image(systemName: "person.and.background.dotted")
         case .viewMode:

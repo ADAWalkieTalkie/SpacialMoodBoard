@@ -23,7 +23,7 @@ struct MainWindowContent: View {
         Group {
             if appStateManager.appState.selectedProject != nil {
                 VStack {
-                    if appStateManager.showLibrary {
+                    if appStateManager.isLibraryOpen() {
                         LibraryView(
                             viewModel: LibraryViewModel(
                                 appStateManager: appStateManager,
@@ -68,9 +68,9 @@ struct MainWindowContent: View {
                 }
             }
         }
-        .opacity(appStateManager.showLibrary ? 1 : 0)
-        .animation(.easeInOut(duration: 0.2), value: appStateManager.showLibrary)
-        .persistentSystemOverlays(appStateManager.showLibrary ? .visible : .hidden)
+        .opacity(appStateManager.isLibraryOpen() ? 1 : 0)
+        .animation(.easeInOut(duration: 0.2), value: appStateManager.isLibraryOpen())
+        .persistentSystemOverlays(appStateManager.isLibraryOpen() ? .visible : .hidden)
         // MARK: - Centralized Window Management (WindowCoordinator)
         .onAppear {
             // WindowCoordinator 초기화

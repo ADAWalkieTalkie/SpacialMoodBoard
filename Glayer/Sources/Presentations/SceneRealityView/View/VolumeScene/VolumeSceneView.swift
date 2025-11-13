@@ -27,12 +27,11 @@ struct VolumeSceneView: View {
             }
             VStack {
                 Spacer()
-                VolumeSceneButton(
-                    onRotate: { viewModel.rotateBy90Degrees() },
-                    viewModel: viewModel
-                )
+
+                ToolBarAttachment(viewModel: viewModel)
+                    .environment(appStateManager)
+                    .zIndex(99999999)
             }
-            .zIndex(1)
         }
     }
 }

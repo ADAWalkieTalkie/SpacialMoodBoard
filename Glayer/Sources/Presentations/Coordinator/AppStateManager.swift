@@ -13,7 +13,7 @@ import SwiftUI
 @Observable
 class AppStateManager {
     // MARK: - App State Definition
-
+    
     /// 앱의 현재 상태를 명시적으로 정의
     /// - projectList: 프로젝트 목록 화면
     /// - libraryWithVolume: 라이브러리 + Volume 윈도우 열림
@@ -23,7 +23,7 @@ class AppStateManager {
         case libraryWithVolume(Project)
         case libraryWithImmersive(Project)
         case closedApp
-
+        
         /// 현재 상태와 연관된 `Project` 객체를 반환.
         /// `projectList` 상태일 경우 `nil`을 반환.
         var selectedProject: Project? {
@@ -34,33 +34,33 @@ class AppStateManager {
                 return project
             }
         }
-
+        
         var isVolumeOpen: Bool {
             if case .libraryWithVolume = self { return true }
             return false
         }
-
+        
         var isImmersiveOpen: Bool {
             if case .libraryWithImmersive = self { return true }
             return false
         }
     }
-
+    
     // MARK: - State Properties
-
+    
     /// 앱의 현재 상태
     /// 이 값의 변경은 `WindowCoordinator`에 의해 감지되어 필요한 윈도우 조작을 트리거.
     private(set) var appState: AppState = .projectList
-
+    
     /// 현재 선택된 씬 데이터
     var selectedScene: SceneModel?
-
+    
     /// LibraryView 표시 여부
     /// Immersive에서 viewMode 상태일 때 false로 설정되어 LibraryView만 숨김
-    var showLibrary: Bool = true
-
+    private(set) var showLibrary: Bool = true
+    
     // MARK: - State Transition Methods
-
+    
     /// 프로젝트를 선택하고 `libraryWithVolume` 상태로 전환.
     ///
     /// 이 메서드는 `WindowCoordinator`가 Volume 윈도우를 열도록 유도.
@@ -71,7 +71,7 @@ class AppStateManager {
         selectedScene = scene
         appState = .libraryWithVolume(project)
     }
-
+    
     /// 프로젝트를 닫고 프로젝트 목록으로 돌아가는 상태로 전환
     func closeProject() {
         selectedScene = nil
@@ -85,7 +85,7 @@ class AppStateManager {
         }
         appState = .libraryWithVolume(project)
     }
-
+    
     /// Immersive 모드를 여는 상태로 전환
     func openImmersive() {
         guard case .libraryWithVolume(let project) = appState else {
@@ -94,7 +94,7 @@ class AppStateManager {
         }
         appState = .libraryWithImmersive(project)
     }
-
+    
     /// Immersive 모드를 닫고 Volume으로 돌아가는 상태로 전환
     func closeImmersive() {
         guard case .libraryWithImmersive(let project) = appState else {
@@ -105,12 +105,16 @@ class AppStateManager {
     }
     
     func toggleLibraryVisibility() {
+        showLibrary.toggle()
+    }
+    
+    func isLibraryOpen() -> Bool {
         guard case .libraryWithImmersive = appState else {
             print("⚠️ Cannot activate viewMode: not in libraryWithImmersive state")
-            return
+            return true
         }
-
-        showLibrary = showLibrary ? false : true
+        
+        return showLibrary
     }
     
     func closeApp() {
