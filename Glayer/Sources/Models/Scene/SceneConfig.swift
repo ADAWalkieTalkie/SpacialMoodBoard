@@ -15,7 +15,7 @@ struct SceneConfig {
         alignToWindowBottom: false,
         rootEntityscale: [8, 8, 8],
         useHeadAnchoredToolbar: true,
-        rootEntityPosition: [0, 4, -4]
+        rootEntityPosition: [0, 4, 0]
     )
 
     static let volume = SceneConfig(
