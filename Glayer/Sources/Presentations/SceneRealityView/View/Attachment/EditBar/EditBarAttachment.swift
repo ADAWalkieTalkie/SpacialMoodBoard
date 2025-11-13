@@ -7,6 +7,7 @@ struct EditBarAttachment: View {
     private let objectId: UUID
     private let objectType: AssetType
     
+    private let onLock: (() -> Void)?
     private let onDuplicate: (() -> Void)?
     private let onCrop: (() -> Void)?
     private let onVolumeChanging: ((Double) -> Void)?
@@ -25,6 +26,7 @@ struct EditBarAttachment: View {
     ///   - objectType: 객체의 유형(예: 이미지 또는 사운드)
     ///   - initialVolume: 사운드 객체일 경우 초기 볼륨 값(0~1)
     ///   - onVolumeChange: 볼륨이 변경될 때 호출되는 콜백(사운드 전용)
+    ///   - onLock: 객체 잠금 버튼 탭 시 호출되는 콜백
     ///   - onDuplicate: 객체 복제 버튼 탭 시 호출되는 콜백
     ///   - onCrop: 이미지 크롭 버튼 탭 시 호출되는 콜백
     ///   - onDelete: 객체 삭제 버튼 탭 시 호출되는 콜백
@@ -34,6 +36,7 @@ struct EditBarAttachment: View {
         initialVolume: Double = 1.0,
         onVolumeChanging: ((Double) -> Void)? = nil,
         onVolumeChange: ((Double) -> Void)? = nil,
+        onLock: (() -> Void)? = nil,
         onDuplicate: (() -> Void)? = nil,
         onCrop: (() -> Void)? = nil,
         onDelete: @escaping () -> Void
@@ -43,6 +46,7 @@ struct EditBarAttachment: View {
         self._volume = State(initialValue: min(max(initialVolume, 0.0), 1.0))
         self.onVolumeChanging = onVolumeChanging
         self.onVolumeChange = onVolumeChange
+        self.onLock = onLock
         self.onDuplicate = onDuplicate
         self.onCrop = onCrop
         self.onDelete = onDelete
@@ -56,16 +60,21 @@ struct EditBarAttachment: View {
         HStack(alignment: .center, spacing: 12) {
             switch objectType {
             case .image:
+                // 잠금 버튼
+                CircleFillButton(type: .lock) {
+                    onLock?()
+                }
+                .accessibilityLabel("Lock")
                 // 크롭 버튼
                 //                if let onCrop {
                 //                    CircleFillButton(type: .crop, action: onCrop)
                 //                        .accessibilityLabel("Crop")
                 //                }
                 // 복사 버튼
-                if let onDuplicate {
-                    CircleFillButton(type: .duplicate, action: onDuplicate)
-                        .accessibilityLabel("Duplicate")
+                CircleFillButton(type: .duplicate) {
+                    onDuplicate?()
                 }
+                .accessibilityLabel("Duplicate")
                 
             case .sound:
                 CircleFillButton(
@@ -134,6 +143,7 @@ struct EditBarAttachment: View {
     EditBarAttachment(
         objectId: UUID(),
         objectType: .image,
+        onLock: { print("잠금") },
         onDuplicate: { print("복사") },
         onCrop: { print("크롭") },
         onDelete: { print("삭제") }
