@@ -149,13 +149,13 @@ struct ToolBarAttachment: View {
     private func toggleViewMode() {
         viewModel.toggleViewMode()
         if isViewModeEnabled {
-            appStateManager.libraryMinimized = false
+            appStateManager.setLibraryMinimized(false)
         }
     }
-    
+
     private func toggleMinimize() {
         if !isViewModeEnabled {
-            appStateManager.libraryMinimized.toggle()
+            appStateManager.toggleLibraryMinimized()
         }
     }
     
