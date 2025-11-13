@@ -104,22 +104,13 @@ class AppStateManager {
         appState = .libraryWithVolume(project)
     }
     
-    func deactivateLibrary() {
+    func toggleLibraryVisibility() {
         guard case .libraryWithImmersive = appState else {
             print("⚠️ Cannot activate viewMode: not in libraryWithImmersive state")
             return
         }
 
-        showLibrary = false
-    }
-    
-    func activateLibrary() {
-        guard case .libraryWithImmersive = appState else {
-            print("⚠️ Cannot deactivate viewMode: not in libraryWithImmersive state")
-            return
-        }
-
-        showLibrary = true
+        showLibrary = showLibrary ? false : true
     }
     
     func closeApp() {
