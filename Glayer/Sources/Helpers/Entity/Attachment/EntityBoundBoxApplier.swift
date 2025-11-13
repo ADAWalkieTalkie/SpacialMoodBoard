@@ -1,8 +1,8 @@
 import RealityKit
 import UIKit
 
-struct EntityBoundBoxApplier {
-    func addBoundAuto(to entity: ModelEntity, width: Float, height: Float) {
+enum EntityBoundBoxApplier {
+    static func addBoundAuto(to entity: ModelEntity, width: Float, height: Float) {
         switch EntityClassifier.classify(entity) {
         case .sound:
             let diameter = max(width, height)
@@ -16,7 +16,7 @@ struct EntityBoundBoxApplier {
     
     // MARK: - Internal: Rectangle (이미지)
     
-    private func addRectBound(to entity: ModelEntity, width: Float, height: Float) {
+    private static func addRectBound(to entity: ModelEntity, width: Float, height: Float) {
         let offset: Float = 0.08
         let expandedW = width  + offset * 2.5 * 0.3
         let expandedH = height + offset * 2.5 * 0.3
@@ -30,12 +30,13 @@ struct EntityBoundBoxApplier {
             cornerRadius: cornerRadius
         ) else { return }
         
-        let plane = MeshResource.generateBox(width: expandedW, height: expandedH, depth: 0.001)
+        let plane = MeshResource.generatePlane(width: expandedW, height: expandedH)
         var mat = PhysicallyBasedMaterial()
         mat.baseColor = .init(texture: .init(tex))
         mat.emissiveColor = .init(texture: .init(tex))
         mat.emissiveIntensity = 1.5
         mat.blending = .transparent(opacity: 1.0)
+        mat.faceCulling = .none
         
         let bound = ModelEntity(mesh: plane, materials: [mat])
         bound.name = "boundBox"
@@ -47,20 +48,21 @@ struct EntityBoundBoxApplier {
     
     // MARK: - Internal: Circle (사운드)
     
-    private func addCircleBound(to entity: ModelEntity, diameter: Float) {
+    private static func addCircleBound(to entity: ModelEntity, diameter: Float) {
         let offset: Float = 0.08
         let expandedD = diameter + offset * 2.5 * 0.3
 
         let texSize: CGFloat = 1024
         guard let tex = makeGlowCircleTexture(size: CGSize(width: texSize, height: texSize)) else { return }
 
-        let plane = MeshResource.generateBox(width: expandedD/2, height: expandedD/2, depth: 0.001)
+        let plane = MeshResource.generatePlane(width: expandedD/2, height: expandedD/2)
 
         var mat = PhysicallyBasedMaterial()
         mat.baseColor = .init(texture: .init(tex))
         mat.emissiveColor = .init(texture: .init(tex))
         mat.emissiveIntensity = 1.5
         mat.blending = .transparent(opacity: 1.0)
+        mat.faceCulling = .none
 
         let bound = ModelEntity(mesh: plane, materials: [mat])
         bound.name = "boundBox"
@@ -71,7 +73,7 @@ struct EntityBoundBoxApplier {
     }
 
     
-    func removeBoundBox(from entity: ModelEntity) {
+    static func removeBoundBox(from entity: ModelEntity) {
         entity.children
             .filter { $0.name == "boundBox" }
             .forEach { $0.removeFromParent() }
@@ -79,7 +81,7 @@ struct EntityBoundBoxApplier {
     
     // MARK: - Textures
     
-    private func makeGlowRectTexture(size: CGSize, cornerRadius: CGFloat, color: UIColor = .white) -> TextureResource? {
+    private static func makeGlowRectTexture(size: CGSize, cornerRadius: CGFloat, color: UIColor = .white) -> TextureResource? {
         let stroke: CGFloat = 1.5
         let glow: CGFloat = 40
         let inset = glow + stroke / 1.5
@@ -103,7 +105,7 @@ struct EntityBoundBoxApplier {
         return try? TextureResource(image: cg, options: .init(semantic: .color))
     }
     
-    private func makeGlowCircleTexture(size: CGSize, color: UIColor = .white) -> TextureResource? {
+    private static func makeGlowCircleTexture(size: CGSize, color: UIColor = .white) -> TextureResource? {
         let stroke: CGFloat = 1.5
         let glow: CGFloat = 48
         let inset = glow + stroke / 1.5

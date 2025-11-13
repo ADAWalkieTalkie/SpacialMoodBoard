@@ -20,6 +20,7 @@ enum CircleFillButtonEnum {
     case sidebar
     
     // Edit Bar
+    case lock
     case crop
     case duplicate
     case delete
@@ -37,6 +38,8 @@ enum CircleFillButtonEnum {
             return "magnifyingglass"
         case .sidebar:
             return "square.split.2x1"
+        case .lock:
+            return "lock"
         case .crop:
             return "crop"
         case .duplicate:
@@ -50,7 +53,7 @@ enum CircleFillButtonEnum {
     
     var size: CGFloat {
         switch self {
-        case .crop, .duplicate, .delete, .sound:
+        case .lock, .crop, .duplicate, .delete, .sound:
             return 36
         default:
             return 44
@@ -59,7 +62,7 @@ enum CircleFillButtonEnum {
     
     var font: Font {
         switch self {
-        case .crop, .duplicate, .delete, .sound:
+        case .lock, .crop, .duplicate, .delete, .sound:
             return .system(size: 17, weight: .medium)
         default:
             return .system(size: 19, weight: .medium)
@@ -68,7 +71,7 @@ enum CircleFillButtonEnum {
     
     var buttonStyle: CircleFillButtonStyle {
         switch self {
-        case .crop, .duplicate, .delete, .sound:
+        case .lock, .crop, .duplicate, .delete, .sound:
             return .plain
         default:
             return .automatic

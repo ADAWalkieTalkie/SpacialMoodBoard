@@ -26,9 +26,9 @@ final class SceneAudioCoordinator {
     private var playing: Set<UUID> = []
     
     private enum PauseScope {
-            case external    // 라이브러리(외부) 인터럽션
-            case globalMute  // 툴바 글로벌 음소거
-        }
+        case external    // 라이브러리(외부) 인터럽션
+        case globalMute  // 툴바 글로벌 음소거
+    }
     
     /// 정지 사유, “인터럽션 시작 시점에 재생 중이던 ID 집합”을 스택에 보관
     private var pauseStack: [(scope: PauseScope, snapshot: Set<UUID>)] = []
@@ -38,9 +38,20 @@ final class SceneAudioCoordinator {
     /// 새로운 SoundEntity를 등록하여 컨트롤러를 추적
     /// - Parameters:
     ///   - entityId: 엔티티의 고유 식별자(UUID)
-    ///   - controller: 등록할 `AudioPlaybackController` 인스턴스
-    func register(entityId: UUID, controller: AudioPlaybackController) {
+    ///   - controller: 등록할 `AudioPlaybackController`
+    ///   - shouldStartPlaying: 기본 재생 의도 (초기 볼륨 > 0 등)
+    func register(entityId: UUID, controller: AudioPlaybackController, shouldStartPlaying: Bool) {
         controllers[entityId] = WeakController(controller: controller)
+        
+        if isGlobalMute {
+            controller.pause()
+            if shouldStartPlaying { appendToGlobalMuteSnapshot(entityId) }
+        } else {
+            if shouldStartPlaying {
+                controller.play()
+                playing.insert(entityId)
+            }
+        }
     }
     
     /// 삭제된 엔티티의 컨트롤러를 등록 목록에서 제거
@@ -66,6 +77,10 @@ final class SceneAudioCoordinator {
     /// - Parameter id: 엔티티 UUID
     func play(_ id: UUID) {
         guard let c = controller(for: id) else { return }
+        guard !isGlobalMute else {
+            playing.remove(id)
+            return
+        }
         c.play()
         playing.insert(id)
     }
@@ -76,6 +91,11 @@ final class SceneAudioCoordinator {
         guard let c = controller(for: id) else { return }
         c.pause()
         playing.remove(id)
+        
+        if isGlobalMute, var top = pauseStack.last, top.scope == .globalMute {
+            top.snapshot.remove(id)
+            pauseStack[pauseStack.count - 1] = top
+        }
     }
     
     /// 특정 엔티티 정지(재생 위치 초기화 포함)
@@ -84,6 +104,11 @@ final class SceneAudioCoordinator {
         guard let c = controller(for: id) else { return }
         c.stop()
         playing.remove(id)
+        
+        if isGlobalMute, var top = pauseStack.last, top.scope == .globalMute {
+            top.snapshot.remove(id)
+            pauseStack[pauseStack.count - 1] = top
+        }
     }
     
     /// 특정 엔티티 볼륨(gain, dB)을 설정
@@ -181,6 +206,14 @@ extension SceneAudioCoordinator {
             isGlobalMute = false
             popPause(.globalMute)
         }
+    }
+    
+    /// 현재 글로벌 뮤트 스냅샷에 id를 추가 (뮤트 해제 시 자동 재생되도록)
+    /// - Parameter id: 추가할 사운드 오브젝트의 id
+    private func appendToGlobalMuteSnapshot(_ id: UUID) {
+        guard var top = pauseStack.last, top.scope == .globalMute else { return }
+        top.snapshot.insert(id)
+        pauseStack[pauseStack.count - 1] = top
     }
     
     // MARK: - Housekeeping

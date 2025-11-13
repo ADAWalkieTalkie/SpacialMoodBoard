@@ -32,10 +32,12 @@ extension SceneViewModel {
             return
         }
         
+        let headPosition = userSpatialState.userPosition
+        
         // 케이스 4: nil → entity (새로운 선택)
         if oldName == nil && newName != nil {
             if let entity = newValue {
-                addAttachmentAndStartTimer(for: entity)
+                addAttachmentAndStartTimer(for: entity, headPosition: headPosition)
             }
             return
         }
@@ -49,9 +51,37 @@ extension SceneViewModel {
             
             // 새 entity에 attachment 추가
             if let newEntity = newValue {
-                addAttachmentAndStartTimer(for: newEntity)
+                addAttachmentAndStartTimer(for: newEntity, headPosition: headPosition)
             }
             return
+        }
+    }
+
+    /// 선택된 Entity의 Attachment 스케일 업데이트 (실시간 반영)
+    func updateAttachmentScales() {
+        guard let entity = selectedEntity else { return }
+        
+        let headPosition = userSpatialState.userPosition
+        let isVolumeMode = appStateManager.appState.isVolumeOpen
+        
+        // objectAttachment 스케일 업데이트
+        if let objectAttachment = entity.children.first(where: { $0.name == "objectAttachment" }) {
+            let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
+                headPosition: headPosition,
+                entity: entity,
+                isVolumeMode: isVolumeMode
+            )
+            objectAttachment.scale = finalScale
+        }
+        
+        // soundNameAttachment 스케일 업데이트
+        if let nameAttachment = entity.children.first(where: { $0.name == "soundNameAttachment" }) {
+            let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
+                headPosition: headPosition,
+                entity: entity,
+                isVolumeMode: isVolumeMode
+            )
+            nameAttachment.scale = finalScale
         }
     }
     
@@ -79,7 +109,7 @@ extension SceneViewModel {
     /// 특정 Entity의 attachment만 제거
     func removeAttachment(from entity: ModelEntity) {
         // boundBox 제거
-        entityBoundBoxApplier.removeBoundBox(from: entity)
+        EntityBoundBoxApplier.removeBoundBox(from: entity)
 
         // objectAttachment 제거
         entity.children

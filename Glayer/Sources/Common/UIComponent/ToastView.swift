@@ -17,7 +17,7 @@ struct ToastView: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
-            HStack(spacing: 24) {
+            HStack(spacing: message.image != nil ? 12 : 24) {
                 if let ani = message.animationName, message.animationName != nil {
                     LottieView {
                         LottieAnimation.named(ani, bundle: .main)
@@ -29,9 +29,13 @@ struct ToastView: View {
                     .frame(width: 28, height: 32)
                 }
                 
+                if let image = message.image, message.image != nil {
+                    image
+                }
+                
                 VStack(alignment: .center, spacing: 2) {
                     Text(message.title)
-                        .font(.system(size: 19, weight: .bold))
+                        .font(message.titleFont)
                         .foregroundStyle(.primary)
                     
                     if let sub = message.subtitle, !sub.isEmpty {
@@ -40,13 +44,13 @@ struct ToastView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .padding(.horizontal, message.animationName != nil ? 16 : 4)
-                .padding(.vertical, 8)
+                .padding(.horizontal, message.textPadding.h)
+                .padding(.vertical, message.textPadding.v)
             }
             
             if case .manual = message.dismissMode {
                 Button(action: { dismissAction?() }) {
-                    Text(String(localized: "action.confirm"))
+                    Text("확인")
                         .font(.system(size: 17, weight: .semibold))
                         .padding(.horizontal, 99)
                         .padding(.vertical, 12)
@@ -56,8 +60,8 @@ struct ToastView: View {
                 .contentShape(Capsule())
             }
         }
-        .padding(.horizontal, message.animationName != nil ? 44 : 25)
-        .padding(.vertical, message.animationName != nil ? 24 : 25)
+        .padding(.horizontal, message.bodyPadding.h)
+        .padding(.vertical, message.bodyPadding.v)
         .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: 32, style: .continuous))
         .accessibilityAddTraits(.isStaticText)
     }

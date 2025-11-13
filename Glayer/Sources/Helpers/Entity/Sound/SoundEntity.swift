@@ -80,15 +80,14 @@ struct SoundEntity {
                 let controller = modelEntity.prepareAudio(res)
                 modelEntity.components.set(SoundControllerComponent(controller: controller))
                 
-                SceneAudioCoordinator.shared.register(entityId: sceneObject.id, controller: controller)
+                SceneAudioCoordinator.shared.register(
+                    entityId: sceneObject.id,
+                    controller: controller,
+                    shouldStartPlaying: audioAttrs.volume > 0
+                )
+                
                 let db = linearToDecibels(Double(audioAttrs.volume))
                 SceneAudioCoordinator.shared.setGain(db, for: sceneObject.id)
-                
-                if audioAttrs.volume > 0 {
-                    SceneAudioCoordinator.shared.play(sceneObject.id)
-                } else {
-                    SceneAudioCoordinator.shared.pause(sceneObject.id)
-                }
             } catch {
                 print("⚠️ SoundEntity.create: 오디오 로드 실패 - \(error)")
             }

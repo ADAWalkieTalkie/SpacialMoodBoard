@@ -13,18 +13,16 @@ struct VolumeSceneView: View {
   
     var body: some View {
         ZStack {
-            GeometryReader3D { proxy in
-                SceneRealityView(
-                    viewModel: $viewModel,
-                    config: .volume
-                )
-                .onDisappear {
-                    viewModel.reset()
+            SceneRealityView(
+                viewModel: $viewModel,
+                config: .volume
+            )
+            .onDisappear {
+                viewModel.reset()
 
-                    // 사용자가 시스템 X 버튼으로 VolumeWindow를 닫은 경우 AppState 동기화
-                    if case .libraryWithVolume = appStateManager.appState {
-                        appStateManager.closeProject()
-                    }
+                // 사용자가 시스템 X 버튼으로 VolumeWindow를 닫은 경우 AppState 동기화
+                if case .libraryWithVolume = appStateManager.appState {
+                    appStateManager.closeProject()
                 }
             }
             VStack {

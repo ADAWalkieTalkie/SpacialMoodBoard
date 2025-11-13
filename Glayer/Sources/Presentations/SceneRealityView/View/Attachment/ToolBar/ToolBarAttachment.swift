@@ -36,7 +36,7 @@ struct ToolBarAttachment: View {
             
             // 일시정지 버튼
             ToolBarToggleButton(
-                type: .pause(isOn: isPaused),
+                type: .mute(isOn: isPaused),
                 isSelected: isPaused,
                 action: togglePause
             )
@@ -64,35 +64,11 @@ struct ToolBarAttachment: View {
     
     /// 뷰 모드 토글 핸들러
     private func toggleViewMode() {
-        guard var scene = appStateManager.selectedScene else { return }
-        scene.userSpatialState.viewMode.toggle()
-        appStateManager.selectedScene = scene
-        
-        // ViewModeUseCase를 생성하고 사용
-        let viewModeUseCase = ViewModeUseCase(
-            entityRepository: viewModel.entityRepository,
-            viewMode: scene.userSpatialState.viewMode
-        )
-        viewModeUseCase.execute()
-        
-        if appStateManager.appState.isImmersiveOpen {
-            if appStateManager.showLibrary {
-                appStateManager.viewModeActivateInImmersive()
-            } else {
-                appStateManager.viewModeDeActivateInImmersive()
-            }
-        }
+        viewModel.toggleViewMode()
     }
 
     /// 일시정지 버튼 핸들러
     private func togglePause() {
-        guard var scene = appStateManager.selectedScene else { return }
-        let newPausedState = !scene.userSpatialState.paused
-        scene.userSpatialState.paused = newPausedState
-        appStateManager.selectedScene = scene
-        
-        // 오디오 음소거 상태 업데이트
-        SceneAudioCoordinator.shared.setGlobalMute(newPausedState)
+        viewModel.togglePause()
     }
-    
 }

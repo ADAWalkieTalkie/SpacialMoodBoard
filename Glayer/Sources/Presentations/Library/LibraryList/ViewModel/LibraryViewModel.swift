@@ -45,13 +45,15 @@ final class LibraryViewModel {
             }
         }
     }
-
+    
     var showLoadErrorToast = false
+    var isPreparingImagesToast = false
+    var showAddedToast = false
+
     var showDropDock = false
     var showFileImporter = false
     var editorImages: [UIImage] = []
     var editorPreferredNames: [String?] = []
-    var isPreparingImages = false
     var showEditor = false
     
     // MARK: - Init
@@ -194,8 +196,8 @@ extension LibraryViewModel {
     ///   - kind: 임포트 대상 종류(.image / .sound). 보통 현재 탭 상태를 반영
     ///   - source: 임포트 소스(드래그드롭/포토피커/클립보드/파일URL)
     private func runImport(kind: AssetType, source: ImportRequest.Source) async {
-        isPreparingImages = true
-        defer { isPreparingImages = false }
+        isPreparingImagesToast = true
+        defer { isPreparingImagesToast = false }
         
         let request = ImportRequest(
             kind: kind,

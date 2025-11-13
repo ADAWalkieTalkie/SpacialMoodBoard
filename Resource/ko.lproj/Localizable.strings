@@ -59,3 +59,18 @@
 
 // MARK: - Delete Confirmation
 "delete.confirmation" = "%@을(를) \n 삭제하시겠습니까?";
+
+// MARK: - Toast
+"toast.addToLibrary.title"    = "에셋 추가 완료";
+"toast.addToLibrary.subtitle" = "에셋이 라이브러리에 저장되었습니다.";
+
+"toast.addToLibraryFail.title"    = "에셋 추가 실패";
+"toast.addToLibraryFail.subtitle" = "라이브러리 저장에 실패했습니다.";
+
+"toast.loadingError.title"    = "불러오기 오류";
+"toast.loadingError.subtitle" = "에셋을 불러오는데 실패했습니다.";
+
+"toast.loadingImageEdit.title" = "이미지 편집 준비 중";
+"toast.loadingAssets.title"    = "에셋 불러오는 중";
+
+"toast.addToVolume.title" = "공간에 추가되었습니다.";
