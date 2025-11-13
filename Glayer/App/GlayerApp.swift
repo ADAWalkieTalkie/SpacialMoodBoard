@@ -112,14 +112,5 @@ struct GlayerApp: App {
                 .environment(appStateManager)
         }
         .immersionStyle(selection: .constant(.full), in: .full)
-
-        // MARK: - DEBUG: WindowScene Debugging
-        // TODO: 디버그 완료 후 이 섹션 전체를 제거하세요
-        // 관련 파일: Sources/Helpers/WindowSceneDebugView.swift
-        WindowGroup(id: "WindowSceneDebug") {
-            WindowSceneDetailView()
-        }
-        .defaultSize(width: 600, height: 800)
-        // END DEBUG: WindowScene Debugging
     }
 }
