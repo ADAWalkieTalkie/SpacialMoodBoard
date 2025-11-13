@@ -40,7 +40,7 @@ struct SceneRealityView: View {
                 }
                 
             } update: { content, attachments in
-
+                
                 // Volume 모드: base scale (0.2) × dynamic scale
                 if appStateManager.appState.isVolumeOpen {
                     rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
@@ -48,9 +48,9 @@ struct SceneRealityView: View {
                 
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
-
+                    
                     updateAttachments()
-
+                    
                     // Gesture 진행 중이 아닐 때만 updateScene 호출
                     if !viewModel.isGestureActive {
                         updateScene(content: content, rootEntity: rootEntity)
@@ -80,7 +80,8 @@ struct SceneRealityView: View {
                     onGestureEnd: {
                         viewModel.endGesture()
                         viewModel.updateAttachmentScales()
-                    }
+                    },
+                    movementBounds: config.movementBounds
                 )
             }
         }
@@ -94,26 +95,32 @@ struct SceneRealityView: View {
         }
         // Volume Window일 때
         if appStateManager.appState.isVolumeOpen {
+            
+            let humanScaleEntity = await HumanScaleEntity.create()
+            floor.addChild(humanScaleEntity)
+            
             rootEntity.addChild(floor)
             floor.transform.translation = [0, Float(Self.defaultVolumeSize.height / 2) * -1, 0]
-
+            
             // Volume에서 설정된 회전 각도 적용
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
             rootEntity.transform.rotation = rotation
-
-            // Immersive일 때
+            
+        // Immersive일 때
         } else if appStateManager.appState.isImmersiveOpen {
             rootEntity.transform.translation = config.rootEntityPosition
             floor.transform.translation = viewModel.getFloorPosition(windowHeight: Float(Self.defaultVolumeSize.height))
             rootEntity.scale = config.rootEntityscale
-            let humanScaleEntity = floor.findEntity(named: "humanScaleEntity")
-            floor.removeChild(humanScaleEntity!)
             rootEntity.addChild(floor)
+
+            // humanScaleEntity 제거
+            if let existingHuman = floor.findEntity(named: "humanScaleEntity") {
+                existingHuman.removeFromParent()
+            }
             
             // Immersive 전용: RealityKit Content
             if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
-                rootEntity.addChild(immersiveContent)
-                immersiveContent.position = [0, -0.6, 0]
+                floor.addChild(immersiveContent)
             }
             
             // Volume에서 설정된 회전 각도를 Immersive에도 적용
@@ -133,17 +140,17 @@ struct SceneRealityView: View {
         )
         updateFloorMaterial(content: content, rootEntity: rootEntity)
     }
-
+    
     private func updateFloorMaterial(content: RealityViewContent, rootEntity: Entity) {
         let currentFloorURL = viewModel.floorImageURL
         if currentFloorURL != viewModel.appliedFloorImageURL,
-        let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
+           let floor = rootEntity.findEntity(named: "floorRoot") as? ModelEntity {
             Task {
                 await viewModel.updateFloorMaterial(on: floor, with: currentFloorURL)
             }
         }
     }
-
+    
     // MARK: - Update Attachment Scales
     
     private func updateAttachments() {
