@@ -23,23 +23,25 @@ struct MainWindowContent: View {
         Group {
             if appStateManager.appState.selectedProject != nil {
                 VStack {
-                    LibraryView(
-                        viewModel: LibraryViewModel(
-                            appStateManager: appStateManager,
-                            assetRepository: assetRepository,
-                            renameAssetUseCase: renameAssetUseCase,
-                            deleteAssetUseCase: deleteAssetUseCase,
-                            sceneModelFileStorage: sceneModelFileStorage
-                        ),
-                        sceneViewModel: sceneViewModel
-                    )
-                    .onBackground {
-                        if appStateManager.appState.isImmersiveOpen {
-                            appStateManager.closeProject()
-                        } else {
-                            appStateManager.closeApp()
+                    if appStateManager.showLibrary {
+                        LibraryView(
+                            viewModel: LibraryViewModel(
+                                appStateManager: appStateManager,
+                                assetRepository: assetRepository,
+                                renameAssetUseCase: renameAssetUseCase,
+                                deleteAssetUseCase: deleteAssetUseCase,
+                                sceneModelFileStorage: sceneModelFileStorage
+                            ),
+                            sceneViewModel: sceneViewModel
+                        )
+                        .onBackground {
+                            if appStateManager.appState.isImmersiveOpen {
+                                appStateManager.closeProject()
+                            } else {
+                                appStateManager.closeApp()
+                            }
+
                         }
-                        
                     }
                 }
                 .environment(appStateManager)
@@ -66,6 +68,9 @@ struct MainWindowContent: View {
                 }
             }
         }
+        .opacity(appStateManager.showLibrary ? 1 : 0)
+        .animation(.easeInOut(duration: 0.2), value: appStateManager.showLibrary)
+        .persistentSystemOverlays(appStateManager.showLibrary ? .visible : .hidden)
         // MARK: - Centralized Window Management (WindowCoordinator)
         .onAppear {
             // WindowCoordinator 초기화

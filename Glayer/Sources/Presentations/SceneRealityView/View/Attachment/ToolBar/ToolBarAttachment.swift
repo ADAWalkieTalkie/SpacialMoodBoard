@@ -74,11 +74,13 @@ struct ToolBarAttachment: View {
             viewMode: scene.userSpatialState.viewMode
         )
         viewModeUseCase.execute()
-            
-        if appStateManager.appState.isViewModeInImmersive {
-            appStateManager.viewModeDeActivateInImmersive()
-        } else {
-            appStateManager.viewModeActivateInImmersive()
+        
+        if appStateManager.appState.isImmersiveOpen {
+            if appStateManager.showLibrary {
+                appStateManager.viewModeActivateInImmersive()
+            } else {
+                appStateManager.viewModeDeActivateInImmersive()
+            }
         }
     }
 

@@ -22,7 +22,6 @@ class AppStateManager {
         case projectList
         case libraryWithVolume(Project)
         case libraryWithImmersive(Project)
-        case viewModeInImmersive(Project)
         case closedApp
 
         /// 현재 상태와 연관된 `Project` 객체를 반환.
@@ -31,7 +30,7 @@ class AppStateManager {
             switch self {
             case .projectList, .closedApp:
                 return nil
-            case .libraryWithVolume(let project), .libraryWithImmersive(let project), .viewModeInImmersive(let project):
+            case .libraryWithVolume(let project), .libraryWithImmersive(let project) :
                 return project
             }
         }
@@ -45,11 +44,6 @@ class AppStateManager {
             if case .libraryWithImmersive = self { return true }
             return false
         }
-        
-        var isViewModeInImmersive: Bool {
-            if case .viewModeInImmersive(let project) = self { return true }
-            return false
-        }
     }
 
     // MARK: - State Properties
@@ -60,6 +54,10 @@ class AppStateManager {
 
     /// 현재 선택된 씬 데이터
     var selectedScene: SceneModel?
+
+    /// LibraryView 표시 여부
+    /// Immersive에서 viewMode 상태일 때 false로 설정되어 LibraryView만 숨김
+    var showLibrary: Bool = true
 
     // MARK: - State Transition Methods
 
@@ -107,21 +105,21 @@ class AppStateManager {
     }
     
     func viewModeActivateInImmersive() {
-        guard case .libraryWithImmersive(let project) = appState else {
+        guard case .libraryWithImmersive = appState else {
             print("⚠️ Cannot activate viewMode: not in libraryWithImmersive state")
             return
         }
-        
-        appState = .viewModeInImmersive(project)
+
+        showLibrary = false
     }
     
     func viewModeDeActivateInImmersive() {
-        guard case .viewModeInImmersive(let project) = appState else {
+        guard case .libraryWithImmersive = appState else {
             print("⚠️ Cannot deactivate viewMode: not in libraryWithImmersive state")
             return
         }
-        
-        appState = .libraryWithImmersive(project)
+
+        showLibrary = true
     }
     
     func closeApp() {

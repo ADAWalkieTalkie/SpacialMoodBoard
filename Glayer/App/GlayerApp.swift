@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct GlayerApp: App {
     let modelContainer: ModelContainer
-    @State private var appStateManager = AppStateManager()
+    @State private var appStateManager: AppStateManager
     @State private var projectRepository: ProjectServiceInterface
     @State private var assetRepository: AssetRepository
     @State private var renameAssetUseCase: RenameAssetUseCase
@@ -90,6 +90,7 @@ struct GlayerApp: App {
                 modelContainer: modelContainer
             )
         }
+        .windowStyle(.plain)
 
         // Volume Scene
         WindowGroup(id: "ImmersiveVolumeWindow") {

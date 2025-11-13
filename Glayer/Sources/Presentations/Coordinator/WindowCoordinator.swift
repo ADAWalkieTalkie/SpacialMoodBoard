@@ -70,16 +70,6 @@ class WindowCoordinator {
             dismissWindow("MainWindow")
             exit(0)
             
-        // libraryWithImmersive -> viewModel: 라이브러리 창 닫기
-        // case: 이멀시브 상태에서 viewModel Active
-        case (.libraryWithImmersive, .viewModeInImmersive):
-            dismissWindow("MainWindow")
-            
-        //  viewMode -> libraryWithImmersive: 라이브러리 창 열기
-        // case: 이멀시브 상태에서 viewModel DeActive
-        case (.viewModeInImmersive, .libraryWithImmersive):
-            openWindow("MainWindow")
-
         default:
             // 다른 전환은 window 조작이 필요 없음
             break
