@@ -18,24 +18,20 @@ enum EntityAttachmentSizeDeterminator {
         let entityWorldPosition = entity.position(relativeTo: nil)
         
         // 2. 거리 기반 스케일 계산
-        let distanceBasedScale = calculateScale(
+        let distanceScale = calculateScale(
             headPosition: headPosition,
             entityPosition: entityWorldPosition
         )
         
-        // 3. Volume 모드 배율 적용
-        let volumeMultiplier: Float = isVolumeMode ? 24.0 : 1.0
-        let adjustedScale = distanceBasedScale * volumeMultiplier
-        
-        // 4. 부모 엔티티 스케일 보정
-        let parentScale = entity.scale
-        let finalScale = SIMD3<Float>(
-            adjustedScale / parentScale.x * scaleFactor,
-            adjustedScale / parentScale.y * scaleFactor,
-            adjustedScale / parentScale.z * scaleFactor
-        )
-        
-        return finalScale
+        // 3. Volume 모드
+        if isVolumeMode {
+            return SIMD3<Float>(repeating: 1.0)
+        } else {
+            let immersiveBase: Float = 0.8
+            
+            let s = immersiveBase * distanceScale * scaleFactor
+            return SIMD3<Float>(repeating: s)
+        }
     }
         
     /// 헤드 위치와 엔티티 위치 기반으로 스케일 계산 (기본)
@@ -63,8 +59,9 @@ enum EntityAttachmentSizeDeterminator {
     /// 거리에 따라 크기 계산
     /// - Parameters:
     ///   - distance: 거리
-    /// - Returns: 크기
+    /// - Returns: 크기 (가까울 때는 최소 1.0 유지, 멀어질 때는 1.1배씩 증가)
     private static func sizeCalculation(from distance: Float) -> Float {
-        return distance * 0.1
+        let growth = pow(1.1, max(0, distance - 1.0))
+        return max(1.0, growth)
     }
 }
