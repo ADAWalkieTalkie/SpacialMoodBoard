@@ -10,6 +10,8 @@ struct EntityDragGesture: ViewModifier {
     let onGestureStart: (() -> Void)?
     let onGestureEnd: (() -> Void)?
     
+    let movementBounds: MovementBounds
+    
     @State private var initialPosition: SIMD3<Float>? = nil
     @State private var minY: Float = 0  // 제스처 시작 시 한 번만 계산하여 저장
     
@@ -38,15 +40,12 @@ struct EntityDragGesture: ViewModifier {
                         
                         // 부모(rootEntity)의 회전을 반영하기 위해 parent 좌표계로 변환
                         guard let parent = currentEntity.parent else { return }
+                        
                         let movement = value.convert(value.translation3D, from: .global, to: parent)
                         let newPosition = (initialPosition ?? .zero) + movement
-
-                        // 저장된 minY 값 사용
-                        currentEntity.position = SIMD3<Float>(
-                            newPosition.x,
-                            max(-10, newPosition.y),
-                            newPosition.z
-                        )
+                        
+                        // 위치를 영역 내로 제한
+                        currentEntity.position = movementBounds.clamp(newPosition)
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
@@ -60,7 +59,7 @@ struct EntityDragGesture: ViewModifier {
                         let eulerRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, eulerRotation)
                         onPositionUpdate(uuid, value.entity.position)
-
+                        
                         onGestureEnd?()
                         initialPosition = nil
                         minY = 0
@@ -76,14 +75,16 @@ extension View {
         onPositionUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         onGestureStart: (() -> Void)?,
-        onGestureEnd: (() -> Void)?
+        onGestureEnd: (() -> Void)?,
+        movementBounds: MovementBounds = .default
     ) -> some View {
         self.modifier(EntityDragGesture(
             selectedEntity: selectedEntity,
             onPositionUpdate: onPositionUpdate,
             onRotationUpdate: onRotationUpdate,
             onGestureStart: onGestureStart,
-            onGestureEnd: onGestureEnd
+            onGestureEnd: onGestureEnd,
+            movementBounds: movementBounds
         ))
     }
 }

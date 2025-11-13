@@ -22,9 +22,6 @@ class FloorEntity {
     /// 바닥의 기본 위치
     static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
 
-    /// 휴먼 스케일 오브젝트 기본 크기
-    static let defaultHumanScaleSize = SIMD2<Float>(x: 0.11, y: 0.22)
-
     // MARK: - Initialization
 
     nonisolated init() {}
