@@ -28,7 +28,7 @@ extension SceneViewModel {
                     rootEntity: rootEntity,
                     scene: &scene
                 )
-                appStateManager.selectedScene = scene
+                appStateManager.selectScene(scene)
             } catch CreateObjectError.assetNotFound {
 #if DEBUG
                 print("❌ SceneObject 생성 실패: 에셋을 찾을 수 없음 (assetId: \(object.assetId))")
@@ -45,7 +45,7 @@ extension SceneViewModel {
         } else {
             // rootEntity가 없는 경우 SceneObject만 추가 (Entity는 나중에 동기화)
             sceneObjectRepository.addObject(object, to: &scene)
-            appStateManager.selectedScene = scene
+            appStateManager.selectScene(scene)
         }
         
         // 저장
@@ -59,7 +59,7 @@ extension SceneViewModel {
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
             object.move(to: position)
         }
-        appStateManager.selectedScene = scene
+        appStateManager.selectScene(scene)
         scheduleSceneAutosaveDebounced()
     }
     
@@ -70,7 +70,7 @@ extension SceneViewModel {
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
             object.setRotation(rotation)
         }
-        appStateManager.selectedScene = scene
+        appStateManager.selectScene(scene)
         scheduleSceneAutosaveDebounced()
     }
     
@@ -81,7 +81,7 @@ extension SceneViewModel {
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
             object.setScale(scale)
         }
-        appStateManager.selectedScene = scene
+        appStateManager.selectScene(scene)
         scheduleSceneAutosaveDebounced()
     }
     
@@ -90,7 +90,7 @@ extension SceneViewModel {
         guard var scene = appStateManager.selectedScene else { return }
         
         sceneObjectRepository.updateObject(id: id, in: &scene, mutate: mutate)
-        appStateManager.selectedScene = scene
+        appStateManager.selectScene(scene)
         saveScene()
     }
     
@@ -103,7 +103,7 @@ extension SceneViewModel {
 
         // 2. Repository를 통해 SceneObject 삭제
         sceneObjectRepository.deleteObject(by: id, from: &scene)
-        appStateManager.selectedScene = scene
+        appStateManager.selectScene(scene)
 
         // 3. 선택 해제
         selectedEntity = nil

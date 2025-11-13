@@ -72,6 +72,7 @@ struct ProjectListView: View {
 
             CenteredVisionSearchBar(text: $viewModel.searchText)
                 .frame(width: 305, height: 44)
+
         }
         .overlay(
             Text(String(localized: "project.title"))

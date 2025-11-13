@@ -136,7 +136,7 @@ final class ProjectListViewModel {
             userSpatialState: UserSpatialState(),
             sceneObjects: []
         )
-        appStateManager.selectedScene = newSceneModel
+        appStateManager.updateSelectedScene(newSceneModel)
         
         do {
             try sceneModelStorage.save(newSceneModel, projectName: projectTitle)

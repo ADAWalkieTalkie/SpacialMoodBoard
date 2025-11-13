@@ -18,7 +18,7 @@ extension SceneViewModel {
         guard var scene = appStateManager.selectedScene else { return }
 
         let result = try useCase.execute(assetId: assetId, scene: &scene)
-        appStateManager.selectedScene = scene
+        appStateManager.selectScene(scene)
 
         for object in result.removedSceneObjects {
             // EntityRepository를 통해 엔티티 제거

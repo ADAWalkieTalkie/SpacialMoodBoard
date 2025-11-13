@@ -95,4 +95,12 @@ extension SceneViewModel {
         
         return duplicatedObject
     }
+    
+    func toggleImmersiveTime() {
+        var environment = spacialEnvironment
+        environment.immersiveTime = environment.immersiveTime == .day ? .night : .day
+        spacialEnvironment = environment
+
+        // TODO: 구현 예정
+    }
 }

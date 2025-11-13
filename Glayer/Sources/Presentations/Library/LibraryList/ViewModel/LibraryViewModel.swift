@@ -245,7 +245,7 @@ extension LibraryViewModel {
                 scene: &scene
             )
             // 수정된 scene을 다시 저장
-            appStateManager.selectedScene = scene
+            appStateManager.updateSelectedScene(scene)
 
             // JSON에 저장
             try sceneModelFileStorage.save(scene, projectName: projectName)
@@ -271,7 +271,7 @@ extension LibraryViewModel {
         
         do {
             _ = try deleteAssetUseCase.execute(assetId: id, scene: &scene)
-            appStateManager.selectedScene = scene
+            appStateManager.updateSelectedScene(scene)
             syncFromRepo()
         } catch {
             print("❌ Failed to delete asset:", error)

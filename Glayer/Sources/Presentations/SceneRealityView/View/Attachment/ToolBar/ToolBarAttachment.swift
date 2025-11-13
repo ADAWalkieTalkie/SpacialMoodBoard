@@ -2,50 +2,131 @@ import SwiftUI
 
 struct ToolBarAttachment: View {
     @Environment(AppStateManager.self) private var appStateManager
-    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
-    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
 
     let viewModel: SceneViewModel
     
-    private var isViewEnabled: Bool {
+    private var isViewModeEnabled: Bool {
         appStateManager.selectedScene?.userSpatialState.viewMode ?? false
     }
 
     private var isImmersiveOpen: Bool {
         appStateManager.appState.isImmersiveOpen
     }
+    
+    // 최소화 모드
+    private var isLibraryMinimized: Bool {
+        appStateManager.libraryMinimized
+    }
+    
+    // 낮밤 모드
+    private var isDayMode: Bool {
+        appStateManager.selectedScene?.spacialEnvironment.immersiveTime == .day ? true : false
+    }
+    
 
     private var isPaused: Bool {
         appStateManager.selectedScene?.userSpatialState.paused ?? false
     }
     
+    
     var body: some View {
-        HStack(spacing: 16) {
+        if appStateManager.appState.isVolumeOpen {
+            HStack(spacing: 24) {
+                HStack(spacing: 16) {
+                    
+                    // volume 회전 버튼
+                    ToolBarToggleButton(
+                        type: .volumeControl,
+                        isSelected: isImmersiveOpen,
+                        action: viewModel.rotateBy90Degrees
+                    )
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+                .glassBackgroundEffect()
+                
+                HStack(spacing: 16) {
+                    
+                    // Immersive Space 토글 버튼
+                    ToolBarToggleButton(
+                        type: .fullImmersive,
+                        isSelected: isImmersiveOpen,
+                        action: toggleImmersive
+                    )
+                    
+                    // 뷰 모드 버튼 (viewMode 토글)
+                    ToolBarToggleButton(
+                        type: .viewMode,
+                        isSelected: isViewModeEnabled,
+                        action: toggleViewMode
+                    )
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+                .glassBackgroundEffect()
+                
+                HStack(spacing: 16) {
+                    
+                    // 뮤트 토글 버튼
+                    ToolBarToggleButton(
+                        type: .mute(isOn: isPaused),
+                        isSelected: isPaused,
+                        action: togglePause
+                    )
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+                .glassBackgroundEffect()
+            }
             
-            // Immersive Space 토글 버튼
-            ToolBarToggleButton(
-                type: .fullImmersive,
-                isSelected: isImmersiveOpen,
-                action: toggleImmersive
-            )
-            
-            // 뷰 모드 버튼 (viewMode 토글)
-            ToolBarToggleButton(
-                type: .viewMode,
-                isSelected: isViewEnabled,
-                action: toggleViewMode
-            )
-            
-            // 일시정지 버튼
-            ToolBarToggleButton(
-                type: .mute(isOn: isPaused),
-                isSelected: isPaused,
-                action: togglePause
-            )
+        } else {
+            HStack(spacing: 24) {
+                HStack(spacing: 16) {
+                    // Immersive Space 토글 버튼
+                    ToolBarToggleButton(
+                        type: .fullImmersive,
+                        isSelected: isImmersiveOpen,
+                        action: toggleImmersive
+                    )
+                    
+                    // 뷰 모드 버튼 (viewMode 토글)
+                    ToolBarToggleButton(
+                        type: .viewMode,
+                        isSelected: isViewModeEnabled,
+                        action: toggleViewMode
+                    )
+                    
+                    // 라이브러리 최소화 토글 버튼
+                    ToolBarToggleButton(
+                        type: .minimize(isOn: false),
+                        isSelected: isLibraryMinimized,
+                        action: toggleMinimize
+                    )
+                    
+                    // 낮/밤 전환 토글 버튼
+                    ToolBarToggleButton(
+                        type: .immersiveTime(.day),
+                        isSelected: isDayMode,
+                        action: toggleImmersiveTime
+                    )
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+                .glassBackgroundEffect()
+                
+                HStack(spacing: 16) {
+                    // 뮤트 토글 버튼
+                    ToolBarToggleButton(
+                        type: .mute(isOn: isPaused),
+                        isSelected: isPaused,
+                        action: togglePause
+                    )
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+                .glassBackgroundEffect()
+            }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 12)
-        .glassBackgroundEffect()
     }
     
     // MARK: - Actions
@@ -56,21 +137,10 @@ struct ToolBarAttachment: View {
             // 현재 상태에 따라 Immersive 모드 열기/닫기
             if isImmersiveOpen {
                 // Immersive 닫기
-                await appStateManager.closeImmersive()
-                await dismissImmersiveSpace()
+                appStateManager.closeImmersive()
             } else {
                 // Immersive 열기
-                switch await openImmersiveSpace(id: "ImmersiveScene") {
-                case .opened:
-                    await appStateManager.openImmersive()
-                    if let paused = appStateManager.selectedScene?.userSpatialState.paused {
-                        SceneAudioCoordinator.shared.setGlobalMute(paused)
-                    }
-                case .userCancelled, .error:
-                    print("⚠️ Immersive Space 열기 실패")
-                @unknown default:
-                    print("⚠️ Immersive Space 알 수 없는 에러")
-                }
+                appStateManager.openImmersive()
             }
         }
     }
@@ -78,10 +148,30 @@ struct ToolBarAttachment: View {
     /// 뷰 모드 토글 핸들러
     private func toggleViewMode() {
         viewModel.toggleViewMode()
+        if isViewModeEnabled {
+            appStateManager.setLibraryMinimized(false)
+        }
+    }
+
+    private func toggleMinimize() {
+        if !isViewModeEnabled {
+            appStateManager.toggleLibraryMinimized()
+        }
+    }
+    
+    private func toggleImmersiveTime() {
+        viewModel.toggleImmersiveTime()
+        if isLibraryMinimized {
+            appStateManager.toggleLibraryVisibility()
+        }
     }
 
     /// 일시정지 버튼 핸들러
     private func togglePause() {
         viewModel.togglePause()
+//        print("isLibraryOpen \(appStateManager.isLibraryOpen())")
+//        print("showLibrary \(appStateManager.showLibrary)")
     }
+    
+    
 }

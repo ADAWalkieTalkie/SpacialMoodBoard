@@ -35,6 +35,9 @@ extension SceneViewModel {
             viewMode: state.viewMode
         )
         viewModeUseCase.execute()
+        
+        // 상태관리
+        appStateManager.toggleLibraryVisibility()
     }
     
     /// Paused 상태 토글

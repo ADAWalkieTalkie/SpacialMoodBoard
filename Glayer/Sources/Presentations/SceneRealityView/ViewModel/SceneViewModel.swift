@@ -80,7 +80,8 @@ final class SceneViewModel {
             appStateManager.selectedScene?.userSpatialState ?? UserSpatialState()
         }
         set {
-            appStateManager.selectedScene?.userSpatialState = newValue
+            appStateManager.updateUserSpatialState(newValue)
+
         }
     }
     
@@ -90,7 +91,7 @@ final class SceneViewModel {
             appStateManager.selectedScene?.spacialEnvironment ?? SpacialEnvironment()
         }
         set {
-            appStateManager.selectedScene?.spacialEnvironment = newValue
+            appStateManager.updateSpacialEnvironment(newValue)
         }
     }
     

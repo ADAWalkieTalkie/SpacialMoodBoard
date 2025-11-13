@@ -3,6 +3,7 @@ import SwiftData
 
 struct MainWindowContent: View {
     @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openWindow) private var openWindow
 
@@ -22,23 +23,25 @@ struct MainWindowContent: View {
         Group {
             if appStateManager.appState.selectedProject != nil {
                 VStack {
-                    LibraryView(
-                        viewModel: LibraryViewModel(
-                            appStateManager: appStateManager,
-                            assetRepository: assetRepository,
-                            renameAssetUseCase: renameAssetUseCase,
-                            deleteAssetUseCase: deleteAssetUseCase,
-                            sceneModelFileStorage: sceneModelFileStorage
-                        ),
-                        sceneViewModel: sceneViewModel
-                    )
-                    .onBackground {
-                        if appStateManager.appState.isImmersiveOpen {
-                            appStateManager.closeProject()
-                        } else {
-                            appStateManager.closeApp()
+                    if appStateManager.isLibraryOpen {
+                        LibraryView(
+                            viewModel: LibraryViewModel(
+                                appStateManager: appStateManager,
+                                assetRepository: assetRepository,
+                                renameAssetUseCase: renameAssetUseCase,
+                                deleteAssetUseCase: deleteAssetUseCase,
+                                sceneModelFileStorage: sceneModelFileStorage
+                            ),
+                            sceneViewModel: sceneViewModel
+                        )
+                        .onBackground {
+                            if appStateManager.appState.isImmersiveOpen {
+                                appStateManager.closeProject()
+                            } else {
+                                appStateManager.closeApp()
+                            }
+
                         }
-                        
                     }
                 }
                 .environment(appStateManager)
@@ -65,6 +68,9 @@ struct MainWindowContent: View {
                 }
             }
         }
+        .opacity(appStateManager.isLibraryOpen ? 1 : 0)
+        .animation(.easeInOut(duration: 0.2), value: appStateManager.isLibraryOpen)
+        .persistentSystemOverlays(appStateManager.isLibraryOpen ? .visible : .hidden)
         // MARK: - Centralized Window Management (WindowCoordinator)
         .onAppear {
             // WindowCoordinator 초기화
@@ -77,6 +83,7 @@ struct MainWindowContent: View {
                     to: newState,
                     openWindow: { id in openWindow(id: id) },
                     dismissWindow: { id in dismissWindow(id: id) },
+                    openImmersiveSpace: { id in await openImmersiveSpace(id: id) },
                     dismissImmersiveSpace: { await dismissImmersiveSpace() }
                 )
             }
