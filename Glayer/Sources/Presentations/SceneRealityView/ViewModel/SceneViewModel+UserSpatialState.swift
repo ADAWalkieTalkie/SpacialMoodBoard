@@ -35,6 +35,14 @@ extension SceneViewModel {
             viewMode: state.viewMode
         )
         viewModeUseCase.execute()
+        
+        if appStateManager.appState.isImmersiveOpen {
+            if appStateManager.showLibrary {
+                appStateManager.viewModeActivateInImmersive()
+            } else {
+                appStateManager.viewModeDeActivateInImmersive()
+            }
+        }
     }
     
     /// Paused 상태 토글
