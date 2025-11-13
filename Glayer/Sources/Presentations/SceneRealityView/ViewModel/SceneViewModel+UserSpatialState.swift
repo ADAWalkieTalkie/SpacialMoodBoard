@@ -38,9 +38,9 @@ extension SceneViewModel {
         
         if appStateManager.appState.isImmersiveOpen {
             if appStateManager.showLibrary {
-                appStateManager.viewModeActivateInImmersive()
+                appStateManager.deactivateLibrary()
             } else {
-                appStateManager.viewModeDeActivateInImmersive()
+                appStateManager.activateLibrary()
             }
         }
     }
