@@ -56,6 +56,20 @@ final class ProjectListViewModel {
         // 다음 숫자로 제목 생성
         return "\(prefix)\(maxNumber + 1)"
     }
+
+    /// 복제된 프로젝트 제목 생성 ("원본(1)", "원본(2)")
+    private func generateDuplicateTitle(from originalTitle: String) -> String {
+        let existingTitles = Set(projects.map { $0.title })
+
+        var counter = 1
+        while true {
+            let candidateTitle = "\(originalTitle)(\(counter))"
+            if !existingTitles.contains(candidateTitle) {
+                return candidateTitle
+            }
+            counter += 1
+        }
+    }
     
     func selectProject(project: Project) {
         guard projectRepository.fetchProject(project) != nil else {
@@ -186,16 +200,107 @@ final class ProjectListViewModel {
         guard projectRepository.fetchProject(project) != nil else {
             return
         }
-        
+
         // SceneModel 파일도 함께 삭제
         try? sceneModelStorage.delete(projectName: project.title)
-        
+
         projectRepository.deleteProject(project)
         refreshProjects()
-        
+
         // 삭제된 프로젝트가 현재 선택된 프로젝트라면 상태 초기화
         if appStateManager.appState.selectedProject?.id == project.id {
             appStateManager.closeProject()
+        }
+    }
+
+    /// 프로젝트 복제
+    func duplicateProject(project: Project) {
+        guard projectRepository.fetchProject(project) != nil else {
+            return
+        }
+
+        let fileManager = FileManager.default
+        let duplicateTitle = generateDuplicateTitle(from: project.title)
+
+        do {
+            // 원본 SceneModel 로드
+            let sourceSceneModel = try sceneModelStorage.load(
+                projectName: project.title,
+                projectId: project.id
+            )
+
+            // 새 프로젝트 생성
+            let newProject = Project(
+                title: duplicateTitle,
+                thumbnailImage: project.thumbnailImage,
+                createdAt: Date(),
+                updatedAt: Date()
+            )
+
+            // 새 프로젝트 디렉토리 생성
+            try projectFileStorage.save(newProject, projectName: duplicateTitle)
+
+            // 이미지 파일 복사
+            let sourceImagesDir = FilePathProvider.imagesDirectory(projectName: project.title)
+            let destImagesDir = FilePathProvider.imagesDirectory(projectName: duplicateTitle)
+
+            if fileManager.fileExists(atPath: sourceImagesDir.path) {
+                let imageFiles = try fileManager.contentsOfDirectory(atPath: sourceImagesDir.path)
+                for filename in imageFiles {
+                    let sourceFile = sourceImagesDir.appendingPathComponent(filename)
+                    let destFile = destImagesDir.appendingPathComponent(filename)
+                    try fileManager.copyItem(at: sourceFile, to: destFile)
+                }
+            }
+
+            // 사운드 파일 복사
+            let sourceSoundsDir = FilePathProvider.soundsDirectory(projectName: project.title)
+            let destSoundsDir = FilePathProvider.soundsDirectory(projectName: duplicateTitle)
+
+            if fileManager.fileExists(atPath: sourceSoundsDir.path) {
+                let soundFiles = try fileManager.contentsOfDirectory(atPath: sourceSoundsDir.path)
+                for filename in soundFiles {
+                    let sourceFile = sourceSoundsDir.appendingPathComponent(filename)
+                    let destFile = destSoundsDir.appendingPathComponent(filename)
+                    try fileManager.copyItem(at: sourceFile, to: destFile)
+                }
+            }
+
+            // 썸네일 복사
+            // TODO: - 썸네일 구현 (image폴더에 project.thumbnailImage 이름으로 저장)
+            if let thumbnailName = project.thumbnailImage {
+                let sourceThumbnail = FilePathProvider.imageFile(
+                    projectName: project.title,
+                    filename: thumbnailName
+                )
+                let destThumbnail = FilePathProvider.imageFile(
+                    projectName: duplicateTitle,
+                    filename: thumbnailName
+                )
+
+                if fileManager.fileExists(atPath: sourceThumbnail.path) {
+                    try? fileManager.copyItem(at: sourceThumbnail, to: destThumbnail)
+                }
+            }
+
+            // 새 SceneModel 생성
+            let newSceneModel = SceneModel(
+                projectId: newProject.id,
+                spacialEnvironment: sourceSceneModel.spacialEnvironment,
+                userSpatialState: UserSpatialState(),
+                sceneObjects: sourceSceneModel.sceneObjects
+            )
+
+            // 새 SceneModel 저장
+            try sceneModelStorage.save(newSceneModel, projectName: duplicateTitle)
+
+            // SwiftData에 새 프로젝트 추가
+            projectRepository.addProject(newProject)
+            refreshProjects()
+        } catch {
+            
+            // 실패 시 부분적으로 생성된 파일 정리
+            try? projectFileStorage.delete(projectName: duplicateTitle)
         }
     }
     
