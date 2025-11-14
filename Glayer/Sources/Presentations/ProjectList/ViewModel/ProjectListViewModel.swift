@@ -108,8 +108,6 @@ final class ProjectListViewModel {
                     projectName: project.title,
                     projectId: project.id
                 )
-                print("📂 Floor Asset ID: \(sceneModel.spacialEnvironment.floorAssetId ?? String(localized: "project.none"))")
-                print("📂 기존 SceneModel 로드 완료")
                 return sceneModel
             } else {
                 return SceneModel(
@@ -120,7 +118,6 @@ final class ProjectListViewModel {
                 )
             }
         } catch {
-            print("❌ SceneModel 로드 실패: \(error)")
             return SceneModel(
                 projectId: project.id,
                 spacialEnvironment: SpacialEnvironment(),
@@ -155,11 +152,7 @@ final class ProjectListViewModel {
 
         do {
             try sceneModelStorage.save(newSceneModel, projectName: projectTitle)
-            print("✅ SceneModel 저장 성공: \(projectTitle)")
         } catch {
-            print("❌ SceneModel 저장 실패: \(error)")
-            print("   - 프로젝트명: \(projectTitle)")
-            print("   - 에러 상세: \(error.localizedDescription)")
             throw error
         }
 
