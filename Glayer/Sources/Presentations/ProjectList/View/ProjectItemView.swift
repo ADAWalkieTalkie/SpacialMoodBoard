@@ -97,7 +97,10 @@ struct ProjectItemView: View {
                 title: $draftTitle,
                 onRename: { startInlineRename() },
                 onDelete: { id in showDeleteAlert = true },
-                onDuplicate: { id, newTitle in },  // TODO: - 프로젝트 복사 필요
+                onDuplicate: { id, newTitle in
+                    showRenamePopover = false
+                    viewModel.duplicateProject(project: project)
+                },
                 onCancel: { showRenamePopover = false }
             )
         }
