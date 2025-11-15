@@ -130,7 +130,7 @@ struct ToolBarAttachment: View {
                     // 뮤트 토글 버튼
                     JoystickAttachment(
                         onValueChanged: { x, z in
-                            print("X: \(x), Z: \(z)")
+                            viewModel.updateUserPositionFromJoystick(x: x, z: z)
                         }
                     )
                 }

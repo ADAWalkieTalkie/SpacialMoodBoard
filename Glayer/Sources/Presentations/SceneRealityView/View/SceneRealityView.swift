@@ -15,6 +15,7 @@ struct SceneRealityView: View {
     
     @State private var headAnchor: AnchorEntity?
     @State private var rootEntity = Entity()
+    @State private var lastUpdateTime: Date = Date()
     
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
     
@@ -45,6 +46,9 @@ struct SceneRealityView: View {
                 if appStateManager.appState.isVolumeOpen {
                     rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
                 }
+                
+                // 조이스틱에 따른 rootEntity 위치 업데이트
+                updateRootEntityPosition()
                 
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
@@ -174,5 +178,28 @@ struct SceneRealityView: View {
         if viewModel.selectedEntity != nil {
             viewModel.updateAttachmentScales()
         }
+    }
+
+        // MARK: - Update Root Entity Position
+    
+    /// 조이스틱 속도에 따라 rootEntity 위치 업데이트
+    private func updateRootEntityPosition() {
+        // DeltaTime 계산
+        let currentTime = Date()
+        let deltaTime = Float(currentTime.timeIntervalSince(lastUpdateTime))
+        lastUpdateTime = currentTime
+        
+        // 조이스틱 속도에 따라 위치 업데이트 (매 프레임)
+        viewModel.updatePositionFromJoystickVelocity(deltaTime: deltaTime)
+        
+        // Root Entity 위치 업데이트 (userPosition 사용)
+        let basePosition: SIMD3<Float>
+        if appStateManager.appState.isImmersiveOpen {
+            basePosition = config.rootEntityPosition
+        } else {
+            basePosition = SIMD3<Float>(0, 0, 0)
+        }
+        // userPosition을 오프셋으로 사용
+        rootEntity.position = basePosition + viewModel.userSpatialState.userPosition
     }
 }

@@ -62,6 +62,9 @@ final class SceneViewModel {
     /// Root Entity 참조 (회전 등의 작업에 사용)
     weak var rootEntity: Entity?
 
+    // 조이스틱 속도 (rootEntity 이동용)
+    var joystickVelocity: SIMD3<Float> = SIMD3<Float>(0, 0, 0)
+
     // 회전 각도 (Volume용)
     var rotationAngle: Float = 0
 
