@@ -15,11 +15,10 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// MyWindowScene {
+/// WindowGroup(id: "MainWindow") {
 ///     ContentView()
 ///         .overlay(alignment: .bottomLeading) {
-///             ScenePhaseDebugger(sceneName: "MainWindow")
-///                 .padding()
+///             ScenePhaseDebugger(sceneName: "MainWindow", appStateManager: appStateManager)
 ///         }
 /// }
 /// ```
@@ -30,8 +29,7 @@ struct ScenePhaseDebugger: View {
     /// 현재 Scene의 `ScenePhase` 환경 값입니다.
     @Environment(\.scenePhase) private var scenePhase
     
-    /// 앱의 전역 상태를 관리하는 `AppStateManager` 환경 객체입니다.
-    @Environment(AppStateManager.self) private var appStateManager
+    @Bindable var appStateManager: AppStateManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
