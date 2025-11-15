@@ -9,6 +9,8 @@ enum EntityBoundBoxApplier {
             addCircleBound(to: entity, diameter: diameter)
         case .image:
             addRectBound(to: entity, width: width, height: height)
+        case .floor:
+            addRectBound(to: entity, width: width, height: height, isFloor: true)
         default:
             return
         }
@@ -16,14 +18,14 @@ enum EntityBoundBoxApplier {
     
     // MARK: - Internal: Rectangle (이미지)
     
-    private static func addRectBound(to entity: ModelEntity, width: Float, height: Float) {
+    private static func addRectBound(to entity: ModelEntity, width: Float, height: Float, isFloor: Bool = false) {
         let offset: Float = 0.08
         let expandedW = width  + offset * 2.5 * 0.3
         let expandedH = height + offset * 2.5 * 0.3
         
         let texW: CGFloat = 1024
         let texH: CGFloat = max(768, texW * CGFloat(expandedH / max(expandedW, 0.001)))
-        let cornerRadius = min(texW, texH) * 0.06
+        let cornerRadius = isFloor ? 0 : min(texW, texH) * 0.06
         
         guard let tex = makeGlowRectTexture(
             size: CGSize(width: texW, height: texH),
@@ -42,7 +44,15 @@ enum EntityBoundBoxApplier {
         bound.name = "boundBox"
         
         let vb = entity.visualBounds(relativeTo: entity)
-        bound.position = vb.center + SIMD3(0, 0, -0.001)
+        if isFloor {
+            bound.position = vb.center + SIMD3(0, -0.001, 0)
+            let rotationAngle: Float = -.pi / 2.0
+            let rotationAxis = SIMD3<Float>(x: 1.0, y: 0.0, z: 0.0)
+            bound.orientation = simd_quatf(angle: rotationAngle, axis: rotationAxis)
+        } else {
+            bound.position = vb.center + SIMD3(0, 0, -0.001)
+        }
+        
         entity.addChild(bound)
     }
     

@@ -44,6 +44,8 @@ class FloorEntity {
 
         floor.name = "floorRoot"
 
+        EntityBoundBoxApplier.addBoundAuto(to: floor, width: Self.defaultFloorSize.x, height: Self.defaultFloorSize.y)
+
         return floor
     }
 
