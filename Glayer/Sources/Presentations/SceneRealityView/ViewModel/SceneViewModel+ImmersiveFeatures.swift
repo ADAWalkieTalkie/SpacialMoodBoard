@@ -15,11 +15,9 @@ extension SceneViewModel {
         }
         
         // Volume 모드와 Immersive 모드에 따라 다른 초기 위치 설정
-        // Volume: window 중앙 (y=0.1m, z=-1.0m) - 1m 크기 volume 내에서 보이도록
-        // Immersive: 사용자 눈높이 (y=1.5m, z=-2.0m) - 기존 동작 유지
         let position: SIMD3<Float>
         if appStateManager.appState.isVolumeOpen {
-            position = SIMD3<Float>(0, 0.1, 0.1)
+            position = defaultRespawnPositionVolume
         } else {
             position = SIMD3<Float>(0, 0.0, 0.0)
         }
@@ -50,7 +48,7 @@ extension SceneViewModel {
         // Volume 모드와 Immersive 모드에 따라 다른 초기 위치 설정
         let position: SIMD3<Float>
         if appStateManager.appState.isVolumeOpen {
-            position = SIMD3<Float>(0, 0.1, 0.1)
+            position = defaultRespawnPositionVolume
         } else {
             position = SIMD3<Float>(0, 0, 0)
         }
