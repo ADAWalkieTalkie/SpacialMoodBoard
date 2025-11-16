@@ -31,7 +31,7 @@ extension SceneViewModel {
             scale: 0.3,
             rotation: SIMD3<Float>(0, 0, 0),
             crop: SIMD4<Float>(0, 0, 1, 1),
-            billboardable: true
+            lock: false
         )
 
         // SceneViewModel+SceneObject의 addSceneObject 사용
@@ -67,6 +67,36 @@ extension SceneViewModel {
         SoundFX.shared.play(.assetOnVolume)
         return soundObj
     }
+
+    func lockObject(id: UUID) {
+        updateSceneObject(with: id) { obj in
+            obj.setLock(true)
+        }
+        
+        // Entity 찾기 및 InputTargetComponent 제거
+        guard let entity = getEntity(for: id) else { return }
+        entity.components.remove(InputTargetComponent.self)
+        
+        // lock 아이콘 attachment 추가
+        addLockIconAttachment(to: entity)
+
+        selectedEntity = nil
+    }
+
+    func unlockObject(id: UUID) {
+        updateSceneObject(with: id) { obj in
+            obj.setLock(false)
+        }
+        
+        // Entity 찾기 및 InputTargetComponent 복원
+        guard let entity = getEntity(for: id) else { return }
+        entity.components.set(InputTargetComponent())
+        
+        // lock 아이콘 attachment 제거
+        removeLockIconAttachment(from: entity)
+
+        selectedEntity = entity
+    }
     
     // MARK: - 복제
     
@@ -86,7 +116,7 @@ extension SceneViewModel {
             scale: imageAttrs.scale,
             rotation: imageAttrs.rotation,
             crop: imageAttrs.crop,
-            billboardable: imageAttrs.billboardable
+            lock: imageAttrs.lock
         )
         
         // SceneViewModel+SceneObject의 addSceneObject 사용

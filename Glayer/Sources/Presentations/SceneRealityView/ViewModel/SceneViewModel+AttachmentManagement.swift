@@ -83,6 +83,16 @@ extension SceneViewModel {
             )
             nameAttachment.scale = finalScale
         }
+        
+        // lockIconAttachment 스케일 업데이트
+        if let lockAttachment = entity.children.first(where: { $0.name == "lockIconAttachment" }) {
+            let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
+                headPosition: headPosition,
+                entity: entity,
+                isVolumeMode: isVolumeMode
+            )
+            lockAttachment.scale = finalScale
+        }
     }
     
     // MARK: - Timer Control (Public)
@@ -105,7 +115,6 @@ extension SceneViewModel {
             removeAttachment(from: entity)
         }
     }
-
     /// 특정 Entity의 attachment만 제거
     func removeAttachment(from entity: ModelEntity) {
         // boundBox 제거
@@ -116,9 +125,9 @@ extension SceneViewModel {
             .filter { $0.name == "objectAttachment" }
             .forEach { $0.removeFromParent() }
 
-        // soundNameAttachment 제거 추가
+        // soundNameAttachment 제거
         entity.children
             .filter { $0.name == "soundNameAttachment" }
             .forEach { $0.removeFromParent() }
-        }
+    }
 }
