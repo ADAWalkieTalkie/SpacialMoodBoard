@@ -2,11 +2,13 @@ import SwiftUI
 
 struct LockIconAttachment: View {
     let onUnlock: () -> Void
+    let fontSize = 32.0
+    let frameSize = 64.0
 
     var body: some View {
         Image(systemName: "lock")
-            .font(.system(size: 20, weight: .medium))
-            .frame(width: 36, height: 36)
+            .font(.system(size: fontSize, weight: .medium))
+            .frame(width: frameSize, height: frameSize)
             .background(.ultraThinMaterial, in: Circle())
             .contentShape(Circle())
             .hoverEffect()
