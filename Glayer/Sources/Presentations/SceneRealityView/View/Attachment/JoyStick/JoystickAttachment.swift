@@ -17,6 +17,7 @@ struct JoystickAttachment: View {
     private let baseSize: CGFloat = 200
     private let thumbstickSize: CGFloat = 80
     private let maxDistance: CGFloat // 원형 범위의 최대 반지름
+    private let marginFactor: CGFloat = 0.70
     
     // MARK: - Init
     
@@ -75,25 +76,23 @@ struct JoystickAttachment: View {
         
         // 원형 범위 내로 제한
         let distance = sqrt(relativeLocation.x * relativeLocation.x + relativeLocation.y * relativeLocation.y)
-        let clampedDistance = min(distance, maxDistance)
-        
+        let allowedMaxDistance = maxDistance * marginFactor
+        let clampedDistance = min(distance, allowedMaxDistance)
+
         // 각도 계산
         let angle = atan2(relativeLocation.y, relativeLocation.x)
-        
+
         // 제한된 거리로 위치 계산
         let clampedX = cos(angle) * clampedDistance
         let clampedY = sin(angle) * clampedDistance
-        
+
         // thumbstick 위치 업데이트
         thumbstickOffset = CGSize(width: clampedX, height: clampedY)
-        
-        // 정규화된 값 계산 (-1.0 ~ 1.0)
-        let normalizedX = clampedX / maxDistance
-        let normalizedZ = -clampedY / maxDistance // Y축을 Z축으로 매핑 (위쪽이 +1)
-        
-        // 값 출력
-        print("조이스틱 값 - X: \(String(format: "%.2f", normalizedX)), Z: \(String(format: "%.2f", normalizedZ))")
-        
+
+        // 정규화된 값 계산 (-1.0 ~ 1.0) — 최대 이동 가능 반경을 기준으로 정규화
+        let normalizedX = clampedX / allowedMaxDistance
+        let normalizedZ = -clampedY / allowedMaxDistance // Y축을 Z축으로 매핑 (위쪽이 +1)
+
         // 콜백 호출
         onValueChanged(normalizedX, normalizedZ)
     }
