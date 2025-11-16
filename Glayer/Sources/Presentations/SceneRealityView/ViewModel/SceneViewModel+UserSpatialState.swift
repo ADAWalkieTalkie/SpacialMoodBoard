@@ -21,6 +21,29 @@ extension SceneViewModel {
         userSpatialState = state
     }
 
+    /// Head Anchor의 위치와 회전을 UserSpatialState에 동기화
+    /// - Parameters:
+    ///   - position: Head Anchor의 위치 (Volume: rootEntity 기준, Immersive: 월드 좌표계)
+    ///   - rotation: Head Anchor의 회전 (quaternion as SIMD4)
+    func updateHeadAnchorState(position: SIMD3<Float>, rotation: SIMD4<Float>) {
+        var state = userSpatialState
+        let threshold: Float = 0.01
+        
+        // 위치 업데이트 (threshold 체크)
+        let positionDistance = simd_distance(position, state.headAnchorState.position)
+        if positionDistance > threshold {
+            state.headAnchorState.position = position
+        }
+        
+        // 회전 업데이트 (threshold 체크)
+        let rotationDistance = simd_distance(rotation, state.headAnchorState.rotation)
+        if rotationDistance > threshold {
+            state.headAnchorState.rotation = rotation
+        }
+        
+        userSpatialState = state
+    }
+
     /// View Mode 토글
     func toggleViewMode() {
         // userSpatialState의 viewMode 토글
