@@ -11,13 +11,13 @@ extension SceneObject {
         scale: Float = 1.0,
         rotation: SIMD3<Float> = [0, 0, 0],
         crop: SIMD4<Float> = [0, 0, 1, 1],
-        billboardable: Bool = true
+        lock: Bool = false
     ) -> SceneObject {
         let imageAttrs = ImageAttributes(
             scale: scale,
             rotation: rotation,
             crop: crop,
-            billboardable: billboardable
+            lock: lock
         )
         
         return SceneObject(
