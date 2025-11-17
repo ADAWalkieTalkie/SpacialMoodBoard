@@ -8,7 +8,7 @@
 import Foundation
 
 struct SoundAsset: Hashable, Codable {
-    var origin: SoundOrigin
+    var origin: AssetOrigin
     var channel: SoundChannel
     var duration: TimeInterval
     
