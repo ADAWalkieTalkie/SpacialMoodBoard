@@ -91,6 +91,7 @@ struct GlayerApp: App {
             )
         }
         .windowStyle(.plain)
+        .restorationBehavior(.disabled)
 
         // Volume Scene
         WindowGroup(id: "ImmersiveVolumeWindow") {
@@ -110,11 +111,11 @@ struct GlayerApp: App {
                     back: 200
                 )
             )
-            
         }
         .windowStyle(.volumetric)
         .volumeWorldAlignment(.gravityAligned)
         .defaultSize(width: 1.0, height: 1.0, depth: 1.0, in: .meters)
+        .restorationBehavior(.disabled)
 
         // Immersive Space (전체 몰입)
         ImmersiveSpace(id: "ImmersiveScene") {
@@ -122,5 +123,6 @@ struct GlayerApp: App {
                 .environment(appStateManager)
         }
         .immersionStyle(selection: .constant(.full), in: .full)
+        .restorationBehavior(.disabled)
     }
 }

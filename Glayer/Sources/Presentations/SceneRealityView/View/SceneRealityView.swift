@@ -142,6 +142,19 @@ struct SceneRealityView: View {
             sceneObjects: sceneObjects,
             rootEntity: rootEntity
         )
+
+        // 잠금 상태 적용: lock == true 이고 아직 lock 아이콘이 없으면 lockObject 호출
+        for obj in sceneObjects {
+            if case .image(let img) = obj.attributes, img.lock {
+                if let entity = viewModel.getEntity(for: obj.id) {
+                    let hasLockIcon = entity.children.contains { $0.name == "lockIconAttachment" }
+                    if !hasLockIcon {
+                        viewModel.lockObject(id: obj.id)
+                    }
+                }
+            }
+        }
+        
         updateFloorMaterial(content: content, rootEntity: rootEntity)
     }
     
@@ -163,16 +176,20 @@ struct SceneRealityView: View {
         
         // Volume과 Immersive 모드에 따라 다른 기준점 사용
         let headPosition: SIMD3<Float>
+        let headRotation: SIMD4<Float>
         
         if appStateManager.appState.isVolumeOpen {
             // Volume 모드: rootEntity 기준 (로컬 좌표계)
             headPosition = headAnchor.position(relativeTo: rootEntity)
+            headRotation = SIMD4<Float>(headAnchor.orientation(relativeTo: rootEntity).vector)
         } else {
             // Immersive 모드: 월드 좌표계
             headPosition = headAnchor.position(relativeTo: nil)
+            headRotation = SIMD4<Float>(headAnchor.orientation(relativeTo: nil).vector)
         }
         
-        viewModel.updateUserPosition(headPosition)
+        // headAnchor 정보를 UserSpatialState에 동기화
+        viewModel.updateHeadAnchorState(position: headPosition, rotation: headRotation)
         
         // Attachment 스케일 실시간 업데이트
         if viewModel.selectedEntity != nil {

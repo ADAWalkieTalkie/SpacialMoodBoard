@@ -6,19 +6,20 @@ extension SceneObject {
     /// 이미지 객체 생성
     static func createImage(
         assetId: String,
-        position: SIMD3<Float> = [0, 1.5, -2],
+        position: SIMD3<Float>,
         isEditable: Bool = true,
         scale: Float = 1.0,
         rotation: SIMD3<Float> = [0, 0, 0],
         crop: SIMD4<Float> = [0, 0, 1, 1],
-        billboardable: Bool = true
+        lock: Bool = false
     ) -> SceneObject {
         let imageAttrs = ImageAttributes(
             scale: scale,
             rotation: rotation,
             crop: crop,
-            billboardable: billboardable
+            lock: lock
         )
+        print("position: \(position)")
         
         return SceneObject(
             id: UUID(),
