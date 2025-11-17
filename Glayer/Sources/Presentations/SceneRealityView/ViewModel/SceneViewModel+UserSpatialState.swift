@@ -11,7 +11,7 @@ extension SceneViewModel {
     ///   - z: Z축 값 (-1.0 ~ 1.0)
     func updateUserPositionFromJoystick(x: Double, z: Double) {
         // 조이스틱 값을 속도로 변환 (1.0 = 최대 속도, 필요에 따라 조정)
-        let maxSpeed: Float = 0.05 // 초당 0.05미터
+        let maxSpeed: Float = 0.01 // 초당 0.01미터
         let velocity = SIMD3<Float>(
             -Float(x) * maxSpeed,
             0, // Y축은 변경하지 않음
@@ -25,6 +25,8 @@ extension SceneViewModel {
     /// 조이스틱 속도에 따라 userPosition 업데이트 (매 프레임 호출)
     /// - Parameter deltaTime: 이전 프레임부터 경과한 시간 (초)
     func updatePositionFromJoystickVelocity(deltaTime: Float) {
+        private let maxDistance: Float = 4.0
+        private let minDistance: Float = -4.0
         // 속도가 0이면 업데이트하지 않음
         guard simd_length(joystickVelocity) > 0.001 else { return }
         
@@ -33,7 +35,13 @@ extension SceneViewModel {
         
         // 현재 위치에 이동 거리 추가
         var state = userSpatialState
-        state.userPosition = state.userPosition + movement
+        var newPosition = state.userPosition + movement
+        
+        // x, z 값을 -1 ~ +1 범위로 제한
+        newPosition.x = max(minDistance, max(maxDistance, newPosition.x))
+        newPosition.z = max(minDistance, max(maxDistance, newPosition.z))
+        
+        state.userPosition = newPosition
         userSpatialState = state
     }
     
