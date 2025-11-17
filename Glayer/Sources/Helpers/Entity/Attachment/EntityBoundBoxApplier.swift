@@ -25,7 +25,7 @@ enum EntityBoundBoxApplier {
         
         let texW: CGFloat = 1024
         let texH: CGFloat = max(768, texW * CGFloat(expandedH / max(expandedW, 0.001)))
-        let cornerRadius = isFloor ? 0 : min(texW, texH) * 0.06
+        let cornerRadius = isFloor ? 0.01 : min(texW, texH) * 0.06
         
         guard let tex = makeGlowRectTexture(
             size: CGSize(width: texW, height: texH),

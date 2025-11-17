@@ -72,7 +72,7 @@ class FloorEntity {
         }
 
         let floor = ModelEntity(
-            mesh: .generatePlane(width: size.x, depth: size.y),
+            mesh: .generatePlane(width: size.x, depth: size.y, cornerRadius: 0.01),
             materials: [material]
         )
 
