@@ -60,7 +60,7 @@ class FloorEntity {
     static private func createFloor(size: SIMD2<Float>, position: SIMD3<Float>, materialImageURL: URL?)
         async -> ModelEntity
     {
-        let material: PhysicallyBasedMaterial
+        let material: UnlitMaterial
 
         if let imageURL = materialImageURL {
             do {
@@ -90,20 +90,20 @@ class FloorEntity {
     /// - Returns: PhysicallyBasedMaterial (metallic: 0.0, roughness: 0.8)
     @MainActor
     static func createMaterial(texture: TextureResource? = nil)
-        -> PhysicallyBasedMaterial
+        -> UnlitMaterial
     {
-        var material = PhysicallyBasedMaterial()
+        var material = UnlitMaterial()
 
         if let texture {
-            material.baseColor = .init(texture: .init(texture))
+            material.color = .init(texture: .init(texture))
             material.blending = .transparent(opacity: 1.0)
         } else {
-            material.baseColor.tint = .init(.white)
+            material.color.tint = .init(.white)
             material.blending = .transparent(opacity: 0.5)
         }
 
-        material.metallic = 0.0
-        material.roughness = 0.8
+//        material.metallic = 0.0
+//        material.roughness = 0.8
 
         return material
     }
