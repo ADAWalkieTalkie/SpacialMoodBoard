@@ -43,7 +43,11 @@ class FloorEntity {
         )
 
         floor.name = "floorRoot"
-        applyOutline(floor: floor)
+        
+        if materialImageURL == nil {
+            applyOutline(floor: floor)
+        }
+        
 
         return floor
     }
