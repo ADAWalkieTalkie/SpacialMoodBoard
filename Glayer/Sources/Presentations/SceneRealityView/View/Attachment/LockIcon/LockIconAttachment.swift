@@ -9,7 +9,7 @@ struct LockIconAttachment: View {
     @State private var startDate: Date?
     @State private var progress: CGFloat = 0 // 마지막 고정된 값(표시 제어용)
 
-    private let holdDuration: Double = 2
+    private let holdDuration: Double = 1
 
     var body: some View {
         Image(systemName: "lock")
