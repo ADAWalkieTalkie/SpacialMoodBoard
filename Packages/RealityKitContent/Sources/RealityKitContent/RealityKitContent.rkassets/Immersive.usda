@@ -20,7 +20,9 @@ def Xform "Root"
 
         over "mtl"
         {
-            over "GridMATSG"
+            over "GridMATSG" (
+                active = false
+            )
             {
                 token outputs:mtlx:surface
                 token outputs:realitykit:vertex
@@ -133,6 +135,7 @@ def Xform "Root"
         }
 
         over "Grid" (
+            active = false
             prepend apiSchemas = ["MaterialBindingAPI"]
         )
         {
@@ -140,6 +143,7 @@ def Xform "Root"
                 bindMaterialAs = "weakerThanDescendants"
             )
             float3 xformOp:scale = (2.220446e-16, 2.220446e-16, 2.220446e-16)
+            float3 xformOp:translate = (0, 0, 0)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
         }
     }

@@ -20,7 +20,9 @@ def Xform "Root"
 
         over "Looks"
         {
-            over "GridMATSG"
+            over "GridMATSG" (
+                active = false
+            )
             {
                 token outputs:mtlx:surface
                 token outputs:realitykit:vertex
@@ -124,6 +126,14 @@ def Xform "Root"
                 }
             }
         }
+
+        over "Grid" (
+            active = false
+        )
+        {
+            float3 xformOp:translate = (0, -592.8563, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
     }
 
     def Cylinder "Cylinder" (
@@ -189,7 +199,7 @@ def Xform "Root"
             def Shader "emissiveColor"
             {
                 uniform token info:id = "UsdUVTexture"
-                asset inputs:file = @moonless_golf_2k.exr@
+                asset inputs:file = @qwantani_night_puresky_2k.hdr@
                 float2 inputs:st.connect = </Root/Cylinder/DefaultMaterial/emissiveColor/TexCoordReader.outputs:result>
                 color3f outputs:rgb
 
