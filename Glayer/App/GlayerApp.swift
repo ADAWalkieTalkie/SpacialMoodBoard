@@ -98,9 +98,8 @@ struct GlayerApp: App {
                 viewModel: sceneViewModel
             )
             .environment(appStateManager)
-            // VolumetricWindow 마진
             .preferredWindowClippingMargins(
-                [.top, .bottom],
+                [.top, .leading, .bottom, .trailing, .front, .back],
                 EdgeInsets3D(
                     top: .infinity,
                     leading: 200,
