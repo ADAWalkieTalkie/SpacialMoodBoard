@@ -5,8 +5,10 @@
     "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Scene.usda" : "0A9B4653-B11E-4D6A-850E-C6FCB621626C",
     "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/SoundEntity.usda" : "C889833E-D7E0-4D24-86A1-25EFF4DF7124",
     "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Untitled Scene.usda" : "D560BB77-AAF3-4BDE-B7C4-989332A4688B",
+    "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Untitled%20Scene.usda" : "B3721FB7-E7B7-4A0C-A350-D583E63329C1",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/GridMaterial.usda" : "66168B71-AB05-424E-8B6C-D33D6E61B08F",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Immersive.usda" : "AF09ED6F-1707-48FD-8720-65B998362C09",
+    "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/ImmersiveNight.usda" : "F7CEB92C-927B-4253-9261-D1FCB5A947C4",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Scene.usda" : "D66134B1-3681-4A8E-AFE5-29F257229F3B",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/SoundEntity.usda" : "64D75DB5-B4EE-4911-912F-A68B12404448"
   },
@@ -14,6 +16,9 @@
   "uuidToIntID" : {
     "64D75DB5-B4EE-4911-912F-A68B12404448" : -7149347753879659903,
     "AF09ED6F-1707-48FD-8720-65B998362C09" : 5762013597813803135,
-    "C889833E-D7E0-4D24-86A1-25EFF4DF7124" : -1404740103656234322
+    "B3721FB7-E7B7-4A0C-A350-D583E63329C1" : 510661692893877786,
+    "C889833E-D7E0-4D24-86A1-25EFF4DF7124" : -1404740103656234322,
+    "D66134B1-3681-4A8E-AFE5-29F257229F3B" : -4117402665529017881,
+    "F7CEB92C-927B-4253-9261-D1FCB5A947C4" : 1111684341991450672
   }
 }

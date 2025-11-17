@@ -48,7 +48,7 @@ def Xform "Root"
                 def Shader "diffuseColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                    asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
                     float2 inputs:st.connect = </Root/SkyDome/mtl/GroundMATSG/diffuseColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -69,7 +69,7 @@ def Xform "Root"
                 def Shader "emissiveColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                    asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
                     float2 inputs:st.connect = </Root/SkyDome/mtl/GroundMATSG/emissiveColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -97,7 +97,7 @@ def Xform "Root"
                 def Shader "diffuseColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                    asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
                     float2 inputs:st.connect = </Root/SkyDome/mtl/DomeMATSG/diffuseColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -118,7 +118,7 @@ def Xform "Root"
                 def Shader "emissiveColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_sunrise_puresky_1k.exr@
+                    asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
                     float2 inputs:st.connect = </Root/SkyDome/mtl/DomeMATSG/emissiveColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
