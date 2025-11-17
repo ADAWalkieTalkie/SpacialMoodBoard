@@ -46,7 +46,7 @@ enum EntityBoundBoxApplier {
         
         let vb = entity.visualBounds(relativeTo: entity)
         if isFloor {
-            bound.position = vb.center + SIMD3(0, 0.0001, 0)
+            bound.position = SIMD3(0, 0.0001, 0)
             let rotationAngle: Float = -.pi / 2.0
             let rotationAxis = SIMD3<Float>(x: 1.0, y: 0.0, z: 0.0)
             bound.orientation = simd_quatf(angle: rotationAngle, axis: rotationAxis)

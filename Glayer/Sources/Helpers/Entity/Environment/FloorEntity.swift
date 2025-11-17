@@ -13,6 +13,7 @@ import SwiftUI
 ///
 /// 커스텀 이미지 텍스처 또는 기본 머티리얼을 사용하여 바닥을 생성합니다.
 /// 이미지가 있으면 불투명(opacity 1.0), 없으면 반투명(opacity 0.5)으로 렌더링됩니다.
+@MainActor
 class FloorEntity {
     // MARK: - Constants
 
@@ -31,7 +32,6 @@ class FloorEntity {
     /// 바닥 Entity를 생성합니다
     /// - Parameter materialImageURL: 바닥 텍스처로 사용할 이미지 URL (nil이면 기본 머티리얼 사용)
     /// - Returns: "floorRoot" 이름의 바닥 ModelEntity (HumanScale 오브젝트 포함)
-    @MainActor
     static func create(
         materialImageURL: URL?
     ) async -> ModelEntity {
@@ -43,8 +43,7 @@ class FloorEntity {
         )
 
         floor.name = "floorRoot"
-
-        EntityBoundBoxApplier.addBoundAuto(to: floor, width: Self.defaultFloorSize.x, height: Self.defaultFloorSize.y)
+        applyOutline(floor: floor)
 
         return floor
     }
@@ -56,7 +55,6 @@ class FloorEntity {
     ///   - size: 바닥 크기
     ///   - position: 바닥 위치
     ///   - materialImageURL: 텍스처 이미지 URL (nil이면 기본 머티리얼)
-    @MainActor
     static private func createFloor(size: SIMD2<Float>, position: SIMD3<Float>, materialImageURL: URL?)
         async -> ModelEntity
     {
@@ -88,7 +86,6 @@ class FloorEntity {
     /// PBR 머티리얼을 생성합니다
     /// - Parameter texture: 텍스처 리소스 (nil이면 흰색 사용)
     /// - Returns: PhysicallyBasedMaterial (metallic: 0.0, roughness: 0.8)
-    @MainActor
     static func createMaterial(texture: TextureResource? = nil)
         -> UnlitMaterial
     {
@@ -102,9 +99,14 @@ class FloorEntity {
             material.blending = .transparent(opacity: 0.5)
         }
 
-//        material.metallic = 0.0
-//        material.roughness = 0.8
-
         return material
+    }
+    
+    static func applyOutline(floor: ModelEntity) {
+        EntityBoundBoxApplier.addBoundAuto(
+            to: floor,
+            width: Self.defaultFloorSize.x,
+            height: Self.defaultFloorSize.y
+        )
     }
 }
