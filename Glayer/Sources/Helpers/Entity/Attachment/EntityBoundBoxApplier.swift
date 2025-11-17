@@ -19,7 +19,7 @@ enum EntityBoundBoxApplier {
     // MARK: - Internal: Rectangle (이미지)
     
     private static func addRectBound(to entity: ModelEntity, width: Float, height: Float, isFloor: Bool = false) {
-        let offset: Float = 0.08
+        let offset: Float = isFloor ? 0.1 : 0.08
         let expandedW = width  + offset * 2.5 * 0.3
         let expandedH = height + offset * 2.5 * 0.3
         
@@ -45,7 +45,7 @@ enum EntityBoundBoxApplier {
         
         let vb = entity.visualBounds(relativeTo: entity)
         if isFloor {
-            bound.position = vb.center + SIMD3(0, -0.001, 0)
+            bound.position = vb.center + SIMD3(0, 0.0001, 0)
             let rotationAngle: Float = -.pi / 2.0
             let rotationAxis = SIMD3<Float>(x: 1.0, y: 0.0, z: 0.0)
             bound.orientation = simd_quatf(angle: rotationAngle, axis: rotationAxis)
