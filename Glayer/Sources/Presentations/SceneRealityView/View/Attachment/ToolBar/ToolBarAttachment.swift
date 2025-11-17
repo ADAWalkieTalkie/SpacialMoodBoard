@@ -20,7 +20,7 @@ struct ToolBarAttachment: View {
     
     // 낮밤 모드
     private var isDayMode: Bool {
-        appStateManager.selectedScene?.spacialEnvironment.immersiveTime == .day ? true : false
+        appStateManager.selectedScene?.spacialEnvironment.immersiveTime == .day ? false : true
     }
     
 

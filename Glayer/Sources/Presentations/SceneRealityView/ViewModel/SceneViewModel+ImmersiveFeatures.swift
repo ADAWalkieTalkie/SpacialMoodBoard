@@ -1,5 +1,6 @@
 import Foundation
 import RealityKit
+import RealityKitContent
 
 // MARK: - Immersive 전용 기능 (SceneObject CRUD)
 
@@ -149,6 +150,22 @@ extension SceneViewModel {
         environment.immersiveTime = environment.immersiveTime == .day ? .night : .day
         spacialEnvironment = environment
 
-        // TODO: 구현 예정
+        // 배경 Entity 교체
+        Task { @MainActor in
+            // 기존 배경 제거
+            guard let oldBackground = currentImmersiveBackground,
+                  let floor = oldBackground.parent else {
+                return
+            }
+
+            oldBackground.removeFromParent()
+
+            // 새로운 배경 로드
+            let backgroundName = environment.immersiveTime == .day ? "Immersive" : "ImmersiveNight"
+            if let newBackground = try? await Entity(named: backgroundName, in: RealityKitContent.realityKitContentBundle) {
+                floor.addChild(newBackground)
+                currentImmersiveBackground = newBackground
+            }
+        }
     }
 }

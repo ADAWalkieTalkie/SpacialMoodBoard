@@ -118,9 +118,13 @@ struct SceneRealityView: View {
                 existingHuman.removeFromParent()
             }
             
-            // Immersive 전용: RealityKit Content
-            if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
-                floor.addChild(immersiveContent)
+            // Immersive 전용: RealityKit Content (낮/밤 시간대에 따라 선택적 로드)
+            let immersiveTime = viewModel.spacialEnvironment.immersiveTime ?? .day
+            let backgroundName = immersiveTime == .day ? "Immersive" : "ImmersiveNight"
+
+            if let immersiveBackground = try? await Entity(named: backgroundName, in: RealityKitContent.realityKitContentBundle) {
+                floor.addChild(immersiveBackground)
+                viewModel.currentImmersiveBackground = immersiveBackground
             }
             
             // Volume에서 설정된 회전 각도를 Immersive에도 적용

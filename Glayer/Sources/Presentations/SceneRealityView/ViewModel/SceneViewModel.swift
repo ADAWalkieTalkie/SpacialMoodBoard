@@ -67,7 +67,10 @@ final class SceneViewModel {
 
     // Floor에 적용된 이미지 URL
     var appliedFloorImageURL: URL?
-    
+
+    // 현재 표시 중인 Immersive 배경 Entity (낮/밤 전환용)
+    var currentImmersiveBackground: Entity?
+
     // SceneObjects (computed property)
     var sceneObjects: [SceneObject] {
         guard let scene = appStateManager.selectedScene else { return [] }

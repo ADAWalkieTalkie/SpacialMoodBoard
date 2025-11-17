@@ -24,5 +24,6 @@ struct SpacialEnvironment: Codable, Equatable {
     private enum CodingKeys: String, CodingKey {
         case immersiveBackground
         case floorAssetId
+        case immersiveTime
     }
 }
