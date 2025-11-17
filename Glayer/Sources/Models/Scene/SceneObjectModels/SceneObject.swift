@@ -61,10 +61,10 @@ extension SceneObject {
         self.attributes = .image(attrs)
     }
     
-    /// 이미지 billboardable 변경
-    mutating func setBillboardable(_ billboardable: Bool) {
+    /// 이미지 lock 변경
+    mutating func setLock(_ lock: Bool) {
         guard case .image(var attrs) = attributes else { return }
-        attrs.billboardable = billboardable
+        attrs.lock = lock
         self.attributes = .image(attrs)
     }
     

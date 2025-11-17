@@ -51,6 +51,10 @@ extension SceneViewModel {
             headPosition: headPosition,
             objectId: objectId,
             objectType: objectType,
+            onLock: { [weak self] in
+                guard let self = self else { return }
+                self.lockObject(id: objectId)
+            },
             onDuplicate: { [weak self] in
                 guard let self = self, let rootEntity = self.rootEntity else { return }
                 _ = self.duplicateObject(rootEntity: rootEntity)
@@ -110,6 +114,7 @@ extension SceneViewModel {
         initialVolume: Double? = nil,
         onVolumeChanging: ((Double) -> Void)? = nil,
         onVolumeChange: ((Double) -> Void)? = nil,
+        onLock: (() -> Void)? = nil,
         onDuplicate: (() -> Void)? = nil,
         onCrop: (() -> Void)? = nil,
         onDelete: @escaping () -> Void
@@ -125,6 +130,7 @@ extension SceneViewModel {
                 initialVolume: initialVolume ?? 1.0,
                 onVolumeChanging: onVolumeChanging,
                 onVolumeChange: onVolumeChange,
+                onLock: onLock,
                 onDuplicate: onDuplicate,
                 onCrop: onCrop,
                 onDelete: onDelete
@@ -187,7 +193,48 @@ extension SceneViewModel {
         entity.addChild(nameAttachment)
         AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
     }
-    
+
+    /// Lock 아이콘 Attachment 추가
+    func addLockIconAttachment(to entity: ModelEntity) {
+        
+        guard let objectId = UUID(uuidString: entity.name) else { return }
+        
+        let lockAttachment = Entity()
+        lockAttachment.name = "lockIconAttachment"
+        
+        // ViewAttachmentComponent 생성
+        let attachment = ViewAttachmentComponent(
+            rootView: LockIconAttachment(
+                onUnlock: { [weak self] in
+                    guard let self = self else { return }
+                    self.unlockObject(id: objectId)
+                }
+            )
+        )
+        lockAttachment.components.set(attachment)
+        
+        // attachment 스케일 보정
+        let headPosition = userSpatialState.userPosition
+        let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
+            headPosition: headPosition,
+            entity: entity,
+            isVolumeMode: appStateManager.appState.isVolumeOpen
+        )
+        
+        lockAttachment.scale = finalScale
+        entity.addChild(lockAttachment)
+        
+        // Attachment 위치 설정 (중앙)
+        AttachmentPositioner.positionAtMiddle(lockAttachment, relativeTo: entity)
+    }
+
+    /// Lock 아이콘 Attachment 제거
+    func removeLockIconAttachment(from entity: ModelEntity) {
+        entity.children
+            .filter { $0.name == "lockIconAttachment" }
+            .forEach { $0.removeFromParent() }
+    }
+        
     
     // MARK: - dB ↔︎ Linear 변환
     

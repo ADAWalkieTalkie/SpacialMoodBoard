@@ -138,6 +138,19 @@ struct SceneRealityView: View {
             sceneObjects: sceneObjects,
             rootEntity: rootEntity
         )
+
+        // 잠금 상태 적용: lock == true 이고 아직 lock 아이콘이 없으면 lockObject 호출
+        for obj in sceneObjects {
+            if case .image(let img) = obj.attributes, img.lock {
+                if let entity = viewModel.getEntity(for: obj.id) {
+                    let hasLockIcon = entity.children.contains { $0.name == "lockIconAttachment" }
+                    if !hasLockIcon {
+                        viewModel.lockObject(id: obj.id)
+                    }
+                }
+            }
+        }
+        
         updateFloorMaterial(content: content, rootEntity: rootEntity)
     }
     

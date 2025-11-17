@@ -22,7 +22,7 @@ enum AttachmentPositioner {
     ///   - parent: Attachment가 첨부될 부모 Entity
     static func positionAtMiddle(_ attachment: Entity, relativeTo parent: Entity) {
         // 중앙 위치는 parent의 중심점
-        attachment.position = SIMD3<Float>(0, 0, 0.1)
+        attachment.position = SIMD3<Float>(0, 0, 0.01)
     }
     
     /// 하단 위치로 Attachment 설정

@@ -62,7 +62,7 @@ enum CircleFillButtonEnum {
     
     var font: Font {
         switch self {
-        case .lock, .crop, .duplicate, .delete, .sound:
+        case .crop, .duplicate, .delete, .sound:
             return .system(size: 17, weight: .medium)
         default:
             return .system(size: 19, weight: .medium)
