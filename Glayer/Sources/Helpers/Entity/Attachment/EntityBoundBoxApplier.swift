@@ -29,7 +29,8 @@ enum EntityBoundBoxApplier {
         
         guard let tex = makeGlowRectTexture(
             size: CGSize(width: texW, height: texH),
-            cornerRadius: cornerRadius
+            cornerRadius: cornerRadius,
+            isFloor: isFloor
         ) else { return }
         
         let plane = MeshResource.generatePlane(width: expandedW, height: expandedH)
@@ -91,7 +92,7 @@ enum EntityBoundBoxApplier {
     
     // MARK: - Textures
     
-    private static func makeGlowRectTexture(size: CGSize, cornerRadius: CGFloat, color: UIColor = .white) -> TextureResource? {
+    private static func makeGlowRectTexture(size: CGSize, cornerRadius: CGFloat, color: UIColor = .white, isFloor: Bool) -> TextureResource? {
         let stroke: CGFloat = 1.5
         let glow: CGFloat = 40
         let inset = glow + stroke / 1.5
@@ -107,7 +108,7 @@ enum EntityBoundBoxApplier {
             ctx.cgContext.setShadow(offset: .zero, blur: glow * 0.6,
                                     color: color.withAlphaComponent(0.4).cgColor)
             color.withAlphaComponent(1).setStroke()
-            path.lineWidth = stroke + glow * 0.4
+            path.lineWidth = isFloor ? (stroke + glow * 0.4) / 2 : stroke + glow * 0.4
             path.stroke()
             ctx.cgContext.restoreGState()
         }
