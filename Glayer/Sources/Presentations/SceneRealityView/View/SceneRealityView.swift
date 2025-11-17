@@ -209,7 +209,7 @@ struct SceneRealityView: View {
         // 조이스틱 속도에 따라 위치 업데이트 (매 프레임)
         viewModel.updatePositionFromJoystickVelocity(deltaTime: deltaTime)
         
-        // Root Entity 위치 업데이트 (userPosition 사용)
+        // Root Entity 위치 업데이트 (userScenePosition 사용)
         let basePosition: SIMD3<Float>
         if appStateManager.appState.isImmersiveOpen {
             basePosition = config.rootEntityPosition
@@ -217,6 +217,6 @@ struct SceneRealityView: View {
             basePosition = SIMD3<Float>(0, 0, 0)
         }
         // userPosition을 오프셋으로 사용
-        rootEntity.position = basePosition + viewModel.userSpatialState.userPosition
+        rootEntity.position = basePosition + viewModel.userSpatialState.userScenePosition
     }
 }

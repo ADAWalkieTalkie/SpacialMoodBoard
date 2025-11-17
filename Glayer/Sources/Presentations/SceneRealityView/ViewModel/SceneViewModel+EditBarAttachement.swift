@@ -214,7 +214,7 @@ extension SceneViewModel {
         lockAttachment.components.set(attachment)
         
         // attachment 스케일 보정
-        let headPosition = userSpatialState.userPosition
+        let headPosition = userSpatialState.sceneHeadAnchor.position
         let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
             headPosition: headPosition,
             entity: entity,
