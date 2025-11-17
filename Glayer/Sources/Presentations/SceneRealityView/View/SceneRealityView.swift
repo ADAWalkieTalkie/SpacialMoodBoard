@@ -119,13 +119,7 @@ struct SceneRealityView: View {
             }
             
             // Immersive 전용: RealityKit Content (낮/밤 시간대에 따라 선택적 로드)
-            let immersiveTime = viewModel.spacialEnvironment.immersiveTime ?? .day
-            let backgroundName = immersiveTime == .day ? "Immersive" : "ImmersiveNight"
-
-            if let immersiveBackground = try? await Entity(named: backgroundName, in: RealityKitContent.realityKitContentBundle) {
-                floor.addChild(immersiveBackground)
-                viewModel.currentImmersiveBackground = immersiveBackground
-            }
+            await viewModel.loadImmersiveBackground(on: floor)
             
             // Volume에서 설정된 회전 각도를 Immersive에도 적용
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])

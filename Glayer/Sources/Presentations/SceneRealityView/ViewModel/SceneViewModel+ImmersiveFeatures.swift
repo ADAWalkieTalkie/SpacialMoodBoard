@@ -144,7 +144,21 @@ extension SceneViewModel {
         
         return duplicatedObject
     }
-    
+
+    // MARK: - Immersive 배경 관리
+
+    /// Immersive 배경을 현재 시간대에 맞게 로드
+    /// - Parameter floor: 배경을 추가할 floor Entity
+    func loadImmersiveBackground(on floor: Entity) async {
+        let immersiveTime = spacialEnvironment.immersiveTime ?? .day
+        let backgroundName = immersiveTime == .day ? "Immersive" : "ImmersiveNight"
+
+        if let immersiveBackground = try? await Entity(named: backgroundName, in: RealityKitContent.realityKitContentBundle) {
+            floor.addChild(immersiveBackground)
+            currentImmersiveBackground = immersiveBackground
+        }
+    }
+
     func toggleImmersiveTime() {
         var environment = spacialEnvironment
         environment.immersiveTime = environment.immersiveTime == .day ? .night : .day
@@ -161,11 +175,7 @@ extension SceneViewModel {
             oldBackground.removeFromParent()
 
             // 새로운 배경 로드
-            let backgroundName = environment.immersiveTime == .day ? "Immersive" : "ImmersiveNight"
-            if let newBackground = try? await Entity(named: backgroundName, in: RealityKitContent.realityKitContentBundle) {
-                floor.addChild(newBackground)
-                currentImmersiveBackground = newBackground
-            }
+            await loadImmersiveBackground(on: floor)
         }
     }
 }
