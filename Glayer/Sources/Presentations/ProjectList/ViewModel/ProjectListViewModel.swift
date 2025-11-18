@@ -187,7 +187,7 @@ final class ProjectListViewModel {
             return
         }
 
-        try? sceneModelStorage.delete(projectName: project.title)
+        try? projectFileStorage.delete(projectName: project.title)
         projectRepository.deleteProject(project)
         refreshProjects()
 
