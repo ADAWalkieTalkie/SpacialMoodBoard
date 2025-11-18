@@ -28,6 +28,7 @@ struct LibrarySoundItemView: View {
     
     /// Init
     ///  - Parameter asset: 표시할 사운드 에셋(타입은 `.sound` 여야 함)
+    ///  - Parameter allowRename: 리네임 허용 여부, 기본 제공 에셋의 경우 false
     ///  - Parameter onRowTap: LibrarySoundItemView 행 탭 콜백
     init(asset: Asset, allowRename: Bool = true , onRowTap: (() -> Void)? = nil) {
         precondition(asset.type == .sound, "LibrarySoundItemView는 .sound 에셋만 지원합니다.")

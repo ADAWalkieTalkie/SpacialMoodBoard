@@ -81,9 +81,9 @@ struct ImageAssetService: ImageAssetServiceProtocol {
         let fileURL = url(project: project, filename: filename)
         if fm.fileExists(atPath: fileURL.path) {
             try fm.removeItem(at: fileURL)
-            #if DEBUG
+#if DEBUG
             print("🖼️ 삭제: \(fileURL.lastPathComponent)")
-            #endif
+#endif
         }
     }
     
@@ -113,6 +113,37 @@ struct ImageAssetService: ImageAssetServiceProtocol {
         return candidate
     }
     
+    // MARK: 번들 내 기본 이미지 에셋 조회
+
+    func listBuiltins(subdirectory: String) -> [Asset] {
+        let bundle = Bundle.main
+        let fm = FileManager.default
+        let exts = ["jpg", "jpeg", "png", "heic"]
+        
+        guard let rootURL = bundle.resourceURL else { return [] }
+        guard let enumerator = fm.enumerator(
+            at: rootURL,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) else { return [] }
+        
+        var assets: [Asset] = []
+        
+        for case let fileURL as URL in enumerator {
+            let components = fileURL.pathComponents
+            guard components.contains(subdirectory) else { continue }
+            
+            let ext = fileURL.pathExtension.lowercased()
+            guard exts.contains(ext) else { continue }
+            
+            if let asset = makeBuiltinImageAsset(from: fileURL,
+                                                 rootDirectoryName: subdirectory) {
+                assets.append(asset)
+            }
+        }
+        return assets
+    }
+
     // MARK: 해시
     
     func sha256Hex(url: URL) throws -> String {
@@ -152,6 +183,79 @@ struct ImageAssetService: ImageAssetServiceProtocol {
     private func createDirIfNeeded(_ url: URL) throws {
         if !fm.fileExists(atPath: url.path) {
             try fm.createDirectory(at: url, withIntermediateDirectories: true)
+        }
+    }
+    
+    /// 번들 내부의 이미지 파일 URL을 읽어 `Asset` 모델로 변환
+    /// - Parameters:
+    ///   - src: 번들 내 이미지 파일의 절대 URL
+    ///   - rootDirectoryName: 최상위 이미지 에셋 폴더 이름 (예: "BasicImageAssets")
+    /// - Returns: 변환된 `Asset` 객체. 이미지가 아닌 경우 또는 메타 정보 추출 실패 시 `nil`
+    private func makeBuiltinImageAsset(from src: URL, rootDirectoryName: String) -> Asset? {
+        var fileSize = 0
+        var createdAt = Date()
+        if let rv = try? src.resourceValues(forKeys: [.fileSizeKey, .creationDateKey]) {
+            fileSize = rv.fileSize ?? 0
+            createdAt = rv.creationDate ?? Date()
+        }
+        
+        let (_, _, pixelW, pixelH) = meta(for: src)
+        
+        let channel = inferImageChannel(from: src, rootDirectoryName: rootDirectoryName)
+        let h = (try? sha256Hex(url: src)) ?? UUID().uuidString
+        let displayName = src.deletingPathExtension().lastPathComponent
+        let imageInfo = ImageAsset(
+            origin: .basic,
+            channel: channel,
+            width: pixelW,
+            height: pixelH
+        )
+        
+        return Asset(
+            id: h,
+            type: .image,
+            filename: displayName,
+            filesize: fileSize,
+            url: src,
+            createdAt: createdAt,
+            image: imageInfo,
+            sound: nil
+        )
+    }
+    
+    /// 이미지 파일 URL의 경로에서, 상위 폴더명을 기반으로 `ImageChannel`(카테고리)을 추론
+    /// - Parameters:
+    ///   - url: 이미지 파일의 절대 URL
+    ///   - rootDirectoryName: 에셋의 루트 폴더 이름 (예: "BasicImageAssets")
+    /// - Returns: 해당 이미지의 카테고리를 나타내는 `ImageChannel`
+    private func inferImageChannel(from url: URL, rootDirectoryName: String) -> ImageChannel? {
+        let components = url.pathComponents
+        
+        guard let rootIndex = components.firstIndex(of: rootDirectoryName),
+              components.count > rootIndex + 1
+        else {
+            return nil
+        }
+        
+        let folderName = components[rootIndex + 1].lowercased()
+        
+        switch folderName {
+        case "backgrounds":
+            return .background
+        case "dogs&cats":
+            return .animal
+        case "electronics":
+            return .electronic
+        case "floors":
+            return .floor
+        case "furniture":
+            return .furniture
+        case "lights":
+            return .light
+        case "plants":
+            return .plant
+        default:
+            return nil
         }
     }
 }

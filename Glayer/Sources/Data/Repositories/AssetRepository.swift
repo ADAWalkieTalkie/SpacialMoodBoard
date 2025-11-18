@@ -83,7 +83,7 @@ final class AssetRepository: AssetRepositoryInterface {
             loaded.append(
                 Asset(id: id, type: .image, filename: name, filesize: meta.fileSize,
                       url: url, createdAt: meta.createdAt,
-                      image: ImageAsset(width: meta.pixelWidth, height: meta.pixelHeight),
+                      image: ImageAsset(origin: .user, channel: nil, width: meta.pixelWidth, height: meta.pixelHeight),
                       sound: nil)
             )
         }
@@ -103,15 +103,26 @@ final class AssetRepository: AssetRepositoryInterface {
             )
         }
         
-        // 3) 기본 내장 사운드
-        let builtins = soundService.listBuiltins(subdirectory: "BasicSoundAssets")
-        for a in builtins {
+        // 3) 기본 내장 이미지
+        let imageBuiltins = imageService.listBuiltins(subdirectory: "BasicImageAssets")
+        for a in imageBuiltins {
+            loaded.append(
+                Asset(id: a.id, type: .image, filename: a.filename, filesize: a.filesize,
+                      url: a.url, createdAt: a.createdAt,
+                      image: a.image,
+                      sound: nil)
+            )
+        }
+        
+        // 4) 기본 내장 사운드
+        let soundBuiltins = soundService.listBuiltins(subdirectory: "BasicSoundAssets")
+        for a in soundBuiltins {
             loaded.append(
                 Asset(id: a.id, type: .sound, filename: a.filename, filesize: a.filesize,
                       url: a.url, createdAt: a.createdAt,
                       image: nil,
                       sound: a.sound)
-                )
+            )
         }
         
         loaded.sort { $0.createdAt > $1.createdAt }
@@ -177,7 +188,7 @@ final class AssetRepository: AssetRepositoryInterface {
         let asset = Asset(
             id: id, type: .image, filename: filename, filesize: meta.fileSize,
             url: url, createdAt: meta.createdAt,
-            image: ImageAsset(width: meta.pixelWidth, height: meta.pixelHeight),
+            image: ImageAsset(origin: .user, channel: nil, width: meta.pixelWidth, height: meta.pixelHeight),
             sound: nil
         )
         assets.insert(asset, at: 0)
@@ -241,7 +252,7 @@ final class AssetRepository: AssetRepositoryInterface {
             let id = Self.composeId(contentHash: h, filename: newFilename)
             let dup = Asset(id: id, type: .image, filename: newFilename, filesize: meta.fileSize,
                             url: url, createdAt: Date(),
-                            image: ImageAsset(width: meta.pixelWidth, height: meta.pixelHeight),
+                            image: ImageAsset(origin: .user, channel: nil, width: meta.pixelWidth, height: meta.pixelHeight),
                             sound: nil)
             assets.insert(dup, at: 0)
             notify()
