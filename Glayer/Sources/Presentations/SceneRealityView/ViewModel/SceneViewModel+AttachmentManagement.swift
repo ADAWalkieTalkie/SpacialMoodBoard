@@ -39,6 +39,7 @@ extension SceneViewModel {
             if let entity = newValue {
                 addAttachmentAndStartTimer(for: entity, headPosition: headPosition)
             }
+            UserDefaults.standard.set(true, forKey: AppPreferenceKey.hasSeenAssetPlacementGuide)
             return
         }
         

@@ -89,7 +89,7 @@ fileprivate extension GuidingToastView {
             }
         }
         .frame(minHeight: 345)
-        .frame(maxHeight: 471)
+        .frame(maxHeight: 363)
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
