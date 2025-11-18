@@ -32,10 +32,7 @@ extension SceneViewModel {
         
         // 속도 × 시간 = 이동 거리
         let movement = joystickVelocity * deltaTime
-        print("movement: \(movement)")
-        print("deltaTime: \(deltaTime)")
-        print("joystickVelocity: \(joystickVelocity)")
-        
+
         // 현재 위치에 이동 거리 추가
         var state = userSpatialState
         var newPosition = state.userScenePosition + movement
