@@ -11,9 +11,9 @@ struct MovementBounds {
     let maxZ: Float
     
     static let `default` = MovementBounds(
-        minX: -0.5, maxX: 0.5,
-        minY: -0.5, maxY: 0.5,
-        minZ: -0.5, maxZ: 0.5
+        minX: -1.0, maxX: 1.0,
+        minY: -1.0, maxY: 1.0,
+        minZ: -1.0, maxZ: 1.0
     )
     
     /// 위치를 영역 내로 제한

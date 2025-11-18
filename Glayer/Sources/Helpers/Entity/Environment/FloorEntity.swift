@@ -18,7 +18,7 @@ class FloorEntity {
     // MARK: - Constants
 
     /// 바닥의 기본 크기 (1m x 1m)
-    static let defaultFloorSize = SIMD2<Float>(x: 1.0, y: 1.0)
+    static let defaultFloorSize = SIMD2<Float>(x: 2.0, y: 2.0)
 
     /// 바닥의 기본 위치
     static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
