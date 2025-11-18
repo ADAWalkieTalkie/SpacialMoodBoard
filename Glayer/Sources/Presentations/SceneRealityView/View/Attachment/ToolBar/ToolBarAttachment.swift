@@ -105,7 +105,7 @@ struct ToolBarAttachment: View {
                     
                     // 낮/밤 전환 토글 버튼
                     ToolBarToggleButton(
-                        type: .immersiveTime(.day),
+                        type: .immersiveTime(appStateManager.selectedScene?.spacialEnvironment.immersiveTime ?? .day),
                         isSelected: isDayMode,
                         action: toggleImmersiveTime
                     )

@@ -41,7 +41,7 @@ enum ToolBarToggleButtonEnum {
         case .viewMode:
             return Image(systemName: "eye")
         case .mute(let isOn):
-            return isOn ? Image(systemName: "speaker.wave.1.fill") : Image(systemName: "speaker.slash.fill")
+            return isOn ? Image(systemName: "speaker.slash.fill") : Image(systemName: "speaker.wave.1.fill")
         case .minimize(let isOn):
             return isOn ? Image(systemName: "arrow.up.backward.and.arrow.down.forward.rectangle") : Image(systemName: "arrow.down.right.and.arrow.up.left.rectangle")
         case .immersiveTime(let t):
