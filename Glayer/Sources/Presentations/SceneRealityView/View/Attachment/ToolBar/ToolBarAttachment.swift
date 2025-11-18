@@ -125,6 +125,17 @@ struct ToolBarAttachment: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 12)
                 .glassBackgroundEffect()
+
+                HStack(spacing: 16) {
+                    // 뮤트 토글 버튼
+                    JoystickAttachment(
+                        onValueChanged: { x, z in
+                            viewModel.updateUserPositionFromJoystick(x: x, z: z)
+                        }
+                    )
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
             }
         }
     }
