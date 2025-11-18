@@ -8,12 +8,12 @@ struct SpacialEnvironment: Codable, Equatable {
     /// - Note: Floor 이미지 URL은 AssetRepository에서 조회됨 (SceneViewModel.floorImageURL)
     var floorAssetId: String?
     
-    var immersiveTime: TimeOfDay?
+    var immersiveTime: TimeOfDay
 
     init(
         immersiveBackground: URL? = nil,
         floorAssetId: String? = nil,
-        immersiveTime: TimeOfDay? = .day
+        immersiveTime: TimeOfDay = .day
     ) {
         self.immersiveBackground = immersiveBackground
         self.floorAssetId = floorAssetId

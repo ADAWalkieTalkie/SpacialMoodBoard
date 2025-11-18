@@ -150,7 +150,7 @@ extension SceneViewModel {
     /// Immersive 배경을 현재 시간대에 맞게 로드
     /// - Parameter floor: 배경을 추가할 floor Entity
     func loadImmersiveBackground(on floor: Entity) async {
-        let immersiveTime = spacialEnvironment.immersiveTime ?? .day
+        let immersiveTime = spacialEnvironment.immersiveTime
         let backgroundName = immersiveTime == .day ? "Immersive" : "ImmersiveNight"
 
         if let immersiveBackground = try? await Entity(named: backgroundName, in: RealityKitContent.realityKitContentBundle) {
