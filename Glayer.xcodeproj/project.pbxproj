@@ -9,16 +9,12 @@
 /* Begin PBXBuildFile section */
 		186F00402E8DA1E800193A85 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 186F003F2E8DA1E800193A85 /* RealityKitContent */; };
 		2D768B702EBF6AC400E90D6B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 2D768B6F2EBF6AC400E90D6B /* Lottie */; };
-		2DF522152ECC86C500F4630C /* BasicImageAssets in Resources */ = {isa = PBXBuildFile; fileRef = 2DF522142ECC86C500F4630C /* BasicImageAssets */; };
-		2DF522172ECC876700F4630C /* BasicSoundAssets in Resources */ = {isa = PBXBuildFile; fileRef = 2DF522162ECC876700F4630C /* BasicSoundAssets */; };
 		5FA673682EC3671300EB4423 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5FA673662EC3671300EB4423 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		186F003A2E8DA1E800193A85 /* Glayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Glayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		186F003E2E8DA1E800193A85 /* RealityKitContent */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = RealityKitContent; sourceTree = "<group>"; };
-		2DF522142ECC86C500F4630C /* BasicImageAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BasicImageAssets; path = Glayer/Resource/BasicImageAssets; sourceTree = "<group>"; };
-		2DF522162ECC876700F4630C /* BasicSoundAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BasicSoundAssets; path = Glayer/Resource/BasicSoundAssets; sourceTree = "<group>"; };
 		5FA673642EC3671300EB4423 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5FA673652EC3671300EB4423 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -27,68 +23,6 @@
 		186F00692E8DACAF00193A85 /* Exceptions for "Glayer" folder in "Glayer" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Resource/BasicImageAssets/Backgrounds/Arch.jpg,
-				"Resource/BasicImageAssets/Backgrounds/Bathroom(1).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Bathroom(2).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Bathroom(3).jpg",
-				Resource/BasicImageAssets/Backgrounds/Beach.jpg,
-				"Resource/BasicImageAssets/Backgrounds/Bedroom(1).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Desert(1).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Desert(2).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Desert(3).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Dining Room.jpg",
-				Resource/BasicImageAssets/Backgrounds/Forest.jpg,
-				Resource/BasicImageAssets/Backgrounds/Kitchen.jpg,
-				"Resource/BasicImageAssets/Backgrounds/Lake(1).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Lake(2).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Living Room(1).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Living Room(2).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Living Room(3).jpg",
-				"Resource/BasicImageAssets/Backgrounds/Night Sky.jpg",
-				"Resource/BasicImageAssets/Dogs&Cats/Cat(1).png",
-				"Resource/BasicImageAssets/Dogs&Cats/Cat(2).png",
-				"Resource/BasicImageAssets/Dogs&Cats/Cat(3).png",
-				"Resource/BasicImageAssets/Dogs&Cats/Cat(4).png",
-				"Resource/BasicImageAssets/Dogs&Cats/Dog(1).png",
-				"Resource/BasicImageAssets/Dogs&Cats/Dog(2).png",
-				"Resource/BasicImageAssets/Dogs&Cats/Dog(3).png",
-				"Resource/BasicImageAssets/Dogs&Cats/Dog(4).png",
-				"Resource/BasicImageAssets/Dogs&Cats/Dog(5).png",
-				Resource/BasicImageAssets/Electronics/Laptop.png,
-				Resource/BasicImageAssets/Electronics/Monitor.png,
-				Resource/BasicImageAssets/Electronics/TV.png,
-				"Resource/BasicImageAssets/Floors/Carpet Floor.jpg",
-				"Resource/BasicImageAssets/Floors/Gravel Floor.jpg",
-				"Resource/BasicImageAssets/Floors/Leave Floor.jpg",
-				"Resource/BasicImageAssets/Floors/Marvel Floor.jpg",
-				"Resource/BasicImageAssets/Floors/Metal Floor.jpg",
-				"Resource/BasicImageAssets/Floors/Rock Floor.jpg",
-				"Resource/BasicImageAssets/Floors/Wood Floor(1).jpg",
-				"Resource/BasicImageAssets/Floors/Wood Floor(2).jpg",
-				"Resource/BasicImageAssets/Furniture/Bed(1).png",
-				"Resource/BasicImageAssets/Furniture/Bed(2).png",
-				"Resource/BasicImageAssets/Furniture/Chair(1).png",
-				"Resource/BasicImageAssets/Furniture/Chair(2).png",
-				"Resource/BasicImageAssets/Furniture/Chair(3).png",
-				"Resource/BasicImageAssets/Furniture/Chair(4).png",
-				Resource/BasicImageAssets/Furniture/Drawer.png,
-				"Resource/BasicImageAssets/Furniture/Sofa(1).png",
-				"Resource/BasicImageAssets/Furniture/Sofa(2).png",
-				"Resource/BasicImageAssets/Furniture/Sofa(3).png",
-				Resource/BasicImageAssets/Furniture/Table.png,
-				"Resource/BasicImageAssets/Lights/Light(1).png",
-				"Resource/BasicImageAssets/Lights/Light(2).png",
-				"Resource/BasicImageAssets/Lights/Light(3).png",
-				"Resource/BasicImageAssets/Lights/Light(4).png",
-				"Resource/BasicImageAssets/Lights/Light(5).png",
-				"Resource/BasicImageAssets/Plants/Plant(1).png",
-				"Resource/BasicImageAssets/Plants/Plant(2).png",
-				"Resource/BasicImageAssets/Plants/Plant(3).png",
-				"Resource/BasicImageAssets/Plants/Plant(4).png",
-				"Resource/BasicImageAssets/Plants/Plant(5).png",
-				Resource/BasicSoundAssets/Ambient_dramatic.wav,
-				Resource/BasicSoundAssets/Ambient_horror.wav,
-				Resource/BasicSoundAssets/Foley_shouting.wav,
 				Resource/Info.plist,
 			);
 			target = 186F00392E8DA1E800193A85 /* Glayer */;
@@ -100,6 +34,10 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				186F00692E8DACAF00193A85 /* Exceptions for "Glayer" folder in "Glayer" target */,
+			);
+			explicitFolders = (
+				Resource/BasicImageAssets,
+				Resource/BasicSoundAssets,
 			);
 			path = Glayer;
 			sourceTree = "<group>";
@@ -122,8 +60,6 @@
 		186F00312E8DA1E800193A85 = {
 			isa = PBXGroup;
 			children = (
-				2DF522162ECC876700F4630C /* BasicSoundAssets */,
-				2DF522142ECC86C500F4630C /* BasicImageAssets */,
 				5FA673672EC3671300EB4423 /* Resource */,
 				186F003C2E8DA1E800193A85 /* Glayer */,
 				186F003D2E8DA1E800193A85 /* Packages */,
@@ -225,8 +161,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2DF522172ECC876700F4630C /* BasicSoundAssets in Resources */,
-				2DF522152ECC86C500F4630C /* BasicImageAssets in Resources */,
 				5FA673682EC3671300EB4423 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
