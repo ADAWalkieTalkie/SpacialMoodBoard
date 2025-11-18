@@ -35,8 +35,13 @@ struct ViewModeUseCase {
             
             switch entityType {
             case .image:
-                // ImageEntity: InputTargetComponent 제거
-                entity.components.remove(InputTargetComponent.self)
+                // lockIconAttachment 숨기기 (있는 경우만)
+                if let lockIcon = entity.children.first(where: { $0.name == "lockIconAttachment" }) {
+                    lockIcon.scale = SIMD3<Float>(0, 0, 0)
+                }else{
+                    // ImageEntity: InputTargetComponent 제거
+                    entity.components.remove(InputTargetComponent.self)
+                }
                 
             case .sound:
                 // SoundEntity: InputTargetComponent 제거 + opacity 0
@@ -62,8 +67,12 @@ struct ViewModeUseCase {
             
             switch entityType {
             case .image:
-                // ImageEntity: InputTargetComponent 복원
-                entity.components.set(InputTargetComponent())
+                if let lockIcon = entity.children.first(where: { $0.name == "lockIconAttachment" }) {
+                    lockIcon.scale = SIMD3<Float>(1, 1, 1)
+                } else {
+                    // ImageEntity: InputTargetComponent 복원
+                    entity.components.set(InputTargetComponent())
+                }
                 
             case .sound:
                 // SoundEntity: InputTargetComponent 복원 + opacity 1
