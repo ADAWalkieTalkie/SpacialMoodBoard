@@ -18,10 +18,19 @@ enum EntityBoundBoxApplier {
     // MARK: - Internal: Rectangle (이미지)
     
     private static func addRectBound(to entity: ModelEntity, isFloor: Bool = false) {
-        let originalBounds = entity.visualBounds(relativeTo: entity)
-        let width = originalBounds.extents.x
-        let height = originalBounds.extents.y
-        let rotation = quaternionToEuler(entity.orientation)
+        let width: Float
+        let height: Float
+
+        if isFloor {
+            let floorSize: Float = 1
+            width = floorSize
+            height = floorSize
+        } else {
+            let planeEntity = entity.findEntity(named: "imagePlane") as? ModelEntity
+            let planeBounds = planeEntity?.visualBounds(relativeTo: planeEntity)
+            width = planeBounds?.extents.x ?? 0.0
+            height = planeBounds?.extents.y ?? 0.0
+        }
 
         let offset: Float = isFloor ? 0.1 : 0.08
         let expandedW = width  + offset * 2.5 * 0.3
@@ -53,14 +62,6 @@ enum EntityBoundBoxApplier {
             let rotationAngle: Float = -.pi / 2.0
             let rotationAxis = SIMD3<Float>(x: 1.0, y: 0.0, z: 0.0)
             bound.orientation = simd_quatf(angle: rotationAngle, axis: rotationAxis)
-        } else {
-            bound.orientation = simd_quatf(
-                angle: rotation.x, axis: [1, 0, 0]
-            ) * simd_quatf(
-                angle: rotation.y, axis: [0, 1, 0]
-            ) * simd_quatf(
-                angle: rotation.z, axis: [0, 0, 1]
-            )
         }
         
         entity.addChild(bound)
