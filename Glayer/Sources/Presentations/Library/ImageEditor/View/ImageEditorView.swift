@@ -13,6 +13,8 @@ struct ImageEditorView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ImageEditorViewModel
+    @State private var showImageEditGuide: Bool = false
+    @AppStorage("hasSeenImageEditGuide") private var hasSeenImageEditGuide: Bool = false
     
     // MARK: - Init
     
@@ -63,6 +65,19 @@ struct ImageEditorView: View {
             isPresented: $viewModel.showSaveFailedAlert,
             message: .addToLibraryFail
         )
+        .guidingToast(
+            isPresented: $showImageEditGuide,
+            category: .imageEdit
+        )
+        .onAppear {
+            if hasSeenImageEditGuide == false {
+                showImageEditGuide = true
+                hasSeenImageEditGuide = true
+            }
+            
+            // MARK: - TODO: [발표/데모용] 항상 토스트 띄우고 싶을 때는 위에 주석하고 아래 코드 사용
+//             showImageEditGuide = true
+        }
     }
 }
 
