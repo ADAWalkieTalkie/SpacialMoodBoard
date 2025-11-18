@@ -118,10 +118,8 @@ struct SceneRealityView: View {
                 existingHuman.removeFromParent()
             }
             
-            // Immersive 전용: RealityKit Content
-            if let immersiveContent = try? await Entity(named: "Immersive", in: RealityKitContent.realityKitContentBundle) {
-                floor.addChild(immersiveContent)
-            }
+            // Immersive 전용: RealityKit Content (낮/밤 시간대에 따라 선택적 로드)
+            await viewModel.loadImmersiveBackground(on: floor)
             
             // Volume에서 설정된 회전 각도를 Immersive에도 적용
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])

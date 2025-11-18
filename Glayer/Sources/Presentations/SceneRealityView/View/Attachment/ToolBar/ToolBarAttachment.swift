@@ -20,7 +20,7 @@ struct ToolBarAttachment: View {
     
     // 낮밤 모드
     private var isDayMode: Bool {
-        appStateManager.selectedScene?.spacialEnvironment.immersiveTime == .day ? true : false
+        appStateManager.selectedScene?.spacialEnvironment.immersiveTime == .day ? false : true
     }
     
 
@@ -131,15 +131,11 @@ struct ToolBarAttachment: View {
     
     // MARK: - Actions
 
-    /// Immersive 모드 토글 핸들러
     private func toggleImmersive() {
         Task { @MainActor in
-            // 현재 상태에 따라 Immersive 모드 열기/닫기
             if isImmersiveOpen {
-                // Immersive 닫기
                 appStateManager.closeImmersive()
             } else {
-                // Immersive 열기
                 appStateManager.openImmersive()
             }
         }
@@ -161,16 +157,11 @@ struct ToolBarAttachment: View {
     
     private func toggleImmersiveTime() {
         viewModel.toggleImmersiveTime()
-        if isLibraryMinimized {
-            appStateManager.toggleLibraryVisibility()
-        }
     }
 
     /// 일시정지 버튼 핸들러
     private func togglePause() {
         viewModel.togglePause()
-//        print("isLibraryOpen \(appStateManager.isLibraryOpen())")
-//        print("showLibrary \(appStateManager.showLibrary)")
     }
     
     
