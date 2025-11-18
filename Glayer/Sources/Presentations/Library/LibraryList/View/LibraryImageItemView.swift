@@ -12,6 +12,7 @@ struct LibraryImageItemView: View {
     // MARK: - Properties
     
     private let asset: Asset
+    private let allowRename: Bool
     
     @Environment(LibraryViewModel.self) private var viewModel
     @Environment(SceneViewModel.self) private var sceneViewModel
@@ -25,9 +26,11 @@ struct LibraryImageItemView: View {
     
     /// Init
     ///  - Parameter asset: 표시할 사운드 에셋(타입은 `.image` 여야 함)
-    init(asset: Asset) {
+    ///  - Parameter allowRename: 리네임 허용 여부, 기본 제공 에셋의 경우 false
+    init(asset: Asset, allowRename: Bool = true) {
         precondition(asset.type == .image, "LibraryImageItemView는 .image 에셋만 지원합니다.")
         self.asset = asset
+        self.allowRename = allowRename
         self._draftTitle = State(initialValue: asset.filename.deletingPathExtension)
     }
     
@@ -89,8 +92,14 @@ struct LibraryImageItemView: View {
         .contentShape(RoundedRectangle(cornerRadius: 20))
         .onTapGesture(perform: tapFlash)
         .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
-                            pressing: { p in withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p } },
-                            perform: { showRenamePopover = true }
+                            pressing: { p in
+            guard allowRename else { return }
+            withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p }
+        },
+                            perform: {
+            guard allowRename else { return }
+            showRenamePopover = true
+        }
         )
         .popover(isPresented: $showRenamePopover, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
             RenamePopover(

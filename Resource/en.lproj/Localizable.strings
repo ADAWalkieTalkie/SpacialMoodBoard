@@ -9,6 +9,15 @@
 "sort.basicAssets" = "Basic Assets";
 "sort.userAdded" = "User Added";
 
+// MARK: - Image Channel
+"image.background" = "Backgrounds";
+"image.floor" = "Floors";
+"image.furniture" = "Furniture";
+"image.light" = "Lights";
+"image.electronic" = "Electronics";
+"image.animal" = "Animals";
+"image.plant" = "Plants";
+
 // MARK: - Sound Channel
 "sound.effect" = "Sound Effect";
 "sound.ambient" = "Ambient";

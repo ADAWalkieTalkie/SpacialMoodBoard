@@ -35,6 +35,10 @@
 			exceptions = (
 				186F00692E8DACAF00193A85 /* Exceptions for "Glayer" folder in "Glayer" target */,
 			);
+			explicitFolders = (
+				Resource/BasicImageAssets,
+				Resource/BasicSoundAssets,
+			);
 			path = Glayer;
 			sourceTree = "<group>";
 		};

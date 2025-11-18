@@ -6,6 +6,8 @@
 //
 
 struct ImageAsset: Codable, Hashable {
+    let origin: AssetOrigin
+    let channel: ImageChannel?
     let width: Int
     let height: Int
     
