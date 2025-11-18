@@ -15,7 +15,8 @@ struct SceneRealityView: View {
     
     @State private var headAnchor: AnchorEntity?
     @State private var rootEntity = Entity()
-    @State private var lastUpdateTime: Date = Date()
+  // 클래스 인스턴스를 @State로 저장
+    @State private var timeTracker = TimeTracker()
     
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
     
@@ -47,11 +48,11 @@ struct SceneRealityView: View {
                     rootEntity.volumeResize(content, proxy, Self.defaultVolumeSize)
                 }
                 
-                // 조이스틱에 따른 rootEntity 위치 업데이트
-                updateRootEntityPosition()
-                
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
+                                    
+                    // 조이스틱에 따른 rootEntity 위치 업데이트
+                    updateRootEntityPosition()
                     
                     updateAttachments()
                     
@@ -201,10 +202,8 @@ struct SceneRealityView: View {
     
     /// 조이스틱 속도에 따라 rootEntity 위치 업데이트
     private func updateRootEntityPosition() {
-        // DeltaTime 계산
-        let currentTime = Date()
-        let deltaTime = Float(currentTime.timeIntervalSince(lastUpdateTime))
-        lastUpdateTime = currentTime
+        // DeltaTime 계산 (클래스 내부에서 상태 변경)
+        let deltaTime = timeTracker.getDeltaTime()
         
         // 조이스틱 속도에 따라 위치 업데이트 (매 프레임)
         viewModel.updatePositionFromJoystickVelocity(deltaTime: deltaTime)
