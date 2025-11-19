@@ -74,6 +74,14 @@ struct ToolBarAttachment: View {
                     action: togglePause
                 )
             }
+
+            if !appStateManager.appState.isVolumeOpen {
+                JoystickAttachment(
+                    onValueChanged: { x, z in
+                        viewModel.updateUserPositionFromJoystick(x: x, z: z)
+                    }
+                )
+            }
         }
     }
     
