@@ -22,7 +22,7 @@ enum EntityBoundBoxApplier {
         let height: Float
 
         if isFloor {
-            let floorSize: Float = 1
+            let floorSize: Float = SceneConstants.floorSize
             width = floorSize
             height = floorSize
         } else {
@@ -32,7 +32,7 @@ enum EntityBoundBoxApplier {
             height = planeBounds?.extents.y ?? 0.0
         }
 
-        let offset: Float = isFloor ? 0.1 : 0.08
+        let offset: Float = isFloor ? SceneConstants.floorOutlineOffset : 0.08
         let expandedW = width  + offset * 2.5 * 0.3
         let expandedH = height + offset * 2.5 * 0.3
         

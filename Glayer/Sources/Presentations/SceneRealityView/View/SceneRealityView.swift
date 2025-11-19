@@ -105,8 +105,8 @@ struct SceneRealityView: View {
             floor.addChild(humanScaleEntity)
             
             rootEntity.addChild(floor)
-            floor.transform.translation = [0, Float(Self.defaultVolumeSize.height / 2) * -1, 0]
-            
+            floor.transform.translation = [0, SceneConstants.floorYOffset, 0]
+
             // Volume에서 설정된 회전 각도 적용
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
             rootEntity.transform.rotation = rotation
@@ -114,7 +114,7 @@ struct SceneRealityView: View {
         // Immersive일 때
         } else if appStateManager.appState.isImmersiveOpen {
             rootEntity.transform.translation = config.rootEntityPosition
-            floor.transform.translation = viewModel.getFloorPosition(windowHeight: Float(Self.defaultVolumeSize.height))
+            floor.transform.translation = [0, SceneConstants.floorYOffset, 0]
             rootEntity.scale = config.rootEntityscale
             rootEntity.addChild(floor)
 

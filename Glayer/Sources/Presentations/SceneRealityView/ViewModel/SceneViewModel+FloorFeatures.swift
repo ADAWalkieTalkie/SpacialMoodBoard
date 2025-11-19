@@ -101,9 +101,4 @@ extension SceneViewModel {
             entity.transform.rotation = rotation
         }
     }
-    
-    /// 윈도우 height를 기반으로 floor의 위치를 반환한다.
-    func getFloorPosition(windowHeight: Float) -> SIMD3<Float> {
-        return [0, ((windowHeight / 2) * -1), 0]
-    }
 }
