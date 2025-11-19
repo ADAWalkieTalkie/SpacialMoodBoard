@@ -38,6 +38,7 @@ struct SceneRealityView: View {
                         toolbar.position = toolbarPosition
                         newHeadAnchor.addChild(toolbar)
                     }
+                    content.add(newHeadAnchor)
                 }
                 
             } update: { content, attachments in
@@ -49,7 +50,7 @@ struct SceneRealityView: View {
                 
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
-                    
+                                    
                     // 조이스틱에 따른 rootEntity 위치 업데이트
                     updateRootEntityPosition()
                     
@@ -216,3 +217,4 @@ struct SceneRealityView: View {
         rootEntity.position = basePosition + viewModel.userSpatialState.userScenePosition
     }
 }
+
