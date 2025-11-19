@@ -16,7 +16,6 @@ enum EntityAttachmentSizeDeterminator {
     ) -> SIMD3<Float> {
         // 1. 엔티티의 월드 좌표 위치
         let entityWorldPosition = entity.position(relativeTo: nil)
-        let imagePlane = entity.findEntity(named: "imagePlane") as? ModelEntity
         let entityScale: Float = entity.scale.x
         
         // 2. 거리 기반 스케일 계산
