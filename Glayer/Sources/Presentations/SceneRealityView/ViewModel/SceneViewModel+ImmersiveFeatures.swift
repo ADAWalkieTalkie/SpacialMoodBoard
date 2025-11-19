@@ -16,7 +16,7 @@ extension SceneViewModel {
         
         // headAnchor의 forward 방향 (z축 음수 방향이 앞, headRot에 의해 월드 좌표계로 계산됨)
         let forward = headRot.act(SIMD3<Float>(0, 0, -2))  // 1m 앞
-        let down = SIMD3<Float>(0, -3.3, 0)  // 30cm 아래(좌표계가 0.5아래 이므로 4를 추가로 빼줌 + 사진크기가 약 25cm이므로 1더함)
+        let down = SIMD3<Float>(0, -0.3 + 1 - SceneConstants.floorHalfSize * 8, 0)  // 30cm 아래(좌표계가 0.5아래 이므로 4를 추가로 빼줌 + 사진크기가 약 25cm이므로 1더함)
         
         // 월드 좌표계 위치 계산
         let worldPosition = headPos + forward + down
