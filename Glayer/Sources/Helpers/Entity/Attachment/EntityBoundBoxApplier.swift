@@ -26,10 +26,18 @@ enum EntityBoundBoxApplier {
             width = floorSize
             height = floorSize
         } else {
-            let planeEntity = entity.findEntity(named: "imagePlane") as? ModelEntity
-            let planeBounds = planeEntity?.visualBounds(relativeTo: planeEntity)
-            width = planeBounds?.extents.x ?? 0.0
-            height = planeBounds?.extents.y ?? 0.0
+            // collision shapes에서 width와 height 가져오기
+            if let collision = entity.collision,
+               let firstShape = collision.shapes.first {
+                let bounds = firstShape.bounds
+                width = bounds.max.x - bounds.min.x
+                height = bounds.max.y - bounds.min.y
+            } else {
+                let planeEntity = entity.findEntity(named: "imagePlane") as? ModelEntity
+                let planeBounds = planeEntity?.visualBounds(relativeTo: planeEntity)
+                width = planeBounds?.extents.x ?? 0.0
+                height = planeBounds?.extents.y ?? 0.0
+            }
         }
 
         let offset: Float = isFloor ? 0.1 : 0.08
