@@ -15,8 +15,9 @@ struct SceneRealityView: View {
     
     @State private var headAnchor: AnchorEntity?
     @State private var rootEntity = Entity()
-  // 클래스 인스턴스를 @State로 저장
-    @State private var timeTracker = TimeTracker()
+
+    @State private var updateTimer: Timer?
+    let timeTracker: TimeTracker = TimeTracker()
     
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
     
@@ -88,6 +89,28 @@ struct SceneRealityView: View {
                     },
                     movementBounds: config.movementBounds
                 )
+            }
+            .onChange(of: viewModel.joystickVelocity) { oldValue, newValue in
+                // joystickVelocity 변경 감지
+                let velocityLength = simd_length(newValue)
+                let threshold: Float = 0.001
+                
+                // Task로 감싸서 뷰 업데이트 후에 실행되도록 함
+                Task { @MainActor in
+                    if velocityLength > threshold {
+                        // 속도가 0이 아니면 타이머 시작 (이미 실행 중이면 무시)
+                        if updateTimer == nil {
+                            startUpdateTimer()
+                        }
+                    } else {
+                        // 속도가 0이면 타이머 중지
+                        stopUpdateTimer()
+                    }
+                }
+            }
+            .onDisappear {
+                // 뷰가 사라질 때 타이머 정리
+                stopUpdateTimer()
             }
         }
     }
@@ -196,14 +219,25 @@ struct SceneRealityView: View {
         }
     }
 
-        // MARK: - Update Root Entity Position
+    // MARK: - Update Root Entity Position
     
     /// 조이스틱 속도에 따라 rootEntity 위치 업데이트
     private func updateRootEntityPosition() {
-        // DeltaTime 계산 (클래스 내부에서 상태 변경)
-        let deltaTime = timeTracker.getDeltaTime()
+        let currentTime = Date()
+        var deltaTime: Float = 0.0
         
-        // 조이스틱 속도에 따라 위치 업데이트 (매 프레임)
+        if let lastTime = timeTracker.lastUpdateTime {
+            let timeInterval = currentTime.timeIntervalSince(lastTime)
+            // deltaTime이 비정상적으로 크면 (예: 1초 이상) 무시
+            deltaTime = Float(min(timeInterval, 0.1)) // 최대 0.1초로 제한
+        } else {
+            // 첫 번째 호출 시 deltaTime을 0으로 설정
+            deltaTime = 0.0
+        }
+        
+        timeTracker.lastUpdateTime = currentTime
+        
+        // 조이스틱 속도에 따라 위치 업데이트
         viewModel.updatePositionFromJoystickVelocity(deltaTime: deltaTime)
         
         // Root Entity 위치 업데이트 (userScenePosition 사용)
@@ -215,5 +249,25 @@ struct SceneRealityView: View {
         }
         // userPosition을 오프셋으로 사용
         rootEntity.position = basePosition + viewModel.userSpatialState.userScenePosition
+    }
+
+    // MARK: - Timer Management
+    
+    /// 위치 업데이트 타이머 시작 (60fps)
+    private func startUpdateTimer() {
+        stopUpdateTimer() // 기존 타이머가 있으면 먼저 정리
+        timeTracker.lastUpdateTime = nil // 초기화
+        
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { _ in
+            Task { @MainActor [self] in
+                self.updateRootEntityPosition()
+            }
+        }
+    }
+    
+    /// 위치 업데이트 타이머 중지
+    private func stopUpdateTimer() {
+        updateTimer?.invalidate()
+        updateTimer = nil
     }
 }
