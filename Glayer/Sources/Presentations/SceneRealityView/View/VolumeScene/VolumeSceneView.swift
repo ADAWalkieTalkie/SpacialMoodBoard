@@ -42,18 +42,5 @@ struct VolumeSceneView: View {
             isPresented: $showAssetPlacementGuide,
             category: .assetPlacement
         )
-        .onAppear {
-            hasSeenAssetPlacementGuide = false
-            print("📌 VolumeSceneView.onAppear, hasSeenAssetPlacementGuide = \(hasSeenAssetPlacementGuide)")
-            
-            viewModel.onFirstSelectionInVolume = {
-                print("✅ onFirstEntitySelected 콜백 실행, hasSeenAssetPlacementGuide(before) = \(hasSeenAssetPlacementGuide)")
-                
-//                if hasSeenAssetPlacementGuide { return }
-                
-                hasSeenAssetPlacementGuide = true
-                showAssetPlacementGuide = true
-            }
-        }
     }
 }

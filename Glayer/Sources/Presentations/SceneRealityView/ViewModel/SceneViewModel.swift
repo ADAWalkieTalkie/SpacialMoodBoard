@@ -38,15 +38,6 @@ final class SceneViewModel {
     
     // MARK: - State
     var selectedSceneModel: SceneModel?
-    
-    /// "이번 뷰에서 이미 첫 선택 이벤트를 알렸는지" 플래그
-    var didNotifyFirstSelectionGuide: Bool = false
-
-    /// Volume 모드에서 첫 엔티티 선택 시 호출될 콜백
-    @ObservationIgnored var onFirstSelectionInVolume: (() -> Void)?
-
-    /// Immersive 모드에서 첫 엔티티 선택 시 호출될 콜백
-    @ObservationIgnored var onFirstSelectionInImmersive: (() -> Void)?
 
     // MARK: - Gesture State Management
     // Gesture 진행 중인지 추적하는 플래그
@@ -122,9 +113,6 @@ final class SceneViewModel {
     func reset() {
         entityRepository.clearAllCaches()
         selectedEntity = nil
-        
-        // MARK: - TODO: [발표/데모용] 항상 토스트 띄우고 싶을 때는 위에 주석하고 아래 코드 사용
-        didNotifyFirstSelectionGuide = false
     }
 
     // MARK: - Scene Persistence

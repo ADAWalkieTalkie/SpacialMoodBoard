@@ -3,13 +3,14 @@ import RealityKit
 
 struct ImmersiveSceneView: View {
     @Environment(AppStateManager.self) private var appStateManager
-
+    @Environment(\.openWindow) private var openWindow
+    
     @State private var viewModel: SceneViewModel
-
+    
     init(viewModel: SceneViewModel) {
         _viewModel = State(wrappedValue: viewModel)
     }
-
+    
     var body: some View {
         // SceneRealityView가 모든 것을 처리 (Head-anchored Toolbar 포함)
         SceneRealityView(
