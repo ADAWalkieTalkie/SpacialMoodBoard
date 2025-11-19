@@ -18,6 +18,7 @@ enum CircleFillButtonEnum {
     case plus
     case search
     case sidebar
+    case cancel
     
     // Edit Bar
     case lock
@@ -38,6 +39,8 @@ enum CircleFillButtonEnum {
             return "magnifyingglass"
         case .sidebar:
             return "square.split.2x1"
+        case .cancel:
+            return "xmark"
         case .lock:
             return "lock"
         case .crop:

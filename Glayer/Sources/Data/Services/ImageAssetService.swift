@@ -114,30 +114,31 @@ struct ImageAssetService: ImageAssetServiceProtocol {
     }
     
     // MARK: 번들 내 기본 이미지 에셋 조회
-
+    
     func listBuiltins(subdirectory: String) -> [Asset] {
-        let bundle = Bundle.main
         let fm = FileManager.default
         let exts = ["jpg", "jpeg", "png", "heic"]
+        var assets: [Asset] = []
         
-        guard let rootURL = bundle.resourceURL else { return [] }
+        guard let root = Bundle.main.resourceURL?
+            .appendingPathComponent(subdirectory, isDirectory: true) else {
+            return []
+        }
+        
         guard let enumerator = fm.enumerator(
-            at: rootURL,
+            at: root,
             includingPropertiesForKeys: [.isRegularFileKey],
             options: [.skipsHiddenFiles]
         ) else { return [] }
         
-        var assets: [Asset] = []
-        
         for case let fileURL as URL in enumerator {
-            let components = fileURL.pathComponents
-            guard components.contains(subdirectory) else { continue }
-            
             let ext = fileURL.pathExtension.lowercased()
             guard exts.contains(ext) else { continue }
             
-            if let asset = makeBuiltinImageAsset(from: fileURL,
-                                                 rootDirectoryName: subdirectory) {
+            if let asset = makeBuiltinImageAsset(
+                from: fileURL,
+                rootDirectoryName: subdirectory
+            ) {
                 assets.append(asset)
             }
         }

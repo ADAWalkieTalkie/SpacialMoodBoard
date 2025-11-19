@@ -83,3 +83,18 @@
 "toast.loadingAssets.title"    = "에셋 불러오는 중";
 
 "toast.addToVolume.title" = "공간에 추가되었습니다.";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "배경 제거하기";
+"guiding.imageEdit.removeBackground.description" = "배경을 제거하고 가져올 부분을 잡고 드래그합니다.";
+"guiding.imageEdit.keepAsIs.title" = "그대로 가져오기";
+"guiding.imageEdit.keepAsIs.description" = "배경을 잡고 드래그하거나 이미지 아래의 버튼을 클릭합니다.";
+"guiding.imageEdit.finish.title" = "이미지 편집 완료하기";
+"guiding.imageEdit.finish.description" = "이미지 편집을 완료하고 에셋 준비를 마칩니다.";
+
+"guiding.assetPlacement.place.title" = "배치하기";
+"guiding.assetPlacement.place.description" = "에셋을 잡고 원하는 위치에 배치합니다.";
+"guiding.assetPlacement.rotate.title" = "회전하기";
+"guiding.assetPlacement.rotate.description" = "에셋을 원하는 각도로 조정합니다.";
+"guiding.assetPlacement.scale.title" = "확대 및 축소하기";
+"guiding.assetPlacement.scale.description" = "에셋을 원하는 스케일로 조정합니다.";

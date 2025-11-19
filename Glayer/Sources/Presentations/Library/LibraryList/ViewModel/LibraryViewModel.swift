@@ -17,6 +17,10 @@ final class LibraryViewModel {
     private let appStateManager: AppStateManager
     @ObservationIgnored
     private let assetRepository: AssetRepositoryInterface
+    @ObservationIgnored
+    var assetRepoForEditor: AssetRepositoryInterface {
+        assetRepository
+    }
     private let renameAssetUseCase: RenameAssetUseCase
     private let deleteAssetUseCase: DeleteAssetUseCase
     @ObservationIgnored
@@ -35,6 +39,7 @@ final class LibraryViewModel {
             }
         }
     }
+    private var hasLoadedOnce = false
     var sortOrder: SortOrder.Sort = .recent
     var originImageFilter: SortOrder.Origin = .basicOnly
     var originSoundFilter: SortOrder.Origin = .basicOnly
@@ -95,7 +100,22 @@ final class LibraryViewModel {
     
     // MARK: - Methods
     
-    func loadAssets() async {
+    ///  초기 진입 때 한 번만 디스크에서 읽어오는 용도
+    func loadAssetsIfNeeded() async {
+        if hasLoadedOnce == false {
+            do {
+                try await assetRepository.reload()
+                hasLoadedOnce = true
+                showLoadErrorToast = false
+            } catch {
+                showLoadErrorToast = true
+            }
+        }
+        syncFromRepo()
+    }
+
+    /// 강제 새로고침용
+    func forceReloadAssets() async {
         do {
             try await assetRepository.reload()
             syncFromRepo()
@@ -105,6 +125,7 @@ final class LibraryViewModel {
         }
     }
     
+    /// 이미 repo가 업데이트된 상태에서 그냥 동기화만 하는 용도
     private func syncFromRepo() {
         let all = assetRepository.assets
         self.assets = all.sorted { $0.createdAt > $1.createdAt }
@@ -186,6 +207,18 @@ extension LibraryViewModel {
     func toggleChannel(_ ch: SoundChannel) {
         expandedSoundChannels[ch]?.toggle() ?? { expandedSoundChannels[ch] = true }()
     }
+    
+    /// 유저가 추가한 이미지 에셋들만 보이도록 필터/탭 변경
+    func switchToUserImages() {
+        originImageFilter = .userOnly
+        assetType = .image
+    }
+    
+    /// 유저가 추가한 사운드 에셋들만 보이도록 필터/탭 변경
+    func switchToUserSounds() {
+        originSoundFilter = .userOnly
+        assetType = .sound
+    }
 }
 
 // MARK: - DropDockOverlayView 관련
@@ -248,6 +281,7 @@ extension LibraryViewModel {
                 await presentEditor(with: images, preferredNames: padded)
             case .soundsSaved:
                 syncFromRepo()
+                switchToUserSounds()
             }
         } catch {
             print("Import failed:", error)

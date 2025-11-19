@@ -64,7 +64,6 @@ extension SceneViewModel {
         if rotationDistance > threshold {
             state.headAnchorState.rotation = rotation
         }
-        print("headAnchor position: \(position)")
         
         userSpatialState = state
     }

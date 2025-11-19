@@ -24,7 +24,7 @@ enum EntityBoundBoxApplier {
         let expandedH: Float
 
         if isFloor {
-            let floorSize: Float = 1
+            let floorSize: Float = SceneConstants.floorSize
             width = floorSize
             height = floorSize
 
