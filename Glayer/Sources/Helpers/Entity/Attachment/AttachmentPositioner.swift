@@ -27,7 +27,7 @@ enum AttachmentPositioner {
             margin = min(objectBounds.extents.x, objectBounds.extents.y) * 1/4
         }
 
-        let attachmentHalfHeight = (attachmentBounds.extents.y / 2) * parentScale.y
+        let attachmentHalfHeight = (attachmentBounds.extents.y / 2) / parentScale.y
         
         let yOffset: Float = baseLine + margin + attachmentHalfHeight //objectBounds.max.y + margin + attachmentMargin
         attachment.position = SIMD3<Float>(0, yOffset, 0.01)
