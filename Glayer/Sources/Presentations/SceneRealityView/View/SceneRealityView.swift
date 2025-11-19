@@ -271,3 +271,4 @@ struct SceneRealityView: View {
         updateTimer = nil
     }
 }
+

@@ -36,5 +36,6 @@ struct CircleFillButton: View {
         }
         .circleButtonStyle(type.buttonStyle)
         .clipShape(Circle())
+        .frame(width: type.size, height: type.size)
     }
 }

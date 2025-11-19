@@ -13,6 +13,7 @@ struct RenamePopover: View {
     // MARK: - Properties
 
     private let id: String
+    private let title: Binding<String>?
     private let onRename: (() -> Void)?
     private let onDelete: ((_ id: String) -> Void)?
     private let onDuplicate: ((_ id: String, _ newTitle: String) -> Void)?
@@ -20,7 +21,6 @@ struct RenamePopover: View {
     private let isCurrentFloorImage: Bool
     private let onCancel: () -> Void
 
-    @Binding private var title: String
     @FocusState private var isFocused: Bool
     
     // MARK: - Init
@@ -37,8 +37,8 @@ struct RenamePopover: View {
     ///   - onCancel: 팝오버를 닫을 때 호출되는 콜백
     init(
         id: String,
-        title: Binding<String>,
-        onRename: @escaping () -> Void,
+        title: Binding<String>? = nil,
+        onRename: (() -> Void)? = nil,
         onDelete: ((_ id: String) -> Void)? = nil,
         onDuplicate: ((_ id: String, _ newTitle: String) -> Void)? = nil,
         onAddToFloor: ((_ id: String) -> Void)? = nil,
@@ -46,7 +46,7 @@ struct RenamePopover: View {
         onCancel: @escaping () -> Void
     ) {
         self.id = id
-        self._title = title
+        self.title = title
         self.onRename = onRename
         self.onDelete = onDelete
         self.onDuplicate = onDuplicate
@@ -85,7 +85,8 @@ struct RenamePopover: View {
 
             if let onDuplicate {
                 Button {
-                    onDuplicate(id, title)
+                    let currentTitle = title?.wrappedValue ?? ""
+                    onDuplicate(id, currentTitle)
                     onCancel()
                 } label: {
                     rowLabel(String(localized: "action.duplicate"), system: "plus.square.on.square")

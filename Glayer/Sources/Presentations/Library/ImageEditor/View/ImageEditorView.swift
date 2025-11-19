@@ -13,6 +13,8 @@ struct ImageEditorView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ImageEditorViewModel
+    @State private var showImageEditGuide: Bool = false
+    @AppStorage("hasSeenImageEditGuide") private var hasSeenImageEditGuide: Bool = false
     
     // MARK: - Init
     
@@ -23,18 +25,14 @@ struct ImageEditorView: View {
     init(
         images: [UIImage],
         preferredNames: [String?],
-        projectName: String,
+        assetRepository: AssetRepositoryInterface,
         onAddToLibrary: @escaping ([URL]) -> Void
     ) {
         _viewModel = State(
             initialValue: ImageEditorViewModel(
                 images: images,
                 preferredNames: preferredNames,
-                assetRepository: AssetRepository(
-                    project: projectName,
-                    imageService: ImageAssetService(),
-                    soundService: SoundAssetService()
-                ),
+                assetRepository: assetRepository,
                 onAddToLibrary: onAddToLibrary
             )
         )
@@ -54,7 +52,7 @@ struct ImageEditorView: View {
             .padding(.bottom, 39)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .glassBackgroundEffect()
+        .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: 46, style: .continuous))
         .toast(
             isPresented: $viewModel.showSavedAlert,
             message: .addToLibrary
@@ -63,6 +61,19 @@ struct ImageEditorView: View {
             isPresented: $viewModel.showSaveFailedAlert,
             message: .addToLibraryFail
         )
+        .guidingToast(
+            isPresented: $showImageEditGuide,
+            category: .imageEdit
+        )
+        .onAppear {
+            if hasSeenImageEditGuide == false {
+                showImageEditGuide = true
+                hasSeenImageEditGuide = true
+            }
+            
+            // TODO: - [발표/데모용] 항상 토스트 띄우고 싶을 때는 위에 주석하고 아래 코드 사용
+//             showImageEditGuide = true
+        }
     }
 }
 
