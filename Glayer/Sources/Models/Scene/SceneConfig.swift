@@ -3,7 +3,7 @@ import Foundation
 // MARK: - SceneConfig (SceneRealityView의 설정 옵션)
 struct SceneConfig {
     var enableGestures: Bool = true
-    var rootEntityscale: SIMD3<Float> = [0.1, 0.1, 0.1]
+    var rootEntityscale: SIMD3<Float> = SceneConstants.rootEntitySize
     var useHeadAnchoredToolbar: Bool = false
     var rootEntityPosition: SIMD3<Float> = [0, 0, 0]
     var movementBounds: MovementBounds = .default

@@ -13,7 +13,7 @@ struct SceneConstants {
 
     /// 바닥의 기본 크기 (미터 단위)
     /// 이 값을 변경하면 모든 관련 값이 자동으로 계산됩니다.
-    static let floorSize: Float = 2.0
+    nonisolated static let floorSize: Float = 2.0
 
     // MARK: - 계산된 값들 (자동으로 동기화)
 
@@ -42,13 +42,17 @@ struct SceneConstants {
     static var floorOutlineOffset: Float {
         floorSize / 10.0
     }
+    
+    static var rootEntitySize: SIMD3<Float> {
+        [1 / floorSize, 1 / floorSize, 1 / floorSize]
+    }
 
     // MARK: - Volume 모드 설정
 
     struct VolumeMode {
         /// Volume 윈도우에서 표시할 때의 기본 스케일
         /// (floorSize가 2.0일 때 0.5 = 1.0이 되도록 조정)
-        static var baseScale: Float {
+        nonisolated static var baseScale: Float {
             1.0 / SceneConstants.floorSize
         }
     }
