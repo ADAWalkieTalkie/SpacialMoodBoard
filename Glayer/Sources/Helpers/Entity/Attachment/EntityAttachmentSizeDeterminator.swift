@@ -16,6 +16,7 @@ enum EntityAttachmentSizeDeterminator {
     ) -> SIMD3<Float> {
         // 1. 엔티티의 월드 좌표 위치
         let entityWorldPosition = entity.position(relativeTo: nil)
+        let entityScale: Float = entity.scale.x
         
         // 2. 거리 기반 스케일 계산
         let distanceScale = calculateScale(
@@ -25,11 +26,12 @@ enum EntityAttachmentSizeDeterminator {
         
         // 3. Volume 모드
         if isVolumeMode {
-            return SIMD3<Float>(repeating: 1.0)
+            let s = 1 / entityScale
+            return SIMD3<Float>(repeating: s)
         } else {
             let immersiveBase: Float = 0.8
             
-            let s = immersiveBase * distanceScale * scaleFactor
+            let s = immersiveBase * distanceScale * scaleFactor / entityScale
             return SIMD3<Float>(repeating: s)
         }
     }

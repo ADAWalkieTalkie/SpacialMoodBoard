@@ -68,6 +68,12 @@ extension SceneViewModel {
         userSpatialState = state
     }
 
+    func resetRootEntityPosition() {
+        var state = userSpatialState
+        state.userScenePosition = [0, 0, 0]
+        userSpatialState = state
+    }
+
     /// View Mode 토글
     func toggleViewMode() {
         // userSpatialState의 viewMode 토글

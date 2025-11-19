@@ -105,6 +105,7 @@ struct ToolBarAttachment: View {
         Task { @MainActor in
             if isImmersiveOpen {
                 appStateManager.closeImmersive()
+                viewModel.resetRootEntityPosition()
             } else {
                 appStateManager.openImmersive()
             }
