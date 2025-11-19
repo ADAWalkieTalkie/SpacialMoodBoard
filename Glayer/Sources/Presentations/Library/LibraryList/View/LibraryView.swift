@@ -151,6 +151,7 @@ struct LibraryView: View {
                 
                 if !urls.isEmpty {
                     didAddAssetsInCurrentEditorSession = true
+                    viewModel.switchToUserImages()
                 }
             }
         }

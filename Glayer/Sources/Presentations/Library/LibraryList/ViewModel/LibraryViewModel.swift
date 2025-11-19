@@ -186,6 +186,18 @@ extension LibraryViewModel {
     func toggleChannel(_ ch: SoundChannel) {
         expandedSoundChannels[ch]?.toggle() ?? { expandedSoundChannels[ch] = true }()
     }
+    
+    /// 유저가 추가한 이미지 에셋들만 보이도록 필터/탭 변경
+    func switchToUserImages() {
+        originImageFilter = .userOnly
+        assetType = .image
+    }
+    
+    /// 유저가 추가한 사운드 에셋들만 보이도록 필터/탭 변경
+    func switchToUserSounds() {
+        originSoundFilter = .userOnly
+        assetType = .sound
+    }
 }
 
 // MARK: - DropDockOverlayView 관련
@@ -248,6 +260,7 @@ extension LibraryViewModel {
                 await presentEditor(with: images, preferredNames: padded)
             case .soundsSaved:
                 syncFromRepo()
+                switchToUserSounds()
             }
         } catch {
             print("Import failed:", error)
