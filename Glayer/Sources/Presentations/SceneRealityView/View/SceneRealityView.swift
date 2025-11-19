@@ -12,6 +12,7 @@ struct SceneRealityView: View {
     let config: SceneConfig
     
     let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.2, -0.5)
+    let guidePosition: SIMD3<Float>   = SIMD3<Float>(0, -0.05, -0.5)
     
     @State private var headAnchor: AnchorEntity?
     @State private var rootEntity = Entity()
@@ -19,6 +20,8 @@ struct SceneRealityView: View {
     @State private var timeTracker = TimeTracker()
     
     private static let defaultVolumeSize = Size3D(width: 1.0, height: 1.0, depth: 1.0)
+    
+    @State private var showImmersiveGuide: Bool = false
     
     var body: some View {
         GeometryReader3D { proxy in
@@ -38,6 +41,11 @@ struct SceneRealityView: View {
                         toolbar.position = toolbarPosition
                         newHeadAnchor.addChild(toolbar)
                     }
+                    if appStateManager.appState.isImmersiveOpen,
+                       let guideEntity = attachments.entity(for: "guidingToastView") {
+                        guideEntity.position = guidePosition
+                        newHeadAnchor.addChild(guideEntity)
+                    }
                     content.add(newHeadAnchor)
                 }
                 
@@ -50,7 +58,7 @@ struct SceneRealityView: View {
                 
                 // MainActor에서 실행
                 MainActor.assumeIsolated {
-                                    
+                    
                     // 조이스틱에 따른 rootEntity 위치 업데이트
                     updateRootEntityPosition()
                     
@@ -65,6 +73,14 @@ struct SceneRealityView: View {
                 Attachment(id: "headToolbar"){
                     ToolBarAttachment(viewModel: viewModel)
                         .environment(appStateManager)
+                }
+                
+                Attachment(id: "guidingToastView"){
+                    GuidingToastView(
+                        category: .assetPlacement,
+                        isPresented: $showImmersiveGuide
+                    )
+                    .environment(appStateManager)
                 }
             }
             .if(config.enableGestures) { view in
@@ -88,6 +104,11 @@ struct SceneRealityView: View {
                     },
                     movementBounds: config.movementBounds
                 )
+            }
+            .onAppear {
+                viewModel.onFirstSelectionInImmersive = {
+                    showImmersiveGuide = true
+                }
             }
         }
     }

@@ -39,7 +39,19 @@ extension SceneViewModel {
             if let entity = newValue {
                 addAttachmentAndStartTimer(for: entity, headPosition: headPosition)
             }
-            UserDefaults.standard.set(true, forKey: AppPreferenceKey.hasSeenAssetPlacementGuide)
+            
+            if didNotifyFirstSelectionGuide == false {
+                didNotifyFirstSelectionGuide = true
+                let isVolume = appStateManager.appState.isVolumeOpen
+                
+                DispatchQueue.main.async {
+                    if isVolume {
+                        self.onFirstSelectionInVolume?()
+                    } else {
+                        self.onFirstSelectionInImmersive?()
+                    }
+                }
+            }
             return
         }
         

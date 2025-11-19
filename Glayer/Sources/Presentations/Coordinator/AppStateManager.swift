@@ -101,9 +101,6 @@ class AppStateManager {
     func closeProject() {
         selectedScene = nil
         appState = .projectList
-        
-        // MARK: - TODO: [발표/데모용] 항상 토스트 띄우고 싶을 때는 아래 코드 사용
-        UserDefaults.standard.set(false, forKey: AppPreferenceKey.hasSeenAssetPlacementGuide)
     }
 
     // MARK: - View Mode Transition

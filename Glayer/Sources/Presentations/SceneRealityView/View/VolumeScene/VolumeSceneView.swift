@@ -7,7 +7,9 @@ struct VolumeSceneView: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     
+    
     @State private var showAssetPlacementGuide: Bool = false
+    
     @AppStorage(AppPreferenceKey.hasSeenAssetPlacementGuide) private var hasSeenAssetPlacementGuide: Bool = false
     
     init(viewModel: SceneViewModel) {
@@ -40,11 +42,18 @@ struct VolumeSceneView: View {
             isPresented: $showAssetPlacementGuide,
             category: .assetPlacement
         )
-        .onChange(of: hasSeenAssetPlacementGuide) { oldValue, newValue in
-            if oldValue == false && newValue == true {
+        .onAppear {
+            hasSeenAssetPlacementGuide = false
+            print("📌 VolumeSceneView.onAppear, hasSeenAssetPlacementGuide = \(hasSeenAssetPlacementGuide)")
+            
+            viewModel.onFirstSelectionInVolume = {
+                print("✅ onFirstEntitySelected 콜백 실행, hasSeenAssetPlacementGuide(before) = \(hasSeenAssetPlacementGuide)")
+                
+//                if hasSeenAssetPlacementGuide { return }
+                
+                hasSeenAssetPlacementGuide = true
                 showAssetPlacementGuide = true
             }
         }
-        
     }
 }
