@@ -31,6 +31,9 @@ protocol ImageAssetServiceProtocol {
     func copy(project: String, from srcName: String, to dstName: String) throws
     func uniqueFilename(project: String, base: String, ext: String) -> String
     
+    // 기본 이미지 조회
+    func listBuiltins(subdirectory: String) -> [Asset]
+    
     // 해시
     func sha256Hex(url: URL) throws -> String
     

@@ -32,7 +32,7 @@ extension SceneViewModel {
             return
         }
         
-        let headPosition = userSpatialState.userPosition
+        let headPosition = userSpatialState.sceneHeadAnchor.position
         
         // 케이스 4: nil → entity (새로운 선택)
         if oldName == nil && newName != nil {
@@ -61,7 +61,7 @@ extension SceneViewModel {
     func updateAttachmentScales() {
         guard let entity = selectedEntity else { return }
         
-        let headPosition = userSpatialState.userPosition
+        let headPosition = userSpatialState.sceneHeadAnchor.position
         let isVolumeMode = appStateManager.appState.isVolumeOpen
         
         // objectAttachment 스케일 업데이트

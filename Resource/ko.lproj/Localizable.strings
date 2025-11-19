@@ -9,6 +9,15 @@
 "sort.basicAssets" = "기본 에셋";
 "sort.userAdded" = "직접 추가";
 
+// MARK: - Image Channel
+"image.background" = "배경";
+"image.floor" = "바닥";
+"image.furniture" = "가구";
+"image.light" = "조명";
+"image.electronic" = "전자기기";
+"image.animal" = "동물";
+"image.plant" = "식물";
+
 // MARK: - Sound Channel
 "sound.effect" = "효과음";
 "sound.ambient" = "앰비언트";

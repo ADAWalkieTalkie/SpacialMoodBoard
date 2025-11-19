@@ -36,8 +36,17 @@ final class LibraryViewModel {
         }
     }
     var sortOrder: SortOrder.Sort = .recent
-    var originFilter: SortOrder.Origin = .userOnly
-    var expandedChannels: [SoundChannel: Bool] = [.foley: true, .ambient: true]
+    var originImageFilter: SortOrder.Origin = .basicOnly
+    var originSoundFilter: SortOrder.Origin = .basicOnly
+    var expandedImageChannels: [ImageChannel: Bool] = [
+        .background: true,
+        .floor: true,
+        .furniture: true,
+        .electronic: true,
+        .animal: true,
+        .plant: true
+    ]
+    var expandedSoundChannels: [SoundChannel: Bool] = [.foley: true, .ambient: true]
     var showSearch: Bool = false {
         didSet {
             if showSearch == false, !searchText.isEmpty {
@@ -117,8 +126,17 @@ extension LibraryViewModel {
             .filter { $0.type == type }
             .filter { trimmed.isEmpty ? true : $0.filename.localizedCaseInsensitiveContains(trimmed) }
         
+        if type == .image {
+            switch originImageFilter {
+            case .basicOnly:
+                items = items.filter { $0.image?.origin == .basic }
+            case .userOnly:
+                items = items.filter { $0.image?.origin == .user }
+            }
+        }
+        
         if type == .sound {
-            switch originFilter {
+            switch originSoundFilter {
             case .basicOnly:
                 items = items.filter { $0.sound?.origin == .basic }
             case .userOnly:
@@ -139,19 +157,34 @@ extension LibraryViewModel {
         return items
     }
     
+    /// 이미지 섹션이 현재 펼쳐져 있는지 여부를 반환
+    /// - Parameter ch: 확인할 이미지 채널
+    /// - Returns: 펼쳐져 있으면 `true`, 접혀 있으면 `false`
+    /// - Note: 아직 상태가 저장되지 않은 채널은 기본값으로 `true(펼침)`을 반환
+    func isExpanded(_ ch: ImageChannel) -> Bool {
+        expandedImageChannels[ch] ?? true
+    }
+    
+    /// 이미지 섹션 접힘/펼침 상태를 토글
+    /// - Parameter ch: 토글할 이미지 채널
+    /// - Note: 아직 상태가 없는 채널이면 기본값 `true(펼침)`을 넣어 초기화
+    func toggleChannel(_ ch: ImageChannel) {
+        expandedImageChannels[ch]?.toggle() ?? { expandedImageChannels[ch] = true }()
+    }
+    
     /// 사운드 섹션이 현재 펼쳐져 있는지 여부를 반환
     /// - Parameter ch: 확인할 사운드 채널
     /// - Returns: 펼쳐져 있으면 `true`, 접혀 있으면 `false`
     /// - Note: 아직 상태가 저장되지 않은 채널은 기본값으로 `true(펼침)`을 반환
     func isExpanded(_ ch: SoundChannel) -> Bool {
-        expandedChannels[ch] ?? true
+        expandedSoundChannels[ch] ?? true
     }
     
     /// 사운드 섹션 접힘/펼침 상태를 토글
     /// - Parameter ch: 토글할 사운드 채널
     /// - Note: 아직 상태가 없는 채널이면 기본값 `true(펼침)`을 넣어 초기화
     func toggleChannel(_ ch: SoundChannel) {
-        expandedChannels[ch]?.toggle() ?? { expandedChannels[ch] = true }()
+        expandedSoundChannels[ch]?.toggle() ?? { expandedSoundChannels[ch] = true }()
     }
 }
 

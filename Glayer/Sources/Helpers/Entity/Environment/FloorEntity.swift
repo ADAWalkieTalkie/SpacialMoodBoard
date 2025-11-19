@@ -110,9 +110,7 @@ class FloorEntity {
     
     static func applyOutline(floor: ModelEntity) {
         EntityBoundBoxApplier.addBoundAuto(
-            to: floor,
-            width: Self.defaultFloorSize.x,
-            height: Self.defaultFloorSize.y
+            to: floor
         )
     }
 }

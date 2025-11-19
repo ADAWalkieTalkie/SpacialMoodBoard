@@ -11,11 +11,11 @@ extension SceneViewModel {
     /// Immersive 모드에서 headAnchor 기준으로 객체 생성 위치 계산
     /// - Returns: headAnchor 기준 1m 앞, 30cm 아래 위치
     private func immersiveRespawnPosition() -> SIMD3<Float> {
-        let headPos = userSpatialState.headAnchorState.position
-        let headRot = simd_quatf(vector: userSpatialState.headAnchorState.rotation)
+        let headPos = userSpatialState.sceneHeadAnchor.position
+        let headRot = simd_quatf(vector: userSpatialState.sceneHeadAnchor.rotation)
         
-        // headAnchor의 forward 방향 (z축 음수 방향이 앞)
-        let forward = headRot.act(SIMD3<Float>(0, 0, -1.0))  // 1m 앞
+        // headAnchor의 forward 방향 (z축 음수 방향이 앞, headRot에 의해 월드 좌표계로 계산됨)
+        let forward = headRot.act(SIMD3<Float>(0, 0, -2))  // 1m 앞
         let down = SIMD3<Float>(0, -3.3, 0)  // 30cm 아래(좌표계가 0.5아래 이므로 4를 추가로 빼줌 + 사진크기가 약 25cm이므로 1더함)
         
         // 월드 좌표계 위치 계산
@@ -150,7 +150,7 @@ extension SceneViewModel {
     /// Immersive 배경을 현재 시간대에 맞게 로드
     /// - Parameter floor: 배경을 추가할 floor Entity
     func loadImmersiveBackground(on floor: Entity) async {
-        let immersiveTime = spacialEnvironment.immersiveTime ?? .day
+        let immersiveTime = spacialEnvironment.immersiveTime
         let backgroundName = immersiveTime == .day ? "Immersive" : "ImmersiveNight"
 
         if let immersiveBackground = try? await Entity(named: backgroundName, in: RealityKitContent.realityKitContentBundle) {

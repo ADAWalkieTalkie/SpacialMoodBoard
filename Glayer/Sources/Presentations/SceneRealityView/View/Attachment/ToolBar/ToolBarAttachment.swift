@@ -19,114 +19,76 @@ struct ToolBarAttachment: View {
     }
     
     // 낮밤 모드
-    private var isDayMode: Bool {
-        appStateManager.selectedScene?.spacialEnvironment.immersiveTime == .day ? false : true
+    private var isNightMode: Bool {
+        appStateManager.selectedScene?.spacialEnvironment.immersiveTime == .night
     }
     
-
     private var isPaused: Bool {
         appStateManager.selectedScene?.userSpatialState.paused ?? false
     }
     
-    
     var body: some View {
-        if appStateManager.appState.isVolumeOpen {
-            HStack(spacing: 24) {
-                HStack(spacing: 16) {
-                    
-                    // volume 회전 버튼
+        HStack(spacing: 24) {
+            if appStateManager.appState.isVolumeOpen {
+                toolBarSection {
                     ToolBarToggleButton(
                         type: .volumeControl,
                         isSelected: isImmersiveOpen,
                         action: viewModel.rotateBy90Degrees
                     )
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
-                .glassBackgroundEffect()
-                
-                HStack(spacing: 16) {
-                    
-                    // Immersive Space 토글 버튼
-                    ToolBarToggleButton(
-                        type: .fullImmersive,
-                        isSelected: isImmersiveOpen,
-                        action: toggleImmersive
-                    )
-                    
-                    // 뷰 모드 버튼 (viewMode 토글)
-                    ToolBarToggleButton(
-                        type: .viewMode,
-                        isSelected: isViewModeEnabled,
-                        action: toggleViewMode
-                    )
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
-                .glassBackgroundEffect()
-                
-                HStack(spacing: 16) {
-                    
-                    // 뮤트 토글 버튼
-                    ToolBarToggleButton(
-                        type: .mute(isOn: isPaused),
-                        isSelected: isPaused,
-                        action: togglePause
-                    )
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
-                .glassBackgroundEffect()
             }
             
-        } else {
-            HStack(spacing: 24) {
-                HStack(spacing: 16) {
-                    // Immersive Space 토글 버튼
-                    ToolBarToggleButton(
-                        type: .fullImmersive,
-                        isSelected: isImmersiveOpen,
-                        action: toggleImmersive
-                    )
-                    
-                    // 뷰 모드 버튼 (viewMode 토글)
-                    ToolBarToggleButton(
-                        type: .viewMode,
-                        isSelected: isViewModeEnabled,
-                        action: toggleViewMode
-                    )
-                    
-                    // 라이브러리 최소화 토글 버튼
+            toolBarSection {
+                ToolBarToggleButton(
+                    type: .fullImmersive,
+                    isSelected: isImmersiveOpen,
+                    action: toggleImmersive
+                )
+                
+                ToolBarToggleButton(
+                    type: .viewMode,
+                    isSelected: isViewModeEnabled,
+                    action: toggleViewMode
+                )
+                
+                if !appStateManager.appState.isVolumeOpen {
                     ToolBarToggleButton(
                         type: .minimize(isOn: false),
                         isSelected: isLibraryMinimized,
                         action: toggleMinimize
                     )
                     
-                    // 낮/밤 전환 토글 버튼
                     ToolBarToggleButton(
                         type: .immersiveTime(appStateManager.selectedScene?.spacialEnvironment.immersiveTime ?? .day),
-                        isSelected: isDayMode,
+                        isSelected: isNightMode,
                         action: toggleImmersiveTime
                     )
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
-                .glassBackgroundEffect()
-                
-                HStack(spacing: 16) {
-                    // 뮤트 토글 버튼
-                    ToolBarToggleButton(
-                        type: .mute(isOn: isPaused),
-                        isSelected: isPaused,
-                        action: togglePause
-                    )
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
-                .glassBackgroundEffect()
+            }
+            
+            toolBarSection {
+                ToolBarToggleButton(
+                    type: .mute(isOn: isPaused),
+                    isSelected: isPaused,
+                    action: togglePause
+                )
             }
         }
+    }
+    
+    // MARK: - 공통 섹션 래퍼
+
+    @ViewBuilder
+    private func toolBarSection<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        HStack(spacing: 16) {
+            content()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+        .glassBackgroundEffect()
     }
     
     // MARK: - Actions
@@ -163,6 +125,4 @@ struct ToolBarAttachment: View {
     private func togglePause() {
         viewModel.togglePause()
     }
-    
-    
 }
