@@ -66,7 +66,7 @@ struct LibraryView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.bottom, 20)
-            .glassBackgroundEffect()
+            .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: 46, style: .continuous))
             .allowsHitTesting(!viewModel.showDropDock)
             
             if viewModel.assetType == .image, viewModel.showDropDock {
@@ -129,7 +129,7 @@ struct LibraryView: View {
                 didAddAssetsInCurrentEditorSession = false
             }
         }
-        // TODO: - TODO: [발표/데모용] 프로젝트 바뀔때마다 항상 토스트 띄우고 싶을 때는 아래 코드 사용
+        // TODO: - : [발표/데모용] 프로젝트 바뀔때마다 항상 토스트 띄우고 싶을 때는 아래 코드 사용
 //        .onChange(of: appStateManager.appState.selectedProject?.title) { oldValue, newValue in
 //            if oldValue != newValue {
 //                hasSeenLibraryAssetPlacementGuide = false

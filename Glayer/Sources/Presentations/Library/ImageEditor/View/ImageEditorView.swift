@@ -56,7 +56,7 @@ struct ImageEditorView: View {
             .padding(.bottom, 39)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .glassBackgroundEffect()
+        .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: 46, style: .continuous))
         .toast(
             isPresented: $viewModel.showSavedAlert,
             message: .addToLibrary
@@ -75,7 +75,7 @@ struct ImageEditorView: View {
                 hasSeenImageEditGuide = true
             }
             
-            // MARK: - TODO: [발표/데모용] 항상 토스트 띄우고 싶을 때는 위에 주석하고 아래 코드 사용
+            // TODO: - [발표/데모용] 항상 토스트 띄우고 싶을 때는 위에 주석하고 아래 코드 사용
 //             showImageEditGuide = true
         }
     }

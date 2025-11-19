@@ -7,11 +7,6 @@ struct VolumeSceneView: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     
-    
-    @State private var showAssetPlacementGuide: Bool = false
-    
-    @AppStorage(AppPreferenceKey.hasSeenAssetPlacementGuide) private var hasSeenAssetPlacementGuide: Bool = false
-    
     init(viewModel: SceneViewModel) {
         _viewModel = State(wrappedValue: viewModel)
     }
@@ -38,9 +33,5 @@ struct VolumeSceneView: View {
                     .zIndex(99999999)
             }
         }
-        .guidingToast(
-            isPresented: $showAssetPlacementGuide,
-            category: .assetPlacement
-        )
     }
 }

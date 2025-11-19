@@ -21,7 +21,7 @@ struct ProjectListView: View {
             projectGridView
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .glassBackgroundEffect()
+        .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: 46, style: .continuous))
         .environment(viewModel)
         .onTapGesture {
             hideKeyboard()

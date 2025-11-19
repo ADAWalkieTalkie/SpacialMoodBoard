@@ -15,9 +15,11 @@ private struct GuidingToastPresenter: ViewModifier {
         ZStack {
             content
             
-            Color.black.opacity(0.7)
-            
             if isPresented {
+                RoundedRectangle(cornerRadius: 46)
+                    .fill(.black.opacity(0.7))
+                
+                
                 GuidingToastView(
                     category: category,
                     isPresented: $isPresented
@@ -31,7 +33,6 @@ private struct GuidingToastPresenter: ViewModifier {
                 .zIndex(9999)
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 45))
         .animation(.easeInOut(duration: 0.2), value: isPresented)
     }
 }
