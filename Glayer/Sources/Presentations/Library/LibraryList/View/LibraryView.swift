@@ -103,7 +103,7 @@ struct LibraryView: View {
                 print("파일 가져오기 실패:", err.localizedDescription)
             }
         }
-        .task { await viewModel.loadAssets() }
+        .task { await viewModel.loadAssetsIfNeeded() }
         .onChange(of: viewModel.showLoadErrorToast) { _, now in
             showLoadErrorToast = now
         }
@@ -143,12 +143,8 @@ struct LibraryView: View {
             ImageEditorView(
                 images: viewModel.editorImages,
                 preferredNames: viewModel.editorPreferredNames,
-                projectName: viewModel.projectName
+                assetRepository: viewModel.assetRepoForEditor
             ) { urls in
-                Task {
-                    await viewModel.loadAssets()
-                }
-                
                 if !urls.isEmpty {
                     didAddAssetsInCurrentEditorSession = true
                     viewModel.switchToUserImages()

@@ -25,18 +25,14 @@ struct ImageEditorView: View {
     init(
         images: [UIImage],
         preferredNames: [String?],
-        projectName: String,
+        assetRepository: AssetRepositoryInterface,
         onAddToLibrary: @escaping ([URL]) -> Void
     ) {
         _viewModel = State(
             initialValue: ImageEditorViewModel(
                 images: images,
                 preferredNames: preferredNames,
-                assetRepository: AssetRepository(
-                    project: projectName,
-                    imageService: ImageAssetService(),
-                    soundService: SoundAssetService()
-                ),
+                assetRepository: assetRepository,
                 onAddToLibrary: onAddToLibrary
             )
         )
