@@ -138,12 +138,8 @@ extension SceneViewModel {
         )
         objectAttachment.components.set(attachment)
         objectAttachment.components.set(BillboardComponent())
-        
-        // Entity의 크기 계산 (visualBounds 사용)
-        let bounds = entity.visualBounds(relativeTo: entity)
-        let width  = bounds.extents.x
-        let height = bounds.extents.y
-        EntityBoundBoxApplier.addBoundAuto(to: entity, width: width, height: height)
+
+        EntityBoundBoxApplier.addBoundAuto(to: entity)
 
         /// attachment 스케일 보정
         let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(

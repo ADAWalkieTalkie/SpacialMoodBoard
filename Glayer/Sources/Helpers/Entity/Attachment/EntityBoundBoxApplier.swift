@@ -2,15 +2,14 @@ import RealityKit
 import UIKit
 
 enum EntityBoundBoxApplier {
-    static func addBoundAuto(to entity: ModelEntity, width: Float, height: Float) {
+    static func addBoundAuto(to entity: ModelEntity) {
         switch EntityClassifier.classify(entity) {
         case .sound:
-            let diameter = max(width, height)
-            addCircleBound(to: entity, diameter: diameter)
+            addCircleBound(to: entity, diameter: 0.15)
         case .image:
-            addRectBound(to: entity, width: width, height: height)
+            addRectBound(to: entity)
         case .floor:
-            addRectBound(to: entity, width: width, height: height, isFloor: true)
+            addRectBound(to: entity, isFloor: true)
         default:
             return
         }
@@ -18,7 +17,21 @@ enum EntityBoundBoxApplier {
     
     // MARK: - Internal: Rectangle (이미지)
     
-    private static func addRectBound(to entity: ModelEntity, width: Float, height: Float, isFloor: Bool = false) {
+    private static func addRectBound(to entity: ModelEntity, isFloor: Bool = false) {
+        let width: Float
+        let height: Float
+
+        if isFloor {
+            let floorSize: Float = 1
+            width = floorSize
+            height = floorSize
+        } else {
+            let planeEntity = entity.findEntity(named: "imagePlane") as? ModelEntity
+            let planeBounds = planeEntity?.visualBounds(relativeTo: planeEntity)
+            width = planeBounds?.extents.x ?? 0.0
+            height = planeBounds?.extents.y ?? 0.0
+        }
+
         let offset: Float = isFloor ? 0.1 : 0.08
         let expandedW = width  + offset * 2.5 * 0.3
         let expandedH = height + offset * 2.5 * 0.3
@@ -44,14 +57,11 @@ enum EntityBoundBoxApplier {
         let bound = ModelEntity(mesh: plane, materials: [mat])
         bound.name = "boundBox"
         
-        let vb = entity.visualBounds(relativeTo: entity)
         if isFloor {
             bound.position = SIMD3(0, 0.0001, 0)
             let rotationAngle: Float = -.pi / 2.0
             let rotationAxis = SIMD3<Float>(x: 1.0, y: 0.0, z: 0.0)
             bound.orientation = simd_quatf(angle: rotationAngle, axis: rotationAxis)
-        } else {
-            bound.position = vb.center + SIMD3(0, 0, -0.001)
         }
         
         entity.addChild(bound)
@@ -92,7 +102,7 @@ enum EntityBoundBoxApplier {
     
     // MARK: - Textures
     
-    private static func makeGlowRectTexture(size: CGSize, cornerRadius: CGFloat, color: UIColor = .white, isFloor: Bool) -> TextureResource? {
+    private static func makeGlowRectTexture(size: CGSize, cornerRadius: CGFloat, color: UIColor = .white, isFloor: Bool, rotation: SIMD3<Float>? = nil) -> TextureResource? {
         let stroke: CGFloat = 1.5
         let glow: CGFloat = 40
         let inset = glow + stroke / 1.5
