@@ -44,7 +44,7 @@ extension Entity {
         _ realityViewContent: RealityViewContent,
         _ geometryProxy3D: GeometryProxy3D,
         _ defaultVolumeSize: Size3D = Size3D(width: 1.0, height: 1.0, depth: 1.0),
-        baseScale: Float = 1.0
+        baseScale: Float = SceneConstants.VolumeMode.baseScale
     ) {
         // Volume 윈도우의 로컬 프레임을 씬 좌표계로 변환
         let scaledVolumeContentBoundingBox = realityViewContent.convert(

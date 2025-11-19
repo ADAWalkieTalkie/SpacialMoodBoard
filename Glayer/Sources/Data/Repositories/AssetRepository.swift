@@ -29,6 +29,32 @@ final class AssetRepository: AssetRepositoryInterface {
     
     // 인메모리 캐시
     private(set) var assets: [Asset] = []
+    private lazy var builtinAssets: [Asset] = {
+        var result: [Asset] = []
+        
+        // 3) 기본 내장 이미지
+        let imageBuiltins = imageService.listBuiltins(subdirectory: "BasicImageAssets")
+        for a in imageBuiltins {
+            result.append(
+                Asset(id: a.id, type: .image, filename: a.filename, filesize: a.filesize,
+                      url: a.url, createdAt: a.createdAt,
+                      image: a.image,
+                      sound: nil)
+            )
+        }
+        
+        // 4) 기본 내장 사운드
+        let soundBuiltins = soundService.listBuiltins(subdirectory: "BasicSoundAssets")
+        for a in soundBuiltins {
+            result.append(
+                Asset(id: a.id, type: .sound, filename: a.filename, filesize: a.filesize,
+                      url: a.url, createdAt: a.createdAt,
+                      image: nil,
+                      sound: a.sound)
+            )
+        }
+        return result
+    }()
     
     /// assetId → Set<SceneObject.id>
     private var references: [String: Set<UUID>] = [:]
@@ -103,28 +129,7 @@ final class AssetRepository: AssetRepositoryInterface {
             )
         }
         
-        // 3) 기본 내장 이미지
-        let imageBuiltins = imageService.listBuiltins(subdirectory: "BasicImageAssets")
-        for a in imageBuiltins {
-            loaded.append(
-                Asset(id: a.id, type: .image, filename: a.filename, filesize: a.filesize,
-                      url: a.url, createdAt: a.createdAt,
-                      image: a.image,
-                      sound: nil)
-            )
-        }
-        
-        // 4) 기본 내장 사운드
-        let soundBuiltins = soundService.listBuiltins(subdirectory: "BasicSoundAssets")
-        for a in soundBuiltins {
-            loaded.append(
-                Asset(id: a.id, type: .sound, filename: a.filename, filesize: a.filesize,
-                      url: a.url, createdAt: a.createdAt,
-                      image: nil,
-                      sound: a.sound)
-            )
-        }
-        
+        loaded.append(contentsOf: builtinAssets)
         loaded.sort { $0.createdAt > $1.createdAt }
         self.assets = loaded
         await fillWaveformsIfNeeded()

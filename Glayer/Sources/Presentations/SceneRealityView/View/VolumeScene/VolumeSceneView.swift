@@ -6,11 +6,11 @@ struct VolumeSceneView: View {
     @Environment(AppStateManager.self) private var appStateManager
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
-  
+    
     init(viewModel: SceneViewModel) {
         _viewModel = State(wrappedValue: viewModel)
     }
-  
+    
     var body: some View {
         ZStack {
             SceneRealityView(
@@ -19,7 +19,7 @@ struct VolumeSceneView: View {
             )
             .onDisappear {
                 viewModel.reset()
-
+                
                 // 사용자가 시스템 X 버튼으로 VolumeWindow를 닫은 경우 AppState 동기화
                 if case .libraryWithVolume = appStateManager.appState {
                     appStateManager.closeProject()
@@ -27,7 +27,7 @@ struct VolumeSceneView: View {
             }
             VStack {
                 Spacer()
-
+                
                 ToolBarAttachment(viewModel: viewModel)
                     .environment(appStateManager)
                     .zIndex(99999999)

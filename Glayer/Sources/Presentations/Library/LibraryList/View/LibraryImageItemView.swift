@@ -91,34 +91,46 @@ struct LibraryImageItemView: View {
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .contentShape(RoundedRectangle(cornerRadius: 20))
         .onTapGesture(perform: tapFlash)
-        .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
-                            pressing: { p in
-            guard allowRename else { return }
-            withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p }
-        },
-                            perform: {
-            guard allowRename else { return }
-            showRenamePopover = true
-        }
+        .onLongPressGesture(
+            minimumDuration: 0.35,
+            maximumDistance: 22,
+            pressing: { p in
+                withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p }
+            },
+            perform: { showRenamePopover = true }
         )
         .popover(isPresented: $showRenamePopover, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-            RenamePopover(
-                id: asset.id,
-                title: $draftTitle,
-                onRename: {
-                    startInlineRename()
-                },
-                onDelete: { id in viewModel.deleteAsset(id: id) },
-                onAddToFloor: { _ in
+            if !allowRename {
+                RenamePopover(id: asset.id,
+                              title: $draftTitle,
+                              onAddToFloor: { _ in
                     if sceneViewModel.spacialEnvironment.floorAssetId == asset.id {
                         sceneViewModel.removeFloorImage()
                     } else {
                         sceneViewModel.applyFloorImage(from: asset)
                     }
                 },
-                isCurrentFloorImage: sceneViewModel.spacialEnvironment.floorAssetId == asset.id,
-                onCancel: { showRenamePopover = false }
-            )
+                              onCancel: { showRenamePopover = false }
+                )
+            } else {
+                RenamePopover(
+                    id: asset.id,
+                    title: $draftTitle,
+                    onRename: {
+                        startInlineRename()
+                    },
+                    onDelete: { id in viewModel.deleteAsset(id: id) },
+                    onAddToFloor: { _ in
+                        if sceneViewModel.spacialEnvironment.floorAssetId == asset.id {
+                            sceneViewModel.removeFloorImage()
+                        } else {
+                            sceneViewModel.applyFloorImage(from: asset)
+                        }
+                    },
+                    isCurrentFloorImage: sceneViewModel.spacialEnvironment.floorAssetId == asset.id,
+                    onCancel: { showRenamePopover = false }
+                )
+            }
         }
         .onChange(of: isTextFieldFocused) { _, focused in
             if !focused { commitRenameIfNeeded() }

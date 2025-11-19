@@ -38,6 +38,7 @@
 			explicitFolders = (
 				Resource/BasicImageAssets,
 				Resource/BasicSoundAssets,
+				Resource/GuidingVideo,
 			);
 			path = Glayer;
 			sourceTree = "<group>";

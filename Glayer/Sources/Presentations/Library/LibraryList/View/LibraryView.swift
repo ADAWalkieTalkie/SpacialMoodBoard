@@ -20,6 +20,10 @@ struct LibraryView: View {
     @State private var showAddedToast = false
     @Environment(AppStateManager.self) private var appStateManager
     
+    @State private var showAssetPlacementGuide = false
+    @State private var didAddAssetsInCurrentEditorSession = false
+    @AppStorage("hasSeenLibraryAssetPlacementGuide") private var hasSeenLibraryAssetPlacementGuide = false
+    
     // MARK: - Init
     
     /// Init
@@ -62,7 +66,7 @@ struct LibraryView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.bottom, 20)
-            .glassBackgroundEffect()
+            .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: 46, style: .continuous))
             .allowsHitTesting(!viewModel.showDropDock)
             
             if viewModel.assetType == .image, viewModel.showDropDock {
@@ -99,7 +103,7 @@ struct LibraryView: View {
                 print("파일 가져오기 실패:", err.localizedDescription)
             }
         }
-        .task { await viewModel.loadAssets() }
+        .task { await viewModel.loadAssetsIfNeeded() }
         .onChange(of: viewModel.showLoadErrorToast) { _, now in
             showLoadErrorToast = now
         }
@@ -115,14 +119,35 @@ struct LibraryView: View {
             isPresented: $showLoadingToast,
             message: .loadingImageEdit
         )
+        .onChange(of: viewModel.showEditor) { oldValue, newValue in
+            if oldValue == true && newValue == false {
+                if didAddAssetsInCurrentEditorSession,
+                   hasSeenLibraryAssetPlacementGuide == false {
+                    showAssetPlacementGuide = true
+                    hasSeenLibraryAssetPlacementGuide = true
+                }
+                didAddAssetsInCurrentEditorSession = false
+            }
+        }
+        // TODO: - : [발표/데모용] 프로젝트 바뀔때마다 항상 토스트 띄우고 싶을 때는 아래 코드 사용
+//        .onChange(of: appStateManager.appState.selectedProject?.title) { oldValue, newValue in
+//            if oldValue != newValue {
+//                hasSeenLibraryAssetPlacementGuide = false
+//            }
+//        }
+        .guidingToast(
+            isPresented: $showAssetPlacementGuide,
+            category: .assetPlacement
+        )
         .fullScreenCover(isPresented: $viewModel.showEditor) {
             ImageEditorView(
                 images: viewModel.editorImages,
                 preferredNames: viewModel.editorPreferredNames,
-                projectName: viewModel.projectName
+                assetRepository: viewModel.assetRepoForEditor
             ) { urls in
-                Task {
-                    await viewModel.loadAssets()
+                if !urls.isEmpty {
+                    didAddAssetsInCurrentEditorSession = true
+                    viewModel.switchToUserImages()
                 }
             }
         }

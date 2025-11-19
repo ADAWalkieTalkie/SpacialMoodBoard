@@ -28,9 +28,7 @@ struct ImageEntity {
         Task { @MainActor in
             await Self.createPlane(
                 to: imageEntity,
-                from: sceneObject,
                 with: asset,
-                imageAttrs: imageAttrs,
                 size: size
             )
         }
@@ -41,6 +39,13 @@ struct ImageEntity {
         )
         imageEntity.components.set(InputTargetComponent())
         imageEntity.components.set(HoverEffectComponent())
+        imageEntity.orientation = simd_quatf(
+            angle: imageAttrs.rotation.x, axis: [1, 0, 0]
+        ) * simd_quatf(
+            angle: imageAttrs.rotation.y, axis: [0, 1, 0]
+        ) * simd_quatf(
+            angle: imageAttrs.rotation.z, axis: [0, 0, 1]
+        )
         
         return imageEntity
     }
@@ -112,9 +117,7 @@ struct ImageEntity {
 
     private static func createPlane(
         to imageEntity: ModelEntity,
-        from sceneObject: SceneObject,
         with asset: Asset,
-        imageAttrs: ImageAttributes,
         size: (width: Float, height: Float)
     ) async {
         guard let material = await createMaterial(from: asset.url) else { return }
@@ -125,9 +128,7 @@ struct ImageEntity {
         )
 
         let plane = ModelEntity(mesh: mesh, materials: [material])
-        plane.position = SIMD3<Float>(0, 0, 0)
-
-        applyRotation(to: plane, rotation: imageAttrs.rotation)
+        plane.name = "imagePlane"
 
         imageEntity.addChild(plane)
     }

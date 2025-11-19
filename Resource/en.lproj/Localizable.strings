@@ -70,21 +70,6 @@
 "delete.confirmation" = "Do you want to delete %@?";
 
 // MARK: - Toast
-"toast.addToLibrary.title"    = "에셋 추가 완료";
-"toast.addToLibrary.subtitle" = "에셋이 라이브러리에 저장되었습니다.";
-
-"toast.addToLibraryFail.title"    = "에셋 추가 실패";
-"toast.addToLibraryFail.subtitle" = "라이브러리 저장에 실패했습니다.";
-
-"toast.loadingError.title"    = "불러오기 오류";
-"toast.loadingError.subtitle" = "에셋을 불러오는데 실패했습니다.";
-
-"toast.loadingImageEdit.title" = "이미지 편집 준비 중";
-"toast.loadingAssets.title"    = "에셋 불러오는 중";
-
-"toast.addToVolume.title" = "공간에 추가되었습니다.";
-
-// MARK: - Toast
 "toast.addToLibrary.title" = "Asset Added";
 "toast.addToLibrary.subtitle" = "The asset has been saved to the library.";
 
@@ -98,3 +83,18 @@
 "toast.loadingAssets.title" = "Loading Assets";
 
 "toast.addToVolume.title" = "Added to the space.";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "Remove Background";
+"guiding.imageEdit.removeBackground.description" = "Remove the background, then drag to select the area you want to keep.";
+"guiding.imageEdit.keepAsIs.title" = "Keep as Is";
+"guiding.imageEdit.keepAsIs.description" = "Drag the background area or tap the button below the image.";
+"guiding.imageEdit.finish.title" = "Finish Editing";
+"guiding.imageEdit.finish.description" = "Complete the editing and finalize your asset.";
+
+"guiding.assetPlacement.place.title" = "Place Asset";
+"guiding.assetPlacement.place.description" = "Grab the asset and place it wherever you want.";
+"guiding.assetPlacement.rotate.title" = "Rotate";
+"guiding.assetPlacement.rotate.description" = "Adjust the asset to the angle you prefer.";
+"guiding.assetPlacement.scale.title" = "Scale";
+"guiding.assetPlacement.scale.description" = "Resize the asset to your desired scale.";

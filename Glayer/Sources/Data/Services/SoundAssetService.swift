@@ -121,30 +121,27 @@ struct SoundAssetService: SoundAssetServiceProtocol {
     
     // MARK: 번들 내 기본 사운드 에셋 조회
     
-    func listBuiltins(subdirectory: String) -> [Asset] {
-        let bundle = Bundle.main
-        let fm = FileManager.default
-        
-        if let dirURL = bundle.url(forResource: subdirectory, withExtension: nil),
-           let urls = try? fm.contentsOfDirectory(
-            at: dirURL,
-            includingPropertiesForKeys: [.fileSizeKey, .creationDateKey],
-            options: [.skipsHiddenFiles]
-           ) {
-            return urls.compactMap { makeBuiltinAsset(from: $0) }
-        }
-        
-        let all = bundle.urls(forResourcesWithExtension: nil, subdirectory: nil) ?? []
-        let filtered = all.filter { $0.path.contains("/\(subdirectory)/") || $0.path.hasSuffix("/\(subdirectory)") }
-        if !filtered.isEmpty { return filtered.compactMap { makeBuiltinAsset(from: $0) } }
-        
-        let fallback = all.filter {
-            let n = $0.deletingPathExtension().lastPathComponent.lowercased()
-            return n.hasPrefix("ambient_") || n.hasPrefix("foley_") || n.hasPrefix("amb_") || n.hasPrefix("fol_")
-        }
-        return fallback.compactMap { makeBuiltinAsset(from: $0) }
-    }
     
+    func listBuiltins(subdirectory: String) -> [Asset] {
+        let fm = FileManager.default
+        let exts = ["wav", "m4a", "mp3", "caf"]
+        
+        guard let root = Bundle.main.resourceURL?
+            .appendingPathComponent(subdirectory, isDirectory: true),
+              let urls = try? fm.contentsOfDirectory(
+                at: root,
+                includingPropertiesForKeys: [.fileSizeKey, .creationDateKey],
+                options: [.skipsHiddenFiles]
+              ) else {
+            print("❌ listBuiltins – cannot find \(subdirectory)")
+            return []
+        }
+        
+        return urls
+            .filter { exts.contains($0.pathExtension.lowercased()) }
+            .compactMap { makeBuiltinAsset(from: $0) }
+    }
+
     // MARK: 해시
     
     func sha256Hex(url: URL) throws -> String {
