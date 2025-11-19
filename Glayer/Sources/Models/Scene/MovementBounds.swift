@@ -10,11 +10,9 @@ struct MovementBounds {
     let minZ: Float
     let maxZ: Float
     
-    static let `default` = MovementBounds(
-        minX: -1.0, maxX: 1.0,
-        minY: -1.0, maxY: 1.0,
-        minZ: -1.0, maxZ: 1.0
-    )
+    static var `default`: MovementBounds {
+        SceneConstants.defaultMovementBounds
+    }
     
     /// 위치를 영역 내로 제한
     func clamp(_ position: SIMD3<Float>) -> SIMD3<Float> {

@@ -9,9 +9,13 @@ struct SceneConfig {
     var movementBounds: MovementBounds = .default
     
     static let immersive = SceneConfig(
-        rootEntityscale: [8, 8, 8],
+        rootEntityscale: [
+            SceneConstants.ImmersiveMode.scale,
+            SceneConstants.ImmersiveMode.scale,
+            SceneConstants.ImmersiveMode.scale
+        ],
         useHeadAnchoredToolbar: true,
-        rootEntityPosition: [0, 8, 0]
+        rootEntityPosition: [0, SceneConstants.ImmersiveMode.yPosition, 0]
     )
     
     static let volume = SceneConfig()

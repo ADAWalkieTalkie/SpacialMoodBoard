@@ -17,8 +17,10 @@ import SwiftUI
 class FloorEntity {
     // MARK: - Constants
 
-    /// 바닥의 기본 크기 (1m x 1m)
-    static let defaultFloorSize = SIMD2<Float>(x: 2.0, y: 2.0)
+    /// 바닥의 기본 크기 (SceneConstants에서 중앙 관리)
+    static var defaultFloorSize: SIMD2<Float> {
+        SIMD2<Float>(x: SceneConstants.floorSize, y: SceneConstants.floorSize)
+    }
 
     /// 바닥의 기본 위치
     static let defaultFloorPosition = SIMD3<Float>(x: 0, y: 0, z: 0)
