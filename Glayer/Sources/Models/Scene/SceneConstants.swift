@@ -38,6 +38,10 @@ struct SceneConstants {
             minZ: -half, maxZ: half
         )
     }
+    
+    static var floorOutlineOffset: Float {
+        floorSize / 10.0
+    }
 
     // MARK: - Volume 모드 설정
 
