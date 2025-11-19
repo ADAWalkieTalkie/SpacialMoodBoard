@@ -20,29 +20,41 @@ enum EntityBoundBoxApplier {
     private static func addRectBound(to entity: ModelEntity, isFloor: Bool = false) {
         let width: Float
         let height: Float
+        let expandedW: Float
+        let expandedH: Float
 
         if isFloor {
             let floorSize: Float = 1
             width = floorSize
             height = floorSize
+
+            let glowCorrection = calculateGlowCorrection(width: floorSize, height: floorSize)
+            expandedW = floorSize + glowCorrection.width
+            expandedH = floorSize + glowCorrection.height
         } else {
             // collision shapes에서 width와 height 가져오기
             if let collision = entity.collision,
-               let firstShape = collision.shapes.first {
+            let firstShape = collision.shapes.first {
                 let bounds = firstShape.bounds
                 width = bounds.max.x - bounds.min.x
                 height = bounds.max.y - bounds.min.y
+                let baseLine = min(width, height)
+                
+                let glowCorrection = calculateGlowCorrection(width: width, height: height)
+                expandedW = width + baseLine * 1 / 4 + glowCorrection.width
+                expandedH = height + baseLine * 1 / 4 + glowCorrection.height
             } else {
                 let planeEntity = entity.findEntity(named: "imagePlane") as? ModelEntity
                 let planeBounds = planeEntity?.visualBounds(relativeTo: planeEntity)
                 width = planeBounds?.extents.x ?? 0.0
                 height = planeBounds?.extents.y ?? 0.0
+                let baseLine = min(width, height)
+                
+                let glowCorrection = calculateGlowCorrection(width: width, height: height)
+                expandedW = width + baseLine * 1 / 4 + glowCorrection.width
+                expandedH = height + baseLine * 1 / 4 + glowCorrection.height
             }
         }
-
-        let offset: Float = isFloor ? 0.1 : 0.08
-        let expandedW = width  + offset * 2.5 * 0.3
-        let expandedH = height + offset * 2.5 * 0.3
         
         let texW: CGFloat = 1024
         let texH: CGFloat = max(768, texW * CGFloat(expandedH / max(expandedW, 0.001)))
@@ -160,5 +172,17 @@ enum EntityBoundBoxApplier {
         }
         guard let cg = image.cgImage else { return nil }
         return try? TextureResource(image: cg, options: .init(semantic: .color))
+    }
+
+    /// Glow 효과로 인해 줄어드는 크기를 보정하기 위한 값 계산
+    private static func calculateGlowCorrection(width: Float, height: Float) -> (width: Float, height: Float) {
+        let texW: CGFloat = 1024
+        let texH: CGFloat = max(768, texW * CGFloat(height / max(width, 0.001)))
+        let inset: CGFloat = 41  // makeGlowRectTexture의 inset 값 (glow + stroke/1.5)
+        
+        let correctionW = Float((inset * 2) / texW) * width
+        let correctionH = Float((inset * 2) / texH) * height
+        
+        return (correctionW, correctionH)
     }
 }
