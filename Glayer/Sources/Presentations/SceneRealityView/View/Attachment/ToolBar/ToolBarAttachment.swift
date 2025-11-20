@@ -82,9 +82,11 @@ struct ToolBarAttachment: View {
                     },
                     onGestureStart: {
                         viewModel.startGesture()
+                        viewModel.isJoystickActive = true
                     },
                     onGestureEnd: {
                         viewModel.endGesture()
+                        viewModel.isJoystickActive = false
                     }
                 )
             }
