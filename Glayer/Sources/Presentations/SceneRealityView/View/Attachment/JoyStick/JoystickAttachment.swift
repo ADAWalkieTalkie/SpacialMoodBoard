@@ -9,7 +9,13 @@ struct JoystickAttachment: View {
     ///   - x: X축 값 (-1.0 ~ 1.0)
     ///   - z: Z축 값 (-1.0 ~ 1.0)
     private let onValueChanged: (Double, Double) -> Void
-    
+
+    /// 조이스틱 제스처 시작 시 호출되는 콜백
+    private let onGestureStart: () -> Void
+
+    /// 조이스틱 제스처 종료 시 호출되는 콜백
+    private let onGestureEnd: () -> Void
+
     @State private var thumbstickOffset: CGSize = .zero
     @State private var isDragging: Bool = false
     
@@ -20,9 +26,15 @@ struct JoystickAttachment: View {
     private let marginFactor: CGFloat = 0.70
     
     // MARK: - Init
-    
-    init(onValueChanged: @escaping (Double, Double) -> Void) {
+
+    init(
+        onValueChanged: @escaping (Double, Double) -> Void,
+        onGestureStart: @escaping () -> Void = {},
+        onGestureEnd: @escaping () -> Void = {}
+    ) {
         self.onValueChanged = onValueChanged
+        self.onGestureStart = onGestureStart
+        self.onGestureEnd = onGestureEnd
         // baseSize의 절반에서 thumbstickSize의 절반을 뺀 값이 최대 이동 거리
         self.maxDistance = (baseSize - thumbstickSize) / 2
     }
@@ -48,7 +60,11 @@ struct JoystickAttachment: View {
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
-                    isDragging = true
+                    // 제스처 시작 시점 감지
+                    if !isDragging {
+                        isDragging = true
+                        onGestureStart()
+                    }
                     updateThumbstickPosition(from: value.location)
                 }
                 .onEnded { _ in
@@ -59,6 +75,7 @@ struct JoystickAttachment: View {
                     isDragging = false
                     // 중앙 위치 = (0, 0) 출력
                     onValueChanged(0, 0)
+                    onGestureEnd()
                 }
         )
     }

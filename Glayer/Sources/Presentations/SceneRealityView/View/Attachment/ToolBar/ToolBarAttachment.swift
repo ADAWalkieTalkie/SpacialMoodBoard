@@ -79,6 +79,12 @@ struct ToolBarAttachment: View {
                 JoystickAttachment(
                     onValueChanged: { x, z in
                         viewModel.updateUserPositionFromJoystick(x: x, z: z)
+                    },
+                    onGestureStart: {
+                        viewModel.startGesture()
+                    },
+                    onGestureEnd: {
+                        viewModel.endGesture()
                     }
                 )
             }
