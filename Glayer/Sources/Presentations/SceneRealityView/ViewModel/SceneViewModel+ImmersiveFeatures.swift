@@ -131,7 +131,7 @@ extension SceneViewModel {
         let width = baseSize * imageAttrs.scale
 
         let offset = width / 3
-        let newPosition = originalObject.position + SIMD3<Float>(offset, offset, 0)
+        let newPosition = originalObject.position + SIMD3<Float>(offset, offset, 0.1)
         let duplicatedObject = SceneObject.createImage(
             assetId: originalObject.assetId,
             position: newPosition,
