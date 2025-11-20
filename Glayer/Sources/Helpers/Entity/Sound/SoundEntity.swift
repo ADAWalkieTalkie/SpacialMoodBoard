@@ -58,7 +58,6 @@ struct SoundEntity {
                                               in: RealityKitContent.realityKitContentBundle)
                 let node = prefab.clone(recursive: true)
                 node.name = "SoundVisual"
-                node.scale = [0.3, 0.3, 0.3]
                 modelEntity.addChild(node)
                 
                 let b = node.visualBounds(relativeTo: node)
