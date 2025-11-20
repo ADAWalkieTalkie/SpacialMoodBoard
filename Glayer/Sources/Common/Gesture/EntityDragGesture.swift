@@ -31,10 +31,10 @@ struct EntityDragGesture: ViewModifier {
                                 onGestureStart?()
                                 initialPosition = currentEntity.position
                                 
-                                let bounds = getOriginalEntityBounds(modelEntity)
+                                let bounds = getOriginalEntityBounds(modelEntity, relativeTo: currentEntity.parent)
                                 let entityHeight = bounds.extents.y  // 전체 높이
-                                let halfHeight = entityHeight / 2.0  // 높이의 절반
-                                minY = halfHeight  // 중심점이 최소 halfHeight 이상이어야 하단이 y=0에 닿음
+                                let adjustedHeight = entityHeight / 3.0  // 높이의 3분의 1
+                                minY = SceneConstants.floorYOffset + adjustedHeight  // 중심점이 최소 adjustedHeight 이상이어야 하단이 y=0에 닿음
                             }
                         }
                         
@@ -45,7 +45,9 @@ struct EntityDragGesture: ViewModifier {
                         let newPosition = (initialPosition ?? .zero) + movement
                         
                         // 위치를 영역 내로 제한
-                        currentEntity.position = movementBounds.clamp(newPosition)
+                        var clampedPosition = movementBounds.clamp(newPosition)
+                        clampedPosition.y = max(minY, clampedPosition.y)
+                        currentEntity.position = clampedPosition
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
