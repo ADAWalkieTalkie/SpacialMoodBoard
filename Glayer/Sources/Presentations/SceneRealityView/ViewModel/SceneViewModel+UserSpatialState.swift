@@ -25,8 +25,8 @@ extension SceneViewModel {
     /// 조이스틱 속도에 따라 userScenePosition 업데이트 (매 프레임 호출)
     /// - Parameter deltaTime: 이전 프레임부터 경과한 시간 (초)
     func updatePositionFromJoystickVelocity(deltaTime: Float) {
-        let maxDistance: Float = 4.0
-        let minDistance: Float = -4.0
+        let maxDistance: Float = SceneConstants.floorHalfSize * 8
+        let minDistance: Float = -SceneConstants.floorHalfSize * 8
         // 속도가 0이면 업데이트하지 않음
         guard simd_length(joystickVelocity) > 0.001 else { return }
         
