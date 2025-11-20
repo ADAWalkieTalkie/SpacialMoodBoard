@@ -75,11 +75,16 @@ extension SceneViewModel {
     }
     
     /// 객체 크기 업데이트 (제스처용)
+    /// - Parameters:
+    ///   - id: 업데이트할 객체의 UUID
+    ///   - scale: 상대적 scale 증가량 (예: 2.0 = 2배 확대)
     func updateObjectScale(id: UUID, scale: Float) {
         guard var scene = appStateManager.selectedScene else { return }
-        
+
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
-            object.setScale(scale)
+            if case .image(let imageAttrs) = object.attributes {
+                object.setScale(imageAttrs.scale * scale)
+            }
         }
         appStateManager.selectScene(scene)
         scheduleSceneAutosaveDebounced()

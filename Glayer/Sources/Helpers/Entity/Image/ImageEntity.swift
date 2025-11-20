@@ -22,7 +22,8 @@ struct ImageEntity {
         let imageEntity = ModelEntity()
         imageEntity.name = sceneObject.id.uuidString
         imageEntity.position = sceneObject.position
-        
+        imageEntity.scale = SIMD3<Float>(repeating: 1.0) // 명시적으로 1.0 설정 (크기는 mesh에 반영)
+
         let size = calculateSize(from: asset, imageAttrs: imageAttrs)
 
         Task { @MainActor in

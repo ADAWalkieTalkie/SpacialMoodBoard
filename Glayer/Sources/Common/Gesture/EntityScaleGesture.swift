@@ -38,10 +38,10 @@ struct EntityScaleGesture: ViewModifier {
                             initialScale = nil
                             return
                         }
-                        
-                        let finalScale = value.entity.scale.x // uniform scale이므로 x만 사용
-                        onScaleUpdate(uuid, finalScale)
-                        
+
+                        let scaleMultiplier = Float(value.magnification)
+                        onScaleUpdate(uuid, scaleMultiplier)
+
                         onGestureEnd?()
                         initialScale = nil
                     }
