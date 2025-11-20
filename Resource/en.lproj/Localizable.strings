@@ -87,7 +87,7 @@
 // MARK: - Guiding Toast
 "guiding.imageEdit.removeBackground.title" = "Remove Background";
 "guiding.imageEdit.removeBackground.description" = "Remove the background, then drag to select the area you want to keep.";
-"guiding.imageEdit.keepAsIs.title" = "Keep as Is";
+"guiding.imageEdit.keepAsIs.title" = "Bring it as is";
 "guiding.imageEdit.keepAsIs.description" = "Drag the background area or tap the button below the image.";
 "guiding.imageEdit.finish.title" = "Finish Editing";
 "guiding.imageEdit.finish.description" = "Complete the editing and finalize your asset.";
