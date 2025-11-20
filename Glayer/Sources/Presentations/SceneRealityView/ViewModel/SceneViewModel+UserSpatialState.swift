@@ -59,7 +59,7 @@ extension SceneViewModel {
             withTimeInterval: 1.0/60.0,
             repeats: true
         ) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 guard let self = self else { return }
 
                 // 조이스틱 속도가 0이면 early return
