@@ -9,12 +9,10 @@ import RealityKit
 ///   - entity: 원본 bounds를 계산할 Entity
 /// - Returns: Entity의 원본 bounds
 @MainActor
-func getOriginalEntityBounds(_ entity: ModelEntity) -> BoundingBox {    
-    // boundBox와 objectAttachment 자식들을 일시적으로 제거
+func getOriginalEntityBounds(_ entity: ModelEntity, relativeTo: Entity? = nil) -> BoundingBox {
     let boundBoxes = entity.children.filter { $0.name == "boundBox" }
     let attachments = entity.children.filter { $0.name == "objectAttachment" }
     
-    // 자식들의 원본 위치 저장 (나중에 복원하기 위해)
     var childPositions: [Entity: SIMD3<Float>] = [:]
     (boundBoxes + attachments).forEach { child in
         childPositions[child] = child.position
@@ -23,10 +21,9 @@ func getOriginalEntityBounds(_ entity: ModelEntity) -> BoundingBox {
     boundBoxes.forEach { $0.removeFromParent() }
     attachments.forEach { $0.removeFromParent() }
     
-    // 원본 엔티티의 bounds 계산
-    let bounds = entity.visualBounds(relativeTo: nil)
+    // ✨ relativeTo 파라미터 사용
+    let bounds = entity.visualBounds(relativeTo: relativeTo)
     
-    // boundBox와 attachment를 다시 추가 (원본 위치로)
     boundBoxes.forEach { box in
         entity.addChild(box)
         box.position = childPositions[box] ?? box.position
