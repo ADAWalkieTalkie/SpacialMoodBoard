@@ -20,8 +20,8 @@ struct JoystickAttachment: View {
     @State private var isDragging: Bool = false
     
     // 조이스틱 크기 설정
-    private let baseSize: CGFloat = 200
-    private let thumbstickSize: CGFloat = 80
+    private let baseSize: CGFloat = 136
+    private let thumbstickSize: CGFloat = 52
     private let maxDistance: CGFloat // 원형 범위의 최대 반지름
     private let marginFactor: CGFloat = 0.70
     

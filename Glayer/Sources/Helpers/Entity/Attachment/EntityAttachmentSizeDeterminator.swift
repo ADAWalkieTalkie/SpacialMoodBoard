@@ -26,7 +26,7 @@ enum EntityAttachmentSizeDeterminator {
         
         // 3. Volume 모드
         if isVolumeMode {
-            let s = 1 / entityScale
+            let s = 2 / entityScale
             return SIMD3<Float>(repeating: s)
         } else {
             let immersiveBase: Float = 0.8

@@ -11,7 +11,7 @@ struct SceneRealityView: View {
     @Binding var viewModel: SceneViewModel
     let config: SceneConfig
     
-    let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.2, -0.5)
+    let toolbarPosition: SIMD3<Float> = SIMD3<Float>(0, -0.2, -0.65)
     
     @State private var headAnchor: AnchorEntity?
     @State private var rootEntity = Entity()
