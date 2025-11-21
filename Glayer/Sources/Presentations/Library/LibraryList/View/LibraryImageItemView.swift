@@ -13,6 +13,12 @@ struct LibraryImageItemView: View {
     
     private let asset: Asset
     private let allowRename: Bool
+    private var floorState: FloorImageState {
+        guard let id = sceneViewModel.spacialEnvironment.floorAssetId else {
+            return .none
+        }
+        return id == asset.id ? .current : .other
+    }
     
     @Environment(LibraryViewModel.self) private var viewModel
     @Environment(SceneViewModel.self) private var sceneViewModel
@@ -100,17 +106,21 @@ struct LibraryImageItemView: View {
             perform: { showRenamePopover = true }
         )
         .popover(isPresented: $showRenamePopover, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+            let onFloorAction: (String) -> Void = { _ in
+                if sceneViewModel.spacialEnvironment.floorAssetId == asset.id {
+                    sceneViewModel.removeFloorImage()
+                } else {
+                    sceneViewModel.applyFloorImage(from: asset)
+                }
+            }
+
             if !allowRename {
-                RenamePopover(id: asset.id,
-                              title: $draftTitle,
-                              onAddToFloor: { _ in
-                    if sceneViewModel.spacialEnvironment.floorAssetId == asset.id {
-                        sceneViewModel.removeFloorImage()
-                    } else {
-                        sceneViewModel.applyFloorImage(from: asset)
-                    }
-                },
-                              onCancel: { showRenamePopover = false }
+                RenamePopover(
+                    id: asset.id,
+                    title: $draftTitle,
+                    onAddToFloor: onFloorAction,
+                    floorState: floorState,
+                    onCancel: { showRenamePopover = false }
                 )
             } else {
                 RenamePopover(
@@ -120,14 +130,8 @@ struct LibraryImageItemView: View {
                         startInlineRename()
                     },
                     onDelete: { id in viewModel.deleteAsset(id: id) },
-                    onAddToFloor: { _ in
-                        if sceneViewModel.spacialEnvironment.floorAssetId == asset.id {
-                            sceneViewModel.removeFloorImage()
-                        } else {
-                            sceneViewModel.applyFloorImage(from: asset)
-                        }
-                    },
-                    isCurrentFloorImage: sceneViewModel.spacialEnvironment.floorAssetId == asset.id,
+                    onAddToFloor: onFloorAction,
+                    floorState: floorState,
                     onCancel: { showRenamePopover = false }
                 )
             }
