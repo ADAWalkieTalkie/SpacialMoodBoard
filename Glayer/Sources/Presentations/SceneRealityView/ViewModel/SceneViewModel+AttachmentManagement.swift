@@ -72,6 +72,7 @@ extension SceneViewModel {
                 isVolumeMode: isVolumeMode
             )
             objectAttachment.scale = finalScale
+            AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity, isVolumeMode: isVolumeMode)
         }
         
         // soundNameAttachment 스케일 업데이트
