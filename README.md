@@ -103,7 +103,7 @@ Glayer는 단순한 편집 도구가 아닌,
 
 <br>
 
-## [🎥 User Flow](https://www.figma.com/board/h597MCTAjj8PawsF1nbHMC/iOS-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%84%A4%EA%B3%84?node-id=0-1&t=elsfeNTTSrKMhUfx-1)
+## 🎥 User Flow
 <img width="941" alt="Image" src="https://github.com/user-attachments/assets/c0637881-6360-4240-8b5c-f6777e08f28d" />
 
 ## **🔷 Issue Naming Rule**
