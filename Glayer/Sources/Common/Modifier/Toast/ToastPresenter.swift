@@ -10,6 +10,7 @@ import SwiftUI
 private struct ToastPresenter: ViewModifier {
     @Binding private var isPresented: Bool
     private let message: ToastMessage
+    @State private var dismissTask: Task<Void, Never>?
     
     /// init
     /// - Parameters:
@@ -27,29 +28,22 @@ private struct ToastPresenter: ViewModifier {
             if isPresented {
                 ToastView(
                     message: message,
-                    dismissAction: { withAnimation(.easeInOut) { isPresented = false } }
+                    dismissAction: {
+                        withAnimation(.easeInOut) { isPresented = false }
+                    }
                 )
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(for: message.position))
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity,
+                    alignment: alignment(for: message.position)
+                )
                 .transition(.opacity)
-                .onAppear {
-                    if let sfx = message.sfx {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            SoundFX.shared.play(sfx)
-                        }
-                    }
-                    
-                    switch message.dismissMode {
-                    case let .auto(duration):
-                        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-                            withAnimation(.easeInOut(duration: 0.18)) { isPresented = false }
-                        }
-                    default:
-                        break
-                    }
-                }
             }
         }
         .animation(.easeInOut(duration: 0.18), value: isPresented)
+        .onChange(of: isPresented) { _, newValue in
+            handlePresentedChange(newValue)
+        }
     }
     
     /// ToastPosition에 따라 Alignment를 반환
@@ -60,6 +54,31 @@ private struct ToastPresenter: ViewModifier {
         case .top:    return .top
         case .center: return .center
         case .bottom: return .bottom
+        }
+    }
+    
+    /// 토스트 표시 상태가 변할 때마다 호출되어 자동 해제 타이머와 사운드 재생을 관리
+    /// - Parameter isShown: 토스트가 화면에 표시되었는지 여부 (`true`면 표시됨)
+    private func handlePresentedChange(_ isShown: Bool) {
+        dismissTask?.cancel()
+        
+        guard isShown else {
+            return
+        }
+        
+        if let sfx = message.sfx {
+            SoundFX.shared.play(sfx)
+        }
+        
+        guard case let .auto(duration) = message.dismissMode else {
+            return
+        }
+        
+        dismissTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(duration))
+            withAnimation(.easeInOut(duration: 0.18)) {
+                isPresented = false
+            }
         }
     }
 }
