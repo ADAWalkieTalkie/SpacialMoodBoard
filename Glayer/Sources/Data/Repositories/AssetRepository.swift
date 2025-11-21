@@ -29,10 +29,25 @@ final class AssetRepository: AssetRepositoryInterface {
     
     // 인메모리 캐시
     private(set) var assets: [Asset] = []
-    private lazy var builtinAssets: [Asset] = {
-        var result: [Asset] = []
+    
+    /// BasicSoundAssets/BasicSoundWaveforms.json 에서 [파일명: [Float]] 형태로 미리 계산된 파형을 불러옴
+    private lazy var builtinWaveforms: [String: [Float]] = {
+        guard let url = Bundle.main.url(
+            forResource: "BasicSoundWaveforms",
+            withExtension: "json",
+            subdirectory: "BasicSoundAssets"
+        ) else { return [:] }
         
-        // 3) 기본 내장 이미지
+        do {
+            let data = try Data(contentsOf: url)
+            let dict = try JSONDecoder().decode([String: [Float]].self, from: data)
+            return dict
+        } catch { return [:] }
+    }()
+    
+    /// 기본 내장 이미지
+    private lazy var builtinImageAssets: [Asset] = {
+        var result: [Asset] = []
         let imageBuiltins = imageService.listBuiltins(subdirectory: "BasicImageAssets")
         for a in imageBuiltins {
             result.append(
@@ -42,15 +57,47 @@ final class AssetRepository: AssetRepositoryInterface {
                       sound: nil)
             )
         }
-        
-        // 4) 기본 내장 사운드
+        return result
+    }()
+    
+    /// 기본 내장 사운드 (JSON 안에 미리 계산된 파형이 있으면 그걸 우선 사용, 없으면 원래 a.sound.waveform (보통 빈 배열) )
+    private lazy var builtinSoundAssets: [Asset] = {
+        var result: [Asset] = []
         let soundBuiltins = soundService.listBuiltins(subdirectory: "BasicSoundAssets")
+        
         for a in soundBuiltins {
+            var sound = a.sound
+            let filename = a.filename
+            
+                    var candidates: [String] = []
+                    candidates.append(filename)
+                    candidates.append(a.url.lastPathComponent)
+                    
+                    if !filename.contains(".") {
+                        candidates.append(filename + ".wav")
+                        candidates.append(filename + ".m4a")
+                    }
+
+                    var applied = false
+            for key in candidates {
+                if let precomputed = builtinWaveforms[key] {
+                    sound?.waveform = precomputed
+                    applied = true
+                    break
+                }
+            }
+
             result.append(
-                Asset(id: a.id, type: .sound, filename: a.filename, filesize: a.filesize,
-                      url: a.url, createdAt: a.createdAt,
-                      image: nil,
-                      sound: a.sound)
+                Asset(
+                    id: a.id,
+                    type: .sound,
+                    filename: filename,
+                    filesize: a.filesize,
+                    url: a.url,
+                    createdAt: a.createdAt,
+                    image: nil,
+                    sound: sound
+                )
             )
         }
         return result
@@ -96,44 +143,152 @@ final class AssetRepository: AssetRepositoryInterface {
     
     // MARK: - Load
     
+    /// 전체 에셋  로드
+    ///
+    /// 동작 순서:
+    /// 1) 기본 에셋(이미지/사운드)을 점진적으로 로드 시작 (비동기)
+    ///    - builtinImageAssets / builtinSoundAssets 배열을 chunk 단위로 assets에 추가하고 즉시 UI 업데이트
+    /// 2) 유저 에셋을 디스크에서 모두 읽어와 메모리에 구성
+    ///    2-1) 유저 이미지 파일들 로드
+    ///    2-2) 유저 사운드 파일들 로드 (waveform은 비워둠 → 나중에 fillWaveformsIfNeeded에서 계산)
+    /// 3) 유저 에셋을 한 번에 assets에 추가하고 정렬 후 notify()
+    /// 4) (비동기) 유저 에셋 + 이미 로딩된 일부 기본 에셋에 대해 빈 파형을 채우기 시작
+    ///    - 기본 사운드는 loadBuiltinSoundsIncrementallyIfNeeded() 완료 후 다시 fillWaveformsIfNeeded()가 호출됨
     func reload() async throws {
-        var loaded: [Asset] = []
+        self.assets = []
+        notify()
+        loadBuiltinImagesIncrementallyIfNeeded()
+        loadBuiltinSoundsIncrementallyIfNeeded()
         
-        // 1) 이미지
+        var loadedUser: [Asset] = []
+        
         let imageNames = try imageService.list(project: project)
         for name in imageNames {
             let url = imageService.url(project: project, filename: name)
             let meta = imageService.meta(for: url)
             let contentHash = try imageService.sha256Hex(url: url)
             let id = Self.composeId(contentHash: contentHash, filename: name)
-            loaded.append(
-                Asset(id: id, type: .image, filename: name, filesize: meta.fileSize,
-                      url: url, createdAt: meta.createdAt,
-                      image: ImageAsset(origin: .user, channel: nil, width: meta.pixelWidth, height: meta.pixelHeight),
-                      sound: nil)
+            
+            loadedUser.append(
+                Asset(
+                    id: id,
+                    type: .image,
+                    filename: name,
+                    filesize: meta.fileSize,
+                    url: url,
+                    createdAt: meta.createdAt,
+                    image: ImageAsset(
+                        origin: .user,
+                        channel: nil,
+                        width: meta.pixelWidth,
+                        height: meta.pixelHeight
+                    ),
+                    sound: nil
+                )
             )
         }
         
-        // 2) 사운드(일단 파형 비움)
         let soundNames = try soundService.list(project: project)
         for name in soundNames {
             let url = soundService.url(project: project, filename: name)
             let meta = soundService.meta(for: url)
             let contentHash = try soundService.sha256Hex(url: url)
             let id = Self.composeId(contentHash: contentHash, filename: name)
-            loaded.append(
-                Asset(id: id, type: .sound, filename: name, filesize: meta.fileSize,
-                      url: url, createdAt: meta.createdAt,
-                      image: nil,
-                      sound: SoundAsset(origin: .user, channel: .ambient, duration: meta.duration, waveform: []))
+            
+            loadedUser.append(
+                Asset(
+                    id: id,
+                    type: .sound,
+                    filename: name,
+                    filesize: meta.fileSize,
+                    url: url,
+                    createdAt: meta.createdAt,
+                    image: nil,
+                    sound: SoundAsset(
+                        origin: .user,
+                        channel: .ambient,
+                        duration: meta.duration,
+                        waveform: []
+                    )
+                )
             )
         }
         
-        loaded.append(contentsOf: builtinAssets)
-        loaded.sort { $0.createdAt > $1.createdAt }
-        self.assets = loaded
-        await fillWaveformsIfNeeded()
+        self.assets.append(contentsOf: loadedUser)
+        self.assets.sort { $0.createdAt > $1.createdAt }
         notify()
+
+        Task { [weak self] in
+            await self?.fillWaveformsIfNeeded()
+        }
+    }
+    
+    /// 기본 이미지 에셋을 chunk 단위로 점진적으로 assets에 추가
+    ///
+    /// 동작:
+    /// - builtinImageAssets는 lazy 생성되어 한 번만 디스크 스캔됨
+    /// - reload()가 호출될 때마다, 기본 이미지들을 다시 chunk 단위로 붙여서 UI 즉시 업데이트
+    /// - 이미지에는 별도의 추가 후처리(파형 등)가 필요 없으므로 append만 수행
+    private func loadBuiltinImagesIncrementallyIfNeeded() {
+        guard !builtinImageAssets.isEmpty else { return }
+        
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let chunkSize = 8
+            var index = 0
+            
+            while index < self.builtinImageAssets.count {
+                let end = min(index + chunkSize, self.builtinImageAssets.count)
+                let chunk = Array(self.builtinImageAssets[index..<end])
+                
+                await MainActor.run {
+                    let existingIds = Set(self.assets.map { $0.id })
+                    let filtered = chunk.filter { !existingIds.contains($0.id) }
+
+                    self.assets.append(contentsOf: filtered)
+                    self.assets.sort { $0.createdAt > $1.createdAt }
+                    self.notify()
+                }
+                
+                index = end
+            }
+        }
+    }
+    
+    /// 기본 사운드 에셋을 chunk 단위로 점진적으로 assets에 추가
+    ///
+    /// 동작:
+    /// - builtinSoundAssets는 lazy 생성되어 앱 실행 중 단 한 번만 파일 스캔 수행
+    /// - preload된 JSON 파형이 있으면 이미 sound.waveform이 채워져 있음
+    /// - JSON에 없는 기본 사운드는 waveform == [] 상태로 들어옴
+    /// - 모든 기본 사운드 chunk 로딩이 끝난 뒤, 아직 waveform == [] 인 기본 사운드들에 대해 fillWaveformsIfNeeded()를 한 번 더 수행
+    private func loadBuiltinSoundsIncrementallyIfNeeded() {
+        guard !builtinSoundAssets.isEmpty else { return }
+        
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let chunkSize = 4
+            var index = 0
+            
+            while index < self.builtinSoundAssets.count {
+                let end = min(index + chunkSize, self.builtinSoundAssets.count)
+                let chunk = Array(self.builtinSoundAssets[index..<end])
+                
+                await MainActor.run {
+                    let existingIds = Set(self.assets.map { $0.id })
+                    let filtered = chunk.filter { !existingIds.contains($0.id) }
+
+                    self.assets.append(contentsOf: filtered)
+                    self.assets.sort { $0.createdAt > $1.createdAt }
+                    self.notify()
+                }
+                
+                index = end
+            }
+            await self.fillWaveformsIfNeeded()
+        }
     }
     
     // MARK: - Query
@@ -165,26 +320,26 @@ final class AssetRepository: AssetRepositoryInterface {
         let (base, _) = Self.splitFilename(filename, defaultExt: "m4a")
         let newFilename = soundService.uniqueFilename(project: project, base: base, ext: "m4a")
         try soundService.save(data, project: project, filename: newFilename)
-
+        
         let url = soundService.url(project: project, filename: newFilename)
         let meta = soundService.meta(for: url)
         let h = try soundService.sha256Hex(url: url)
         let id = Self.composeId(contentHash: h, filename: newFilename)
         
         let wf = await waveformProvider.waveform(url: url, targetSamples: 120, method: .peak)
-
+        
         let asset = Asset(
             id: id, type: .sound, filename: newFilename, filesize: meta.fileSize,
             url: url, createdAt: meta.createdAt,
             image: nil,
             sound: SoundAsset(origin: .user, channel: .ambient, duration: meta.duration, waveform: wf)
         )
-
+        
         assets.insert(asset, at: 0)
         notify()
         return asset
     }
-
+    
     private func addImageByURL(filename: String) throws -> Asset {
         let url = imageService.url(project: project, filename: filename)
         let meta = imageService.meta(for: url)
@@ -208,11 +363,11 @@ final class AssetRepository: AssetRepositoryInterface {
             throw NSError(domain: "AssetRepo", code: 404, userInfo: [NSLocalizedDescriptionKey: "Asset not found"])
         }
         let old = assets[idx]
-
+        
         let ext = old.url.pathExtension.isEmpty
-            ? (old.type == .image ? "png" : "m4a")
-            : old.url.pathExtension
-
+        ? (old.type == .image ? "png" : "m4a")
+        : old.url.pathExtension
+        
         let base = Self.sanitizedBase(newBaseName)
         let newFilename: String
         switch old.type {
@@ -224,7 +379,7 @@ final class AssetRepository: AssetRepositoryInterface {
             assets[idx].filename = newFilename
             assets[idx].url = newURL
             assets[idx].id = Self.composeId(contentHash: h, filename: newFilename)
-
+            
         case .sound:
             newFilename = soundService.uniqueFilename(project: project, base: base, ext: ext)
             try soundService.rename(project: project, from: old.filename, to: newFilename)
@@ -234,7 +389,7 @@ final class AssetRepository: AssetRepositoryInterface {
             assets[idx].url = newURL
             assets[idx].id = Self.composeId(contentHash: h, filename: newFilename)
         }
-
+        
         notify()
         return assets[idx]
     }
@@ -330,8 +485,14 @@ final class AssetRepository: AssetRepositoryInterface {
         return cleaned.isEmpty ? "Untitled" : cleaned
     }
     
+    // MARK: - Waveform Filling
+    
+    /// 주어진 사운드 에셋들에 대해 파형을 계산하고, assets에 반영
     private func fillWaveformsIfNeeded() async {
-        let targets = assets.filter { $0.type == .sound && ($0.sound?.waveform.isEmpty ?? true) }
+        let targets = assets.filter { asset in
+            guard asset.type == .sound, let sound = asset.sound else { return false }
+            return sound.waveform.isEmpty
+        }
         
         await withTaskGroup(of: (String, [Float])?.self) { group in
             for a in targets {
@@ -357,4 +518,6 @@ final class AssetRepository: AssetRepositoryInterface {
                 }
             }
         }
-    }}
+        notify()
+    }
+}

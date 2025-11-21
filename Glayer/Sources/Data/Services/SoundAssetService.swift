@@ -118,28 +118,37 @@ struct SoundAssetService: SoundAssetServiceProtocol {
         }
         return candidate
     }
-    
+
     // MARK: 번들 내 기본 사운드 에셋 조회
-    
-    
     func listBuiltins(subdirectory: String) -> [Asset] {
         let fm = FileManager.default
         let exts = ["wav", "m4a", "mp3", "caf"]
-        
+        var assets: [Asset] = []
+
         guard let root = Bundle.main.resourceURL?
-            .appendingPathComponent(subdirectory, isDirectory: true),
-              let urls = try? fm.contentsOfDirectory(
-                at: root,
-                includingPropertiesForKeys: [.fileSizeKey, .creationDateKey],
-                options: [.skipsHiddenFiles]
-              ) else {
-            print("❌ listBuiltins – cannot find \(subdirectory)")
+            .appendingPathComponent(subdirectory, isDirectory: true) else {
             return []
         }
-        
-        return urls
-            .filter { exts.contains($0.pathExtension.lowercased()) }
-            .compactMap { makeBuiltinAsset(from: $0) }
+
+        guard let enumerator = fm.enumerator(
+            at: root,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) else { return [] }
+
+        for case let fileURL as URL in enumerator {
+            let ext = fileURL.pathExtension.lowercased()
+            guard exts.contains(ext) else { continue }
+
+            if let asset = makeBuiltinSoundAsset(
+                from: fileURL,
+                rootDirectoryName: subdirectory
+            ) {
+                assets.append(asset)
+            }
+        }
+
+        return assets
     }
 
     // MARK: 해시
@@ -176,65 +185,82 @@ struct SoundAssetService: SoundAssetServiceProtocol {
         }
     }
     
-    private func makeBuiltinAsset(from src: URL) -> Asset? {
-        let ok = ["", "mp3","m4a","wav","aac","caf","aiff","aif","flac"]
+    /// 번들 내부의 사운드 파일 URL을 읽어 `Asset` 모델로 변환
+    /// - Parameters:
+    ///   - src: 번들 내 사운드 파일의 절대 URL
+    ///   - rootDirectoryName: 최상위 이미지 에셋 폴더 이름 (예: "BasicSoundAssets")
+    /// - Returns: 변환된 `Asset` 객체. 사운드가 아닌 경우 또는 메타 정보 추출 실패 시 `nil`
+    private func makeBuiltinSoundAsset(
+        from src: URL,
+        rootDirectoryName: String
+    ) -> Asset? {
+        let ok = ["mp3","m4a","wav","aac","caf","aiff","aif","flac"]
         guard ok.contains(src.pathExtension.lowercased()) else { return nil }
-        
+
         var fileSize = 0
         var createdAt = Date()
         if let rv = try? src.resourceValues(forKeys: [.fileSizeKey, .creationDateKey]) {
             fileSize = rv.fileSize ?? 0
             createdAt = rv.creationDate ?? Date()
         }
-        
+
         var duration: Double = 0
         if let f = try? AVAudioFile(forReading: src) {
             let sr = f.processingFormat.sampleRate
             duration = sr > 0 ? Double(f.length) / sr : 0
         }
-        
-        let baseName = src.deletingPathExtension().lastPathComponent
-        let channel = inferChannel(from: baseName)
-        
+
+        let channel = inferSoundChannel(from: src, rootDirectoryName: rootDirectoryName)
         let h = (try? sha256Hex(url: src)) ?? UUID().uuidString
-        
+        let displayName = src.deletingPathExtension().lastPathComponent
+
         return Asset(
             id: h,
             type: .sound,
-            filename: stripBuiltinPrefix(from: src.lastPathComponent),
+            filename: displayName,
             filesize: fileSize,
             url: src,
             createdAt: createdAt,
             image: nil,
-            sound: SoundAsset(origin: .basic, channel: channel, duration: duration, waveform: [])
+            sound: SoundAsset(
+                origin: .basic,
+                channel: channel,
+                duration: duration,
+                waveform: []
+            )
         )
     }
     
-    private func inferChannel(from baseName: String) -> SoundChannel {
-        let prefix = baseName.split(whereSeparator: { $0 == "_" || $0 == "-" || $0 == " " })
-            .first?.lowercased() ?? ""
-        switch prefix {
-        case "ambient", "amb", "bgm": return .ambient
-        case "foley", "fol", "sfx":  return .foley
-        default:                      return .ambient
-        }
-    }
-    
-    private func stripBuiltinPrefix(from base: String) -> String {
-        let seps = CharacterSet(charactersIn: "_- ")
-        let prefixes: Set<String> = ["ambient","amb","foley","fol","sfx","bgm"]
-        let tokens = base.split(whereSeparator: { ch in
-            guard let u = ch.unicodeScalars.first else { return false }
-            return seps.contains(u)
-        })
-        guard let first = tokens.first?.lowercased(),
-              prefixes.contains(first)
-        else { return base }
+    /// 번들 기본 사운드의 폴더 구조를 기반으로 사운드 채널(SoundChannel)을 추론
+    /// `rootDirectoryName` 이후의 첫 번째 하위 폴더명을 읽어 ambient / foley 등을 자동으로 매핑
+    /// 폴더 구조 예:
+    /// - BasicSoundAssets/Ambient/xxx.m4a  → .ambient
+    /// - BasicSoundAssets/Foley/yyy.wav    → .foley
+    ///
+    /// - Parameters:
+    ///   - url: 사운드 파일의 절대 URL
+    ///   - rootDirectoryName: 에셋의 루트 폴더 이름 (예: "BasicSoundAssets")
+    /// - Returns: 추론된 `SoundChannel` 값 (예: `.ambient`, `.foley`)
+    private func inferSoundChannel(
+        from url: URL,
+        rootDirectoryName: String
+    ) -> SoundChannel {
+        let components = url.pathComponents
 
-        if let rng = base.rangeOfCharacter(from: seps) {
-            let trimmed = base[rng.upperBound...].trimmingCharacters(in: seps)
-            return trimmed.isEmpty ? base : String(trimmed)
+        guard let rootIndex = components.firstIndex(of: rootDirectoryName),
+              components.count > rootIndex + 1 else {
+            return .ambient
         }
-        return base
+
+        let folderName = components[rootIndex + 1].lowercased()
+
+        switch folderName {
+        case "ambient", "bgm", "backgrounds":
+            return .ambient
+        case "foley", "sfx", "effects":
+            return .foley
+        default:
+            return .ambient
+        }
     }
 }
