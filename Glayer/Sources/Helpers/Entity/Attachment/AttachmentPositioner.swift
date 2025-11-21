@@ -11,14 +11,7 @@ enum AttachmentPositioner {
     static func positionAtTop(_ attachment: Entity, relativeTo parent: Entity, isVolumeMode: Bool) {
         let objectBounds = parent.visualBounds(relativeTo: parent)
         let attachmentBounds = attachment.visualBounds(relativeTo: nil)
-
-        let parentScale: SIMD3<Float>
-
-        if isVolumeMode {
-            parentScale = parent.scale(relativeTo: parent)
-        } else {
-            parentScale = parent.scale(relativeTo: nil)
-        }
+        let parentScale: SIMD3<Float> = parent.scale(relativeTo: nil)
 
         let baseLine: Float
         let margin: Float
@@ -26,16 +19,25 @@ enum AttachmentPositioner {
         if let imagePlane = parent.findEntity(named: "imagePlane") {
             let planeBounds = imagePlane.visualBounds(relativeTo: parent)
             let planeMargin = min(planeBounds.extents.x, planeBounds.extents.y)
-            margin = planeMargin * 1/8
+            
+            let width = planeBounds.extents.x
+            let height = planeBounds.extents.y
+            let glowCorrection = EntityBoundBoxApplier.calculateGlowCorrection(width: width, height: height)
+            
             baseLine = planeBounds.max.y
+            margin = planeMargin/4 - glowCorrection.height/2
         } else {
+            let width = objectBounds.extents.x
+            let height = objectBounds.extents.y
+            let glowCorrection = EntityBoundBoxApplier.calculateGlowCorrection(width: width, height: height)
+            
             baseLine = objectBounds.max.y
-            margin = min(objectBounds.extents.x, objectBounds.extents.y) * 1/4
+            margin = min(objectBounds.extents.x, objectBounds.extents.y)/4 - glowCorrection.height/2
         }
 
         let attachmentHalfHeight = (attachmentBounds.extents.y / 2) / parentScale.y
         
-        let yOffset: Float = baseLine + margin// + attachmentHalfHeight //objectBounds.max.y + margin + attachmentMargin
+        let yOffset: Float = baseLine + attachmentHalfHeight + margin // 이미지 최상단 + 어태치 먼트 바닥 + 마진(사진 마진/4 - 라인값/2)
         attachment.position = SIMD3<Float>(0, yOffset, 0.01)
     }
     
