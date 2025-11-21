@@ -15,7 +15,7 @@ struct LockIconAttachment: View {
         Image(systemName: "lock")
             .font(.system(size: fontSize, weight: .medium))
             .frame(width: frameSize, height: frameSize)
-            .background(.ultraThinMaterial, in: Circle())
+            .background(.blue.opacity(0.5), in: Circle())
             .contentShape(Circle())
             .hoverEffect()
             .overlay(
