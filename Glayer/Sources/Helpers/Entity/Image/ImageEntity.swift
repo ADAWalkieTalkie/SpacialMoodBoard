@@ -22,9 +22,9 @@ struct ImageEntity {
         let imageEntity = ModelEntity()
         imageEntity.name = sceneObject.id.uuidString
         imageEntity.position = sceneObject.position
-        imageEntity.scale = SIMD3<Float>(repeating: 1.0) // 명시적으로 1.0 설정 (크기는 mesh에 반영)
+        imageEntity.scale = SIMD3<Float>(repeating: imageAttrs.scale)
 
-        let size = calculateSize(from: asset, imageAttrs: imageAttrs)
+        let size = calculateSize(from: asset)
 
         Task { @MainActor in
             await Self.createPlane(
@@ -54,10 +54,8 @@ struct ImageEntity {
     // MARK: - Helper Methods
     
     /// 크기 계산
-    private static func calculateSize(from asset: Asset, imageAttrs: ImageAttributes) -> (width: Float, height: Float) {
-        let baseSize: Float = 0.5
-        let baseWidth = baseSize * imageAttrs.scale
-        
+    private static func calculateSize(from asset: Asset) -> (width: Float, height: Float) {
+        let baseWidth: Float = 0.5
         let imageWidth = Float(asset.image?.width ?? 1)
         let imageHeight = Float(asset.image?.height ?? 1)
         let aspectRatio = imageWidth > 0 ? (imageHeight / imageWidth) : 1.0
