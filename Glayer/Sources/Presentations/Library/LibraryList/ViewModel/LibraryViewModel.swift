@@ -44,14 +44,14 @@ final class LibraryViewModel {
     var originImageFilter: SortOrder.Origin = .basicOnly
     var originSoundFilter: SortOrder.Origin = .basicOnly
     var expandedImageChannels: [ImageChannel: Bool] = [
-        .background: true,
-        .floor: true,
-        .furniture: true,
-        .electronic: true,
-        .animal: true,
-        .plant: true
+        .background: false,
+        .floor: false,
+        .furniture: false,
+        .electronic: false,
+        .animal: false,
+        .plant: false
     ]
-    var expandedSoundChannels: [SoundChannel: Bool] = [.foley: true, .ambient: true]
+    var expandedSoundChannels: [SoundChannel: Bool] = [.foley: false, .ambient: false]
     var showSearch: Bool = false {
         didSet {
             if showSearch == false, !searchText.isEmpty {
