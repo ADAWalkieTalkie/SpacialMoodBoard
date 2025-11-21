@@ -175,7 +175,7 @@ enum EntityBoundBoxApplier {
     }
 
     /// Glow 효과로 인해 줄어드는 크기를 보정하기 위한 값 계산
-    private static func calculateGlowCorrection(width: Float, height: Float) -> (width: Float, height: Float) {
+    static func calculateGlowCorrection(width: Float, height: Float) -> (width: Float, height: Float) {
         let texW: CGFloat = 1024
         let texH: CGFloat = max(768, texW * CGFloat(height / max(width, 0.001)))
         let inset: CGFloat = 41  // makeGlowRectTexture의 inset 값 (glow + stroke/1.5)

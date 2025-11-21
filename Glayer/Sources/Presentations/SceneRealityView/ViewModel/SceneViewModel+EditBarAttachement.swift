@@ -152,7 +152,7 @@ extension SceneViewModel {
         entity.addChild(objectAttachment)
 
         // Attachment 위치 설정 (상단)
-        AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity)
+        AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity, isVolumeMode: appStateManager.appState.isVolumeOpen)
     }
     
     private func addSoundNameAttachment(to entity: ModelEntity, headPosition: SIMD3<Float>, sceneObject: SceneObject) {
