@@ -37,6 +37,7 @@
 // MARK: - Floor Image
 "floor.remove" = "바닥 이미지 제거";
 "floor.add" = "바닥 이미지 추가";
+"floor.change" = "바닥 이미지 변경";
 
 // MARK: - Mode
 "mode.label" = "모드";

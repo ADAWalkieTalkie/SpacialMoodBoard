@@ -37,6 +37,7 @@
 // MARK: - Floor Image
 "floor.remove" = "Remove Floor Image";
 "floor.add" = "Add Floor Image";
+"floor.change" = "Change Floor Image";
 
 // MARK: - Mode
 "mode.label" = "Mode";

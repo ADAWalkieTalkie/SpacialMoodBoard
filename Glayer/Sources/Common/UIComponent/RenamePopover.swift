@@ -18,7 +18,7 @@ struct RenamePopover: View {
     private let onDelete: ((_ id: String) -> Void)?
     private let onDuplicate: ((_ id: String, _ newTitle: String) -> Void)?
     private let onAddToFloor: ((_ id: String) -> Void)?
-    private let isCurrentFloorImage: Bool
+    private var floorState: FloorImageState = .none
     private let onCancel: () -> Void
 
     @FocusState private var isFocused: Bool
@@ -42,7 +42,7 @@ struct RenamePopover: View {
         onDelete: ((_ id: String) -> Void)? = nil,
         onDuplicate: ((_ id: String, _ newTitle: String) -> Void)? = nil,
         onAddToFloor: ((_ id: String) -> Void)? = nil,
-        isCurrentFloorImage: Bool = false,
+        floorState: FloorImageState = .none,
         onCancel: @escaping () -> Void
     ) {
         self.id = id
@@ -51,7 +51,7 @@ struct RenamePopover: View {
         self.onDelete = onDelete
         self.onDuplicate = onDuplicate
         self.onAddToFloor = onAddToFloor
-        self.isCurrentFloorImage = isCurrentFloorImage
+        self.floorState = floorState
         self.onCancel = onCancel
     }
     
@@ -74,11 +74,7 @@ struct RenamePopover: View {
                     onAddToFloor(id)
                     onCancel()
                 } label: {
-                    if isCurrentFloorImage {
-                        rowLabel(String(localized: "floor.remove"), system: "square.dashed")
-                    } else {
-                        rowLabel(String(localized: "floor.add"), system: "square.on.square.dashed")
-                    }
+                    rowLabel(floorState.changeFloorText, system: floorState.changeFloorSymbol)
                 }
                 .buttonStyle(.plain)
             }
