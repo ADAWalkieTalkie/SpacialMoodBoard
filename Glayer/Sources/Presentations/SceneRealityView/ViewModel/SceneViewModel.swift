@@ -65,6 +65,23 @@ final class SceneViewModel {
     // 조이스틱 속도 (rootEntity 이동용)
     var joystickVelocity: SIMD3<Float> = SIMD3<Float>(0, 0, 0)
 
+    // 조이스틱 활성화 상태 (Timer 제어용)
+    var isJoystickActive: Bool = false {
+        didSet {
+            if isJoystickActive {
+                startJoystickMovement()
+            } else {
+                stopJoystickMovement()
+            }
+        }
+    }
+
+    // 조이스틱 업데이트용 Timer
+    var joystickUpdateTimer: Timer?
+
+    // 시간 추적 (deltaTime 계산용)
+    let timeTracker = TimeTracker()
+
     // 회전 각도 (Volume용)
     var rotationAngle: Float = 0
 
@@ -113,6 +130,7 @@ final class SceneViewModel {
     func reset() {
         entityRepository.clearAllCaches()
         selectedEntity = nil
+        stopJoystickMovement()
     }
 
     // MARK: - Scene Persistence

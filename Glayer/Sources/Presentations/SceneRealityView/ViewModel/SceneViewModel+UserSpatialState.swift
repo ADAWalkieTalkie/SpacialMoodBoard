@@ -25,8 +25,8 @@ extension SceneViewModel {
     /// 조이스틱 속도에 따라 userScenePosition 업데이트 (매 프레임 호출)
     /// - Parameter deltaTime: 이전 프레임부터 경과한 시간 (초)
     func updatePositionFromJoystickVelocity(deltaTime: Float) {
-        let maxDistance: Float = 4.0
-        let minDistance: Float = -4.0
+        let maxDistance: Float = SceneConstants.floorHalfSize * 8
+        let minDistance: Float = -SceneConstants.floorHalfSize * 8
         // 속도가 0이면 업데이트하지 않음
         guard simd_length(joystickVelocity) > 0.001 else { return }
         
@@ -45,6 +45,59 @@ extension SceneViewModel {
         userSpatialState = state
     }
 
+    // MARK: - Joystick Movement Timer
+
+    /// 조이스틱 이동 Timer 시작 (60fps)
+    func startJoystickMovement() {
+        // 이미 Timer가 실행 중이면 중복 시작 방지
+        guard joystickUpdateTimer == nil else { return }
+
+        // TimeTracker 초기화 (deltaTime 계산용)
+        timeTracker.lastUpdateTime = Date()
+
+        joystickUpdateTimer = Timer.scheduledTimer(
+            withTimeInterval: 1.0/60.0,
+            repeats: true
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+
+                // 조이스틱 속도가 0이면 early return
+                guard simd_length(self.joystickVelocity) > 0.001 else {
+                    return
+                }
+
+                // DeltaTime 계산
+                let deltaTime = self.timeTracker.getDeltaTime()
+
+                // 조이스틱 속도에 따라 위치 업데이트
+                self.updatePositionFromJoystickVelocity(deltaTime: deltaTime)
+
+                // Root Entity 위치 업데이트
+                guard let rootEntity = self.rootEntity else { return }
+
+                let basePosition: SIMD3<Float>
+                if self.appStateManager.appState.isImmersiveOpen {
+                    // Immersive 모드: rootEntityPosition 사용
+                    basePosition = SIMD3<Float>(0, SceneConstants.ImmersiveMode.yPosition, 0)
+                } else {
+                    // Volume 모드: 기본 위치
+                    basePosition = SIMD3<Float>(0, 0, 0)
+                }
+
+                rootEntity.position = basePosition + self.userSpatialState.userScenePosition
+            }
+        }
+    }
+
+    /// 조이스틱 이동 Timer 중지
+    func stopJoystickMovement() {
+        joystickUpdateTimer?.invalidate()
+        joystickUpdateTimer = nil
+    }
+
+    // MARK: - Head Anchor Tracking
+    
     /// Head Anchor의 위치와 회전을 UserSpatialState에 동기화
     /// - Parameters:
     ///   - position: Head Anchor의 위치 (Volume: rootEntity 기준, Immersive: 월드 좌표계)
