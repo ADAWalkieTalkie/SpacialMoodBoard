@@ -99,7 +99,7 @@ Glayer는 단순한 편집 도구가 아닌,
 
 | 오세광<br/>([@Potalzz](https://github.com/Potalzz)) | 정민지<br/>([@wjdalswl](https://github.com/wjdalswl)) | 차봉준<br/>([@bongjooncha](https://github.com/bongjooncha)) |
 | :---: | :---: | :---: |
-| <img width="400" alt="Image" src="https://github.com/user-attachments/assets/8578743f-4fe2-4409-9e02-a0f2292023af" /> | <img width="400" alt="Image" src="https://github.com/user-attachments/assets/cf505bfc-b20e-4e24-af3d-3910b16faf1b" /> | <img width="360" alt="Image" src="https://github.com/user-attachments/assets/96c3a0b1-5b0a-475f-b5c0-3006f3674ea5" /> |
+| <img width="400" alt="Image" src="https://github.com/user-attachments/assets/8578743f-4fe2-4409-9e02-a0f2292023af" /> | <img width="400" alt="Image" src="https://github.com/user-attachments/assets/cf505bfc-b20e-4e24-af3d-3910b16faf1b" /> | <img width="400" alt="Image" src="https://github.com/user-attachments/assets/96c3a0b1-5b0a-475f-b5c0-3006f3674ea5" /> |
 
 <br>
 
