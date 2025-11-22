@@ -10,6 +10,7 @@ extension View {
         onScaleUpdate: @escaping (UUID, Float) -> Void,
         onGestureStart: (() -> Void)?,
         onGestureEnd: (() -> Void)?,
+        onBoundaryCollision: ((ModelEntity) -> Void)? = nil,
         movementBounds: MovementBounds = .default
     ) -> some View {
         self
@@ -20,6 +21,7 @@ extension View {
                 onRotationUpdate: onRotationUpdate,
                 onGestureStart: onGestureStart,
                 onGestureEnd: onGestureEnd,
+                onBoundaryCollision: onBoundaryCollision,
                 movementBounds: movementBounds
             )
             .entityScaleGesture(

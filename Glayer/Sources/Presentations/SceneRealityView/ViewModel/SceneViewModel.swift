@@ -16,6 +16,9 @@ final class SceneViewModel {
     let createObjectUseCase: CreateObjectUseCase
     private var needsEntitySync: Bool = false
 
+    // MARK: - Boundary Collision
+    let boundaryCollisionManager: BoundaryCollisionManager
+
     // MARK: - Initialization
     init(appStateManager: AppStateManager,
          sceneModelFileStorage: SceneModelFileStorage,
@@ -33,6 +36,7 @@ final class SceneViewModel {
             sceneObjectRepository: sceneObjectRepository,
             entityRepository: entityRepository
         )
+        self.boundaryCollisionManager = BoundaryCollisionManager()
     }
     
     
@@ -131,6 +135,7 @@ final class SceneViewModel {
         entityRepository.clearAllCaches()
         selectedEntity = nil
         stopJoystickMovement()
+        boundaryCollisionManager.removeBoundaryWalls()
     }
 
     // MARK: - Scene Persistence

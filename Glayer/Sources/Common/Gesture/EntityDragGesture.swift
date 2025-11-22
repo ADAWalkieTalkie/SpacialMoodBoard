@@ -9,9 +9,10 @@ struct EntityDragGesture: ViewModifier {
     let onRotationUpdate: (UUID, SIMD3<Float>) -> Void
     let onGestureStart: (() -> Void)?
     let onGestureEnd: (() -> Void)?
-    
+    let onBoundaryCollision: ((ModelEntity) -> Void)?
+
     let movementBounds: MovementBounds
-    
+
     @State private var initialPosition: SIMD3<Float>? = nil
     @State private var minY: Float = 0  // 제스처 시작 시 한 번만 계산하여 저장
     
@@ -48,6 +49,11 @@ struct EntityDragGesture: ViewModifier {
                         var clampedPosition = movementBounds.clamp(newPosition)
                         clampedPosition.y = max(minY, clampedPosition.y)
                         currentEntity.position = clampedPosition
+
+                        // 경계면 충돌 확인
+                        if let modelEntity = currentEntity as? ModelEntity {
+                            onBoundaryCollision?(modelEntity)
+                        }
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
@@ -78,6 +84,7 @@ extension View {
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         onGestureStart: (() -> Void)?,
         onGestureEnd: (() -> Void)?,
+        onBoundaryCollision: ((ModelEntity) -> Void)? = nil,
         movementBounds: MovementBounds = .default
     ) -> some View {
         self.modifier(EntityDragGesture(
@@ -86,6 +93,7 @@ extension View {
             onRotationUpdate: onRotationUpdate,
             onGestureStart: onGestureStart,
             onGestureEnd: onGestureEnd,
+            onBoundaryCollision: onBoundaryCollision,
             movementBounds: movementBounds
         ))
     }

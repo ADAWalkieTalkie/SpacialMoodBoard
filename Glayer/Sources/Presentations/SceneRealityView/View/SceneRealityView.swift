@@ -81,6 +81,9 @@ struct SceneRealityView: View {
                         viewModel.endGesture()
                         viewModel.updateAttachmentScales()
                     },
+                    onBoundaryCollision: { entity in
+                        viewModel.checkBoundaryCollision(for: entity)
+                    },
                     movementBounds: config.movementBounds
                 )
             }
@@ -117,13 +120,18 @@ struct SceneRealityView: View {
             if let existingHuman = floor.findEntity(named: "humanScaleEntity") {
                 existingHuman.removeFromParent()
             }
-            
+
             // Immersive 전용: RealityKit Content (낮/밤 시간대에 따라 선택적 로드)
             await viewModel.loadImmersiveBackground(on: floor)
-            
+
             // Volume에서 설정된 회전 각도를 Immersive에도 적용
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
             rootEntity.transform.rotation = rotation
+
+            // 경계 벽면 설정 (Immersive 모드에서만)
+            if config.enableGestures {
+                viewModel.setupBoundaryWalls(in: rootEntity)
+            }
         }
     }
     
