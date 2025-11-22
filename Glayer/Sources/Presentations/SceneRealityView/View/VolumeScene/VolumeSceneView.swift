@@ -33,5 +33,9 @@ struct VolumeSceneView: View {
                     .zIndex(99999999)
             }
         }
+        .toast(
+            isPresented: $viewModel.showLoadingEntityToast,
+            message: .loadingAssets
+        )
     }
 }

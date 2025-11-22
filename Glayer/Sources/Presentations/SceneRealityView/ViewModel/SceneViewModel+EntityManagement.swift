@@ -20,6 +20,37 @@ extension SceneViewModel {
         )
     }
 
+    func loadEntities(
+        sceneObjects: [SceneObject],
+        rootEntity: Entity
+    ) async {  // async 추가
+        // rootEntity 참조 저장
+        self.rootEntity = rootEntity
+        
+        // Volume 모드일 때만 로딩 토스트 표시
+        if appStateManager.appState.isVolumeOpen {
+            showLoadingEntityToast = true
+            
+            // UI가 업데이트될 시간을 주기 위해 짧은 딜레이
+            try? await Task.sleep(for: .milliseconds(50))
+        }
+        
+        // syncEntities 실행 (동기 함수지만 async 컨텍스트에서 호출)
+        entityRepository.syncEntities(
+            sceneObjects: sceneObjects,
+            rootEntity: rootEntity,
+            assetRepository: assetRepository
+        )
+        
+        if appStateManager.appState.isVolumeOpen {
+            // 최소 표시 시간 보장
+            try? await Task.sleep(for: .milliseconds(300))
+            
+            // 토스트 숨김
+            showLoadingEntityToast = false
+        }
+    }
+
     /// 특정 ID의 엔티티를 가져오기
     func getEntity(for id: UUID) -> ModelEntity? {
         return entityRepository.getEntity(for: id)
