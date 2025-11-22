@@ -1,5 +1,6 @@
 import RealityKit
 import Observation
+import UIKit
 
 /// 엔티티와 경계면 충돌을 감지하고 시각적 피드백을 제공하는 매니저
 @MainActor
@@ -42,6 +43,27 @@ final class BoundaryCollisionManager {
     func removeBoundaryWalls() {
         boundaryWalls?.removeFromParent()
         boundaryWalls = nil
+        activeCollisions.removeAll()
+    }
+
+    /// 모든 충돌 상태 초기화 (제스처 종료 시 호출)
+    func clearCollisions() {
+        print("🔄 [BoundaryCollision] clearCollisions() 호출 - activeCollisions: \(activeCollisions.keys.joined(separator: ", "))")
+
+        guard let wallsContainer = boundaryWalls else {
+            print("⚠️ [BoundaryCollision] boundaryWalls가 nil")
+            return
+        }
+
+        // 활성화된 모든 벽면을 투명하게 복원
+        for wallName in activeCollisions.keys {
+            if let wall = findWall(named: wallName, in: wallsContainer) {
+                resetWall(wall)
+            } else {
+                print("❌ [BoundaryCollision] 벽면을 찾을 수 없음: \(wallName)")
+            }
+        }
+
         activeCollisions.removeAll()
     }
 
@@ -128,7 +150,10 @@ final class BoundaryCollisionManager {
             if activeCollisions[wallName] == nil {
                 // 새 충돌 - glow 효과 적용
                 if let wall = findWall(named: wallName, in: wallsContainer) {
+                    print("🎨 [BoundaryCollision] applyGlowEffect(\(wallName), intensity: \(intensity))")
                     BoundaryWallEntity.applyGlowEffect(to: wall, intensity: intensity)
+                } else {
+                    print("❌ [BoundaryCollision] 벽면을 찾을 수 없음: \(wallName)")
                 }
             } else if activeCollisions[wallName] != intensity {
                 // 강도 변경 - glow 업데이트
@@ -159,9 +184,14 @@ final class BoundaryCollisionManager {
     /// 벽면을 투명 상태로 복원
     private func resetWall(_ wall: ModelEntity) {
         var material = PhysicallyBasedMaterial()
+        material.baseColor = .init(tint: .clear)  // 명시적으로 clear 설정
         material.blending = .transparent(opacity: 0.0)
         material.faceCulling = .none
 
-        wall.model?.materials = [material]
+        if wall.model != nil {
+            wall.model?.materials = [material]
+        } else {
+            print("❌ [BoundaryCollision] wall.model이 nil - \(wall.name)")
+        }
     }
 }

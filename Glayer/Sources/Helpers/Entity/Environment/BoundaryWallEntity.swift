@@ -85,12 +85,21 @@ enum BoundaryWallEntity {
     ///   - wall: 벽면 엔티티
     ///   - intensity: 효과 강도 (0.0 ~ 1.0)
     static func applyGlowEffect(to wall: ModelEntity, intensity: Float = 1.0) {
+        print("🎨 [BoundaryWall] applyGlowEffect 시작 - wall: \(wall.name), intensity: \(intensity)")
+
         // Assets에서 img_collisionFeedback 이미지 로드
-        guard let uiImage = UIImage(named: "img_collisionFeedback"),
-              let cgImage = uiImage.cgImage,
-              let texture = try? TextureResource(image: cgImage, options: .init(semantic: .color))
-        else {
-            print("⚠️ img_collisionFeedback 이미지를 로드할 수 없습니다.")
+        guard let uiImage = UIImage(named: "img_collisionFeedback") else {
+            print("❌ [BoundaryWall] UIImage 로드 실패")
+            return
+        }
+
+        guard let cgImage = uiImage.cgImage else {
+            print("❌ [BoundaryWall] cgImage 변환 실패")
+            return
+        }
+
+        guard let texture = try? TextureResource(image: cgImage, options: .init(semantic: .color)) else {
+            print("❌ [BoundaryWall] TextureResource 생성 실패")
             return
         }
 
@@ -102,7 +111,11 @@ enum BoundaryWallEntity {
         material.blending = .transparent(opacity: 1.0)
         material.faceCulling = .none
 
-        wall.model?.materials = [material]
+        if wall.model != nil {
+            wall.model?.materials = [material]
+        } else {
+            print("❌ [BoundaryWall] wall.model이 nil")
+        }
     }
 
 }

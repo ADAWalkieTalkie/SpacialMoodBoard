@@ -51,6 +51,8 @@ final class SceneViewModel {
     }
     func endGesture() {
         isGestureActive = false
+        // 제스처 종료 시 모든 경계 충돌 상태 초기화
+        boundaryCollisionManager.clearCollisions()
     }
 
     // MARK: - Entity Management

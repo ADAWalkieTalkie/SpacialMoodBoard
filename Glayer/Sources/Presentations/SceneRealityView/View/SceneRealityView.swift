@@ -109,6 +109,11 @@ struct SceneRealityView: View {
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
             rootEntity.transform.rotation = rotation
             
+            // 경계 벽면 설정 (제스처가 활성화된 경우)
+            if config.enableGestures {
+                viewModel.setupBoundaryWalls(in: rootEntity)
+            }
+
         // Immersive일 때
         } else if appStateManager.appState.isImmersiveOpen {
             rootEntity.transform.translation = config.rootEntityPosition
@@ -128,7 +133,7 @@ struct SceneRealityView: View {
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
             rootEntity.transform.rotation = rotation
 
-            // 경계 벽면 설정 (Immersive 모드에서만)
+            // 경계 벽면 설정 (제스처가 활성화된 모드: Immersive 및 Volume)
             if config.enableGestures {
                 viewModel.setupBoundaryWalls(in: rootEntity)
             }
