@@ -28,9 +28,8 @@ enum EntityBoundBoxApplier {
             width = floorSize
             height = floorSize
 
-            let glowCorrection = calculateGlowCorrection(width: floorSize, height: floorSize)
-            expandedW = floorSize + glowCorrection.width
-            expandedH = floorSize + glowCorrection.height
+            expandedW = floorSize
+            expandedH = floorSize
         } else {
             // collision shapes에서 width와 height 가져오기
             if let collision = entity.collision,
@@ -125,7 +124,8 @@ enum EntityBoundBoxApplier {
     private static func makeGlowRectTexture(size: CGSize, cornerRadius: CGFloat, color: UIColor = .white, isFloor: Bool, rotation: SIMD3<Float>? = nil) -> TextureResource? {
         let stroke: CGFloat = 1.5
         let glow: CGFloat = 40
-        let inset = glow + stroke / 1.5
+        let inset = isFloor ? 0 : (glow + stroke / 1.5)
+        
         let rect = CGRect(origin: .zero, size: size).insetBy(dx: inset, dy: inset)
         let path = UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
         
@@ -135,13 +135,23 @@ enum EntityBoundBoxApplier {
             ctx.fill(CGRect(origin: .zero, size: size))
             
             ctx.cgContext.saveGState()
+
+            if isFloor {
+                path.addClip()
+            }
+
             ctx.cgContext.setShadow(offset: .zero, blur: glow * 0.6,
                                     color: color.withAlphaComponent(0.4).cgColor)
+            
             color.withAlphaComponent(1).setStroke()
-            path.lineWidth = isFloor ? (stroke + glow * 0.4) / 2 : stroke + glow * 0.4
+            
+            let lineWidth = isFloor ? (stroke * 2) : (stroke + glow * 0.4)
+            path.lineWidth = lineWidth
             path.stroke()
+            
             ctx.cgContext.restoreGState()
         }
+        
         guard let cg = image.cgImage else { return nil }
         return try? TextureResource(image: cg, options: .init(semantic: .color))
     }
