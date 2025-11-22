@@ -80,26 +80,19 @@ enum BoundaryWallEntity {
         return wall
     }
 
-    /// 벽면에 Blue Glow 효과 적용
-    /// - Parameter wall: 벽면 엔티티
+    /// 벽면에 충돌 피드백 효과 적용
+    /// - Parameters:
+    ///   - wall: 벽면 엔티티
+    ///   - intensity: 효과 강도 (0.0 ~ 1.0)
     static func applyGlowEffect(to wall: ModelEntity, intensity: Float = 1.0) {
-        guard let mesh = wall.model?.mesh else { return }
-
-        // 벽면 크기 계산
-        let bounds = mesh.bounds
-        let width = bounds.extents.x
-        let height = bounds.extents.y
-        
-        let cornerRadius = 0.1
-
-        // Blue glow texture 생성
-        let texSize = CGSize(width: 1024, height: 1024)
-        guard let texture = makeBlueGlowTexture(
-            size: texSize,
-            width: width,
-            height: height,
-            cornerRadius: cornerRadius
-        ) else { return }
+        // Assets에서 img_collisionFeedback 이미지 로드
+        guard let uiImage = UIImage(named: "img_collisionFeedback"),
+              let cgImage = uiImage.cgImage,
+              let texture = try? TextureResource(image: cgImage, options: .init(semantic: .color))
+        else {
+            print("⚠️ img_collisionFeedback 이미지를 로드할 수 없습니다.")
+            return
+        }
 
         // Glow material 적용
         var material = PhysicallyBasedMaterial()
@@ -112,45 +105,4 @@ enum BoundaryWallEntity {
         wall.model?.materials = [material]
     }
 
-    /// Blue Glow 테두리 텍스처 생성
-    private static func makeBlueGlowTexture(
-        size: CGSize,
-        width: Float,
-        height: Float,
-        cornerRadius: CGFloat
-    ) -> TextureResource? {
-        let stroke: CGFloat = 2.0
-        let glow: CGFloat = 50
-        let inset = glow + stroke / 1.5
-
-        let rect = CGRect(origin: .zero, size: size).insetBy(dx: inset, dy: inset)
-        let path = UIBezierPath(rect: rect)
-
-        // Blue 컬러 (#0080FF)
-        let blueColor = UIColor(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0)
-
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let image = renderer.image { ctx in
-            UIColor.clear.setFill()
-            ctx.fill(CGRect(origin: .zero, size: size))
-
-            ctx.cgContext.saveGState()
-
-            // Glow 효과 (퍼지는 느낌)
-            ctx.cgContext.setShadow(
-                offset: .zero,
-                blur: stroke + glow * 0.6,
-                color: blueColor.withAlphaComponent(0.6).cgColor
-            )
-
-            blueColor.withAlphaComponent(1.0).setStroke()
-            path.lineWidth = stroke
-            path.stroke()
-
-            ctx.cgContext.restoreGState()
-        }
-
-        guard let cgImage = image.cgImage else { return nil }
-        return try? TextureResource(image: cgImage, options: .init(semantic: .color))
-    }
 }
