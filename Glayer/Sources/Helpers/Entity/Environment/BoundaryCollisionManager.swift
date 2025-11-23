@@ -358,12 +358,14 @@ final class BoundaryCollisionManager {
     private func updateCollisionFeedback(_ newCollisions: Set<String>) {
         guard boundaryWalls != nil else { return }
 
-        // 새로 충돌한 벽면: glow 효과 적용
+        // 새로 충돌한 벽면: glow 효과 적용 및 사운드 재생
         for wallName in newCollisions {
             if !activeCollisions.contains(wallName) {
                 // 새 충돌 - glow 효과 적용
                 if let wall = wallEntities[wallName] {
                     BoundaryWallEntity.applyGlowEffect(to: wall)
+                    // 경계면 충돌 사운드 재생
+                    SoundFX.shared.play(.boundaryCollision)
                 } else {
                     #if DEBUG
                     print("❌ [BoundaryCollision] 벽면을 찾을 수 없음: \(wallName)")
