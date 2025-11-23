@@ -17,6 +17,8 @@ struct SceneConfig {
         useHeadAnchoredToolbar: true,
         rootEntityPosition: [0, SceneConstants.ImmersiveMode.yPosition, 0]
     )
-    
-    static let volume = SceneConfig()
+
+    static let volume = SceneConfig(
+        enableGestures: true  // Volume 모드에서도 제스처 및 경계 충돌 감지 활성화
+    )
 }

@@ -16,6 +16,9 @@ final class SceneViewModel {
     let createObjectUseCase: CreateObjectUseCase
     private var needsEntitySync: Bool = false
 
+    // MARK: - Boundary Collision
+    let boundaryCollisionManager: BoundaryCollisionManager
+
     // MARK: - Initialization
     init(appStateManager: AppStateManager,
          sceneModelFileStorage: SceneModelFileStorage,
@@ -33,6 +36,7 @@ final class SceneViewModel {
             sceneObjectRepository: sceneObjectRepository,
             entityRepository: entityRepository
         )
+        self.boundaryCollisionManager = BoundaryCollisionManager()
     }
     
     
@@ -47,6 +51,8 @@ final class SceneViewModel {
     }
     func endGesture() {
         isGestureActive = false
+        // 제스처 종료 시 모든 경계 충돌 상태 초기화
+        boundaryCollisionManager.clearCollisions()
     }
 
     // MARK: - Entity Management
@@ -134,6 +140,7 @@ final class SceneViewModel {
         entityRepository.clearAllCaches()
         selectedEntity = nil
         stopJoystickMovement()
+        boundaryCollisionManager.removeBoundaryWalls()
     }
 
     // MARK: - Scene Persistence

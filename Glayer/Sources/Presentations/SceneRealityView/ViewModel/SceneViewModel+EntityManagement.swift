@@ -60,4 +60,14 @@ extension SceneViewModel {
     func getFloorEntity() async -> ModelEntity? {
         return await entityRepository.getOrCreateFloorEntity(floorImageURL: self.floorImageURL)
     }
+
+    /// 경계 벽면 설정
+    func setupBoundaryWalls(in rootEntity: Entity) {
+        boundaryCollisionManager.setupBoundaryWalls(in: rootEntity)
+    }
+
+    /// 엔티티 위치 변경 시 경계면 충돌 확인
+    func checkBoundaryCollision(for entity: ModelEntity) {
+        boundaryCollisionManager.checkCollision(for: entity)
+    }
 }

@@ -9,4 +9,5 @@ enum SFX: String {
     case addToLibrary = "AddToLibarary"
     case assetOnVolume = "AssetOnVolume"
     case rotationSceneObject = "RotationSceneObject"
+    case boundaryCollision = "BoundaryCollisionFeedback"
 }
