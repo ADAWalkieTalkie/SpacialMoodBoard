@@ -12,6 +12,9 @@ final class BoundaryCollisionManager {
     /// 경계 벽면 컨테이너
     private(set) var boundaryWalls: Entity?
 
+    /// 경계 벽면 참조 (성능 최적화용 캐시)
+    private var wallEntities: [String: ModelEntity] = [:]
+
     /// 이동 범위
     private let movementBounds: MovementBounds
 
@@ -31,11 +34,13 @@ final class BoundaryCollisionManager {
     func setupBoundaryWalls(in parent: Entity) {
         // 기존 벽면 제거
         boundaryWalls?.removeFromParent()
+        wallEntities.removeAll()
 
         // 새 벽면 생성
-        let walls = BoundaryWallEntity.createWalls(for: movementBounds)
+        let (walls, entities) = BoundaryWallEntity.createWalls(for: movementBounds)
         parent.addChild(walls)
         boundaryWalls = walls
+        wallEntities = entities
 
     }
 
@@ -43,24 +48,28 @@ final class BoundaryCollisionManager {
     func removeBoundaryWalls() {
         boundaryWalls?.removeFromParent()
         boundaryWalls = nil
+        wallEntities.removeAll()
         activeCollisions.removeAll()
     }
 
     /// 모든 충돌 상태 초기화 (제스처 종료 시 호출)
     func clearCollisions() {
-        print("🔄 [BoundaryCollision] clearCollisions() 호출 - activeCollisions: \(activeCollisions.joined(separator: ", "))")
 
-        guard let wallsContainer = boundaryWalls else {
+        guard boundaryWalls != nil else {
+            #if DEBUG
             print("⚠️ [BoundaryCollision] boundaryWalls가 nil")
+            #endif
             return
         }
 
         // 활성화된 모든 벽면을 숨김
         for wallName in activeCollisions {
-            if let wall = findWall(named: wallName, in: wallsContainer) {
+            if let wall = wallEntities[wallName] {
                 hideWall(wall)
             } else {
+                #if DEBUG
                 print("❌ [BoundaryCollision] 벽면을 찾을 수 없음: \(wallName)")
+                #endif
             }
         }
 
@@ -138,17 +147,18 @@ final class BoundaryCollisionManager {
 
     /// 충돌 상태에 따른 시각적 피드백 업데이트
     private func updateCollisionFeedback(_ newCollisions: Set<String>) {
-        guard let wallsContainer = boundaryWalls else { return }
+        guard boundaryWalls != nil else { return }
 
         // 새로 충돌한 벽면: glow 효과 적용
         for wallName in newCollisions {
             if !activeCollisions.contains(wallName) {
                 // 새 충돌 - glow 효과 적용
-                if let wall = findWall(named: wallName, in: wallsContainer) {
-                    print("🎨 [BoundaryCollision] applyGlowEffect(\(wallName))")
+                if let wall = wallEntities[wallName] {
                     BoundaryWallEntity.applyGlowEffect(to: wall)
                 } else {
+                    #if DEBUG
                     print("❌ [BoundaryCollision] 벽면을 찾을 수 없음: \(wallName)")
+                    #endif
                 }
             }
         }
@@ -156,7 +166,7 @@ final class BoundaryCollisionManager {
         // 충돌이 끝난 벽면: 숨김 처리
         for wallName in activeCollisions {
             if !newCollisions.contains(wallName) {
-                if let wall = findWall(named: wallName, in: wallsContainer) {
+                if let wall = wallEntities[wallName] {
                     hideWall(wall)
                 }
             }
@@ -164,11 +174,6 @@ final class BoundaryCollisionManager {
 
         // 상태 업데이트
         activeCollisions = newCollisions
-    }
-
-    /// 벽면 찾기
-    private func findWall(named name: String, in container: Entity) -> ModelEntity? {
-        return container.findEntity(named: "boundaryWall_\(name)") as? ModelEntity
     }
 
     /// 벽면을 완전히 숨김

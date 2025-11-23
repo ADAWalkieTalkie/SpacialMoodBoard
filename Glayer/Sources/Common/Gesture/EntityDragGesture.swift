@@ -51,13 +51,15 @@ struct EntityDragGesture: ViewModifier {
                         currentEntity.position = clampedPosition
 
                         // 경계면 충돌 확인
-                        if let modelEntity = currentEntity as? ModelEntity {
+                        if let modelEntity = selectedEntity {
                             onBoundaryCollision?(modelEntity)
                         }
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
+                            #if DEBUG
                             print("❌ Entity name을 UUID로 변환 실패")
+                            #endif
                             initialPosition = nil
                             minY = 0
                             return
