@@ -1,0 +1,102 @@
+/*
+  Localizable.strings (Hindi)
+  SpacialMoodBoard
+*/
+
+// MARK: - Sort Order
+"sort.mostRecent" = "हाल का";
+"sort.byName" = "नाम के अनुसार";
+"sort.basicAssets" = "बुनियादी संपत्तियां";
+"sort.userAdded" = "उपयोगकर्ता द्वारा जोड़ा गया";
+
+// MARK: - Image Channel
+"image.background" = "पृष्ठभूमि";
+"image.floor" = "फर्श";
+"image.furniture" = "फर्नीचर";
+"image.light" = "प्रकाश";
+"image.electronic" = "इलेक्ट्रॉनिक्स";
+"image.animal" = "जानवर";
+"image.plant" = "पौधे";
+
+// MARK: - Sound Channel
+"sound.effect" = "ध्वनि प्रभाव";
+"sound.ambient" = "परिवेशी";
+
+// MARK: - Common Actions
+"action.confirm" = "पुष्टि करें";
+"action.done" = "हो गया";
+"action.rename" = "नाम बदलें";
+"action.duplicate" = "डुप्लिकेट करें";
+"action.delete" = "हटाएं";
+"action.cancel" = "रद्द करें";
+"action.copy" = "कॉपी करें";
+"action.crop" = "क्रॉप करें";
+"action.yes" = "हां";
+"action.no" = "नहीं";
+
+// MARK: - Floor Image
+"floor.remove" = "फर्श की छवि हटाएं";
+"floor.add" = "फर्श की छवि जोड़ें";
+"floor.change" = "फर्श की छवि बदलें";
+
+// MARK: - Mode
+"mode.label" = "मोड";
+
+// MARK: - Project
+"project.title" = "प्रोजेक्ट";
+"project.new" = "नया प्रोजेक्ट";
+"project.untitled" = "शीर्षकहीन";
+"project.none" = "कोई नहीं";
+"project.delete.confirmation" = "क्या आप इस प्रोजेक्ट को हटाना चाहते हैं?";
+
+// MARK: - Import
+"import.images" = "छवियां आयात करें";
+"import.file" = "फ़ाइल";
+"import.photo" = "फोटो";
+"import.paste" = "पेस्ट करें";
+"import.dragAndDrop" = "छवियों को ड्रैग और ड्रॉप करें";
+
+// MARK: - Library
+"library.title" = "लाइब्रेरी";
+"library.image" = "छवि";
+"library.sound" = "ध्वनि";
+"library.imageCollection" = "छवि संग्रह";
+"library.imageEditor" = "छवि संपादक";
+"library.noImages" = "कोई छवि उपलब्ध नहीं है";
+"library.addToLibrary" = "लाइब्रेरी में जोड़ें";
+"library.addedAssets" = "जोड़ी गई संपत्तियां";
+"library.noAddedAssets" = "अभी तक कोई संपत्ति नहीं जोड़ी गई";
+
+// MARK: - Delete Confirmation
+"delete.confirmation" = "क्या आप %@ को हटाना चाहते हैं?";
+
+// MARK: - Toast
+"toast.addToLibrary.title" = "संपत्ति जोड़ी गई";
+"toast.addToLibrary.subtitle" = "संपत्ति को लाइब्रेरी में सहेजा गया है।";
+
+"toast.addToLibraryFail.title" = "संपत्ति जोड़ने में विफल";
+"toast.addToLibraryFail.subtitle" = "लाइब्रेरी में सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।";
+
+"toast.loadingError.title" = "लोडिंग त्रुटि";
+"toast.loadingError.subtitle" = "संपत्ति लोड करने में विफल।";
+
+"toast.loadingImageEdit.title" = "छवि संपादन तैयार किया जा रहा है";
+"toast.loadingAssets.title" = "संपत्तियां लोड हो रही हैं";
+
+"toast.addToVolume.title" = "स्थान में जोड़ा गया।";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "पृष्ठभूमि हटाएं";
+"guiding.imageEdit.removeBackground.description" = "पृष्ठभूमि हटाएं, फिर उस क्षेत्र का चयन करने के लिए ड्रैग करें जिसे आप रखना चाहते हैं।";
+"guiding.imageEdit.keepAsIs.title" = "जैसा है वैसे ही लाएं";
+"guiding.imageEdit.keepAsIs.description" = "पृष्ठभूमि क्षेत्र को ड्रैग करें या छवि के नीचे बटन टैप करें।";
+"guiding.imageEdit.finish.title" = "संपादन समाप्त करें";
+"guiding.imageEdit.finish.description" = "संपादन पूरा करें और अपनी संपत्ति को अंतिम रूप दें।";
+
+"guiding.assetPlacement.place.title" = "संपत्ति रखें";
+"guiding.assetPlacement.place.description" = "संपत्ति को पकड़ें और जहां चाहें वहां रखें।";
+"guiding.assetPlacement.rotate.title" = "घुमाएं";
+"guiding.assetPlacement.rotate.description" = "संपत्ति को अपने पसंदीदा कोण में समायोजित करें।";
+"guiding.assetPlacement.scale.title" = "स्केल करें";
+"guiding.assetPlacement.scale.description" = "संपत्ति को अपने वांछित स्केल में समायोजित करें।";
+

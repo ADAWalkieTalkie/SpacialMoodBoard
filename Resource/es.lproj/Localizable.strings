@@ -1,0 +1,102 @@
+/*
+  Localizable.strings (Spanish)
+  SpacialMoodBoard
+*/
+
+// MARK: - Sort Order
+"sort.mostRecent" = "Reciente";
+"sort.byName" = "Por nombre";
+"sort.basicAssets" = "Recursos básicos";
+"sort.userAdded" = "Agregado por usuario";
+
+// MARK: - Image Channel
+"image.background" = "Fondos";
+"image.floor" = "Suelos";
+"image.furniture" = "Muebles";
+"image.light" = "Luces";
+"image.electronic" = "Electrónica";
+"image.animal" = "Animales";
+"image.plant" = "Plantas";
+
+// MARK: - Sound Channel
+"sound.effect" = "Efecto de sonido";
+"sound.ambient" = "Ambiental";
+
+// MARK: - Common Actions
+"action.confirm" = "Confirmar";
+"action.done" = "Listo";
+"action.rename" = "Renombrar";
+"action.duplicate" = "Duplicar";
+"action.delete" = "Eliminar";
+"action.cancel" = "Cancelar";
+"action.copy" = "Copiar";
+"action.crop" = "Recortar";
+"action.yes" = "Sí";
+"action.no" = "No";
+
+// MARK: - Floor Image
+"floor.remove" = "Quitar imagen del suelo";
+"floor.add" = "Añadir imagen del suelo";
+"floor.change" = "Cambiar imagen del suelo";
+
+// MARK: - Mode
+"mode.label" = "Modo";
+
+// MARK: - Project
+"project.title" = "Proyecto";
+"project.new" = "Nuevo proyecto";
+"project.untitled" = "Sin título";
+"project.none" = "Ninguno";
+"project.delete.confirmation" = "¿Desea eliminar este proyecto?";
+
+// MARK: - Import
+"import.images" = "Importar imágenes";
+"import.file" = "Archivo";
+"import.photo" = "Foto";
+"import.paste" = "Pegar";
+"import.dragAndDrop" = "Arrastrar y soltar imágenes";
+
+// MARK: - Library
+"library.title" = "Biblioteca";
+"library.image" = "Imagen";
+"library.sound" = "Sonido";
+"library.imageCollection" = "Colección de imágenes";
+"library.imageEditor" = "Editor de imágenes";
+"library.noImages" = "No hay imágenes disponibles";
+"library.addToLibrary" = "Añadir a la biblioteca";
+"library.addedAssets" = "Recursos añadidos";
+"library.noAddedAssets" = "Aún no hay recursos añadidos";
+
+// MARK: - Delete Confirmation
+"delete.confirmation" = "¿Desea eliminar %@?";
+
+// MARK: - Toast
+"toast.addToLibrary.title" = "Recurso añadido";
+"toast.addToLibrary.subtitle" = "El recurso se ha guardado en la biblioteca.";
+
+"toast.addToLibraryFail.title" = "Error al añadir recurso";
+"toast.addToLibraryFail.subtitle" = "No se pudo guardar en la biblioteca. Inténtelo de nuevo.";
+
+"toast.loadingError.title" = "Error de carga";
+"toast.loadingError.subtitle" = "No se pudo cargar el recurso.";
+
+"toast.loadingImageEdit.title" = "Preparando edición de imagen";
+"toast.loadingAssets.title" = "Cargando recursos";
+
+"toast.addToVolume.title" = "Añadido al espacio.";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "Quitar fondo";
+"guiding.imageEdit.removeBackground.description" = "Quite el fondo y luego arrastre para seleccionar el área que desea conservar.";
+"guiding.imageEdit.keepAsIs.title" = "Mantener como está";
+"guiding.imageEdit.keepAsIs.description" = "Arrastre el área de fondo o toque el botón debajo de la imagen.";
+"guiding.imageEdit.finish.title" = "Finalizar edición";
+"guiding.imageEdit.finish.description" = "Complete la edición y finalice su recurso.";
+
+"guiding.assetPlacement.place.title" = "Colocar recurso";
+"guiding.assetPlacement.place.description" = "Agarre el recurso y colóquelo donde desee.";
+"guiding.assetPlacement.rotate.title" = "Rotar";
+"guiding.assetPlacement.rotate.description" = "Ajuste el recurso al ángulo que prefiera.";
+"guiding.assetPlacement.scale.title" = "Escalar";
+"guiding.assetPlacement.scale.description" = "Cambie el tamaño del recurso a la escala deseada.";
+

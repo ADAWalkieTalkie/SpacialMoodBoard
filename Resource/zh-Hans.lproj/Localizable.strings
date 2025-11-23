@@ -1,0 +1,102 @@
+/*
+  Localizable.strings (Chinese Simplified)
+  SpacialMoodBoard
+*/
+
+// MARK: - Sort Order
+"sort.mostRecent" = "最近";
+"sort.byName" = "按名称";
+"sort.basicAssets" = "基础资源";
+"sort.userAdded" = "用户添加";
+
+// MARK: - Image Channel
+"image.background" = "背景";
+"image.floor" = "地板";
+"image.furniture" = "家具";
+"image.light" = "灯光";
+"image.electronic" = "电子产品";
+"image.animal" = "动物";
+"image.plant" = "植物";
+
+// MARK: - Sound Channel
+"sound.effect" = "音效";
+"sound.ambient" = "环境音";
+
+// MARK: - Common Actions
+"action.confirm" = "确认";
+"action.done" = "完成";
+"action.rename" = "重命名";
+"action.duplicate" = "复制";
+"action.delete" = "删除";
+"action.cancel" = "取消";
+"action.copy" = "复制";
+"action.crop" = "裁剪";
+"action.yes" = "是";
+"action.no" = "否";
+
+// MARK: - Floor Image
+"floor.remove" = "移除地板图像";
+"floor.add" = "添加地板图像";
+"floor.change" = "更换地板图像";
+
+// MARK: - Mode
+"mode.label" = "模式";
+
+// MARK: - Project
+"project.title" = "项目";
+"project.new" = "新项目";
+"project.untitled" = "无标题";
+"project.none" = "无";
+"project.delete.confirmation" = "您要删除此项目吗？";
+
+// MARK: - Import
+"import.images" = "导入图像";
+"import.file" = "文件";
+"import.photo" = "照片";
+"import.paste" = "粘贴";
+"import.dragAndDrop" = "拖放图像";
+
+// MARK: - Library
+"library.title" = "资源库";
+"library.image" = "图像";
+"library.sound" = "声音";
+"library.imageCollection" = "图像集合";
+"library.imageEditor" = "图像编辑器";
+"library.noImages" = "没有可用的图像";
+"library.addToLibrary" = "添加到资源库";
+"library.addedAssets" = "已添加的资源";
+"library.noAddedAssets" = "尚未添加资源";
+
+// MARK: - Delete Confirmation
+"delete.confirmation" = "您要删除%@吗？";
+
+// MARK: - Toast
+"toast.addToLibrary.title" = "资源已添加";
+"toast.addToLibrary.subtitle" = "资源已保存到资源库。";
+
+"toast.addToLibraryFail.title" = "添加资源失败";
+"toast.addToLibraryFail.subtitle" = "无法保存到资源库，请重试。";
+
+"toast.loadingError.title" = "加载错误";
+"toast.loadingError.subtitle" = "无法加载资源。";
+
+"toast.loadingImageEdit.title" = "准备图像编辑";
+"toast.loadingAssets.title" = "加载资源中";
+
+"toast.addToVolume.title" = "已添加到空间。";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "移除背景";
+"guiding.imageEdit.removeBackground.description" = "移除背景，然后拖动选择要保留的区域。";
+"guiding.imageEdit.keepAsIs.title" = "保持原样";
+"guiding.imageEdit.keepAsIs.description" = "拖动背景区域或点击图像下方的按钮。";
+"guiding.imageEdit.finish.title" = "完成编辑";
+"guiding.imageEdit.finish.description" = "完成编辑并确定您的资源。";
+
+"guiding.assetPlacement.place.title" = "放置资源";
+"guiding.assetPlacement.place.description" = "抓取资源并将其放置在您想要的位置。";
+"guiding.assetPlacement.rotate.title" = "旋转";
+"guiding.assetPlacement.rotate.description" = "将资源调整到您喜欢的角度。";
+"guiding.assetPlacement.scale.title" = "缩放";
+"guiding.assetPlacement.scale.description" = "将资源调整到您想要的大小。";
+

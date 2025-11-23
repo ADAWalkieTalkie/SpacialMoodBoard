@@ -1,0 +1,102 @@
+/*
+  Localizable.strings (Japanese)
+  SpacialMoodBoard
+*/
+
+// MARK: - Sort Order
+"sort.mostRecent" = "最近";
+"sort.byName" = "名前順";
+"sort.basicAssets" = "基本アセット";
+"sort.userAdded" = "ユーザー追加";
+
+// MARK: - Image Channel
+"image.background" = "背景";
+"image.floor" = "床";
+"image.furniture" = "家具";
+"image.light" = "照明";
+"image.electronic" = "電子機器";
+"image.animal" = "動物";
+"image.plant" = "植物";
+
+// MARK: - Sound Channel
+"sound.effect" = "効果音";
+"sound.ambient" = "環境音";
+
+// MARK: - Common Actions
+"action.confirm" = "確認";
+"action.done" = "完了";
+"action.rename" = "名前変更";
+"action.duplicate" = "複製";
+"action.delete" = "削除";
+"action.cancel" = "キャンセル";
+"action.copy" = "コピー";
+"action.crop" = "クロップ";
+"action.yes" = "はい";
+"action.no" = "いいえ";
+
+// MARK: - Floor Image
+"floor.remove" = "床画像を削除";
+"floor.add" = "床画像を追加";
+"floor.change" = "床画像を変更";
+
+// MARK: - Mode
+"mode.label" = "モード";
+
+// MARK: - Project
+"project.title" = "プロジェクト";
+"project.new" = "新規プロジェクト";
+"project.untitled" = "無題";
+"project.none" = "なし";
+"project.delete.confirmation" = "このプロジェクトを削除しますか？";
+
+// MARK: - Import
+"import.images" = "画像をインポート";
+"import.file" = "ファイル";
+"import.photo" = "写真";
+"import.paste" = "貼り付け";
+"import.dragAndDrop" = "画像をドラッグ＆ドロップ";
+
+// MARK: - Library
+"library.title" = "ライブラリ";
+"library.image" = "画像";
+"library.sound" = "サウンド";
+"library.imageCollection" = "画像コレクション";
+"library.imageEditor" = "画像エディタ";
+"library.noImages" = "利用可能な画像がありません";
+"library.addToLibrary" = "ライブラリに追加";
+"library.addedAssets" = "追加されたアセット";
+"library.noAddedAssets" = "まだアセットが追加されていません";
+
+// MARK: - Delete Confirmation
+"delete.confirmation" = "%@を削除しますか？";
+
+// MARK: - Toast
+"toast.addToLibrary.title" = "アセットを追加しました";
+"toast.addToLibrary.subtitle" = "アセットがライブラリに保存されました。";
+
+"toast.addToLibraryFail.title" = "アセットの追加に失敗しました";
+"toast.addToLibraryFail.subtitle" = "ライブラリに保存できませんでした。もう一度お試しください。";
+
+"toast.loadingError.title" = "読み込みエラー";
+"toast.loadingError.subtitle" = "アセットの読み込みに失敗しました。";
+
+"toast.loadingImageEdit.title" = "画像編集を準備中";
+"toast.loadingAssets.title" = "アセット読み込み中";
+
+"toast.addToVolume.title" = "空間に追加されました。";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "背景を削除";
+"guiding.imageEdit.removeBackground.description" = "背景を削除し、保持したい領域をドラッグして選択します。";
+"guiding.imageEdit.keepAsIs.title" = "そのまま使用";
+"guiding.imageEdit.keepAsIs.description" = "背景領域をドラッグするか、画像下のボタンをタップします。";
+"guiding.imageEdit.finish.title" = "編集を完了";
+"guiding.imageEdit.finish.description" = "編集を完了し、アセットを確定します。";
+
+"guiding.assetPlacement.place.title" = "配置";
+"guiding.assetPlacement.place.description" = "アセットをつかんで、好きな場所に配置します。";
+"guiding.assetPlacement.rotate.title" = "回転";
+"guiding.assetPlacement.rotate.description" = "アセットを好みの角度に調整します。";
+"guiding.assetPlacement.scale.title" = "スケール";
+"guiding.assetPlacement.scale.description" = "アセットを希望のサイズに調整します。";
+

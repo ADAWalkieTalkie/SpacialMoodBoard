@@ -1,0 +1,102 @@
+/*
+  Localizable.strings (French)
+  SpacialMoodBoard
+*/
+
+// MARK: - Sort Order
+"sort.mostRecent" = "Récent";
+"sort.byName" = "Par nom";
+"sort.basicAssets" = "Ressources de base";
+"sort.userAdded" = "Ajouté par l'utilisateur";
+
+// MARK: - Image Channel
+"image.background" = "Arrière-plans";
+"image.floor" = "Sols";
+"image.furniture" = "Meubles";
+"image.light" = "Lumières";
+"image.electronic" = "Électronique";
+"image.animal" = "Animaux";
+"image.plant" = "Plantes";
+
+// MARK: - Sound Channel
+"sound.effect" = "Effet sonore";
+"sound.ambient" = "Ambiance";
+
+// MARK: - Common Actions
+"action.confirm" = "Confirmer";
+"action.done" = "Terminé";
+"action.rename" = "Renommer";
+"action.duplicate" = "Dupliquer";
+"action.delete" = "Supprimer";
+"action.cancel" = "Annuler";
+"action.copy" = "Copier";
+"action.crop" = "Recadrer";
+"action.yes" = "Oui";
+"action.no" = "Non";
+
+// MARK: - Floor Image
+"floor.remove" = "Supprimer l'image du sol";
+"floor.add" = "Ajouter une image du sol";
+"floor.change" = "Changer l'image du sol";
+
+// MARK: - Mode
+"mode.label" = "Mode";
+
+// MARK: - Project
+"project.title" = "Projet";
+"project.new" = "Nouveau projet";
+"project.untitled" = "Sans titre";
+"project.none" = "Aucun";
+"project.delete.confirmation" = "Voulez-vous supprimer ce projet ?";
+
+// MARK: - Import
+"import.images" = "Importer des images";
+"import.file" = "Fichier";
+"import.photo" = "Photo";
+"import.paste" = "Coller";
+"import.dragAndDrop" = "Glisser-déposer des images";
+
+// MARK: - Library
+"library.title" = "Bibliothèque";
+"library.image" = "Image";
+"library.sound" = "Son";
+"library.imageCollection" = "Collection d'images";
+"library.imageEditor" = "Éditeur d'images";
+"library.noImages" = "Aucune image disponible";
+"library.addToLibrary" = "Ajouter à la bibliothèque";
+"library.addedAssets" = "Ressources ajoutées";
+"library.noAddedAssets" = "Aucune ressource ajoutée pour le moment";
+
+// MARK: - Delete Confirmation
+"delete.confirmation" = "Voulez-vous supprimer %@ ?";
+
+// MARK: - Toast
+"toast.addToLibrary.title" = "Ressource ajoutée";
+"toast.addToLibrary.subtitle" = "La ressource a été enregistrée dans la bibliothèque.";
+
+"toast.addToLibraryFail.title" = "Échec de l'ajout de la ressource";
+"toast.addToLibraryFail.subtitle" = "Impossible d'enregistrer dans la bibliothèque. Veuillez réessayer.";
+
+"toast.loadingError.title" = "Erreur de chargement";
+"toast.loadingError.subtitle" = "Impossible de charger la ressource.";
+
+"toast.loadingImageEdit.title" = "Préparation de l'édition d'image";
+"toast.loadingAssets.title" = "Chargement des ressources";
+
+"toast.addToVolume.title" = "Ajouté à l'espace.";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "Supprimer l'arrière-plan";
+"guiding.imageEdit.removeBackground.description" = "Supprimez l'arrière-plan, puis faites glisser pour sélectionner la zone à conserver.";
+"guiding.imageEdit.keepAsIs.title" = "Conserver tel quel";
+"guiding.imageEdit.keepAsIs.description" = "Faites glisser la zone d'arrière-plan ou appuyez sur le bouton sous l'image.";
+"guiding.imageEdit.finish.title" = "Terminer l'édition";
+"guiding.imageEdit.finish.description" = "Terminez l'édition et finalisez votre ressource.";
+
+"guiding.assetPlacement.place.title" = "Placer la ressource";
+"guiding.assetPlacement.place.description" = "Saisissez la ressource et placez-la où vous le souhaitez.";
+"guiding.assetPlacement.rotate.title" = "Faire pivoter";
+"guiding.assetPlacement.rotate.description" = "Ajustez la ressource à l'angle que vous préférez.";
+"guiding.assetPlacement.scale.title" = "Échelle";
+"guiding.assetPlacement.scale.description" = "Redimensionnez la ressource à l'échelle souhaitée.";
+

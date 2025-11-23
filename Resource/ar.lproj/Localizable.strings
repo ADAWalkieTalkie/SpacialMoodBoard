@@ -1,0 +1,102 @@
+/*
+  Localizable.strings (Arabic)
+  SpacialMoodBoard
+*/
+
+// MARK: - Sort Order
+"sort.mostRecent" = "الأحدث";
+"sort.byName" = "حسب الاسم";
+"sort.basicAssets" = "الأصول الأساسية";
+"sort.userAdded" = "مضاف من المستخدم";
+
+// MARK: - Image Channel
+"image.background" = "الخلفيات";
+"image.floor" = "الأرضيات";
+"image.furniture" = "الأثاث";
+"image.light" = "الأضواء";
+"image.electronic" = "الإلكترونيات";
+"image.animal" = "الحيوانات";
+"image.plant" = "النباتات";
+
+// MARK: - Sound Channel
+"sound.effect" = "المؤثرات الصوتية";
+"sound.ambient" = "صوت محيط";
+
+// MARK: - Common Actions
+"action.confirm" = "تأكيد";
+"action.done" = "تم";
+"action.rename" = "إعادة تسمية";
+"action.duplicate" = "تكرار";
+"action.delete" = "حذف";
+"action.cancel" = "إلغاء";
+"action.copy" = "نسخ";
+"action.crop" = "قص";
+"action.yes" = "نعم";
+"action.no" = "لا";
+
+// MARK: - Floor Image
+"floor.remove" = "إزالة صورة الأرضية";
+"floor.add" = "إضافة صورة الأرضية";
+"floor.change" = "تغيير صورة الأرضية";
+
+// MARK: - Mode
+"mode.label" = "الوضع";
+
+// MARK: - Project
+"project.title" = "المشروع";
+"project.new" = "مشروع جديد";
+"project.untitled" = "بلا عنوان";
+"project.none" = "لا يوجد";
+"project.delete.confirmation" = "هل تريد حذف هذا المشروع؟";
+
+// MARK: - Import
+"import.images" = "استيراد الصور";
+"import.file" = "ملف";
+"import.photo" = "صورة";
+"import.paste" = "لصق";
+"import.dragAndDrop" = "سحب وإفلات الصور";
+
+// MARK: - Library
+"library.title" = "المكتبة";
+"library.image" = "صورة";
+"library.sound" = "صوت";
+"library.imageCollection" = "مجموعة الصور";
+"library.imageEditor" = "محرر الصور";
+"library.noImages" = "لا توجد صور متاحة";
+"library.addToLibrary" = "إضافة إلى المكتبة";
+"library.addedAssets" = "الأصول المضافة";
+"library.noAddedAssets" = "لم يتم إضافة أصول بعد";
+
+// MARK: - Delete Confirmation
+"delete.confirmation" = "هل تريد حذف %@؟";
+
+// MARK: - Toast
+"toast.addToLibrary.title" = "تمت إضافة الأصل";
+"toast.addToLibrary.subtitle" = "تم حفظ الأصل في المكتبة.";
+
+"toast.addToLibraryFail.title" = "فشل في إضافة الأصل";
+"toast.addToLibraryFail.subtitle" = "تعذر الحفظ في المكتبة. يرجى المحاولة مرة أخرى.";
+
+"toast.loadingError.title" = "خطأ في التحميل";
+"toast.loadingError.subtitle" = "فشل في تحميل الأصل.";
+
+"toast.loadingImageEdit.title" = "جارٍ تحضير تعديل الصورة";
+"toast.loadingAssets.title" = "جارٍ تحميل الأصول";
+
+"toast.addToVolume.title" = "تمت الإضافة إلى المساحة.";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "إزالة الخلفية";
+"guiding.imageEdit.removeBackground.description" = "قم بإزالة الخلفية، ثم اسحب لتحديد المنطقة التي تريد الاحتفاظ بها.";
+"guiding.imageEdit.keepAsIs.title" = "إحضاره كما هو";
+"guiding.imageEdit.keepAsIs.description" = "اسحب منطقة الخلفية أو اضغط على الزر أسفل الصورة.";
+"guiding.imageEdit.finish.title" = "إنهاء التعديل";
+"guiding.imageEdit.finish.description" = "أكمل التعديل وانهِ إعداد الأصل الخاص بك.";
+
+"guiding.assetPlacement.place.title" = "وضع الأصل";
+"guiding.assetPlacement.place.description" = "أمسك الأصل وضعه في أي مكان تريده.";
+"guiding.assetPlacement.rotate.title" = "تدوير";
+"guiding.assetPlacement.rotate.description" = "اضبط الأصل على الزاوية التي تفضلها.";
+"guiding.assetPlacement.scale.title" = "تحجيم";
+"guiding.assetPlacement.scale.description" = "غيّر حجم الأصل إلى المقياس المطلوب.";
+

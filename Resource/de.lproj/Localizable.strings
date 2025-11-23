@@ -1,0 +1,102 @@
+/*
+  Localizable.strings (German)
+  SpacialMoodBoard
+*/
+
+// MARK: - Sort Order
+"sort.mostRecent" = "Zuletzt verwendet";
+"sort.byName" = "Nach Name";
+"sort.basicAssets" = "Basis-Assets";
+"sort.userAdded" = "Vom Benutzer hinzugefügt";
+
+// MARK: - Image Channel
+"image.background" = "Hintergründe";
+"image.floor" = "Böden";
+"image.furniture" = "Möbel";
+"image.light" = "Lichter";
+"image.electronic" = "Elektronik";
+"image.animal" = "Tiere";
+"image.plant" = "Pflanzen";
+
+// MARK: - Sound Channel
+"sound.effect" = "Soundeffekt";
+"sound.ambient" = "Umgebung";
+
+// MARK: - Common Actions
+"action.confirm" = "Bestätigen";
+"action.done" = "Fertig";
+"action.rename" = "Umbenennen";
+"action.duplicate" = "Duplizieren";
+"action.delete" = "Löschen";
+"action.cancel" = "Abbrechen";
+"action.copy" = "Kopieren";
+"action.crop" = "Zuschneiden";
+"action.yes" = "Ja";
+"action.no" = "Nein";
+
+// MARK: - Floor Image
+"floor.remove" = "Bodenbild entfernen";
+"floor.add" = "Bodenbild hinzufügen";
+"floor.change" = "Bodenbild ändern";
+
+// MARK: - Mode
+"mode.label" = "Modus";
+
+// MARK: - Project
+"project.title" = "Projekt";
+"project.new" = "Neues Projekt";
+"project.untitled" = "Ohne Titel";
+"project.none" = "Keine";
+"project.delete.confirmation" = "Möchten Sie dieses Projekt löschen?";
+
+// MARK: - Import
+"import.images" = "Bilder importieren";
+"import.file" = "Datei";
+"import.photo" = "Foto";
+"import.paste" = "Einfügen";
+"import.dragAndDrop" = "Bilder per Drag & Drop hinzufügen";
+
+// MARK: - Library
+"library.title" = "Bibliothek";
+"library.image" = "Bild";
+"library.sound" = "Ton";
+"library.imageCollection" = "Bildsammlung";
+"library.imageEditor" = "Bildeditor";
+"library.noImages" = "Keine Bilder verfügbar";
+"library.addToLibrary" = "Zur Bibliothek hinzufügen";
+"library.addedAssets" = "Hinzugefügte Assets";
+"library.noAddedAssets" = "Noch keine Assets hinzugefügt";
+
+// MARK: - Delete Confirmation
+"delete.confirmation" = "Möchten Sie %@ löschen?";
+
+// MARK: - Toast
+"toast.addToLibrary.title" = "Asset hinzugefügt";
+"toast.addToLibrary.subtitle" = "Das Asset wurde in der Bibliothek gespeichert.";
+
+"toast.addToLibraryFail.title" = "Fehler beim Hinzufügen des Assets";
+"toast.addToLibraryFail.subtitle" = "Speichern in der Bibliothek fehlgeschlagen. Bitte versuchen Sie es erneut.";
+
+"toast.loadingError.title" = "Ladefehler";
+"toast.loadingError.subtitle" = "Asset konnte nicht geladen werden.";
+
+"toast.loadingImageEdit.title" = "Bildbearbeitung wird vorbereitet";
+"toast.loadingAssets.title" = "Assets werden geladen";
+
+"toast.addToVolume.title" = "Zum Raum hinzugefügt.";
+
+// MARK: - Guiding Toast
+"guiding.imageEdit.removeBackground.title" = "Hintergrund entfernen";
+"guiding.imageEdit.removeBackground.description" = "Entfernen Sie den Hintergrund und ziehen Sie dann, um den Bereich auszuwählen, den Sie behalten möchten.";
+"guiding.imageEdit.keepAsIs.title" = "Unverändert übernehmen";
+"guiding.imageEdit.keepAsIs.description" = "Ziehen Sie den Hintergrundbereich oder tippen Sie auf die Schaltfläche unter dem Bild.";
+"guiding.imageEdit.finish.title" = "Bearbeitung abschließen";
+"guiding.imageEdit.finish.description" = "Schließen Sie die Bearbeitung ab und finalisieren Sie Ihr Asset.";
+
+"guiding.assetPlacement.place.title" = "Asset platzieren";
+"guiding.assetPlacement.place.description" = "Greifen Sie das Asset und platzieren Sie es an der gewünschten Stelle.";
+"guiding.assetPlacement.rotate.title" = "Drehen";
+"guiding.assetPlacement.rotate.description" = "Passen Sie das Asset an den gewünschten Winkel an.";
+"guiding.assetPlacement.scale.title" = "Skalieren";
+"guiding.assetPlacement.scale.description" = "Ändern Sie die Größe des Assets auf die gewünschte Skala.";
+
