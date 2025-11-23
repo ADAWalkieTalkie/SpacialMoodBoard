@@ -76,6 +76,9 @@ final class SceneViewModel {
         }
     }
 
+    // Toast 표시 상태
+    var showLoadingEntityToast: Bool = true  
+
     // 조이스틱 업데이트용 Timer
     var joystickUpdateTimer: Timer?
 

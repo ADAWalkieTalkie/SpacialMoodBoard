@@ -86,13 +86,19 @@ struct SceneRealityView: View {
             }
         }
     }
-    
+
     // MARK: - Setup Scene
     
     private func setupScene(content: RealityViewContent, rootEntity: Entity) async {
         guard let floor = await viewModel.getFloorEntity() else {
             return
         }
+
+        await viewModel.loadEntities(
+            sceneObjects: viewModel.sceneObjects,
+            rootEntity: rootEntity
+        )
+
         // Volume Window일 때
         if appStateManager.appState.isVolumeOpen {
             
