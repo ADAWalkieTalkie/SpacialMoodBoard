@@ -190,15 +190,10 @@ extension SceneViewModel {
         AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
     }
 
-    /// Lock 아이콘 Attachment 추가
-    func addLockIconAttachment(to entity: ModelEntity) {
+    /// Lock Icon Entity 생성 헬퍼 함수
+    private func createLockIconEntity(objectId: UUID, zPosition: Float) -> Entity {
+        let lockIcon = Entity()
         
-        guard let objectId = UUID(uuidString: entity.name) else { return }
-        
-        let lockAttachment = Entity()
-        lockAttachment.name = "lockIconAttachment"
-        
-        // ViewAttachmentComponent 생성
         let attachment = ViewAttachmentComponent(
             rootView: LockIconAttachment(
                 onUnlock: { [weak self] in
@@ -207,9 +202,26 @@ extension SceneViewModel {
                 }
             )
         )
-        lockAttachment.components.set(attachment)
         
-        // attachment 스케일 보정
+        lockIcon.components.set(attachment)
+        lockIcon.position = SIMD3<Float>(0, 0, zPosition)
+        
+        return lockIcon
+    }
+
+    /// Lock 아이콘 Attachment 추가 (앞면과 뒷면 모두)
+    func addLockIconAttachment(to entity: ModelEntity) {
+        guard let objectId = UUID(uuidString: entity.name) else { return }
+        
+        // 부모 Entity (기존 이름 유지)
+        let lockAttachment = Entity()
+        lockAttachment.name = "lockIconAttachment"
+        
+        // 앞면과 뒷면 Lock Icon 생성 및 추가
+        lockAttachment.addChild(createLockIconEntity(objectId: objectId, zPosition: 0.01))
+        lockAttachment.addChild(createLockIconEntity(objectId: objectId, zPosition: -0.01))
+        
+        // 스케일 보정
         let headPosition = userSpatialState.sceneHeadAnchor.position
         let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
             headPosition: headPosition,
@@ -220,7 +232,7 @@ extension SceneViewModel {
         lockAttachment.scale = finalScale
         entity.addChild(lockAttachment)
         
-        // Attachment 위치 설정 (중앙)
+        // 위치 설정
         AttachmentPositioner.positionAtMiddle(lockAttachment, relativeTo: entity)
     }
 
