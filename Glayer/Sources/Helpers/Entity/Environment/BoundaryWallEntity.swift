@@ -4,16 +4,16 @@ import UIKit
 /// 이동 범위 경계면에 표시되는 벽면 엔티티 생성
 enum BoundaryWallEntity {
 
-    /// 6개의 경계 벽면을 생성 (상하좌우전후)
+    /// 5개의 경계 벽면을 생성 (좌우상전후, 바닥 제외)
     /// - Parameter bounds: 이동 범위
-    /// - Returns: 6개의 벽면 엔티티를 담은 Entity
+    /// - Returns: 5개의 벽면 엔티티를 담은 Entity
     static func createWalls(for bounds: MovementBounds) -> Entity {
         let container = Entity()
         container.name = "BoundaryWalls"
 
         let halfSize = (bounds.maxX - bounds.minX) / 2.0
 
-        // 6개 벽면 생성
+        // 5개 벽면 생성 (바닥 제외)
         let walls = [
             // 좌우 벽 (YZ 평면)
             createWall(width: halfSize * 2, height: halfSize * 2,
@@ -25,11 +25,7 @@ enum BoundaryWallEntity {
                       rotation: simd_quatf(angle: -.pi / 2, axis: SIMD3<Float>(0, 1, 0)),
                       name: "right"),
 
-            // 상하 벽 (XZ 평면)
-            createWall(width: halfSize * 2, height: halfSize * 2,
-                      position: SIMD3<Float>(0, bounds.minY, 0),
-                      rotation: simd_quatf(angle: .pi / 2, axis: SIMD3<Float>(1, 0, 0)),
-                      name: "bottom"),
+            // 상단 벽 (XZ 평면) - 바닥면은 시각적 피드백 제외
             createWall(width: halfSize * 2, height: halfSize * 2,
                       position: SIMD3<Float>(0, bounds.maxY, 0),
                       rotation: simd_quatf(angle: -.pi / 2, axis: SIMD3<Float>(1, 0, 0)),

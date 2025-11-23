@@ -114,13 +114,7 @@ final class BoundaryCollisionManager {
             collisions["right"] = 1.0
         }
 
-        // Y축 충돌 (상하) - 경계선을 넘었을 때만 감지
-        let bottomEdge = position.y - halfBounds.y
         let topEdge = position.y + halfBounds.y
-
-        if bottomEdge <= movementBounds.minY {
-            collisions["bottom"] = 1.0
-        }
 
         if topEdge >= movementBounds.maxY {
             collisions["top"] = 1.0
