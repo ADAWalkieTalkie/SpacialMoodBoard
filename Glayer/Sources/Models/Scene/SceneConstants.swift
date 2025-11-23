@@ -30,12 +30,14 @@ struct SceneConstants {
 
     /// 오브젝트 이동 범위의 기본값
     /// 바닥 크기를 기준으로 자동 계산
+    /// Volume 경계를 벗어나지 않도록 X, Z축에 여유 공간 추가
     static var defaultMovementBounds: MovementBounds {
         let half = floorHalfSize
+        let margin: Float = 0.01  // Volume 경계 여유 공간
         return MovementBounds(
-            minX: -half, maxX: half,
+            minX: -half + margin, maxX: half - margin,
             minY: -half, maxY: half,
-            minZ: -half, maxZ: half
+            minZ: -half + margin, maxZ: half - margin
         )
     }
     
