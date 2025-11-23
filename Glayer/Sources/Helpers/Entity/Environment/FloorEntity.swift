@@ -104,6 +104,8 @@ class FloorEntity {
             material.color.tint = .init(.white)
             material.blending = .transparent(opacity: 0.5)
         }
+        
+        material.faceCulling = .none
 
         return material
     }
