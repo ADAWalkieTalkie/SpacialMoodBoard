@@ -15,8 +15,8 @@ final class BoundaryCollisionManager {
     /// 이동 범위
     private let movementBounds: MovementBounds
 
-    /// 현재 충돌 중인 벽면들 (벽면 이름 → 강도)
-    private var activeCollisions: [String: Float] = [:]
+    /// 현재 충돌 중인 벽면들
+    private var activeCollisions: Set<String> = []
 
     // MARK: - Initialization
 
@@ -48,17 +48,17 @@ final class BoundaryCollisionManager {
 
     /// 모든 충돌 상태 초기화 (제스처 종료 시 호출)
     func clearCollisions() {
-        print("🔄 [BoundaryCollision] clearCollisions() 호출 - activeCollisions: \(activeCollisions.keys.joined(separator: ", "))")
+        print("🔄 [BoundaryCollision] clearCollisions() 호출 - activeCollisions: \(activeCollisions.joined(separator: ", "))")
 
         guard let wallsContainer = boundaryWalls else {
             print("⚠️ [BoundaryCollision] boundaryWalls가 nil")
             return
         }
 
-        // 활성화된 모든 벽면을 투명하게 복원
-        for wallName in activeCollisions.keys {
+        // 활성화된 모든 벽면을 숨김
+        for wallName in activeCollisions {
             if let wall = findWall(named: wallName, in: wallsContainer) {
-                resetWall(wall)
+                hideWall(wall)
             } else {
                 print("❌ [BoundaryCollision] 벽면을 찾을 수 없음: \(wallName)")
             }
@@ -93,12 +93,12 @@ final class BoundaryCollisionManager {
     }
 
     /// 경계면과의 충돌 감지
-    /// - Returns: 충돌한 벽면 이름과 충돌 강도 (접촉 시 1.0, 아니면 감지 안 됨)
+    /// - Returns: 충돌한 벽면 이름들
     private func detectBoundaryCollisions(
         bounds: SIMD3<Float>,
         position: SIMD3<Float>
-    ) -> [String: Float] {
-        var collisions: [String: Float] = [:]
+    ) -> Set<String> {
+        var collisions: Set<String> = []
 
         let halfBounds = bounds / 2.0
 
@@ -107,17 +107,18 @@ final class BoundaryCollisionManager {
         let rightEdge = position.x + halfBounds.x
 
         if leftEdge <= movementBounds.minX {
-            collisions["left"] = 1.0
+            collisions.insert("left")
         }
 
         if rightEdge >= movementBounds.maxX {
-            collisions["right"] = 1.0
+            collisions.insert("right")
         }
 
+        // Y축 충돌 (상단) - 경계선을 넘었을 때만 감지
         let topEdge = position.y + halfBounds.y
 
         if topEdge >= movementBounds.maxY {
-            collisions["top"] = 1.0
+            collisions.insert("top")
         }
 
         // Z축 충돌 (전후) - 경계선을 넘었을 때만 감지
@@ -125,43 +126,38 @@ final class BoundaryCollisionManager {
         let backEdge = position.z + halfBounds.z
 
         if frontEdge <= movementBounds.minZ {
-            collisions["front"] = 1.0
+            collisions.insert("front")
         }
 
         if backEdge >= movementBounds.maxZ {
-            collisions["back"] = 1.0
+            collisions.insert("back")
         }
 
         return collisions
     }
 
     /// 충돌 상태에 따른 시각적 피드백 업데이트
-    private func updateCollisionFeedback(_ newCollisions: [String: Float]) {
+    private func updateCollisionFeedback(_ newCollisions: Set<String>) {
         guard let wallsContainer = boundaryWalls else { return }
 
         // 새로 충돌한 벽면: glow 효과 적용
-        for (wallName, intensity) in newCollisions {
-            if activeCollisions[wallName] == nil {
+        for wallName in newCollisions {
+            if !activeCollisions.contains(wallName) {
                 // 새 충돌 - glow 효과 적용
                 if let wall = findWall(named: wallName, in: wallsContainer) {
-                    print("🎨 [BoundaryCollision] applyGlowEffect(\(wallName), intensity: \(intensity))")
-                    BoundaryWallEntity.applyGlowEffect(to: wall, intensity: intensity)
+                    print("🎨 [BoundaryCollision] applyGlowEffect(\(wallName))")
+                    BoundaryWallEntity.applyGlowEffect(to: wall)
                 } else {
                     print("❌ [BoundaryCollision] 벽면을 찾을 수 없음: \(wallName)")
-                }
-            } else if activeCollisions[wallName] != intensity {
-                // 강도 변경 - glow 업데이트
-                if let wall = findWall(named: wallName, in: wallsContainer) {
-                    BoundaryWallEntity.applyGlowEffect(to: wall, intensity: intensity)
                 }
             }
         }
 
-        // 충돌이 끝난 벽면: 투명하게 복원
-        for wallName in activeCollisions.keys {
-            if newCollisions[wallName] == nil {
+        // 충돌이 끝난 벽면: 숨김 처리
+        for wallName in activeCollisions {
+            if !newCollisions.contains(wallName) {
                 if let wall = findWall(named: wallName, in: wallsContainer) {
-                    resetWall(wall)
+                    hideWall(wall)
                 }
             }
         }
@@ -175,17 +171,8 @@ final class BoundaryCollisionManager {
         return container.findEntity(named: "boundaryWall_\(name)") as? ModelEntity
     }
 
-    /// 벽면을 투명 상태로 복원
-    private func resetWall(_ wall: ModelEntity) {
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: .clear)  // 명시적으로 clear 설정
-        material.blending = .transparent(opacity: 0.0)
-        material.faceCulling = .none
-
-        if wall.model != nil {
-            wall.model?.materials = [material]
-        } else {
-            print("❌ [BoundaryCollision] wall.model이 nil - \(wall.name)")
-        }
+    /// 벽면을 완전히 숨김
+    private func hideWall(_ wall: ModelEntity) {
+        wall.isEnabled = false
     }
 }

@@ -68,6 +68,9 @@ enum BoundaryWallEntity {
         wall.position = position
         wall.orientation = rotation
 
+        // 기본적으로 숨김 상태 (충돌 시에만 보임)
+        wall.isEnabled = false
+
         // 충돌 감지를 위한 컴포넌트 추가
         wall.components.set(CollisionComponent(shapes: [
             .generateBox(width: width, height: height, depth: 0.01)
@@ -77,11 +80,9 @@ enum BoundaryWallEntity {
     }
 
     /// 벽면에 충돌 피드백 효과 적용
-    /// - Parameters:
-    ///   - wall: 벽면 엔티티
-    ///   - intensity: 효과 강도 (0.0 ~ 1.0)
-    static func applyGlowEffect(to wall: ModelEntity, intensity: Float = 1.0) {
-        print("🎨 [BoundaryWall] applyGlowEffect 시작 - wall: \(wall.name), intensity: \(intensity)")
+    /// - Parameter wall: 벽면 엔티티
+    static func applyGlowEffect(to wall: ModelEntity) {
+        print("🎨 [BoundaryWall] applyGlowEffect 시작 - wall: \(wall.name)")
 
         // Assets에서 img_collisionFeedback 이미지 로드
         guard let uiImage = UIImage(named: "img_collisionFeedback") else {
@@ -103,12 +104,14 @@ enum BoundaryWallEntity {
         var material = PhysicallyBasedMaterial()
         material.baseColor = .init(texture: .init(texture))
         material.emissiveColor = .init(texture: .init(texture))
-        material.emissiveIntensity = 2.0 * intensity
+        material.emissiveIntensity = 2.0
         material.blending = .transparent(opacity: 1.0)
         material.faceCulling = .none
 
         if wall.model != nil {
             wall.model?.materials = [material]
+            // 벽면을 보이게 설정
+            wall.isEnabled = true
         } else {
             print("❌ [BoundaryWall] wall.model이 nil")
         }
