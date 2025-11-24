@@ -116,7 +116,7 @@ struct CropAttachment: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .mask(
-                    CropMaskShape(rect: cropRect)
+                    CropMaskShape(rect: cropRect, cornerRadius: 30)
                 )
             
             if let sx = scaleX, let sy = scaleY {
@@ -154,10 +154,14 @@ struct CropAttachment: View {
 /// cropRect 영역만 보이게 마스크하는 Shape
 struct CropMaskShape: Shape {
     var rect: CGRect
-    
+    var cornerRadius: CGFloat = 0
+
     func path(in _: CGRect) -> Path {
         var p = Path()
-        p.addRect(rect)
+        p.addRoundedRect(
+            in: rect,
+            cornerSize: CGSize(width: cornerRadius, height: cornerRadius)
+        )
         return p
     }
 }

@@ -16,7 +16,7 @@ struct CropOverlay: View {
     let scaleY: CGFloat
     let imageFrame: CGRect
     
-    private let baseLineWidth: CGFloat = 8.0
+    private let baseLineWidth: CGFloat = 12.0
     private var actualLineWidth: CGFloat {
         let s = max(scaleX, scaleY)
         guard s > 0 else { return baseLineWidth }
@@ -38,7 +38,7 @@ struct CropOverlay: View {
                     
                     ZStack {
                         if activeCorner == corner {
-                            CornerBracket(length: L, lineWidth: actualLineWidth)
+                            CornerBracket(length: L, lineWidth: actualLineWidth, cornerRadius: 30)
                                 .foregroundStyle(.white)
                                 .blur(radius: 8)
                                 .shadow(
@@ -49,7 +49,7 @@ struct CropOverlay: View {
                                 )
                         }
                         
-                        CornerBracket(length: L, lineWidth: actualLineWidth)
+                        CornerBracket(length: L, lineWidth: actualLineWidth, cornerRadius: 30)
                             .foregroundStyle(.white)
                     }
                     .rotationEffect(angle(for: corner))
