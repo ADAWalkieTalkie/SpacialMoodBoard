@@ -365,7 +365,7 @@ final class BoundaryCollisionManager {
                 if let wall = wallEntities[wallName] {
                     BoundaryWallEntity.applyGlowEffect(to: wall)
                     // 경계면 충돌 사운드 재생
-                    SoundFX.shared.play(.boundaryCollision)
+                    SoundFX.shared.play(.boundaryCollision, volume: 0.5)
                 } else {
                     #if DEBUG
                     print("❌ [BoundaryCollision] 벽면을 찾을 수 없음: \(wallName)")
