@@ -25,6 +25,12 @@ struct CropOverlay: View {
     
     @State private var dragStartRect: CGRect = .zero
     @State private var activeCorner: Corner?
+    @State private var dragMode: DragMode?
+    
+    enum DragMode {
+        case corner(Corner)
+        case move
+    }
     
     // MARK: - Body
     
@@ -35,9 +41,20 @@ struct CropOverlay: View {
                 
                 ForEach(Corner.allCases, id: \.self) { corner in
                     let center = cornerCenter(corner, L: L, W: actualLineWidth)
-                    
+
+                    let isGlowing: Bool = {
+                        switch dragMode {
+                        case .move:
+                            return true
+                        case .corner(let active):
+                            return active == corner
+                        default:
+                            return false
+                        }
+                    }()
+
                     ZStack {
-                        if activeCorner == corner {
+                        if isGlowing {
                             CornerBracket(length: L, lineWidth: actualLineWidth, cornerRadius: 30)
                                 .foregroundStyle(.white)
                                 .blur(radius: 8)
@@ -48,7 +65,7 @@ struct CropOverlay: View {
                                     y: 0
                                 )
                         }
-                        
+
                         CornerBracket(length: L, lineWidth: actualLineWidth, cornerRadius: 30)
                             .foregroundStyle(.white)
                     }
@@ -56,6 +73,7 @@ struct CropOverlay: View {
                     .position(center)
                     .allowsHitTesting(false)
                 }
+
             }
             .contentShape(Rectangle())
             .gesture(resizeGesture(in: geo.size))
@@ -148,85 +166,126 @@ extension CropOverlay {
     }
 }
 
-// MARK: - 드래그 제스처 (한 번만 붙이고, 안에서 코너 분기)
+// MARK: - 드래그 제스처 (코너 리사이즈 + 전체 이동)
 
 extension CropOverlay {
     private func resizeGesture(in frameSize: CGSize) -> some Gesture {
         DragGesture()
             .onChanged { gesture in
                 let L = cornerLength(for: cropRect.size)
+                
                 if dragStartRect == .zero {
                     dragStartRect = cropRect
-                    activeCorner = closestCorner(
+                    
+                    if let corner = closestCorner(
                         point: gesture.startLocation,
                         L: L,
                         hitPadding: 0
-                    )
+                    ) {
+                        activeCorner = corner
+                        dragMode = .corner(corner)
+                    } else if cropRect.contains(gesture.startLocation) {
+                        activeCorner = nil
+                        dragMode = .move
+                    } else {
+                        dragMode = nil
+                        return
+                    }
                 }
                 
-                guard let corner = activeCorner else { return }
+                guard let dragMode else { return }
                 
-                let start = dragStartRect
                 let dx = gesture.translation.width
                 let dy = gesture.translation.height
                 
-                var newMinX = start.minX
-                var newMaxX = start.maxX
-                var newMinY = start.minY
-                var newMaxY = start.maxY
-                
-                switch corner {
-                case .topLeft:
-                    newMinX = start.minX + dx
-                    newMinY = start.minY + dy
+                switch dragMode {
+                case .corner(let corner):
+                    resizeFromCorner(corner: corner, dx: dx, dy: dy)
                     
-                case .topRight:
-                    newMaxX = start.maxX + dx
-                    newMinY = start.minY + dy
-                    
-                case .bottomLeft:
-                    newMinX = start.minX + dx
-                    newMaxY = start.maxY + dy
-                    
-                case .bottomRight:
-                    newMaxX = start.maxX + dx
-                    newMaxY = start.maxY + dy
+                case .move:
+                    moveWholeRect(dx: dx, dy: dy)
                 }
-                
-                let minSize: CGFloat = 10
-                
-                newMinX = max(imageFrame.minX, min(newMinX, imageFrame.maxX - minSize))
-                newMaxX = min(imageFrame.maxX, max(newMaxX, imageFrame.minX + minSize))
-                
-                if newMaxX - newMinX < minSize {
-                    if corner == .topLeft || corner == .bottomLeft {
-                        newMinX = newMaxX - minSize
-                    } else {
-                        newMaxX = newMinX + minSize
-                    }
-                }
-                
-                newMinY = max(imageFrame.minY, min(newMinY, imageFrame.maxY - minSize))
-                newMaxY = min(imageFrame.maxY, max(newMaxY, imageFrame.minY + minSize))
-                
-                if newMaxY - newMinY < minSize {
-                    if corner == .topLeft || corner == .topRight {
-                        newMinY = newMaxY - minSize
-                    } else {
-                        newMaxY = newMinY + minSize
-                    }
-                }
-                
-                cropRect = CGRect(
-                    x: newMinX,
-                    y: newMinY,
-                    width: newMaxX - newMinX,
-                    height: newMaxY - newMinY
-                )
             }
             .onEnded { _ in
                 dragStartRect = .zero
+                dragMode = nil
                 activeCorner = nil
             }
+    }
+    
+    // MARK: - 코너 리사이즈
+
+    private func resizeFromCorner(corner: Corner, dx: CGFloat, dy: CGFloat) {
+        let start = dragStartRect
+        
+        var newMinX = start.minX
+        var newMaxX = start.maxX
+        var newMinY = start.minY
+        var newMaxY = start.maxY
+        
+        switch corner {
+        case .topLeft:
+            newMinX = start.minX + dx
+            newMinY = start.minY + dy
+            
+        case .topRight:
+            newMaxX = start.maxX + dx
+            newMinY = start.minY + dy
+            
+        case .bottomLeft:
+            newMinX = start.minX + dx
+            newMaxY = start.maxY + dy
+            
+        case .bottomRight:
+            newMaxX = start.maxX + dx
+            newMaxY = start.maxY + dy
+        }
+        
+        let minSize: CGFloat = 10
+        
+        newMinX = max(imageFrame.minX, min(newMinX, imageFrame.maxX - minSize))
+        newMaxX = min(imageFrame.maxX, max(newMaxX, imageFrame.minX + minSize))
+        
+        if newMaxX - newMinX < minSize {
+            if corner == .topLeft || corner == .bottomLeft {
+                newMinX = newMaxX - minSize
+            } else {
+                newMaxX = newMinX + minSize
+            }
+        }
+        
+        newMinY = max(imageFrame.minY, min(newMinY, imageFrame.maxY - minSize))
+        newMaxY = min(imageFrame.maxY, max(newMaxY, imageFrame.minY + minSize))
+        
+        if newMaxY - newMinY < minSize {
+            if corner == .topLeft || corner == .topRight {
+                newMinY = newMaxY - minSize
+            } else {
+                newMaxY = newMinY + minSize
+            }
+        }
+        
+        cropRect = CGRect(
+            x: newMinX,
+            y: newMinY,
+            width: newMaxX - newMinX,
+            height: newMaxY - newMinY
+        )
+    }
+    
+    // MARK: - 전체 이동
+
+    private func moveWholeRect(dx: CGFloat, dy: CGFloat) {
+        var newRect = dragStartRect.offsetBy(dx: dx, dy: dy)
+        
+        let minX = imageFrame.minX
+        let maxX = imageFrame.maxX - newRect.width
+        let minY = imageFrame.minY
+        let maxY = imageFrame.maxY - newRect.height
+        
+        newRect.origin.x = min(max(newRect.origin.x, minX), maxX)
+        newRect.origin.y = min(max(newRect.origin.y, minY), maxY)
+        
+        cropRect = newRect
     }
 }
