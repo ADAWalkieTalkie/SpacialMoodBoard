@@ -27,12 +27,24 @@ enum AttachmentPositioner {
             baseLine = planeBounds.max.y
             margin = planeMargin/4 - glowCorrection.height/2
         } else {
-            let width = objectBounds.extents.x
-            let height = objectBounds.extents.y
-            let glowCorrection = EntityBoundBoxApplier.calculateGlowCorrection(width: width, height: height)
-            
-            baseLine = objectBounds.max.y
-            margin = min(objectBounds.extents.x, objectBounds.extents.y)/4 - glowCorrection.height/2
+            // Sound의 경우: SoundVisual 노드 찾기
+            if let soundVisual = parent.findEntity(named: "SoundVisual") {
+                let soundVisualBounds = soundVisual.visualBounds(relativeTo: parent)
+                baseLine = soundVisualBounds.max.y
+                
+                let width = soundVisualBounds.extents.x
+                let height = soundVisualBounds.extents.y
+                let glowCorrection = EntityBoundBoxApplier.calculateGlowCorrection(width: width, height: height)
+                margin = width/4 + glowCorrection.height/2
+            } else {
+                // fallback: SoundVisual이 없으면 기존 방식
+                let width = objectBounds.extents.x
+                let height = objectBounds.extents.y
+                let glowCorrection = EntityBoundBoxApplier.calculateGlowCorrection(width: width, height: height)
+                
+                baseLine = objectBounds.max.y
+                margin = objectBounds.extents.x/4 - glowCorrection.height/2
+            }
         }
 
         let attachmentHalfHeight = (attachmentBounds.extents.y / 2) / parentScale.y
