@@ -72,13 +72,13 @@ struct ImageEntity {
     }
     
     /// Material 생성 (텍스처 로딩 및 양면 렌더링 지원)
-    private static func createMaterial(from url: URL) async -> UnlitMaterial? {
+    private static func createMaterial(from url: URL) async -> PhysicallyBasedMaterial? {
         guard let texture = await loadTexture(from: url) else { return nil }
 
-        var material = UnlitMaterial(color: .white)
-        material.color = .init(texture: .init(texture))
+        var material = PhysicallyBasedMaterial()
+        material.baseColor = .init(texture: .init(texture))
         material.blending = .transparent(opacity: 1.0)
-        material.opacityThreshold = 0.01
+        material.opacityThreshold = 0.51
         material.faceCulling = .none
         return material
     }

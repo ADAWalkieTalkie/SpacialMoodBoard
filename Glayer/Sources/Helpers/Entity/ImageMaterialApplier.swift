@@ -64,8 +64,8 @@ struct ImageMaterialApplier {
         }
     
         // 5. SimpleMaterial 생성
-        var material = SimpleMaterial()
-        material.color = .init(texture: .init(texture))
+        var material = PhysicallyBasedMaterial()
+        material.baseColor = .init(texture: .init(texture))
         material.metallic = .init(floatLiteral: 0.0)
         material.roughness = .init(floatLiteral: 0.5)
     
