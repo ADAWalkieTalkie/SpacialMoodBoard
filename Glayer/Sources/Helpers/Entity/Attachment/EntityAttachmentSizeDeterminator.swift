@@ -1,4 +1,5 @@
 import RealityKit
+import CoreGraphics
 
 enum EntityAttachmentSizeDeterminator {
     static let scaleFactor: Float = 1
@@ -67,3 +68,70 @@ enum EntityAttachmentSizeDeterminator {
         return max(1.0, growth)
     }
 }
+
+// MARK: - CropAttachmentSize
+
+extension EntityAttachmentSizeDeterminator {
+    /// CropAttachment(ViewAttachment)가 RealityKit 상에서 boundBox의 크기와 정확히 동일해지도록 스케일을 조정
+    /// - Parameters:
+    ///   - attachment: 크기를 맞출 대상 (CropAttachment 엔티티)
+    ///   - parent:  이미지 엔티티(ModelEntity)
+    /// - Returns: 적용된 scaleX, scaleY (CGFloat) — SwiftUI CropOverlay 두께 조절에 사용
+    @discardableResult
+    static func scaleAttachmentToBound(
+        _ attachment: Entity,
+        on parent: ModelEntity
+    ) -> (CGFloat, CGFloat) {
+        guard let bound = parent.findEntity(named: "imagePlane") as? ModelEntity else {
+            return (1.0, 1.0)
+        }
+        
+        let boundVB = bound.visualBounds(relativeTo: parent)
+        let targetWidth  = max(boundVB.extents.x, 0.0001)
+        let targetHeight = max(boundVB.extents.y, 0.0001)
+        
+        let attachmentVB = attachment.visualBounds(relativeTo: parent)
+        let currentWidth  = max(attachmentVB.extents.x, 0.0001)
+        let currentHeight = max(attachmentVB.extents.y, 0.0001)
+        
+        let scaleX = targetWidth  / currentWidth
+        let scaleY = targetHeight / currentHeight
+        
+        attachment.scale *= SIMD3<Float>(scaleX, scaleY, 1.0)
+        
+        let center = boundVB.center
+        attachment.position = center + SIMD3<Float>(0, 0, 0.01)
+        
+        return (CGFloat(scaleX), CGFloat(scaleY))
+    }
+    
+    /// RealityKit 상에서 이미지가 실제로 표시되는 plane(imagePlne)이 boundBox 안에서 차지하는 상대적인 비율을 계산
+    /// - Parameter parent: 이미지 엔티티(ModelEntity)
+    /// - Returns: (widthRatio, heightRatio) 0~1 범위의 비율
+    static func imagePlaneRatio(
+        on parent: ModelEntity
+    ) -> (widthRatio: CGFloat, heightRatio: CGFloat) {
+        guard
+            let boundBox = parent.findEntity(named: "boundBox") as? ModelEntity,
+            let imagePlane = parent.findEntity(named: "imagePlane") as? ModelEntity
+        else {
+            return (1.0, 1.0)
+        }
+        
+        let boundVB = boundBox.visualBounds(relativeTo: parent)
+        let imageVB = imagePlane.visualBounds(relativeTo: parent)
+        
+        print("boundVB: \(boundVB), imageVB:  \(imageVB)")
+        
+        let bw = max(boundVB.extents.x, 0.0001)
+        let bh = max(boundVB.extents.y, 0.0001)
+        let iw = max(imageVB.extents.x, 0.0001)
+        let ih = max(imageVB.extents.y, 0.0001)
+        
+        let wRatio = iw / bw
+        let hRatio = ih / bh
+        
+        return (CGFloat(wRatio), CGFloat(hRatio))
+    }
+}
+

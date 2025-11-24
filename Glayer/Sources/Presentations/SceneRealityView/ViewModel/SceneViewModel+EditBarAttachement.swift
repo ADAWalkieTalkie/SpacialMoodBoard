@@ -59,9 +59,14 @@ extension SceneViewModel {
                 guard let self = self, let rootEntity = self.rootEntity else { return }
                 _ = self.duplicateObject(rootEntity: rootEntity)
             },
-            // onCrop: { [weak self] in
-            //     self?.cropObject(id: objectId)
-            // },
+            onCrop: { [weak self] isOn in
+                guard let self else { return }
+                if isOn {
+                    self.startImageCrop(for: entity, objectId: objectId)
+                } else {
+                    self.removeCropAttachment(from: entity)
+                }
+            },
             onDelete: { [weak self] in
                 self?.removeSceneObject(id: objectId)
             }
@@ -116,7 +121,7 @@ extension SceneViewModel {
         onVolumeChange: ((Double) -> Void)? = nil,
         onLock: (() -> Void)? = nil,
         onDuplicate: (() -> Void)? = nil,
-        onCrop: (() -> Void)? = nil,
+        onCrop: ((Bool) -> Void)? = nil,
         onDelete: @escaping () -> Void
     ) {
         let objectAttachment = Entity()

@@ -24,12 +24,13 @@ struct ImageEntity {
         imageEntity.position = sceneObject.position
         imageEntity.scale = SIMD3<Float>(repeating: imageAttrs.scale)
 
-        let size = calculateSize(from: asset)
+        let size = calculateSize(from: asset, imageAttrs: imageAttrs)
 
         Task { @MainActor in
             await Self.createPlane(
                 to: imageEntity,
                 with: asset,
+                imageAttrs: imageAttrs,
                 size: size
             )
         }
@@ -54,26 +55,21 @@ struct ImageEntity {
     // MARK: - Helper Methods
     
     /// 크기 계산
-    private static func calculateSize(from asset: Asset) -> (width: Float, height: Float) {
+    private static func calculateSize(from asset: Asset, imageAttrs: ImageAttributes) -> (width: Float, height: Float) {
         let baseWidth: Float = 0.5
         let imageWidth = Float(asset.image?.width ?? 1)
         let imageHeight = Float(asset.image?.height ?? 1)
         let aspectRatio = imageWidth > 0 ? (imageHeight / imageWidth) : 1.0
         
-        let width = baseWidth
-        let height = baseWidth * aspectRatio
+        let crop = imageAttrs.crop.clamped()
+        let visibleWidthRatio = crop.width
+        let visibleHeightRatio = crop.height
+        
+        let width = baseWidth * visibleWidthRatio
+        let height = baseWidth * aspectRatio * visibleHeightRatio
         
         return (width, height)
     }
-    
-    /// Position 계산 (y축 0 이상으로 제한)
-//    private static func calculateClampedPosition(from position: SIMD3<Float>) -> SIMD3<Float> {
-//        return SIMD3<Float>(
-//            position.x,
-//            max(0, position.y),
-//            position.z
-//        )
-//    }
     
     /// Material 생성 (텍스처 로딩 및 양면 렌더링 지원)
     private static func createMaterial(from url: URL) async -> UnlitMaterial? {
@@ -117,15 +113,22 @@ struct ImageEntity {
     private static func createPlane(
         to imageEntity: ModelEntity,
         with asset: Asset,
+        imageAttrs: ImageAttributes,
         size: (width: Float, height: Float)
     ) async {
-        guard let material = await createMaterial(from: asset.url) else { return }
+        guard var material = await createMaterial(from: asset.url) else { return }
+        let crop = imageAttrs.crop.clamped()
 
         let mesh = MeshResource.generatePlane(
             width: size.width,
             height: size.height
         )
-
+        material.textureCoordinateTransform = .init(
+            offset: crop.rkOffset,
+            scale:  crop.rkScale,
+            rotation: 0
+        )
+        
         let plane = ModelEntity(mesh: mesh, materials: [material])
         plane.name = "imagePlane"
 

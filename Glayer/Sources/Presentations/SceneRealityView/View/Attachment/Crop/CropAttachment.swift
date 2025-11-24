@@ -1,0 +1,139 @@
+//
+//  CropAttachment.swift
+//  Glayer
+//
+//  Created by jeongminji on 11/13/25.
+//
+
+import SwiftUI
+import RealityKit
+
+struct CropAttachment: View {
+    
+    // MARK: - Properties
+    
+    let image: UIImage
+    let initialUV: UVRect
+    let scaleX: CGFloat?
+    let scaleY: CGFloat?
+    let onDone: (UVRect) -> Void
+    
+    @State private var cropRect: CGRect = .zero
+    @State private var viewSize: CGSize = .zero
+    @State private var imageFrame: CGRect = .zero
+    @State private var didComplete = false
+    
+    /// 실제로 화면에 깔릴 이미지
+    /// - initialUV가 전체(0,0,1,1)이면 원본 그대로
+    /// - 아니면 initialUV 영역만 잘라낸 서브 이미지
+    private var displayImage: UIImage {
+        let uv = initialUV.clamped()
+        
+        let isFull =
+        abs(uv.x) < 0.0001 &&
+        abs(uv.y) < 0.0001 &&
+        abs(uv.width - 1) < 0.0001 &&
+        abs(uv.height - 1) < 0.0001
+        
+        guard !isFull, let cg = image.cgImage else {
+            return image
+        }
+        
+        let w = CGFloat(cg.width)
+        let h = CGFloat(cg.height)
+        
+        let cropRectPx = CGRect(
+            x: CGFloat(uv.x) * w,
+            y: CGFloat(uv.y) * h,
+            width: CGFloat(uv.width) * w,
+            height: CGFloat(uv.height) * h
+        ).intersection(CGRect(x: 0, y: 0, width: w, height: h))
+        
+        guard
+            cropRectPx.width > 0,
+            cropRectPx.height > 0,
+            let croppedCG = cg.cropping(to: cropRectPx)
+        else {
+            return image
+        }
+        
+        return UIImage(
+            cgImage: croppedCG,
+            scale: image.scale,
+            orientation: image.imageOrientation
+        )
+    }
+    
+    // MARK: - Body
+    
+    var body: some View {
+        VStack {
+            Image(uiImage: displayImage)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .overlay(overlayView)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .onAppear {
+                                viewSize = geo.size
+                                let mapper = AspectFitMapper(
+                                    viewSize: geo.size,
+                                    imageSize: displayImage.size
+                                )
+                                let fitted = mapper.fittedRect
+                                imageFrame = fitted
+                                                               
+                                let full = UVRect(x: 0, y: 0, width: 1, height: 1)
+                                cropRect = mapper.uvToViewRect(full)
+                            }
+                    }
+                )
+        }
+        .frame(width: 1000)
+        .aspectRatio(displayImage.size, contentMode: .fit)
+        .background(.clear)
+        .onDisappear {
+            if !didComplete { complete() }
+        }
+    }
+    
+    // MARK: - Methods
+    
+    /// 크롭 UI 위에 표시할 오버레이 뷰 생성
+    /// `scaleX`, `scaleY`가 설정된 경우에만 `CropOverlay`를 렌더링하고,
+    /// 아직 RealityKit 쪽 스케일 보정 값이 준비되지 않은 초기 상태에서는 `EmptyView` 반환
+    @ViewBuilder
+    private var overlayView: some View {
+        if let sx = scaleX, let sy = scaleY {
+            CropOverlay(
+                cropRect: $cropRect,
+                scaleX: sx,
+                scaleY: sy,
+                imageFrame: imageFrame
+            )
+        } else {
+            EmptyView()
+        }
+    }
+    
+    /// 현재까지 사용자가 조작한 크롭 결과를 UVRect로 변환하여 콜백으로 전달
+    private func complete() {
+        guard !didComplete else { return }
+        didComplete = true
+        
+        guard viewSize != .zero else {
+            onDone(initialUV.clamped())
+            return
+        }
+        
+        let mapper = AspectFitMapper(
+            viewSize: viewSize,
+            imageSize: displayImage.size
+        )
+        let innerUV = mapper.viewRectToUV(cropRect).clamped()
+        let finalUV = initialUV.clamped().composed(with: innerUV).clamped()
+        
+        onDone(finalUV)
+    }
+}
