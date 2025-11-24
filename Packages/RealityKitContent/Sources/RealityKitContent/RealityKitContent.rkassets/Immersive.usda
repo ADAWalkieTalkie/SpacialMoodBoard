@@ -50,7 +50,7 @@ def Xform "Root"
                 def Shader "diffuseColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
+                    asset inputs:file = @bg_day_puresky_4k(1).exr@
                     float2 inputs:st.connect = </Root/SkyDome/mtl/GroundMATSG/diffuseColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -71,7 +71,7 @@ def Xform "Root"
                 def Shader "emissiveColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
+                    asset inputs:file = @bg_day_puresky_4k(1).exr@
                     float2 inputs:st.connect = </Root/SkyDome/mtl/GroundMATSG/emissiveColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -99,7 +99,7 @@ def Xform "Root"
                 def Shader "diffuseColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
+                    asset inputs:file = @bg_day_puresky_4k(1).exr@
                     float2 inputs:st.connect = </Root/SkyDome/mtl/DomeMATSG/diffuseColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -120,7 +120,7 @@ def Xform "Root"
                 def Shader "emissiveColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
+                    asset inputs:file = @bg_day_puresky_4k(1).exr@
                     float2 inputs:st.connect = </Root/SkyDome/mtl/DomeMATSG/emissiveColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -185,7 +185,6 @@ def Xform "Root"
                     colorSpace = "srgb_displayp3"
                 )
                 color3f inputs:emissiveColor = (0, 0, 0)
-                color3f inputs:emissiveColor.connect = </Root/Cylinder/DefaultMaterial/emissiveColor.outputs:rgb>
                 float inputs:opacity = 0
                 float inputs:roughness = 0
                 token outputs:surface
@@ -209,7 +208,7 @@ def Xform "Root"
             def Shader "emissiveColor"
             {
                 uniform token info:id = "UsdUVTexture"
-                asset inputs:file = @qwantani_moonrise_puresky_2k.hdr@
+                asset inputs:file = @bg_day_puresky_4k.hdr@
                 float2 inputs:st.connect = </Root/Cylinder/DefaultMaterial/emissiveColor/TexCoordReader.outputs:result>
                 color3f outputs:rgb
 
@@ -219,6 +218,104 @@ def Xform "Root"
                     token inputs:varname.connect = </Root/Cylinder/DefaultMaterial.inputs:frame:stPrimvarName>
                     float2 outputs:result
                 }
+            }
+        }
+    }
+
+    def Xform "DirectionalLight" (
+        customData = {
+            float3 rotationEulerHint = (-0.7853981, 1.5707963, 0)
+        }
+    )
+    {
+        quatf xformOp:orient = (0.6532815, -0.27059805, 0.6532815, 0.27059805)
+        float3 xformOp:scale = (1, 1, 1)
+        float3 xformOp:translate = (8, 9, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitComponent "DirectionalLight"
+        {
+            float3 color = (0.9999908, 1, 1)
+            token info:id = "RealityKit.DirectionalLight"
+            float intensity = 2000
+
+            def RealityKitStruct "Shadow"
+            {
+            }
+        }
+    }
+
+    def Xform "DirectionalLight_1" (
+        customData = {
+            float3 rotationEulerHint = (0.79362553, -1.5707963, 0)
+        }
+    )
+    {
+        float2 ui:nodegraph:node:pos = (20, 20)
+        int ui:nodegraph:node:stackingOrder = 1
+        quatf xformOp:orient = (0.6521629, -0.27328318, -0.6521628, -0.27328312)
+        float3 xformOp:scale = (0.9999998, 0.9999998, 0.9999998)
+        float3 xformOp:translate = (-8, 9.006286, -0.11516757)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitComponent "DirectionalLight"
+        {
+            float3 color = (0.9999908, 1, 1)
+            token info:id = "RealityKit.DirectionalLight"
+            float intensity = 2000
+
+            def RealityKitStruct "Shadow"
+            {
+            }
+        }
+    }
+
+    def Xform "DirectionalLight_2" (
+        customData = {
+            float3 rotationEulerHint = (-0.785398, 3.1415927, 0)
+        }
+    )
+    {
+        float2 ui:nodegraph:node:pos = (40, 40)
+        int ui:nodegraph:node:stackingOrder = 2
+        quatf xformOp:orient = (-4.038405e-8, 1.6727622e-8, 0.92387956, 0.3826834)
+        float3 xformOp:scale = (0.99999964, 0.9999996, 0.9999996)
+        float3 xformOp:translate = (-2.9998808, 13.924794, -11.871272)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitComponent "DirectionalLight"
+        {
+            float3 color = (0.9999908, 1, 1)
+            token info:id = "RealityKit.DirectionalLight"
+            float intensity = 2000
+
+            def RealityKitStruct "Shadow"
+            {
+            }
+        }
+    }
+
+    def Xform "DirectionalLight_3" (
+        customData = {
+            float3 rotationEulerHint = (-0.78539807, 0, 0)
+        }
+    )
+    {
+        float2 ui:nodegraph:node:pos = (60, 60)
+        int ui:nodegraph:node:stackingOrder = 3
+        quatf xformOp:orient = (0.92387956, -0.3826834, 0, 0)
+        float3 xformOp:scale = (0.9999995, 0.9999994, 0.9999994)
+        float3 xformOp:translate = (-2.9998665, 13.924829, 12.68079)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitComponent "DirectionalLight"
+        {
+            float3 color = (0.9999908, 1, 1)
+            token info:id = "RealityKit.DirectionalLight"
+            float intensity = 2000
+
+            def RealityKitStruct "Shadow"
+            {
             }
         }
     }

@@ -43,7 +43,7 @@ def Xform "Root"
                 def Shader "diffuseColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_night_puresky_2k.hdr@
+                    asset inputs:file = @bg_night_puresky_4k.exr@
                     float2 inputs:st.connect = </Root/SkyDome_1/Looks/GroundMATSG/diffuseColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -64,7 +64,7 @@ def Xform "Root"
                 def Shader "emissiveColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_night_puresky_2k.hdr@
+                    asset inputs:file = @bg_night_puresky_4k.exr@
                     float2 inputs:st.connect = </Root/SkyDome_1/Looks/GroundMATSG/emissiveColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -92,7 +92,7 @@ def Xform "Root"
                 def Shader "diffuseColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_night_puresky_2k.hdr@
+                    asset inputs:file = @bg_night_puresky_4k.exr@
                     float2 inputs:st.connect = </Root/SkyDome_1/Looks/DomeMATSG/diffuseColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -113,7 +113,7 @@ def Xform "Root"
                 def Shader "emissiveColor"
                 {
                     uniform token info:id = "UsdUVTexture"
-                    asset inputs:file = @qwantani_night_puresky_2k.hdr@
+                    asset inputs:file = @bg_night_puresky_4k.exr@
                     float2 inputs:st.connect = </Root/SkyDome_1/Looks/DomeMATSG/emissiveColor/TexCoordReader.outputs:result>
                     color3f outputs:rgb
 
@@ -175,7 +175,6 @@ def Xform "Root"
                     colorSpace = "srgb_displayp3"
                 )
                 color3f inputs:emissiveColor = (0, 0, 0)
-                color3f inputs:emissiveColor.connect = </Root/Cylinder/DefaultMaterial/emissiveColor.outputs:rgb>
                 float inputs:opacity = 0
                 float inputs:roughness = 0
                 token outputs:surface
