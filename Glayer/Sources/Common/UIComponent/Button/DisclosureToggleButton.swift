@@ -35,7 +35,7 @@ struct DisclosureToggleButton: View {
                 Text(title)
                     .font(.system(size: 20, weight: .semibold))
                 
-                Image(systemName: isExpanded ? "chevron.down" : "chevron.up")
+                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                     .font(.system(size: 20, weight: .regular))
             }
             .padding(.horizontal, 16)
