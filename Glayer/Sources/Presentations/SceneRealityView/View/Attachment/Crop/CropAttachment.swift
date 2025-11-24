@@ -71,6 +71,7 @@ struct CropAttachment: View {
             Image(uiImage: displayImage)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .opacity(0.6)
                 .overlay(overlayView)
                 .background(
                     GeometryReader { geo in
@@ -100,20 +101,32 @@ struct CropAttachment: View {
     
     // MARK: - Methods
     
-    /// 크롭 UI 위에 표시할 오버레이 뷰 생성
-    /// `scaleX`, `scaleY`가 설정된 경우에만 `CropOverlay`를 렌더링하고,
-    /// 아직 RealityKit 쪽 스케일 보정 값이 준비되지 않은 초기 상태에서는 `EmptyView` 반환
+    
+    /// SwiftUI 위에서만 '크롭된 영역 강조 + 코너 드래그 UI'를 구성하기 위한 전용 레이어
+    /// 구성:
+    /// 1) `displayImage`를 그대로 사용하지만 `cropRect` 영역만 보이도록 `mask` 처리한 레이어
+    ///    - 크롭된 부분만 100% 불투명하게 선명하게 보이게 함
+    /// 2) `CropOverlay`
+    ///    - 코너 브래킷(드래그 핸들)과 드래그 제스처를 담당하는 오버레이
+    ///    - 이미지 좌표계(imageFrame) 기준으로 cropRect를 직접 조작
     @ViewBuilder
     private var overlayView: some View {
-        if let sx = scaleX, let sy = scaleY {
-            CropOverlay(
-                cropRect: $cropRect,
-                scaleX: sx,
-                scaleY: sy,
-                imageFrame: imageFrame
-            )
-        } else {
-            EmptyView()
+        ZStack(alignment: .topLeading) {
+            Image(uiImage: displayImage)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .mask(
+                    CropMaskShape(rect: cropRect)
+                )
+            
+            if let sx = scaleX, let sy = scaleY {
+                CropOverlay(
+                    cropRect: $cropRect,
+                    scaleX: sx,
+                    scaleY: sy,
+                    imageFrame: imageFrame
+                )
+            }
         }
     }
     
@@ -135,5 +148,16 @@ struct CropAttachment: View {
         let finalUV = initialUV.clamped().composed(with: innerUV).clamped()
         
         onDone(finalUV)
+    }
+}
+
+/// cropRect 영역만 보이게 마스크하는 Shape
+struct CropMaskShape: Shape {
+    var rect: CGRect
+    
+    func path(in _: CGRect) -> Path {
+        var p = Path()
+        p.addRect(rect)
+        return p
     }
 }

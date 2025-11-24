@@ -31,17 +31,6 @@ struct CropOverlay: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .topLeading) {
-
-                Path { path in
-                    path.addRect(imageFrame)
-                    path.addRect(cropRect)
-                }
-                .fill(
-                    Color.black.opacity(0.4),
-                    style: FillStyle(eoFill: true)
-                )
-                .allowsHitTesting(false)
-                
                 let L = cornerLength(for: cropRect.size)
                 
                 ForEach(Corner.allCases, id: \.self) { corner in
