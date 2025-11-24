@@ -16,7 +16,7 @@ struct CropOverlay: View {
     let scaleY: CGFloat
     let imageFrame: CGRect
     
-    private let baseLineWidth: CGFloat = 8.0
+    private let baseLineWidth: CGFloat = 10.0
     private var actualLineWidth: CGFloat {
         let s = max(scaleX, scaleY)
         guard s > 0 else { return baseLineWidth }
@@ -31,17 +31,6 @@ struct CropOverlay: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .topLeading) {
-
-                Path { path in
-                    path.addRect(imageFrame)
-                    path.addRect(cropRect)
-                }
-                .fill(
-                    Color.black.opacity(0.4),
-                    style: FillStyle(eoFill: true)
-                )
-                .allowsHitTesting(false)
-                
                 let L = cornerLength(for: cropRect.size)
                 
                 ForEach(Corner.allCases, id: \.self) { corner in
@@ -49,7 +38,7 @@ struct CropOverlay: View {
                     
                     ZStack {
                         if activeCorner == corner {
-                            CornerBracket(length: L, lineWidth: actualLineWidth)
+                            CornerBracket(length: L, lineWidth: actualLineWidth, cornerRadius: 30)
                                 .foregroundStyle(.white)
                                 .blur(radius: 8)
                                 .shadow(
@@ -60,7 +49,7 @@ struct CropOverlay: View {
                                 )
                         }
                         
-                        CornerBracket(length: L, lineWidth: actualLineWidth)
+                        CornerBracket(length: L, lineWidth: actualLineWidth, cornerRadius: 30)
                             .foregroundStyle(.white)
                     }
                     .rotationEffect(angle(for: corner))

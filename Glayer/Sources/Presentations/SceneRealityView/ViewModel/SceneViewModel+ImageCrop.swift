@@ -42,6 +42,7 @@ extension SceneViewModel {
         let onDone: (UVRect) -> Void = { [weak self] newUV in
             guard let self else { return }
             self.updateObjectCrop(id: objectId, uv: newUV)
+            self.setImagePlaneHidden(false, on: entity)
         }
         
         let baseView = CropAttachment(
@@ -65,6 +66,7 @@ extension SceneViewModel {
         )
         EntityBoundBoxApplier.removeBoundBox(from: entity)
         cropAttachment.components.set(ViewAttachmentComponent(rootView: scaledView))
+        setImagePlaneHidden(true, on: entity)
     }
     
     /// 선택된 이미지 객체의 크롭 정보(UVRect)를 갱신하고, 장면(Scene) 상태 및 실제 RealityKit 엔티티 양쪽 모두에 반영
@@ -119,5 +121,13 @@ extension SceneViewModel {
     /// - Parameter entity: 크롭 UI가 부착되어 있는 대상 `ModelEntity`
     func removeCropAttachment(from entity: ModelEntity) {
         entity.findEntity(named: "cropAttachment")?.removeFromParent()
+        setImagePlaneHidden(false, on: entity)
+    }
+    
+    func setImagePlaneHidden(_ hidden: Bool, on entity: ModelEntity) {
+        guard let imagePlane = entity.findEntity(named: "imagePlane") as? ModelEntity else {
+            return
+        }
+        imagePlane.isEnabled = !hidden
     }
 }
