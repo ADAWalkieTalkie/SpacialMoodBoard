@@ -13,6 +13,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		184BF6BC2ED44C6F00CFF8BF /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		184BF6BD2ED44CA600CFF8BF /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
+		184BF6BE2ED44CAC00CFF8BF /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		184BF6BF2ED44CB300CFF8BF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		184BF6C02ED44D1C00CFF8BF /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		184BF6C12ED44D2900CFF8BF /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		184BF6C22ED44D6F00CFF8BF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		186F003A2E8DA1E800193A85 /* Glayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Glayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		186F003E2E8DA1E800193A85 /* RealityKitContent */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = RealityKitContent; sourceTree = "<group>"; };
 		5FA673642EC3671300EB4423 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -141,6 +148,13 @@
 				en,
 				ko,
 				Base,
+				ja,
+				ar,
+				hi,
+				fr,
+				de,
+				es,
+				"zh-Hans",
 			);
 			mainGroup = 186F00312E8DA1E800193A85;
 			minimizedProjectReferenceProxies = 1;
@@ -184,6 +198,13 @@
 			children = (
 				5FA673642EC3671300EB4423 /* ko */,
 				5FA673652EC3671300EB4423 /* en */,
+				184BF6BC2ED44C6F00CFF8BF /* ja */,
+				184BF6BD2ED44CA600CFF8BF /* ar */,
+				184BF6BE2ED44CAC00CFF8BF /* hi */,
+				184BF6BF2ED44CB300CFF8BF /* fr */,
+				184BF6C02ED44D1C00CFF8BF /* de */,
+				184BF6C12ED44D2900CFF8BF /* es */,
+				184BF6C22ED44D6F00CFF8BF /* zh-Hans */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
