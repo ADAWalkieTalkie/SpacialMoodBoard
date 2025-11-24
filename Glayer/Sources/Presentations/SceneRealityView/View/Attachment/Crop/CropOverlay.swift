@@ -16,7 +16,7 @@ struct CropOverlay: View {
     let scaleY: CGFloat
     let imageFrame: CGRect
     
-    private let baseLineWidth: CGFloat = 12.0
+    private let baseLineWidth: CGFloat = 10.0
     private var actualLineWidth: CGFloat {
         let s = max(scaleX, scaleY)
         guard s > 0 else { return baseLineWidth }
