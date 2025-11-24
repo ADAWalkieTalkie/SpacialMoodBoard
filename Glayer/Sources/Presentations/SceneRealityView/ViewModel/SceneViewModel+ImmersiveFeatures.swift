@@ -49,8 +49,7 @@ extension SceneViewModel {
             isEditable: true,
             scale: 0.3,
             rotation: SIMD3<Float>(0, 0, 0),
-            crop: SIMD4<Float>(0, 0, 1, 1),
-            lock: false
+            crop: UVRect()
         )
 
         // SceneViewModel+SceneObject의 addSceneObject 사용

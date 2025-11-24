@@ -4,13 +4,13 @@ import Foundation
 struct ImageAttributes: Codable, Hashable {
     var scale: Float
     var rotation: SIMD3<Float>
-    var crop: SIMD4<Float>
     var lock: Bool
+    var crop: UVRect
     
     init(
         scale: Float = 1.0,
         rotation: SIMD3<Float> = [0, 0, 0],
-        crop: SIMD4<Float> = [0, 0, 1, 1],
+        crop: UVRect = .unit,
         lock: Bool = false
     ) {
         self.scale = scale

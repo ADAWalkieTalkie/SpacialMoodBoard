@@ -55,7 +55,7 @@ extension SceneObject {
     }
     
     /// 이미지 crop 변경
-    mutating func setCrop(_ crop: SIMD4<Float>) {
+    mutating func setCrop(_ crop: UVRect) {
         guard case .image(var attrs) = attributes else { return }
         attrs.crop = crop
         self.attributes = .image(attrs)

@@ -9,12 +9,13 @@ struct EditBarAttachment: View {
     
     private let onLock: (() -> Void)?
     private let onDuplicate: (() -> Void)?
-    private let onCrop: (() -> Void)?
+    private let onCrop: ((Bool) -> Void)?
     private let onVolumeChanging: ((Double) -> Void)?
     private let onVolumeChange: ((Double) -> Void)?
     private let onDelete: () -> Void
     
     @State private var volume: Double
+    @State private var isCropping: Bool = false
     @State private var isMuted: Bool = false
     @State private var lastNonZeroVolume: Double = 1.0
     
@@ -38,7 +39,7 @@ struct EditBarAttachment: View {
         onVolumeChange: ((Double) -> Void)? = nil,
         onLock: (() -> Void)? = nil,
         onDuplicate: (() -> Void)? = nil,
-        onCrop: (() -> Void)? = nil,
+        onCrop: ((Bool) -> Void)? = nil,
         onDelete: @escaping () -> Void
     ) {
         self.objectId = objectId
@@ -66,10 +67,17 @@ struct EditBarAttachment: View {
                 }
                 .accessibilityLabel("Lock")
                 // 크롭 버튼
-                //                if let onCrop {
-                //                    CircleFillButton(type: .crop, action: onCrop)
-                //                        .accessibilityLabel("Crop")
-                //                }
+                if let onCrop {
+                    CircleFillButton(
+                        type: .crop,
+                        action: {
+                            isCropping.toggle()
+                            onCrop(isCropping)
+                        }
+                    )
+                    .accessibilityLabel("Crop")
+                }
+                
                 // 복사 버튼
                 CircleFillButton(type: .duplicate) {
                     onDuplicate?()
@@ -145,7 +153,7 @@ struct EditBarAttachment: View {
         objectType: .image,
         onLock: { print("잠금") },
         onDuplicate: { print("복사") },
-        onCrop: { print("크롭") },
+        onCrop: { _ in print("크롭") },
         onDelete: { print("삭제") }
     )
 }

@@ -19,16 +19,16 @@ struct EntitySelectionGesture: ViewModifier {
                         }
                     }
             )
-            .gesture(
-                // 선택 해제 - 빈 공간 탭 Gesture
-                SpatialTapGesture()
-                    .onEnded { _ in
-                        if selectedEntity != nil {
-                            selectedEntity = nil
-                            print("🔄 선택 해제 (빈 공간 탭)")
-                        }
-                    }
-            )
+//            .gesture(
+//                // 선택 해제 - 빈 공간 탭 Gesture
+//                SpatialTapGesture()
+//                    .onEnded { _ in
+//                        if selectedEntity != nil {
+//                            selectedEntity = nil
+//                            print("🔄 선택 해제 (빈 공간 탭)")
+//                        }
+//                    }
+//            )
     }
 }
 
