@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		181FD22D2ED447800051746F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 181FD22C2ED447800051746F /* FirebaseAnalytics */; };
+		181FD22F2ED447800051746F /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 181FD22E2ED447800051746F /* FirebaseAnalyticsCore */; };
+		181FD2312ED447800051746F /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = 181FD2302ED447800051746F /* FirebaseAnalyticsIdentitySupport */; };
 		186F00402E8DA1E800193A85 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 186F003F2E8DA1E800193A85 /* RealityKitContent */; };
 		2D768B702EBF6AC400E90D6B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 2D768B6F2EBF6AC400E90D6B /* Lottie */; };
 		5FA673682EC3671300EB4423 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5FA673662EC3671300EB4423 /* Localizable.strings */; };
@@ -51,7 +54,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				186F00402E8DA1E800193A85 /* RealityKitContent in Frameworks */,
+				181FD2312ED447800051746F /* FirebaseAnalyticsIdentitySupport in Frameworks */,
 				2D768B702EBF6AC400E90D6B /* Lottie in Frameworks */,
+				181FD22D2ED447800051746F /* FirebaseAnalytics in Frameworks */,
+				181FD22F2ED447800051746F /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +120,9 @@
 			packageProductDependencies = (
 				186F003F2E8DA1E800193A85 /* RealityKitContent */,
 				2D768B6F2EBF6AC400E90D6B /* Lottie */,
+				181FD22C2ED447800051746F /* FirebaseAnalytics */,
+				181FD22E2ED447800051746F /* FirebaseAnalyticsCore */,
+				181FD2302ED447800051746F /* FirebaseAnalyticsIdentitySupport */,
 			);
 			productName = SpacialMoodBoard;
 			productReference = 186F003A2E8DA1E800193A85 /* Glayer.app */;
@@ -146,6 +155,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2D768B6E2EBF6AC400E90D6B /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				181FD22B2ED447800051746F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 186F003B2E8DA1E800193A85 /* Products */;
@@ -404,6 +414,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		181FD22B2ED447800051746F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.6.0;
+			};
+		};
 		2D768B6E2EBF6AC400E90D6B /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
@@ -415,6 +433,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		181FD22C2ED447800051746F /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 181FD22B2ED447800051746F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		181FD22E2ED447800051746F /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 181FD22B2ED447800051746F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		181FD2302ED447800051746F /* FirebaseAnalyticsIdentitySupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 181FD22B2ED447800051746F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsIdentitySupport;
+		};
 		186F003F2E8DA1E800193A85 /* RealityKitContent */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RealityKitContent;
