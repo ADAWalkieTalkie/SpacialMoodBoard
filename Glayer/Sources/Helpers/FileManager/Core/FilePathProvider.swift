@@ -26,7 +26,7 @@ struct FilePathProvider {
     // SceneModel 저장용 - Project 객체는 인메모리 DB에 저장
     static func projectMetadataFile(projectName: String) -> URL {
         projectDirectory(projectName: projectName)
-            .appendingPathComponent("\(projectName)_project.json")
+            .appendingPathComponent("project.json")
     }
     
     // MARK: - 프로젝트의 이미지
