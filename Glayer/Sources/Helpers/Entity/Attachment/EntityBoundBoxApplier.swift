@@ -75,6 +75,7 @@ enum EntityBoundBoxApplier {
         
         let bound = ModelEntity(mesh: plane, materials: [mat])
         bound.name = "boundBox"
+        bound.position = SIMD3(0, 0, -0.001)
         
         if isFloor {
             bound.position = SIMD3(0, 0.0001, 0)
