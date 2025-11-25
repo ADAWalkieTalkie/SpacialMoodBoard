@@ -27,7 +27,6 @@ struct ProjectFileStorage: FileStorageProtocol {
         let oldProjectDir = FilePathProvider.projectDirectory(projectName: oldProjectName)
         let newProjectDir = FilePathProvider.projectDirectory(projectName: newProjectName)
 
-        // 기존 프로젝트 디렉토리가 존재, 새 프로젝트 디렉토리 존재 확인
         guard fileManager.fileExists(atPath: oldProjectDir.path) else {
             throw FileStorageError.fileNotFound
         }
@@ -37,14 +36,6 @@ struct ProjectFileStorage: FileStorageProtocol {
 
         // 프로젝트 디렉토리 이름 변경
         try fileManager.moveItem(at: oldProjectDir, to: newProjectDir)
-
-        // 메타데이터 파일 이름 변경
-        let oldMetadataFile = oldProjectDir.appendingPathComponent("\(oldProjectName)_project.json")
-        let newMetadataFile = newProjectDir.appendingPathComponent("\(newProjectName)_project.json")
-
-        if fileManager.fileExists(atPath: oldMetadataFile.path) {
-            try fileManager.moveItem(at: oldMetadataFile, to: newMetadataFile)
-        }
     }
     
     func delete(projectName: String) throws {
