@@ -65,6 +65,10 @@ final class SceneViewModel {
     }
     var attachmentTimer: FunctionTimer?
 
+    // 테스트용: Sample ModelEntity와 Attachment 정보
+    var testSampleEntity: ModelEntity?
+    var testAttachmentInfo: (objectId: UUID, objectType: AssetType, initialVolume: Double)?
+
     /// Root Entity 참조 (회전 등의 작업에 사용)
     weak var rootEntity: Entity?
 

@@ -38,7 +38,6 @@ struct SceneRealityView: View {
                     }
                     content.add(newHeadAnchor)
                 }
-                
             } update: { content, attachments in
                 
                 // Volume 모드: base scale (0.2) × dynamic scale
@@ -51,6 +50,32 @@ struct SceneRealityView: View {
                     
                     updateAttachments()
                     
+                    // 테스트: RealityView attachments를 통해 EditBar 부착
+                    if let testEntity = viewModel.testSampleEntity,
+                    let info = viewModel.testAttachmentInfo,
+                    let editBarAttachment = attachments.entity(for: "testEditBar") {
+                        
+                        // 기존에 부착된 테스트 attachment 제거
+                        testEntity.children
+                            .filter { $0.name == "testEditBarAttachment" }
+                            .forEach { $0.removeFromParent() }
+                        
+                        // wrapper entity는 사용하지 않고 직접 부착
+                        editBarAttachment.name = "testEditBarAttachment"
+                        
+                        // BillboardComponent 추가
+                        editBarAttachment.components.set(BillboardComponent())
+                        
+                        // 스케일 설정 (고정값으로 테스트)
+                        editBarAttachment.scale = SIMD3<Float>(repeating: 0.4)
+                        
+                        // Entity에 부착
+                        testEntity.addChild(editBarAttachment)
+                        
+                        // 위치 설정 (박스 위에 배치)
+                        editBarAttachment.position = SIMD3<Float>(0, 0.2, 0)
+                    }
+                    
                     // Gesture 진행 중이 아닐 때만 updateScene 호출
                     if !viewModel.isGestureActive {
                         updateScene(content: content, rootEntity: rootEntity)
@@ -60,6 +85,29 @@ struct SceneRealityView: View {
                 Attachment(id: "headToolbar"){
                     ToolBarAttachment(viewModel: viewModel)
                         .environment(appStateManager)
+                }
+                
+                // 테스트용 EditBar Attachment
+                if let info = viewModel.testAttachmentInfo {
+                    Attachment(id: "testEditBar") {
+                        EditBarAttachment(
+                            objectId: info.objectId,
+                            objectType: info.objectType,
+                            initialVolume: info.initialVolume,
+                            onLock: {
+                                print("🔒 Lock 버튼 클릭")
+                            },
+                            onDuplicate: {
+                                print("📋 Duplicate 버튼 클릭")
+                            },
+                            onCrop: { isOn in
+                                print("✂️ Crop 버튼 클릭: \(isOn)")
+                            },
+                            onDelete: {
+                                print("🗑️ Delete 버튼 클릭")
+                            }
+                        )
+                    }
                 }
             }
             .if(config.enableGestures) { view in
@@ -144,6 +192,39 @@ struct SceneRealityView: View {
                 viewModel.setupBoundaryWalls(in: rootEntity)
             }
         }
+
+
+        // 테스트용: Sample ModelEntity 생성 (빨간 박스)
+        let testEntity = ModelEntity(
+            mesh: .generateBox(width: 0.3, height: 0.3, depth: 0.01),
+            materials: [SimpleMaterial(color: .red, isMetallic: false)]
+        )
+        testEntity.name = "testSampleEntity"
+        
+        // 위치 설정 (floor 위에 배치)
+        if appStateManager.appState.isVolumeOpen {
+            testEntity.position = SIMD3<Float>(0.5, 0.2, 0) // Volume 모드
+        } else {
+            testEntity.position = SIMD3<Float>(0.5, 0.2, -0.5) // Immersive 모드
+        }
+        
+        // 충돌 및 입력 처리
+        testEntity.collision = CollisionComponent(
+            shapes: [.generateBox(width: 0.3, height: 0.3, depth: 0.01)]
+        )
+        testEntity.components.set(InputTargetComponent())
+        testEntity.components.set(HoverEffectComponent())
+        
+        rootEntity.addChild(testEntity)
+        viewModel.testSampleEntity = testEntity
+        
+        // 테스트용 attachment 정보 설정
+        let testId = UUID()
+        viewModel.testAttachmentInfo = (
+            objectId: testId,
+            objectType: .image, // 이미지 타입으로 테스트
+            initialVolume: 1.0
+        )
     }
     
     // MARK: - Update Scene
