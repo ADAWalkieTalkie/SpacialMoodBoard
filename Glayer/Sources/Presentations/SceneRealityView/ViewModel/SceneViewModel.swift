@@ -92,7 +92,14 @@ final class SceneViewModel {
     let timeTracker = TimeTracker()
 
     // 회전 각도 (Volume용)
-    var rotationAngle: Float = 0
+    var rotationAngle: Float = 0 {
+        didSet {
+            // rotationAngle 변경 시 attachment rotation 업데이트
+            if appStateManager.appState.isVolumeOpen {
+                updateAttachmentRotations()
+            }
+        }
+    }
 
     // Floor에 적용된 이미지 URL
     var appliedFloorImageURL: URL?

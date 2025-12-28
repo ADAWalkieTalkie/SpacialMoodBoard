@@ -142,7 +142,11 @@ extension SceneViewModel {
             )
         )
         objectAttachment.components.set(attachment)
-        objectAttachment.components.set(BillboardComponent())
+        
+        // Volume 모드에서는 BillboardComponent 제거하고 커스텀 회전 사용
+        if !appStateManager.appState.isVolumeOpen {
+            objectAttachment.components.set(BillboardComponent())
+        }
 
         EntityBoundBoxApplier.addBoundAuto(to: entity)
 
@@ -154,6 +158,13 @@ extension SceneViewModel {
         )
 
         objectAttachment.scale = finalScale
+        
+        // Volume 모드에서는 초기 회전 적용
+        if appStateManager.appState.isVolumeOpen {
+            let inverseRotation = simd_quatf(angle: -rotationAngle, axis: [0, 1, 0])
+            objectAttachment.orientation = inverseRotation
+        }
+        
         entity.addChild(objectAttachment)
 
         // Attachment 위치 설정 (상단)
@@ -179,7 +190,11 @@ extension SceneViewModel {
             rootView: SoundNameAttachment(filename: filename)
         )
         nameAttachment.components.set(attachment)
-        nameAttachment.components.set(BillboardComponent())
+        
+        // Volume 모드에서는 BillboardComponent 제거하고 커스텀 회전 사용
+        if !appStateManager.appState.isVolumeOpen {
+            nameAttachment.components.set(BillboardComponent())
+        }
 
         /// attachment 스케일 보정
         let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
@@ -189,6 +204,12 @@ extension SceneViewModel {
         )
         
         nameAttachment.scale = finalScale
+        
+        // Volume 모드에서는 초기 회전 적용
+        if appStateManager.appState.isVolumeOpen {
+            let inverseRotation = simd_quatf(angle: -rotationAngle, axis: [0, 1, 0])
+            nameAttachment.orientation = inverseRotation
+        }
         
         // 6. 위치 설정 (아래에 배치)
         entity.addChild(nameAttachment)
