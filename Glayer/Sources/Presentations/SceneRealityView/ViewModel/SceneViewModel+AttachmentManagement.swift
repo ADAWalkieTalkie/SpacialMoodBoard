@@ -95,7 +95,26 @@ extension SceneViewModel {
             lockAttachment.scale = finalScale
         }
     }
-    
+
+    /// (Volume 회전 시) attachment의 rotation을 업데이트 
+    func updateAttachmentRotations() {
+        guard let entity = selectedEntity else { return }
+        guard appStateManager.appState.isVolumeOpen else { return }
+
+        // rootEntity의 역회전 값 계산 (Y축 기준)ß
+        let inverseRotation = simd_quatf(angle: -rotationAngle, axis: [0, 1, 0])
+
+        // objectAttachment 회전 업데이트
+        if let objectAttachment = entity.children.first(where: { $0.name == "objectAttachment" }) {
+            objectAttachment.orientation = inverseRotation
+        }
+
+        // soundNameAttachment 회전 업데이트
+        if let nameAttachment = entity.children.first(where: { $0.name == "soundNameAttachment" }) {
+            nameAttachment.orientation = inverseRotation
+        }
+    }   
+
     // MARK: - Timer Control (Public)
     
     /// 타이머를 리셋 (외부에서 호출 가능)

@@ -142,7 +142,11 @@ extension SceneViewModel {
             )
         )
         objectAttachment.components.set(attachment)
-        objectAttachment.components.set(BillboardComponent())
+        // Volume 모드에서는 BillboardComponent 제거하고 커스텀 회전 사용
+        if !appStateManager.appState.isVolumeOpen {
+            objectAttachment.components.set(BillboardComponent())
+        }
+        
 
         EntityBoundBoxApplier.addBoundAuto(to: entity)
 
@@ -179,7 +183,10 @@ extension SceneViewModel {
             rootView: SoundNameAttachment(filename: filename)
         )
         nameAttachment.components.set(attachment)
-        nameAttachment.components.set(BillboardComponent())
+        // Volume 모드에서는 BillboardComponent 제거하고 커스텀 회전 사용
+        if !appStateManager.appState.isVolumeOpen {
+            nameAttachment.components.set(BillboardComponent())
+        }
 
         /// attachment 스케일 보정
         let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
