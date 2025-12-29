@@ -158,6 +158,13 @@ extension SceneViewModel {
         )
 
         objectAttachment.scale = finalScale
+
+        // Volume 모드에서는 초기 회전 적용
+        if appStateManager.appState.isVolumeOpen {
+            let inverseRotation = simd_quatf(angle: -rotationAngle, axis: [0, 1, 0])
+            objectAttachment.orientation = inverseRotation
+        }
+
         entity.addChild(objectAttachment)
 
         // Attachment 위치 설정 (상단)
@@ -196,7 +203,13 @@ extension SceneViewModel {
         )
         
         nameAttachment.scale = finalScale
-        
+
+        // Volume 모드에서는 초기 회전 적용
+        if appStateManager.appState.isVolumeOpen {
+            let inverseRotation = simd_quatf(angle: -rotationAngle, axis: [0, 1, 0])
+            nameAttachment.orientation = inverseRotation
+        }
+
         // 6. 위치 설정 (아래에 배치)
         entity.addChild(nameAttachment)
         AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
