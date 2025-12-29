@@ -134,14 +134,11 @@ extension SceneViewModel {
         state.viewMode.toggle()
         userSpatialState = state
         selectedEntity = nil
-        
-        // ViewModeUseCase 실행
-        let viewModeUseCase = ViewModeUseCase(
-            entityRepository: entityRepository,
-            viewMode: state.viewMode
-        )
-        viewModeUseCase.execute()
-        
+
+        // ViewModeUseCase 실행 - 최신 viewMode 값 전달
+        let viewModeUseCase = ViewModeUseCase(entityRepository: entityRepository)
+        viewModeUseCase.execute(viewMode: state.viewMode)
+
         // 상태관리
         appStateManager.toggleLibraryVisibility()
     }

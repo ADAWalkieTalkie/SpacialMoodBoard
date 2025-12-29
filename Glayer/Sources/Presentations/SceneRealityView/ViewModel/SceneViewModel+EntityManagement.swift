@@ -16,7 +16,8 @@ extension SceneViewModel {
         entityRepository.syncEntities(
             sceneObjects: sceneObjects,
             rootEntity: rootEntity,
-            assetRepository: assetRepository
+            assetRepository: assetRepository,
+            viewMode: userSpatialState.viewMode
         )
     }
 
@@ -36,16 +37,18 @@ extension SceneViewModel {
         }
         
         // syncEntities 실행 (동기 함수지만 async 컨텍스트에서 호출)
+        // viewMode를 전달하여 SoundEntity가 올바른 초기 상태로 생성되도록 함
         entityRepository.syncEntities(
             sceneObjects: sceneObjects,
             rootEntity: rootEntity,
-            assetRepository: assetRepository
+            assetRepository: assetRepository,
+            viewMode: userSpatialState.viewMode
         )
-        
+
         if appStateManager.appState.isVolumeOpen {
             // 최소 표시 시간 보장
             try? await Task.sleep(for: .milliseconds(300))
-            
+
             // 토스트 숨김
             showLoadingEntityToast = false
         }
