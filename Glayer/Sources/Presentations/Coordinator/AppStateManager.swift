@@ -131,7 +131,7 @@ class AppStateManager {
         }
         selectedScene = nil
         appState = .projectList
-        // 보기모드 활성화 되어있는 경우
+        // 보기모드 활성화 되어있는 경우 보기모드 값 초기화
         if !showLibrary {
             toggleLibraryVisibility()
         }
@@ -155,7 +155,7 @@ class AppStateManager {
     }
 
     /// LibraryView의 표시/숨김 상태 토글
-    /// Immersive 모드에서 뷰 모드 활성화 시 사용
+    /// Immersive 및 volume 모드에서 뷰 모드 활성화 시 사용
     func toggleLibraryVisibility() {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
             showLibrary.toggle()
