@@ -57,7 +57,7 @@ class AppStateManager {
     private(set) var selectedScene: SceneModel?
     
     /// LibraryView 표시 여부
-    /// Immersive에서 viewMode 상태일 때 false로 설정되어 LibraryView만 숨김
+    /// Immersive와 volume모두 viewMode 상태일 때 false로 설정되어 LibraryView만 숨김
     private(set) var showLibrary: Bool = true
 
     /// LibraryView 최소화 상태
@@ -122,6 +122,20 @@ class AppStateManager {
         }
         appState = .libraryWithImmersive(project)
     }
+    
+    /// volume모드에서 X버튼을 클릭하여 volume을 직접 닫는 경우 프로젝트 목록으로 전환
+    /// 보기모드 활성화시 보기모드 값 초기화
+    func closeVolume() {
+        guard appState.isVolumeOpen else {
+            return
+        }
+        selectedScene = nil
+        appState = .projectList
+        // 보기모드 활성화 되어있는 경우
+        if !showLibrary {
+            toggleLibraryVisibility()
+        }
+    }
 
     /// Immersive 모드를 닫고 Volume 모드로 돌아가는 상태로 전환
     /// libraryWithImmersive 상태에서만 호출 가능
@@ -137,10 +151,6 @@ class AppStateManager {
     /// LibraryView가 현재 열려있는지 확인
     /// - Returns: showLibrary가 true이고 libraryMinimized가 false일 때 true 반환
     var isLibraryOpen: Bool {
-        guard case .libraryWithImmersive = appState else {
-            return true
-        }
-        
         return showLibrary && !libraryMinimized
     }
 

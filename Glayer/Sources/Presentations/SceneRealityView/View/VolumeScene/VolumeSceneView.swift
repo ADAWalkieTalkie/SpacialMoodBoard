@@ -21,9 +21,7 @@ struct VolumeSceneView: View {
                 viewModel.reset()
                 
                 // 사용자가 시스템 X 버튼으로 VolumeWindow를 닫은 경우 AppState 동기화
-                if case .libraryWithVolume = appStateManager.appState {
-                    appStateManager.closeProject()
-                }
+                appStateManager.closeVolume()
             }
             VStack {
                 Spacer()
