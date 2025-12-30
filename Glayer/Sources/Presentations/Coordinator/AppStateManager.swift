@@ -157,7 +157,9 @@ class AppStateManager {
     /// LibraryView의 표시/숨김 상태 토글
     /// Immersive 모드에서 뷰 모드 활성화 시 사용
     func toggleLibraryVisibility() {
-        showLibrary.toggle()
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+            showLibrary.toggle()
+        }
     }
     
     /// LibraryView의 최소화 상태 토글
