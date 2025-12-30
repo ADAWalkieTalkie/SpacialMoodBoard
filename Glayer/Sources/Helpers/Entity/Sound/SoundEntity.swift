@@ -33,10 +33,11 @@ struct SoundEntity {
     /// - Parameters:
     ///   - sceneObject: .audio 속성을 가진 SceneObject. 위치/이름/초기 볼륨 등을 사용
     ///   - asset: 실제 오디오 파일 URL을 담은 Asset
-    ///   - viewMode: 보기 모드 전환을 위한 bool
+    ///   - initialViewMode: 초기 viewMode 상태 (true: 보기 모드로 아이콘 숨김, false: 편집 모드로 아이콘 표시)
     /// - Returns: 구성 완료된 루트 Entity. .audio 타입이 아니거나 로드 실패 시 `nil` 반환
     static func create(from sceneObject: SceneObject,
-                       with asset: Asset
+                       with asset: Asset,
+                       initialViewMode: Bool
     ) -> ModelEntity? {
         guard case .audio(let audioAttrs) = sceneObject.attributes else {
             print("❌ SoundEntity.create: .audio 타입 아님")
@@ -58,8 +59,11 @@ struct SoundEntity {
                                               in: RealityKitContent.realityKitContentBundle)
                 let node = prefab.clone(recursive: true)
                 node.name = "SoundVisual"
+
+                node.isEnabled = !initialViewMode
+
                 modelEntity.addChild(node)
-                
+              
                 let b = node.visualBounds(relativeTo: node)
                 let ext = b.extents
                 modelEntity.collision = CollisionComponent(
