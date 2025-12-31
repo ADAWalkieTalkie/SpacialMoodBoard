@@ -26,7 +26,8 @@ extension SceneViewModel {
                 _ = try createObjectUseCase.execute(
                     object: object,
                     rootEntity: rootEntity,
-                    scene: &scene
+                    scene: &scene,
+                    viewMode: userSpatialState.viewMode
                 )
                 appStateManager.selectScene(scene)
             } catch CreateObjectError.assetNotFound {

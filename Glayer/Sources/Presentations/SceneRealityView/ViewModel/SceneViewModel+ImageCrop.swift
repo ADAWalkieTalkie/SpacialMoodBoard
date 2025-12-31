@@ -106,11 +106,12 @@ extension SceneViewModel {
         if let old = root.findEntity(named: id.uuidString) {
             old.removeFromParent()
         }
-        
+
         _ = entityRepository.createEntity(
             from: object,
             asset: asset,
-            rootEntity: root
+            rootEntity: root,
+            viewMode: userSpatialState.viewMode
         )
         
         selectedEntity = nil

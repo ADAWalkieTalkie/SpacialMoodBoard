@@ -33,6 +33,7 @@ struct CreateObjectUseCase {
     ///   - object: 추가할 `SceneObject`
     ///   - rootEntity: 엔티티를 추가할 부모 Entity
     ///   - scene: 현재 씬 모델(`inout`으로 전달되어 내부 컬렉션이 수정됨)
+    ///   - viewMode: 현재 viewMode 상태 (SoundEntity 초기 가시성 설정용)
     /// - Returns: 생성된 `SceneObject`와 `ModelEntity`를 포함한 결과
     /// - Throws:
     ///   - `CreateObjectError.assetNotFound`: 참조된 Asset이 존재하지 않음
@@ -41,10 +42,10 @@ struct CreateObjectUseCase {
     /// - Note:
     ///   1) `assetRepository.asset(withId:)`로 에셋을 조회
     ///   2) `sceneObjectRepository.addObject(_:to:)`로 SceneObject를 씬에 추가
-    ///   3) `entityRepository.createEntity(from:asset:rootEntity:)`로 RealityKit 엔티티 생성
+    ///   3) `entityRepository.createEntity(from:asset:rootEntity:viewMode:)`로 RealityKit 엔티티 생성
     ///   4) SceneObject와 Entity는 동일한 UUID로 연결됨
     @MainActor
-    func execute(object: SceneObject, rootEntity: Entity, scene: inout SceneModel) throws -> CreateObjectResult {
+    func execute(object: SceneObject, rootEntity: Entity, scene: inout SceneModel, viewMode: Bool) throws -> CreateObjectResult {
         // 1. Asset 조회
         guard let asset = assetRepository.asset(withId: object.assetId) else {
             throw CreateObjectError.assetNotFound
@@ -53,11 +54,12 @@ struct CreateObjectUseCase {
         // 2. SceneObject를 씬에 추가
         sceneObjectRepository.addObject(object, to: &scene)
 
-        // 3. Entity 생성
+        // 3. Entity 생성 (현재 viewMode 상태 전달)
         guard let entity = entityRepository.createEntity(
             from: object,
             asset: asset,
-            rootEntity: rootEntity
+            rootEntity: rootEntity,
+            viewMode: viewMode
         ) else {
             throw CreateObjectError.entityCreationFailed
         }

@@ -6,16 +6,16 @@ import RealityKit
 /// - SoundEntity: InputTargetComponent 제거/복원 + Material opacity 조절
 @MainActor
 struct ViewModeUseCase {
-    
+
     private let entityRepository: EntityRepositoryInterface
-    private let viewMode: Bool
-    
-    init(entityRepository: EntityRepositoryInterface, viewMode: Bool) {
+
+    init(entityRepository: EntityRepositoryInterface) {
         self.entityRepository = entityRepository
-        self.viewMode = viewMode
     }
 
-    func execute() {
+    /// ViewMode 상태를 모든 엔티티에 적용
+    /// - Parameter viewMode: 적용할 viewMode 값 (true: 보기 모드, false: 편집 모드)
+    func execute(viewMode: Bool) {
         if viewMode {
             viewModeOnAll()
         } else {

@@ -22,8 +22,9 @@ protocol EntityRepositoryInterface {
     ///   - sceneObject: 엔티티를 생성할 SceneObject
     ///   - asset: SceneObject가 참조하는 Asset (이미지/사운드 파일)
     ///   - rootEntity: 엔티티를 추가할 부모 엔티티
+    ///   - viewMode: 현재 viewMode 상태 (SoundEntity 초기 가시성 설정용)
     /// - Returns: 생성된 ModelEntity, 실패 시 nil
-    func createEntity(from sceneObject: SceneObject, asset: Asset, rootEntity: Entity) -> ModelEntity?
+    func createEntity(from sceneObject: SceneObject, asset: Asset, rootEntity: Entity, viewMode: Bool) -> ModelEntity?
 
     /// 특정 ID의 엔티티 위치를 업데이트
     /// - Parameters:
@@ -50,10 +51,12 @@ protocol EntityRepositoryInterface {
     ///   - sceneObjects: 동기화할 SceneObject 배열
     ///   - rootEntity: 엔티티가 추가될 루트 엔티티
     ///   - assetRepository: Asset 조회를 위한 Repository
+    ///   - viewMode: 현재 viewMode 상태 (새로 생성되는 SoundEntity의 초기 가시성 설정용)
     func syncEntities(
         sceneObjects: [SceneObject],
         rootEntity: Entity,
-        assetRepository: AssetRepositoryInterface
+        assetRepository: AssetRepositoryInterface,
+        viewMode: Bool
     )
 
     // MARK: - Floor Entity Management
