@@ -143,6 +143,11 @@ final class EntityRepository: EntityRepositoryInterface {
             if let existingEntity = entityMap[sceneObject.id] {
                 // 기존 엔티티의 위치 업데이트
                 existingEntity.position = sceneObject.position
+
+                if existingEntity.parent !== rootEntity {
+                    existingEntity.removeFromParent()
+                    rootEntity.addChild(existingEntity)
+                }
             } else {
                 // 새로운 엔티티 생성
                 _ = createEntity(from: sceneObject, asset: asset, rootEntity: rootEntity, viewMode: viewMode)

@@ -21,7 +21,11 @@ struct ImmersiveSceneView: View {
             appStateManager.openVolume()
         }
         .onDisappear {
-            viewModel.reset()
+            // Volume으로 전환 중이 아닐 때만 reset 호출
+            // Volume이 이미 열려있으면 엔티티를 재사용해야 하므로 reset 건너뜀
+            if !appStateManager.appState.isVolumeOpen {
+                viewModel.reset()
+            }
         }
     }
 }
