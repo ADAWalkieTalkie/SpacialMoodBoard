@@ -126,15 +126,17 @@ struct LibrarySoundItemView: View {
             tapFlash()
             onRowTap?()
         }
-        .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 22,
-                            pressing: { p in
-            guard allowRename else { return }
-            withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p }
-        },
-                            perform: {
-            guard allowRename else { return }
-            showRenamePopover = true
-        }
+        .onLongPressGesture(
+            minimumDuration: 0.35,
+            maximumDistance: 22,
+            perform: {
+                guard allowRename else { return }
+                showRenamePopover = true
+            },
+            onPressingChanged: { p in
+                guard allowRename else { return }
+                withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p }
+            }
         )
         .popover(
             isPresented: Binding(

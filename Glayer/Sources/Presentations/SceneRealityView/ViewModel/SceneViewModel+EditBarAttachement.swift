@@ -223,8 +223,8 @@ extension SceneViewModel {
         lockAttachment.name = "lockIconAttachment"
         
         // 앞면과 뒷면 Lock Icon 생성 및 추가
-        lockAttachment.addChild(createLockIconEntity(objectId: objectId, zPosition: 0.01))
-        lockAttachment.addChild(createLockIconEntity(objectId: objectId, zPosition: -0.01))
+        lockAttachment.addChild(createLockIconEntity(objectId: objectId, zPosition: 0.001))
+        lockAttachment.addChild(createLockIconEntity(objectId: objectId, zPosition: -0.001))
         
         // 스케일 보정
         let headPosition = userSpatialState.sceneHeadAnchor.position

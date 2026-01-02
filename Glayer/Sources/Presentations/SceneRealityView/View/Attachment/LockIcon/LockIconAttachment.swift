@@ -44,28 +44,32 @@ struct LockIconAttachment: View {
                     .opacity((isPressing || currentProgress > 0) ? 1 : 0)
                 }
             )
-            .onLongPressGesture(minimumDuration: holdDuration, maximumDistance: 20,
-                                pressing: { pressing in
-                if pressing {
-                    isPressing = true
-                    startDate = Date()
-                } else {
-                    // 롱프레스 실패(시간 미만) 시 즉시 리셋
-                    if let s = startDate, Date().timeIntervalSince(s) < holdDuration {
-                        progress = 0
-                    } else {
-                        progress = 1
-                    }
+            .onLongPressGesture(
+                minimumDuration: holdDuration,
+                maximumDistance: 20,
+                perform: {
+                    onUnlock()
+                    // 성공 후 다음 사용을 위해 리셋
+                    progress = 0
                     isPressing = false
                     startDate = nil
+                },
+                onPressingChanged: { pressing in
+                    if pressing {
+                        isPressing = true
+                        startDate = Date()
+                    } else {
+                        // 롱프레스 실패(시간 미만) 시 즉시 리셋
+                        if let s = startDate, Date().timeIntervalSince(s) < holdDuration {
+                            progress = 0
+                        } else {
+                            progress = 1
+                        }
+                        isPressing = false
+                        startDate = nil
+                    }
                 }
-            }, perform: {
-                onUnlock()
-                // 성공 후 다음 사용을 위해 리셋
-                progress = 0
-                isPressing = false
-                startDate = nil
-            })
+            )
     }
 }
 
