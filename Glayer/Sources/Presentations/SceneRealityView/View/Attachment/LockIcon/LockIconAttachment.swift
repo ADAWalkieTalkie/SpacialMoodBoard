@@ -8,6 +8,7 @@ struct LockIconAttachment: View {
     @State private var isPressing = false
     @State private var startDate: Date?
     @State private var progress: CGFloat = 0 // 마지막 고정된 값(표시 제어용)
+    @State private var didUnlock = false // 중복 unlock 호출 방지
 
     private let holdDuration: Double = 1
 
@@ -48,6 +49,8 @@ struct LockIconAttachment: View {
                 minimumDuration: holdDuration,
                 maximumDistance: 20,
                 perform: {
+                    guard !didUnlock else { return } // 이미 unlock 되었으면 스킵
+                    didUnlock = true
                     onUnlock()
                     // 성공 후 다음 사용을 위해 리셋
                     progress = 0
@@ -58,12 +61,18 @@ struct LockIconAttachment: View {
                     if pressing {
                         isPressing = true
                         startDate = Date()
+                        didUnlock = false // 새 제스처 시작 시 리셋
                     } else {
                         // 롱프레스 실패(시간 미만) 시 즉시 리셋
                         if let s = startDate, Date().timeIntervalSince(s) < holdDuration {
                             progress = 0
                         } else {
                             progress = 1
+                            // Fallback: perform이 호출되지 않았으면 여기서 unlock
+                            if !didUnlock {
+                                didUnlock = true
+                                onUnlock()
+                            }
                         }
                         isPressing = false
                         startDate = nil
