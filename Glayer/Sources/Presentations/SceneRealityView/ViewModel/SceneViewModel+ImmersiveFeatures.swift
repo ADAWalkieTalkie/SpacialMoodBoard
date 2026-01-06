@@ -128,12 +128,23 @@ extension SceneViewModel {
         
         let baseSize: Float = 0.5
         let width = baseSize * imageAttrs.scale
-
         let offset = width / 3
-        let newPosition = originalObject.position + SIMD3<Float>(offset, offset, 0.1)
+        
+        let basePosition = originalObject.position + SIMD3<Float>(offset, offset, 0.1)
+
+        // 2. 현재 씬에 있는 모든 오브젝트의 position 수집
+        let existingPositions = sceneObjects.map { $0.position }
+
+        // 3. PlacementPolicy로 "바운드 안 + 안 겹치는" 위치로 보정
+        //    (SceneViewModel 안에 placementPolicy를 프로퍼티로 가지고 있다고 가정)
+        let adjustedPosition = placementPolicy.adjustedPosition(
+            base: basePosition,
+            existingPositions: existingPositions
+        )
+        
         let duplicatedObject = SceneObject.createImage(
             assetId: originalObject.assetId,
-            position: newPosition,
+            position: adjustedPosition,
             isEditable: originalObject.isEditable,
             scale: imageAttrs.scale,
             rotation: imageAttrs.rotation,

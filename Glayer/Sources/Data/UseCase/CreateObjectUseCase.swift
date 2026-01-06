@@ -27,7 +27,8 @@ struct CreateObjectUseCase {
     let assetRepository: AssetRepositoryInterface
     let sceneObjectRepository: SceneObjectRepositoryInterface
     let entityRepository: EntityRepositoryInterface
-
+    let placementPolicy: ObjectPlacementPolicy
+    
     /// SceneObject를 씬에 추가하고 대응되는 RealityKit 엔티티를 생성합니다.
     /// - Parameters:
     ///   - object: 추가할 `SceneObject`
@@ -46,15 +47,26 @@ struct CreateObjectUseCase {
     ///   4) SceneObject와 Entity는 동일한 UUID로 연결됨
     @MainActor
     func execute(object: SceneObject, rootEntity: Entity, scene: inout SceneModel, viewMode: Bool) throws -> CreateObjectResult {
-        // 1. Asset 조회
+        var object = object
+        
+        // 1. 기존 오브젝트들의 position을 모아서
+        let existingPositions = scene.sceneObjects.map { $0.position }
+        
+        // 2. 위치 정책 적용 (bounds 안 + 안 겹치게)
+        object.position = placementPolicy.adjustedPosition(
+            base: object.position,
+            existingPositions: existingPositions
+        )
+        
+        // 3. Asset 조회
         guard let asset = assetRepository.asset(withId: object.assetId) else {
             throw CreateObjectError.assetNotFound
         }
-
-        // 2. SceneObject를 씬에 추가
+        
+        // 4. SceneObject를 씬에 추가
         sceneObjectRepository.addObject(object, to: &scene)
-
-        // 3. Entity 생성 (현재 viewMode 상태 전달)
+        
+        // 5. Entity 생성 (현재 viewMode 상태 전달)
         guard let entity = entityRepository.createEntity(
             from: object,
             asset: asset,
@@ -63,7 +75,7 @@ struct CreateObjectUseCase {
         ) else {
             throw CreateObjectError.entityCreationFailed
         }
-
+        
         return CreateObjectResult(
             createdObject: object,
             createdEntity: entity

@@ -29,6 +29,10 @@ struct SceneRealityView: View {
                 let newHeadAnchor = AnchorEntity(.head)
                 headAnchor = newHeadAnchor
                 
+                await MainActor.run {
+                    viewModel.rootEntity = rootEntity
+                }
+                
                 if config.useHeadAnchoredToolbar {
                     if let toolbar = attachments.entity(for: "headToolbar") {
                         // y: -0.3 = 시선보다 약간 아래
