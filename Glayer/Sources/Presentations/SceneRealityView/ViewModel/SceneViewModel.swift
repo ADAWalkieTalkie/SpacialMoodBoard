@@ -18,6 +18,7 @@ final class SceneViewModel {
 
     // MARK: - Boundary Collision
     let boundaryCollisionManager: BoundaryCollisionManager
+    let placementPolicy: ObjectPlacementPolicy
 
     // MARK: - Initialization
     init(appStateManager: AppStateManager,
@@ -31,14 +32,15 @@ final class SceneViewModel {
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
         self.entityRepository = entityRepository
+        self.placementPolicy = ObjectPlacementPolicy()
         self.createObjectUseCase = CreateObjectUseCase(
             assetRepository: assetRepository,
             sceneObjectRepository: sceneObjectRepository,
-            entityRepository: entityRepository
+            entityRepository: entityRepository,
+            placementPolicy: placementPolicy
         )
         self.boundaryCollisionManager = BoundaryCollisionManager()
     }
-    
     
     // MARK: - State
     var selectedSceneModel: SceneModel?
