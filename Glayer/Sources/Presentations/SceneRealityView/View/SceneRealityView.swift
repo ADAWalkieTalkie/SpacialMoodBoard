@@ -160,6 +160,13 @@ struct SceneRealityView: View {
         if !viewModel.userSpatialState.viewMode {
             for obj in sceneObjects {
                 if case .image(let img) = obj.attributes, img.lock {
+                    // 현재 lock 상태 재확인 (race condition 방지)
+                    guard let currentObj = viewModel.sceneObjects.first(where: { $0.id == obj.id }),
+                          case .image(let currentImg) = currentObj.attributes,
+                          currentImg.lock else {
+                        continue
+                    }
+
                     if let entity = viewModel.getEntity(for: obj.id) {
                         let hasLockIcon = entity.children.contains { $0.name == "lockIconAttachment" }
                         if !hasLockIcon {

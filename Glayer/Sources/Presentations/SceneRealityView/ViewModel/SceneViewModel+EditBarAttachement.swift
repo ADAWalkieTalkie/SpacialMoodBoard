@@ -217,7 +217,11 @@ extension SceneViewModel {
     /// Lock 아이콘 Attachment 추가 (앞면과 뒷면 모두)
     func addLockIconAttachment(to entity: ModelEntity) {
         guard let objectId = UUID(uuidString: entity.name) else { return }
-        
+
+        // 중복 생성 방지
+        let hasLockIcon = entity.children.contains { $0.name == "lockIconAttachment" }
+        if hasLockIcon { return }
+
         // 부모 Entity (기존 이름 유지)
         let lockAttachment = Entity()
         lockAttachment.name = "lockIconAttachment"
