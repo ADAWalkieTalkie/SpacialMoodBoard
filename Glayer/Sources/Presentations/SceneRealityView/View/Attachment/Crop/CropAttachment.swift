@@ -7,14 +7,6 @@
 
 import SwiftUI
 import RealityKit
-import Observation
-
-/// CropAttachment의 외부 트리거 상태를 관리하는 Observable 객체
-@Observable
-class CropTriggerState {
-    var shouldComplete: Bool = false
-    var shouldCancel: Bool = false
-}
 
 struct CropAttachment: View {
     
