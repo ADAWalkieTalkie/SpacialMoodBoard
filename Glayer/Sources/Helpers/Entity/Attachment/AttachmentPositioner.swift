@@ -8,6 +8,7 @@ enum AttachmentPositioner {
     /// - Parameters:
     ///   - attachment: 위치를 설정할 Attachment Entity
     ///   - parent: Attachment가 첨부될 부모 Entity
+    ///   - isVolumeMode: Volume 모드 여부
     static func positionAtTop(_ attachment: Entity, relativeTo parent: Entity, isVolumeMode: Bool) {
         let objectBounds = parent.visualBounds(relativeTo: parent)
         let attachmentBounds = attachment.visualBounds(relativeTo: nil)
@@ -52,7 +53,35 @@ enum AttachmentPositioner {
         let yOffset: Float = baseLine + attachmentHalfHeight + margin // 이미지 최상단 + 어태치 먼트 바닥 + 마진(사진 마진/4 - 라인값/2)
         attachment.position = SIMD3<Float>(0, yOffset, 0.01)
     }
-    
+
+    /// CropAttachment를 이미지 상단에 위치시킴
+    /// - Parameters:
+    ///   - attachment: 위치를 설정할 CropControl Attachment Entity
+    ///   - parent: Attachment가 첨부될 부모 Entity (이미지 엔티티)
+    ///   - isVolumeMode: Volume 모드 여부
+    static func positionAboveCrop(_ attachment: Entity, relativeTo parent: Entity, isVolumeMode: Bool) {
+        guard let imagePlane = parent.findEntity(named: "imagePlane") else { return }
+
+        let planeBounds = imagePlane.visualBounds(relativeTo: parent)
+        let attachmentBounds = attachment.visualBounds(relativeTo: nil)
+        let parentScale = parent.scale(relativeTo: nil)
+
+        // planeMargin과 glowCorrection 계산
+        let planeMargin = min(planeBounds.extents.x, planeBounds.extents.y)
+
+        let width = planeBounds.extents.x
+        let height = planeBounds.extents.y
+        let glowCorrection = EntityBoundBoxApplier.calculateGlowCorrection(width: width, height: height)
+
+        // imagePlane 상단에 위치
+        let imagePlaneTop = planeBounds.max.y
+        let attachmentHalfHeight = (attachmentBounds.extents.y / 2) / parentScale.y
+        let margin = planeMargin/4 - glowCorrection.height/2
+
+        let yOffset = imagePlaneTop + attachmentHalfHeight + margin
+        attachment.position = SIMD3<Float>(0, yOffset, 0.01)
+    }
+
     /// 중앙 위치로 Attachment 설정
     /// - Parameters:
     ///   - attachment: 위치를 설정할 Attachment Entity
