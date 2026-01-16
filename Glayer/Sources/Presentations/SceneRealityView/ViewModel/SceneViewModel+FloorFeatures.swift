@@ -78,6 +78,9 @@ extension SceneViewModel {
         guard let rootEntity = rootEntity else { return }
 
         applyRotation(to: rootEntity, angle: rotationAngle, animated: true)
+        
+        // Volume 환경에서 attachment 회전 업데이트
+        updateSelectedEntityAttachmentRotation()
     }
 
     func resetRotation() {
@@ -86,6 +89,9 @@ extension SceneViewModel {
         guard let rootEntity = rootEntity else { return }
 
         applyRotation(to: rootEntity, angle: rotationAngle, animated: false)
+        
+        // Volume 환경에서 attachment 회전 업데이트
+        updateSelectedEntityAttachmentRotation()
     }
 
     // MARK: - Private Helpers
