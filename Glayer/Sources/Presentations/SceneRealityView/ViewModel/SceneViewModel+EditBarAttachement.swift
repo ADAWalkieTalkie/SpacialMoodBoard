@@ -160,7 +160,7 @@ extension SceneViewModel {
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity, isVolumeMode: appStateManager.appState.isVolumeOpen)
         
         // 상황에 따른 로테이션 적용(attachment 빌보딩 오류 해결을 위한 함수)
-        rotateAttachmentIfNeeded(attachment: objectAttachment)
+        rotateAttachmentIfNeeded(attachment: objectAttachment, headPosition: headPosition)
     }
     
     private func addSoundNameAttachment(to entity: ModelEntity, headPosition: SIMD3<Float>, sceneObject: SceneObject) {
@@ -269,14 +269,19 @@ extension SceneViewModel {
     
     // MARK: - Attachment Rotation Helper
     
-    /// Volume 환경에서 rootEntity의 회전에 따라 attachment 회전 적용
-    private func rotateAttachmentIfNeeded(attachment: Entity) {
-        // Volume 모드에서만 처리
-        guard appStateManager.appState.isVolumeOpen else {
-            // TODO: Immersive 모드 처리 로직 추가 예정
-            return
+    /// Volume/Immersive 환경에서 attachment 회전 적용
+    private func rotateAttachmentIfNeeded(attachment: Entity, headPosition: SIMD3<Float>) {
+        if appStateManager.appState.isVolumeOpen {
+            // Volume 모드: rootEntity 회전에 따른 처리
+            applyVolumeRotation(to: attachment)
+        } else if appStateManager.appState.isImmersiveOpen {
+            // Immersive 모드: headPosition과 attachment 위치 비교
+            applyImmersiveRotation(to: attachment, headPosition: headPosition)
         }
-        
+    }
+    
+    /// Volume 모드에서 rootEntity 회전에 따라 attachment 회전 적용
+    private func applyVolumeRotation(to attachment: Entity) {
         // rotationAngle을 정규화 (0 ~ 2π 범위로)
         let normalizedAngle = rotationAngle.truncatingRemainder(dividingBy: 2 * Float.pi)
         let positiveAngle = normalizedAngle < 0 ? normalizedAngle + 2 * Float.pi : normalizedAngle
@@ -293,13 +298,34 @@ extension SceneViewModel {
         attachment.transform.rotation = targetAngle == 0 ? simd_quatf() : simd_quatf(angle: targetAngle, axis: [0, 1, 0])
     }
     
+    /// Immersive 모드에서 BillboardComponent 위에 headPosition 기준 커스텀 빌보딩 적용
+    private func applyImmersiveRotation(to attachment: Entity, headPosition: SIMD3<Float>) {
+        // attachment의 월드 위치 계산
+        let attachmentWorldPosition = attachment.position(relativeTo: nil)
+        
+        // 헤드에서 attachment까지의 방향 벡터 계산
+        let direction = attachmentWorldPosition - headPosition
+        
+        // Y축 회전 각도 계산 (XZ 평면에서의 각도)
+        let yRotationRadians = atan2(direction.x, direction.z)
+        
+        // headPosition 방향으로 향하는 회전 생성
+        let customBillboardRotation = simd_quatf(angle: yRotationRadians, axis: [0, 1, 0])
+        
+        // BillboardComponent 위에 커스텀 빌보딩 회전 적용
+        attachment.transform.rotation = customBillboardRotation
+    }
+    
     /// 현재 선택된 entity의 attachment 회전 업데이트
     func updateSelectedEntityAttachmentRotation() {
         guard let selectedEntity = selectedEntity else { return }
         
+        // headPosition 가져오기
+        let headPosition = userSpatialState.sceneHeadAnchor.position
+        
         // selectedEntity에서 objectAttachment 찾기
         if let objectAttachment = selectedEntity.children.first(where: { $0.name == "objectAttachment" }) {
-            rotateAttachmentIfNeeded(attachment: objectAttachment)
+            rotateAttachmentIfNeeded(attachment: objectAttachment, headPosition: headPosition)
         }
     }
 }
