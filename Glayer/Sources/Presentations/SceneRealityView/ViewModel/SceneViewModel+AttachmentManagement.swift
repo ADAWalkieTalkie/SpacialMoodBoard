@@ -18,6 +18,7 @@ extension SceneViewModel {
         // 케이스 2: entity → 같은 entity (중복 클릭)
         if let oldName = oldName, let newName = newName, oldName == newName {
             attachmentTimer?.reset()
+            updateSelectedEntityAttachmentRotation()
             return
         }
         
