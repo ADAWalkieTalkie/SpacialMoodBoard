@@ -159,7 +159,6 @@ extension SceneViewModel {
         // Attachment 위치 설정 (상단)
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity, isVolumeMode: appStateManager.appState.isVolumeOpen)
         
-        // 상황에 따른 로테이션 적용(attachment 빌보딩 오류 해결을 위한 함수)
         rotateAttachmentIfNeeded(attachment: objectAttachment, headPosition: headPosition)
     }
     
@@ -280,40 +279,57 @@ extension SceneViewModel {
         }
     }
     
-    /// Volume 모드에서 rootEntity 회전에 따라 attachment 회전 적용
-    private func applyVolumeRotation(to attachment: Entity) {
-        // rotationAngle을 정규화 (0 ~ 2π 범위로)
-        let normalizedAngle = rotationAngle.truncatingRemainder(dividingBy: 2 * Float.pi)
-        let positiveAngle = normalizedAngle < 0 ? normalizedAngle + 2 * Float.pi : normalizedAngle
-        
-        // 90도 단위로 회전 단계 계산
-        let rotationStep = (positiveAngle + Float.pi / 8) / (Float.pi / 2)
-        let roundedStep = Int(rotationStep) % 4
-        
-        // 각 단계별 회전 각도 매핑
-        let rotationAngles: [Float] = [0, 3 * Float.pi / 2, Float.pi, Float.pi / 2] // root가 90도 회전한 경우 attachment는 270도 회전해야 함
-        let targetAngle = rotationAngles[roundedStep]
-        
-        // 회전 적용
-        attachment.transform.rotation = targetAngle == 0 ? simd_quatf() : simd_quatf(angle: targetAngle, axis: [0, 1, 0])
+    /// Volume 회전 상쇄용 회전 계산 (공통 로직)
+    private func createVolumeCounterRotation() -> simd_quatf {
+        let counterRotationAngle = -rotationAngle
+        return counterRotationAngle == 0 ? simd_quatf(real: 1.0, imag: SIMD3<Float>(0, 0, 0)) : simd_quatf(angle: counterRotationAngle, axis: [0, 1, 0])
     }
     
-    /// Immersive 모드에서 BillboardComponent 위에 headPosition 기준 커스텀 빌보딩 적용
+    /// 쿼터니언에서 Y축 회전 각도(도) 추출
+    private func extractYRotationDegrees(from quaternion: simd_quatf) -> Float {
+        let yRotationRadians = 2.0 * atan2(quaternion.imag.y, quaternion.real)
+        return yRotationRadians * 180.0 / Float.pi
+    }
+    
+    /// Volume 모드에서 rootEntity 회전에 따라 attachment 회전 적용
+    private func applyVolumeRotation(to attachment: Entity) {
+        // 부모 엔티티의 회전 가져오기
+        let parentRotation = (attachment.parent?.transform.rotation ?? simd_quatf())
+        
+        // Volume 회전 상쇄용 회전 가져오기
+        let counterRotation = createVolumeCounterRotation()
+        
+        // 부모 회전과 상쇄 회전 결합
+        attachment.transform.rotation = parentRotation * counterRotation
+        
+        // Y축 회전 각도만 출력 (도 단위)
+        let finalYRotation = extractYRotationDegrees(from: attachment.transform.rotation)
+        let parentYRotation = extractYRotationDegrees(from: parentRotation)
+        let combinedYRotation = extractYRotationDegrees(from: parentRotation * counterRotation)
+        
+        print("applied Y축: \(finalYRotation)°")
+        print("parent Y축: \(parentYRotation)°")
+        print("calculated Y축: \(combinedYRotation)°")
+        print("--------------------------------")
+    }
+    
+    /// Immersive 모드에서 Volume 회전 상쇄 + 커스텀 빌보딩 적용
     private func applyImmersiveRotation(to attachment: Entity, headPosition: SIMD3<Float>) {
-        // attachment의 월드 위치 계산
+        // 1. Volume 회전 상쇄용 회전 가져오기 (공통 로직 사용)
+        let counterRotation = createVolumeCounterRotation()
+        
+        // 2. 커스텀 빌보딩 회전 계산
         let attachmentWorldPosition = attachment.position(relativeTo: nil)
-        
-        // 헤드에서 attachment까지의 방향 벡터 계산
         let direction = attachmentWorldPosition - headPosition
-        
-        // Y축 회전 각도 계산 (XZ 평면에서의 각도)
         let yRotationRadians = atan2(direction.x, direction.z)
-        
-        // headPosition 방향으로 향하는 회전 생성
         let customBillboardRotation = simd_quatf(angle: yRotationRadians, axis: [0, 1, 0])
         
-        // BillboardComponent 위에 커스텀 빌보딩 회전 적용
-        attachment.transform.rotation = customBillboardRotation
+        // 3. 부모 엔티티의 회전 가져오기
+        let parentRotation = attachment.parent?.transform.rotation ?? simd_quatf()
+        
+        // 4. 모든 회전 결합: 부모 회전 + Volume 상쇄 + 커스텀 빌보딩
+        let combinedRotation = parentRotation * counterRotation * customBillboardRotation
+        attachment.transform.rotation = combinedRotation
     }
     
     /// 현재 선택된 entity의 attachment 회전 업데이트
