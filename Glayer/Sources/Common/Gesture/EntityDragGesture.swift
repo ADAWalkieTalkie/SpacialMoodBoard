@@ -152,6 +152,10 @@ struct EntityDragGesture: ViewModifier {
                         if let modelEntity = selectedEntity {
                             onBoundaryCollision?(modelEntity)
                         }
+
+                        // Attachment 회전 업데이트를 위한 notification 발송
+                        NotificationCenter.default.post(name: .entityGestureEnded, object: nil)
+                        
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {

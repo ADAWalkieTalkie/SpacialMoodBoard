@@ -64,6 +64,9 @@ struct EntityRotationGesture: ViewModifier {
                         let yRotation = simd_quatf(angle: snappedAngle, axis: parentYAxis)
 
                         currentEntity.orientation = yRotation * (initialOrientation ?? simd_quatf(angle: 0, axis: [0, 1, 0]))
+
+                       // Attachment 회전 업데이트를 위한 notification 발송
+                        NotificationCenter.default.post(name: .entityGestureEnded, object: nil)
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
@@ -75,7 +78,7 @@ struct EntityRotationGesture: ViewModifier {
                         // 최종 rotation을 Euler angles로 변환해서 저장
                         let finalRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, finalRotation)
-                        
+
                         onGestureEnd?()
                         initialOrientation = nil
                     }

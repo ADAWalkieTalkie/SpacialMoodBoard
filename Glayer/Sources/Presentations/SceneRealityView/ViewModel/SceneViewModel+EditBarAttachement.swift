@@ -281,7 +281,7 @@ extension SceneViewModel {
         let parentRotation = attachment.parent?.transform.rotation ?? zeroRotation
 
         // 커스텀 빌보드 회전 가져오기
-        let customBillboardRotation = getCustomBillboardRotation(to: attachment, headPosition: headPosition)
+        let customBillboardRotation = getCustomXYBillboardRotation(to: attachment, headPosition: headPosition)
 
         if appStateManager.appState.isVolumeOpen {
             // 볼륨인 경우
