@@ -142,7 +142,6 @@ extension SceneViewModel {
             )
         )
         objectAttachment.components.set(attachment)
-        objectAttachment.components.set(BillboardComponent())
 
         EntityBoundBoxApplier.addBoundAuto(to: entity)
 
@@ -155,9 +154,29 @@ extension SceneViewModel {
 
         objectAttachment.scale = finalScale
         entity.addChild(objectAttachment)
+        applyEditBarRotation(to: objectAttachment)
 
         // Attachment 위치 설정 (상단)
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity, isVolumeMode: appStateManager.appState.isVolumeOpen)
+    }
+
+    /// EditBarAttachment 회전 적용(향후 빌보드 관련 에러 수정시 제거 후 BillboardComponent 적용)
+    func applyEditBarRotation(to attachment: Entity) {
+        // Floor 회전 상쇄용 회전 rotation
+        let counterRotation = createVolumeCounterRotation()
+        // Attachment 부모 회전 가져오기
+        let parentRotation = attachment.parent?.transform.rotation ?? simd_quatf(real: 1.0, imag: SIMD3<Float>(0, 0, 0))
+        
+        if appStateManager.appState.isVolumeOpen {
+            attachment.transform.rotation = parentRotation.inverse * counterRotation
+        }else{
+            attachment.transform.rotation = parentRotation.inverse * counterRotation
+        }
+    }
+    /// Volume 회전 상쇄용 회전 생성
+    private func createVolumeCounterRotation() -> simd_quatf {
+        let counterRotationAngle = -rotationAngle
+         return simd_quatf(angle: counterRotationAngle, axis: [0, 1, 0])
     }
     
     private func addSoundNameAttachment(to entity: ModelEntity, headPosition: SIMD3<Float>, sceneObject: SceneObject) {
