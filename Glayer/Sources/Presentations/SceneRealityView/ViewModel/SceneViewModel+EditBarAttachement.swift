@@ -155,7 +155,7 @@ extension SceneViewModel {
         objectAttachment.scale = finalScale
         entity.addChild(objectAttachment)
         updateSelectedEntityAttachmentRotation()
-        objectAttachment.components.set(BillboardComponent())
+        // objectAttachment.components.set(BillboardComponent())
 
         // Attachment 위치 설정 (상단)
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity, isVolumeMode: appStateManager.appState.isVolumeOpen)
@@ -280,13 +280,42 @@ extension SceneViewModel {
         let zeroRotation = simd_quatf(real: 1.0, imag: SIMD3<Float>(0, 0, 0))
         let parentRotation = attachment.parent?.transform.rotation ?? zeroRotation
 
+        // 커스텀 빌보드 회전 가져오기
+        let customBillboardRotation = getCustomBillboardRotation(to: attachment, headPosition: headPosition)
+
         if appStateManager.appState.isVolumeOpen {
+            // 볼륨인 경우
             if objectType == .image {
-                attachment.transform.rotation = parentRotation.inverse * counterFloorRotation
+                attachment.transform.rotation = counterFloorRotation * parentRotation.inverse
+            } else {
+                attachment.transform.rotation = counterFloorRotation * customBillboardRotation.inverse
             }
         }else{
-            attachment.transform.rotation = parentRotation.inverse * counterFloorRotation
+            // 이멀시브인 경우
+            if objectType == .image {
+                attachment.transform.rotation =  counterFloorRotation * parentRotation.inverse * customBillboardRotation
+            } else {
+                attachment.transform.rotation = counterFloorRotation * customBillboardRotation.inverse
+            }
         }
+    }
+
+    /// 커스텀 X,Y 빌보드
+    private func getCustomXYBillboardRotation(to attachment: Entity, headPosition: SIMD3<Float>) -> simd_quatf {
+        let attachmentWorldPosition = attachment.position(relativeTo: nil)
+        let direction = normalize(headPosition - attachmentWorldPosition)
+        
+        // Pitch (X축 회전): 상하 각도
+        let pitch = -asin(direction.y)
+        
+        // Yaw (Y축 회전): 좌우 각도  
+        let yaw = atan2(direction.x, direction.z)
+        
+        // Roll(Z축)은 제외하고 X축과 Y축 회전만 결합
+        let pitchQuat = simd_quatf(angle: pitch, axis: [1, 0, 0])
+        let yawQuat = simd_quatf(angle: yaw, axis: [0, 1, 0])
+        
+        return yawQuat * pitchQuat
     }
         
     
