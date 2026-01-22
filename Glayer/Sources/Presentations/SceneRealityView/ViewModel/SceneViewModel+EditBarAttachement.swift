@@ -154,29 +154,11 @@ extension SceneViewModel {
 
         objectAttachment.scale = finalScale
         entity.addChild(objectAttachment)
-        applyEditBarRotation(to: objectAttachment)
+        updateSelectedEntityAttachmentRotation()
+        objectAttachment.components.set(BillboardComponent())
 
         // Attachment 위치 설정 (상단)
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity, isVolumeMode: appStateManager.appState.isVolumeOpen)
-    }
-
-    /// EditBarAttachment 회전 적용(향후 빌보드 관련 에러 수정시 제거 후 BillboardComponent 적용)
-    func applyEditBarRotation(to attachment: Entity) {
-        // Floor 회전 상쇄용 회전 rotation
-        let counterRotation = createVolumeCounterRotation()
-        // Attachment 부모 회전 가져오기
-        let parentRotation = attachment.parent?.transform.rotation ?? simd_quatf(real: 1.0, imag: SIMD3<Float>(0, 0, 0))
-        
-        if appStateManager.appState.isVolumeOpen {
-            attachment.transform.rotation = parentRotation.inverse * counterRotation
-        }else{
-            attachment.transform.rotation = parentRotation.inverse * counterRotation
-        }
-    }
-    /// Volume 회전 상쇄용 회전 생성
-    private func createVolumeCounterRotation() -> simd_quatf {
-        let counterRotationAngle = -rotationAngle
-         return simd_quatf(angle: counterRotationAngle, axis: [0, 1, 0])
     }
     
     private func addSoundNameAttachment(to entity: ModelEntity, headPosition: SIMD3<Float>, sceneObject: SceneObject) {
@@ -269,6 +251,42 @@ extension SceneViewModel {
         entity.children
             .filter { $0.name == "lockIconAttachment" }
             .forEach { $0.removeFromParent() }
+    }
+
+    // MARK: - 현재 선택된 entity의 attachment 회전 업데이트
+    /// 향후 빌보드 관련 에러 수정시 제거 가능
+    func updateSelectedEntityAttachmentRotation() {
+        // headPosition 가져오기
+        let headPosition = userSpatialState.sceneHeadAnchor.position
+
+        guard let selectedEntity = selectedEntity,
+            let objectId = UUID(uuidString: selectedEntity.name),
+            let sceneObject = sceneObjects.first(where: { $0.id == objectId }),
+            let objectAttachment = selectedEntity.children.first(where: { $0.name == "objectAttachment" })
+        else { 
+            print("⚠️ 필요한 정보를 찾을 수 없음")
+            return 
+        }
+        
+        applyEditBarRotation(to: objectAttachment, objectType: sceneObject.type, headPosition: headPosition)
+    }
+
+    /// EditBarAttachment 회전 적용
+    private func applyEditBarRotation(to attachment: Entity, objectType: AssetType, headPosition: SIMD3<Float>) {
+        // Floor 회전 상쇄용 회전 rotation
+        
+        let counterFloorRotation = simd_quatf(angle: -rotationAngle, axis: [0, 1, 0])
+        // Attachment 부모 회전 가져오기
+        let zeroRotation = simd_quatf(real: 1.0, imag: SIMD3<Float>(0, 0, 0))
+        let parentRotation = attachment.parent?.transform.rotation ?? zeroRotation
+
+        if appStateManager.appState.isVolumeOpen {
+            if objectType == .image {
+                attachment.transform.rotation = parentRotation.inverse * counterFloorRotation
+            }
+        }else{
+            attachment.transform.rotation = parentRotation.inverse * counterFloorRotation
+        }
     }
         
     
