@@ -147,7 +147,10 @@ final class SceneViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.updateSelectedEntityAttachmentRotation()
+            Task { @MainActor [weak self] in
+                self?.updateSelectedEntityAttachmentRotation()
+                self?.updateAttachmentScales()
+            }
         }
     }
     
