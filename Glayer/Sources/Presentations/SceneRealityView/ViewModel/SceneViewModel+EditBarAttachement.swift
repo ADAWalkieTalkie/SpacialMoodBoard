@@ -180,7 +180,6 @@ extension SceneViewModel {
             rootView: SoundNameAttachment(filename: filename)
         )
         nameAttachment.components.set(attachment)
-        nameAttachment.components.set(BillboardComponent())
 
         /// attachment 스케일 보정
         let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
@@ -287,15 +286,11 @@ extension SceneViewModel {
             // 볼륨인 경우
             if objectType == .image {
                 attachment.transform.rotation = counterFloorRotation * parentRotation.inverse
-            } else {
-                attachment.transform.rotation = counterFloorRotation * customBillboardRotation.inverse
             }
         }else{
             // 이멀시브인 경우
             if objectType == .image {
                 attachment.transform.rotation =  counterFloorRotation * parentRotation.inverse * customBillboardRotation
-            } else {
-                attachment.transform.rotation = counterFloorRotation * customBillboardRotation.inverse
             }
         }
     }
