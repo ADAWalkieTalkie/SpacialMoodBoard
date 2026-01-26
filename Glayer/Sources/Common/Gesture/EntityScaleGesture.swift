@@ -33,7 +33,7 @@ struct EntityScaleGesture: ViewModifier {
                         currentEntity.scale = (initialScale ?? .init(repeating: 1.0)) * Float(value.magnification)
 
                         // Attachment 회전 업데이트를 위한 notification 발송
-                        NotificationCenter.default.post(name: .entityGestureEnded, object: nil)
+                        NotificationCenter.default.post(name: .entityGestureUpdated, object: nil)
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {

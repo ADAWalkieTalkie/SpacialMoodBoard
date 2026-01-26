@@ -154,7 +154,7 @@ struct EntityDragGesture: ViewModifier {
                         }
 
                         // Attachment 회전 업데이트를 위한 notification 발송
-                        NotificationCenter.default.post(name: .entityGestureEnded, object: nil)
+                        NotificationCenter.default.post(name: .entityGestureUpdated, object: nil)
                         
                     }
                     .onEnded { value in

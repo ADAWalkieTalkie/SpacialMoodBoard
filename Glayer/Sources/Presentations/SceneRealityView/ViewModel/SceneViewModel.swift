@@ -143,7 +143,7 @@ final class SceneViewModel {
     /// Notification observer 설정
     private func setupNotificationObservers() {
         NotificationCenter.default.addObserver(
-            forName: .entityGestureEnded,
+            forName: .entityGestureUpdated,
             object: nil,
             queue: .main
         ) { [weak self] _ in
