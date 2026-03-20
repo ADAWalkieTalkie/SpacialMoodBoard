@@ -81,6 +81,9 @@ struct SceneRealityView: View {
                     onGestureStart: {
                         viewModel.startGesture()
                     },
+                    onGestureUpdated: {
+                        viewModel.updateGesture()
+                    },
                     onGestureEnd: {
                         viewModel.endGesture()
                     },

@@ -11,6 +11,7 @@ struct EntityRotationGesture: ViewModifier {
     @State private var lastSnapStep: Int? = nil
   
     let onGestureStart: (() -> Void)?
+    let onGestureUpdated: (() -> Void)?
     let onGestureEnd: (() -> Void)?
     @State private var initialOrientation: simd_quatf? = nil
     
@@ -65,8 +66,7 @@ struct EntityRotationGesture: ViewModifier {
 
                         currentEntity.orientation = yRotation * (initialOrientation ?? simd_quatf(angle: 0, axis: [0, 1, 0]))
 
-                       // Attachment 회전 업데이트를 위한 notification 발송
-                        NotificationCenter.default.post(name: .entityGestureUpdated, object: nil)
+                        onGestureUpdated?()
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
@@ -93,6 +93,7 @@ extension View {
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         snapAngleDegrees: Float = 15.0, // 기본값 15도
         onGestureStart: (() -> Void)?,
+        onGestureUpdated: (() -> Void)?,
         onGestureEnd: (() -> Void)?
     ) -> some View {
         self.modifier(EntityRotationGesture(
@@ -100,6 +101,7 @@ extension View {
             onRotationUpdate: onRotationUpdate,
             snapAngleDegrees: snapAngleDegrees,
             onGestureStart: onGestureStart,
+            onGestureUpdated: onGestureUpdated,
             onGestureEnd: onGestureEnd
         ))
     }

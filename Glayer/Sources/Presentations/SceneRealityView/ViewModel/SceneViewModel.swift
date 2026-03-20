@@ -40,9 +40,6 @@ final class SceneViewModel {
             placementPolicy: placementPolicy
         )
         self.boundaryCollisionManager = BoundaryCollisionManager()
-        
-        // Notification observer 등록
-        setupNotificationObservers()
     }
     
     // MARK: - State
@@ -53,6 +50,12 @@ final class SceneViewModel {
     var isGestureActive: Bool = false
     func startGesture() {
         isGestureActive = true
+    }
+    func updateGesture() {
+        Task { @MainActor in
+            updateSelectedEntityAttachmentRotation()
+            updateAttachmentScales()
+        }
     }
     func endGesture() {
         isGestureActive = false
@@ -137,27 +140,6 @@ final class SceneViewModel {
 
     // 볼륨에서 생성하는 위치(immersive의 경우 headAnchor 기반이서 초기 위치 설정 필요 x)
     let defaultRespawnPositionVolume: SIMD3<Float> = SIMD3<Float>(0, -SceneConstants.floorHalfSize + 0.2, -0.3)
-    
-    // MARK: - Notification Observers
-    
-    /// Notification observer 설정
-    private func setupNotificationObservers() {
-        NotificationCenter.default.addObserver(
-            forName: .entityGestureUpdated,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor [weak self] in
-                self?.updateSelectedEntityAttachmentRotation()
-                self?.updateAttachmentScales()
-            }
-        }
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
     
     // MARK: - Cleanup
 

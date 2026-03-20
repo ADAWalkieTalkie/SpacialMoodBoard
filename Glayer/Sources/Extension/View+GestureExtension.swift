@@ -9,6 +9,7 @@ extension View {
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         onScaleUpdate: @escaping (UUID, Float) -> Void,
         onGestureStart: (() -> Void)?,
+        onGestureUpdated: (() -> Void)?,
         onGestureEnd: (() -> Void)?,
         onBoundaryCollision: ((ModelEntity) -> Void)? = nil,
         movementBounds: MovementBounds = .default
@@ -20,6 +21,7 @@ extension View {
                 onPositionUpdate: onPositionUpdate,
                 onRotationUpdate: onRotationUpdate,
                 onGestureStart: onGestureStart,
+                onGestureUpdated: onGestureUpdated,
                 onGestureEnd: onGestureEnd,
                 onBoundaryCollision: onBoundaryCollision,
                 movementBounds: movementBounds
@@ -28,12 +30,14 @@ extension View {
                 selectedEntity: selectedEntity,
                 onScaleUpdate: onScaleUpdate,
                 onGestureStart: onGestureStart,
+                onGestureUpdated: onGestureUpdated,
                 onGestureEnd: onGestureEnd
             )
             .entityRotationGesture(
                 selectedEntity: selectedEntity,
                 onRotationUpdate: onRotationUpdate,
                 onGestureStart: onGestureStart,
+                onGestureUpdated: onGestureUpdated,
                 onGestureEnd: onGestureEnd
             )
     }
