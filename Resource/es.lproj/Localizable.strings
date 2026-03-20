@@ -100,3 +100,20 @@
 "guiding.assetPlacement.scale.title" = "Escalar";
 "guiding.assetPlacement.scale.description" = "Cambie el tamaño del recurso a la escala deseada.";
 
+// MARK: - Search
+"search.placeholder" = "Buscar";
+
+// MARK: - Accessibility & Toolbar
+"action.lock" = "Bloquear";
+"toolbar.volumeControl" = "Control de volumen";
+"toolbar.fullImmersive" = "Inmersión completa";
+"toolbar.viewMode" = "Modo de vista";
+"toolbar.mute" = "Silenciar";
+"toolbar.unmute" = "Activar sonido";
+"toolbar.minimize" = "Minimizar";
+"toolbar.dayNight" = "Día/Noche";
+
+// MARK: - Asset Defaults
+"asset.default.image" = "Imagen";
+"asset.default.copy" = "Copia";
+"asset.default.untitled" = "Sin título";

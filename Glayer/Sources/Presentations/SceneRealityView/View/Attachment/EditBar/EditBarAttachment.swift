@@ -65,7 +65,7 @@ struct EditBarAttachment: View {
                 CircleFillButton(type: .lock) {
                     onLock?()
                 }
-                .accessibilityLabel("Lock")
+                .accessibilityLabel(String(localized: "action.lock"))
                 // 크롭 버튼
                 if let onCrop {
                     CircleFillButton(
@@ -75,21 +75,21 @@ struct EditBarAttachment: View {
                             onCrop(isCropping)
                         }
                     )
-                    .accessibilityLabel("Crop")
+                    .accessibilityLabel(String(localized: "action.crop"))
                 }
                 
                 // 복사 버튼
                 CircleFillButton(type: .duplicate) {
                     onDuplicate?()
                 }
-                .accessibilityLabel("Duplicate")
+                .accessibilityLabel(String(localized: "action.duplicate"))
                 
             case .sound:
                 CircleFillButton(
                     type: .sound(isOn: isMuted),
                     action: { toggleMute() }
                 )
-                .accessibilityLabel(isMuted ? "Unmute" : "Mute")
+                .accessibilityLabel(String(localized: isMuted ? "toolbar.unmute" : "toolbar.mute"))
                 
                 CapsuleVolumeSlider(
                     value: Binding(
@@ -114,12 +114,12 @@ struct EditBarAttachment: View {
                 .frame(width: 120)
                 .frame(maxHeight: .infinity)
                 .hoverEffect()
-                .accessibilityLabel("Volume")
+                .accessibilityLabel(String(localized: "toolbar.volumeControl"))
             }
             
             // 공통: 삭제
             CircleFillButton(type: .delete, action: onDelete)
-                .accessibilityLabel("Delete")
+                .accessibilityLabel(String(localized: "action.delete"))
         }
         .padding(12)
         .background(
