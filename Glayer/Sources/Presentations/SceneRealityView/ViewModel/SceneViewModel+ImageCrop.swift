@@ -26,7 +26,10 @@ extension SceneViewModel {
     ///   - objectId: 크롭 상태를 갱신할 `SceneObject`의 식별자(UUID)
     func startImageCrop(for entity: ModelEntity, objectId: UUID) {
         attachmentTimer?.cancel()
-        
+
+        // EditBarAttachment UI 제거
+        removeAttachment(from: entity)
+
         guard
             let obj = sceneObjects.first(where: { $0.id == objectId }),
             case .image(let attrs) = obj.attributes,
@@ -39,34 +42,68 @@ extension SceneViewModel {
         let cropAttachment = Entity()
         cropAttachment.name = "cropAttachment"
         
+        // Crop 트리거 상태 생성
+        let triggerState = CropTriggerState()
+
         let onDone: (UVRect) -> Void = { [weak self] newUV in
             guard let self else { return }
-            self.updateObjectCrop(id: objectId, uv: newUV)
-            self.setImagePlaneHidden(false, on: entity)
+            self.completeCrop(for: entity, objectId: objectId, uv: newUV)
         }
-        
+
         let baseView = CropAttachment(
             image: uiImage,
             initialUV: initialUV,
             scaleX: 1.0,
             scaleY: 1.0,
-            onDone: onDone
+            onDone: onDone,
+            triggerState: triggerState
         )
         cropAttachment.components.set(ViewAttachmentComponent(rootView: baseView))
         entity.addChild(cropAttachment)
-        
+
         let (scaleX, scaleY) = EntityAttachmentSizeDeterminator.scaleAttachmentToBound(cropAttachment, on: entity)
-        
+
         let scaledView = CropAttachment(
             image: uiImage,
             initialUV: initialUV,
             scaleX: scaleX,
             scaleY: scaleY,
-            onDone: onDone
+            onDone: onDone,
+            triggerState: triggerState
         )
         EntityBoundBoxApplier.removeBoundBox(from: entity)
         cropAttachment.components.set(ViewAttachmentComponent(rootView: scaledView))
         setImagePlaneHidden(true, on: entity)
+
+        // Crop 조작 버튼 추가
+        let cropControlEntity = Entity()
+        cropControlEntity.name = "cropControlAttachment"
+
+        let controlView = CropControlAttachment(
+            onCancel: { [weak self] in
+                guard let self else { return }
+                self.cancelCrop(for: entity)
+            },
+            onComplete: {
+                triggerState.shouldComplete = true
+            }
+        )
+
+        cropControlEntity.components.set(ViewAttachmentComponent(rootView: controlView))
+        cropControlEntity.components.set(BillboardComponent()) // Always face user
+
+        let headPosition = userSpatialState.sceneHeadAnchor.position
+        let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
+            headPosition: headPosition,
+            entity: entity,
+            isVolumeMode: appStateManager.appState.isVolumeOpen
+        )
+        cropControlEntity.scale = finalScale
+
+        entity.addChild(cropControlEntity)
+
+        // Position above crop UI
+        AttachmentPositioner.positionAboveCrop(cropControlEntity, relativeTo: entity, isVolumeMode: appStateManager.appState.isVolumeOpen)
     }
     
     /// 선택된 이미지 객체의 크롭 정보(UVRect)를 갱신하고, 장면(Scene) 상태 및 실제 RealityKit 엔티티 양쪽 모두에 반영
@@ -124,7 +161,43 @@ extension SceneViewModel {
         entity.findEntity(named: "cropAttachment")?.removeFromParent()
         setImagePlaneHidden(false, on: entity)
     }
-    
+
+    /// 엔티티에 붙어있는 크롭 컨트롤 UI(CropControlAttachment)를 제거
+    /// - Parameter entity: 크롭 컨트롤 UI가 부착되어 있는 대상 `ModelEntity`
+    func removeCropControlAttachment(from entity: ModelEntity) {
+        entity.findEntity(named: "cropControlAttachment")?.removeFromParent()
+    }
+
+    /// 크롭을 완료하고 새로운 크롭 영역을 적용
+    /// - Parameters:
+    ///   - entity: 크롭 대상 이미지 엔티티
+    ///   - objectId: 크롭할 SceneObject의 ID
+    ///   - uv: 적용할 크롭 영역 (UVRect)
+    func completeCrop(for entity: ModelEntity, objectId: UUID, uv: UVRect) {
+        // 크롭 적용
+        updateObjectCrop(id: objectId, uv: uv)
+
+        // 크롭 UI 제거
+        removeCropAttachment(from: entity)
+        removeCropControlAttachment(from: entity)
+
+        // Editbar 재활성화 (with timer)
+        let headPosition = userSpatialState.sceneHeadAnchor.position
+        addAttachmentAndStartTimer(for: entity, headPosition: headPosition)
+    }
+
+    /// 크롭을 취소하고 원래 상태로 복원
+    /// - Parameter entity: 크롭 대상 이미지 엔티티
+    func cancelCrop(for entity: ModelEntity) {
+        // 크롭 UI 제거 및 변경사항 미적용
+        removeCropAttachment(from: entity)
+        removeCropControlAttachment(from: entity)
+
+        // Editbar 재활성화 (with timer)
+        let headPosition = userSpatialState.sceneHeadAnchor.position
+        addAttachmentAndStartTimer(for: entity, headPosition: headPosition)
+    }
+
     func setImagePlaneHidden(_ hidden: Bool, on entity: ModelEntity) {
         guard let imagePlane = entity.findEntity(named: "imagePlane") as? ModelEntity else {
             return

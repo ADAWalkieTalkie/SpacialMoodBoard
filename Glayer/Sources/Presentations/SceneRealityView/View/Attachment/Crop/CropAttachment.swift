@@ -17,11 +17,12 @@ struct CropAttachment: View {
     let scaleX: CGFloat?
     let scaleY: CGFloat?
     let onDone: (UVRect) -> Void
-    
+
     @State private var cropRect: CGRect = .zero
     @State private var viewSize: CGSize = .zero
     @State private var imageFrame: CGRect = .zero
     @State private var didComplete = false
+    var triggerState: CropTriggerState
     
     /// 실제로 화면에 깔릴 이미지
     /// - initialUV가 전체(0,0,1,1)이면 원본 그대로
@@ -94,8 +95,10 @@ struct CropAttachment: View {
         .frame(width: 1000)
         .aspectRatio(displayImage.size, contentMode: .fit)
         .background(.clear)
-        .onDisappear {
-            if !didComplete { complete() }
+        .onChange(of: triggerState.shouldComplete) { oldValue, newValue in
+            if newValue && !didComplete {
+                complete()
+            }
         }
     }
     
@@ -148,6 +151,21 @@ struct CropAttachment: View {
         let finalUV = initialUV.clamped().composed(with: innerUV).clamped()
         
         onDone(finalUV)
+    }
+
+    /// 현재 크롭 상태를 UVRect로 변환하여 반환 (완료하지 않고 조회만)
+    /// CropControlAttachment의 완료 버튼에서 호출됨
+    func getCurrentUV() -> UVRect {
+        guard viewSize != .zero else {
+            return initialUV.clamped()
+        }
+
+        let mapper = AspectFitMapper(
+            viewSize: viewSize,
+            imageSize: displayImage.size
+        )
+        let innerUV = mapper.viewRectToUV(cropRect).clamped()
+        return initialUV.clamped().composed(with: innerUV).clamped()
     }
 }
 
