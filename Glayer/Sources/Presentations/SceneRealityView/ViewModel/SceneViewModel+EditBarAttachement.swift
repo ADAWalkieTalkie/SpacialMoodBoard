@@ -142,7 +142,6 @@ extension SceneViewModel {
             )
         )
         objectAttachment.components.set(attachment)
-        objectAttachment.components.set(BillboardComponent())
 
         EntityBoundBoxApplier.addBoundAuto(to: entity)
 
@@ -155,6 +154,8 @@ extension SceneViewModel {
 
         objectAttachment.scale = finalScale
         entity.addChild(objectAttachment)
+        updateSelectedEntityAttachmentRotation()
+        // objectAttachment.components.set(BillboardComponent())
 
         // Attachment 위치 설정 (상단)
         AttachmentPositioner.positionAtTop(objectAttachment, relativeTo: entity, isVolumeMode: appStateManager.appState.isVolumeOpen)
@@ -179,7 +180,6 @@ extension SceneViewModel {
             rootView: SoundNameAttachment(filename: filename)
         )
         nameAttachment.components.set(attachment)
-        nameAttachment.components.set(BillboardComponent())
 
         /// attachment 스케일 보정
         let finalScale = EntityAttachmentSizeDeterminator.calculateFinalScale(
@@ -250,6 +250,67 @@ extension SceneViewModel {
         entity.children
             .filter { $0.name == "lockIconAttachment" }
             .forEach { $0.removeFromParent() }
+    }
+
+    // MARK: - 현재 선택된 entity의 attachment 회전 업데이트
+    /// 향후 빌보드 관련 에러 수정시 제거 가능
+    func updateSelectedEntityAttachmentRotation() {
+        // headPosition 가져오기
+        let headPosition = userSpatialState.sceneHeadAnchor.position
+
+        guard let selectedEntity = selectedEntity,
+            let objectId = UUID(uuidString: selectedEntity.name),
+            let sceneObject = sceneObjects.first(where: { $0.id == objectId }),
+            let objectAttachment = selectedEntity.children.first(where: { $0.name == "objectAttachment" })
+        else { 
+            print("⚠️ 필요한 정보를 찾을 수 없음")
+            return 
+        }
+        
+        applyEditBarRotation(to: objectAttachment, objectType: sceneObject.type, headPosition: headPosition)
+    }
+
+    /// EditBarAttachment 회전 적용
+    private func applyEditBarRotation(to attachment: Entity, objectType: AssetType, headPosition: SIMD3<Float>) {
+        // Floor 회전 상쇄용 회전 rotation
+        
+        let counterFloorRotation = simd_quatf(angle: -rotationAngle, axis: [0, 1, 0])
+        // Attachment 부모 회전 가져오기
+        let zeroRotation = simd_quatf(real: 1.0, imag: SIMD3<Float>(0, 0, 0))
+        let parentRotation = attachment.parent?.transform.rotation ?? zeroRotation
+
+        // 커스텀 빌보드 회전 가져오기
+        let customBillboardRotation = getCustomXYBillboardRotation(to: attachment, headPosition: headPosition)
+
+        if appStateManager.appState.isVolumeOpen {
+            // 볼륨인 경우
+            if objectType == .image {
+                attachment.transform.rotation = counterFloorRotation * parentRotation.inverse
+            }
+        }else{
+            // 이멀시브인 경우
+            if objectType == .image {
+                attachment.transform.rotation =  counterFloorRotation * parentRotation.inverse * customBillboardRotation
+            }
+        }
+    }
+
+    /// 커스텀 X,Y 빌보드
+    private func getCustomXYBillboardRotation(to attachment: Entity, headPosition: SIMD3<Float>) -> simd_quatf {
+        let attachmentWorldPosition = attachment.position(relativeTo: nil)
+        let direction = normalize(headPosition - attachmentWorldPosition)
+        
+        // Pitch (X축 회전): 상하 각도
+        let pitch = -asin(direction.y)
+        
+        // Yaw (Y축 회전): 좌우 각도  
+        let yaw = atan2(direction.x, direction.z)
+        
+        // Roll(Z축)은 제외하고 X축과 Y축 회전만 결합
+        let pitchQuat = simd_quatf(angle: pitch, axis: [1, 0, 0])
+        let yawQuat = simd_quatf(angle: yaw, axis: [0, 1, 0])
+        
+        return yawQuat * pitchQuat
     }
         
     

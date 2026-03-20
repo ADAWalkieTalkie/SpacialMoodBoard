@@ -7,6 +7,7 @@ struct EntityScaleGesture: ViewModifier {
     @Binding var selectedEntity: ModelEntity?
     let onScaleUpdate: (UUID, Float) -> Void
     let onGestureStart: (() -> Void)?
+    let onGestureUpdated: (() -> Void)?
     let onGestureEnd: (() -> Void)?
     @State private var initialScale: SIMD3<Float>? = nil
     
@@ -31,6 +32,8 @@ struct EntityScaleGesture: ViewModifier {
                         }
                         
                         currentEntity.scale = (initialScale ?? .init(repeating: 1.0)) * Float(value.magnification)
+
+                        onGestureUpdated?()
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
@@ -55,12 +58,14 @@ extension View {
         selectedEntity: Binding<ModelEntity?>,
         onScaleUpdate: @escaping (UUID, Float) -> Void,
         onGestureStart: (() -> Void)?,
+        onGestureUpdated: (() -> Void)?,
         onGestureEnd: (() -> Void)?
     ) -> some View {
         self.modifier(EntityScaleGesture(
             selectedEntity: selectedEntity,
             onScaleUpdate: onScaleUpdate,
             onGestureStart: onGestureStart,
+            onGestureUpdated: onGestureUpdated,
             onGestureEnd: onGestureEnd
         ))
     }

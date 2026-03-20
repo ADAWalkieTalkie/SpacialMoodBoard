@@ -81,9 +81,11 @@ struct SceneRealityView: View {
                     onGestureStart: {
                         viewModel.startGesture()
                     },
+                    onGestureUpdated: {
+                        viewModel.updateGesture()
+                    },
                     onGestureEnd: {
                         viewModel.endGesture()
-                        viewModel.updateAttachmentScales()
                     },
                     onBoundaryCollision: { entity in
                         viewModel.checkBoundaryCollision(for: entity)

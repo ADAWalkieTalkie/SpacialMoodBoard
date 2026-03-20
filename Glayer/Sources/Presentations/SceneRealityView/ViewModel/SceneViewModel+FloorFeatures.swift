@@ -78,6 +78,7 @@ extension SceneViewModel {
         guard let rootEntity = rootEntity else { return }
 
         applyRotation(to: rootEntity, angle: rotationAngle, animated: true)
+        updateSelectedEntityAttachmentRotation()
     }
 
     func resetRotation() {

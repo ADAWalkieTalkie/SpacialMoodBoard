@@ -64,6 +64,11 @@ struct EntityDragGesture: ViewModifier {
     /// SceneViewModel.startGesture()를 호출하여 엔티티 업데이트를 일시 중지합니다.
     let onGestureStart: (() -> Void)?
 
+    /// 제스처 업데이트 콜백 (옵션)
+    ///
+    /// 드래그가 진행되는 동안 매 프레임 호출됩니다.
+    let onGestureUpdated: (() -> Void)?
+
     /// 제스처 종료 콜백 (옵션)
     ///
     /// 드래그가 끝날 때 호출됩니다.
@@ -152,6 +157,9 @@ struct EntityDragGesture: ViewModifier {
                         if let modelEntity = selectedEntity {
                             onBoundaryCollision?(modelEntity)
                         }
+
+                        onGestureUpdated?()
+                        
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
@@ -183,6 +191,7 @@ extension View {
         onPositionUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         onGestureStart: (() -> Void)?,
+        onGestureUpdated: (() -> Void)?,
         onGestureEnd: (() -> Void)?,
         onBoundaryCollision: ((ModelEntity) -> Void)? = nil,
         movementBounds: MovementBounds = .default
@@ -192,6 +201,7 @@ extension View {
             onPositionUpdate: onPositionUpdate,
             onRotationUpdate: onRotationUpdate,
             onGestureStart: onGestureStart,
+            onGestureUpdated: onGestureUpdated,
             onGestureEnd: onGestureEnd,
             onBoundaryCollision: onBoundaryCollision,
             movementBounds: movementBounds

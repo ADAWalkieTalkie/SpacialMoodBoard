@@ -51,6 +51,12 @@ final class SceneViewModel {
     func startGesture() {
         isGestureActive = true
     }
+    func updateGesture() {
+        Task { @MainActor in
+            updateSelectedEntityAttachmentRotation()
+            updateAttachmentScales()
+        }
+    }
     func endGesture() {
         isGestureActive = false
         // 제스처 종료 시 모든 경계 충돌 상태 초기화
@@ -134,7 +140,6 @@ final class SceneViewModel {
 
     // 볼륨에서 생성하는 위치(immersive의 경우 headAnchor 기반이서 초기 위치 설정 필요 x)
     let defaultRespawnPositionVolume: SIMD3<Float> = SIMD3<Float>(0, -SceneConstants.floorHalfSize + 0.2, -0.3)
-    
     
     // MARK: - Cleanup
 
