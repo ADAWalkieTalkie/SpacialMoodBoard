@@ -100,3 +100,20 @@
 "guiding.assetPlacement.scale.title" = "تحجيم";
 "guiding.assetPlacement.scale.description" = "غيّر حجم الأصل إلى المقياس المطلوب.";
 
+// MARK: - Search
+"search.placeholder" = "بحث";
+
+// MARK: - Accessibility & Toolbar
+"action.lock" = "قفل";
+"toolbar.volumeControl" = "التحكم في مستوى الصوت";
+"toolbar.fullImmersive" = "انغماس كامل";
+"toolbar.viewMode" = "وضع العرض";
+"toolbar.mute" = "كتم الصوت";
+"toolbar.unmute" = "إلغاء كتم الصوت";
+"toolbar.minimize" = "تصغير";
+"toolbar.dayNight" = "ليل/نهار";
+
+// MARK: - Asset Defaults
+"asset.default.image" = "صورة";
+"asset.default.copy" = "نسخة";
+"asset.default.untitled" = "بلا عنوان";

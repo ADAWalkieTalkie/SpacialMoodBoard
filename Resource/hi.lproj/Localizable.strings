@@ -100,3 +100,20 @@
 "guiding.assetPlacement.scale.title" = "स्केल करें";
 "guiding.assetPlacement.scale.description" = "संपत्ति को अपने वांछित स्केल में समायोजित करें।";
 
+// MARK: - Search
+"search.placeholder" = "खोजें";
+
+// MARK: - Accessibility & Toolbar
+"action.lock" = "लॉक करें";
+"toolbar.volumeControl" = "वॉल्यूम नियंत्रण";
+"toolbar.fullImmersive" = "पूर्ण इमर्सिव";
+"toolbar.viewMode" = "दृश्य मोड";
+"toolbar.mute" = "म्यूट";
+"toolbar.unmute" = "अनम्यूट";
+"toolbar.minimize" = "छोटा करें";
+"toolbar.dayNight" = "दिन/रात";
+
+// MARK: - Asset Defaults
+"asset.default.image" = "छवि";
+"asset.default.copy" = "कॉपी";
+"asset.default.untitled" = "शीर्षकहीन";

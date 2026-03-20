@@ -18,17 +18,17 @@ enum ToolBarToggleButtonEnum {
     var name: String {
         switch self {
         case .volumeControl:
-            return "Volume Control"
+            return String(localized: "toolbar.volumeControl")
         case .fullImmersive:
-            return "Full Immersive"
+            return String(localized: "toolbar.fullImmersive")
         case .viewMode:
-            return "View Mode"
-        case .mute:
-            return "Mute"
+            return String(localized: "toolbar.viewMode")
+        case .mute(let isOn):
+            return String(localized: isOn ? "toolbar.unmute" : "toolbar.mute")
         case .minimize:
-            return "Minimize"
+            return String(localized: "toolbar.minimize")
         case .immersiveTime:
-            return "Day/Night"
+            return String(localized: "toolbar.dayNight")
         }
     }
     

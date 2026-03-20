@@ -22,7 +22,7 @@ struct CropControlAttachment: View {
         HStack(spacing: 20) {
             // 취소 버튼
             CapsuleTextButton(
-                title: "취소",
+                title: String(localized: "action.cancel"),
                 type: .cropCancel,
                 action: onCancel
             )
@@ -30,7 +30,7 @@ struct CropControlAttachment: View {
 
             // 완료 버튼
             CapsuleTextButton(
-                title: "완료",
+                title: String(localized: "action.done"),
                 type: .cropComplete,
                 action: onComplete
             )
