@@ -198,7 +198,7 @@ extension SceneViewModel {
         
         // 6. 위치 설정 (아래에 배치)
         entity.addChild(nameAttachment)
-        AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
+        // AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
 
 
         // SoundVisual이 비동기로 로드되는 경우를 대비해 한 번 더 위치를 보정
