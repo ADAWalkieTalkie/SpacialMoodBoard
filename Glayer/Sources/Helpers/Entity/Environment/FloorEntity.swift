@@ -99,7 +99,8 @@ class FloorEntity {
 
         if let texture {
             material.baseColor = .init(texture: .init(texture))
-            material.blending = .transparent(opacity: 1.0)
+            // 불투명 floor는 기본(opaque) 파이프라인을 사용해 depth 정합성을 유지한다.
+            // transparent(opacity: 1.0)은 시각적으로는 불투명해도 정렬 이슈를 유발할 수 있다.
         } else {
             material.baseColor.tint = .init(.white)
             material.blending = .transparent(opacity: 0.5)
