@@ -139,6 +139,24 @@ final class SceneAudioCoordinator {
         controllers = controllers.filter { $0.value.controller != nil }
         controllers.values.forEach { $0.controller?.gain = RealityKit.Audio.Decibel(gain) }
     }
+
+    /// 씬 전환(Volume ↔ Immersive)으로 RealityKit 그래프가 재구성된 뒤
+    /// 기존 "재생 중" 상태를 재적용합니다.
+    ///
+    /// - Note:
+    ///   - 글로벌 음소거/외부 인터럽션 중에는 재생 복원을 수행하지 않습니다.
+    ///   - `playing` 집합만 대상으로 하므로, 사용자가 직접 정지한 오디오는 자동 재생되지 않습니다.
+    func reassertPlaybackStateAfterSceneTransition() {
+        cleanup()
+
+        guard !isGlobalMute else { return }
+        guard pauseStack.isEmpty else { return }
+
+        try? AVAudioSession.sharedInstance().setActive(true)
+        for id in playing {
+            controllers[id]?.controller?.play()
+        }
+    }
 }
 
 extension SceneAudioCoordinator {

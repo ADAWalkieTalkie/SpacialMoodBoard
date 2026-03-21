@@ -26,6 +26,11 @@ struct SceneRealityView: View {
                 await setupScene(content: content, rootEntity: rootEntity)
                 content.add(rootEntity)
                 
+                await MainActor.run {
+                    // Volume ↔ Immersive 전환 시 자동으로 멈춘 오디오의 재생 상태를 복원
+                    SceneAudioCoordinator.shared.reassertPlaybackStateAfterSceneTransition()
+                }
+                
                 let newHeadAnchor = AnchorEntity(.head)
                 headAnchor = newHeadAnchor
                 
