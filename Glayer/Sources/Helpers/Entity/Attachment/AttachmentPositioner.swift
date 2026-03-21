@@ -13,6 +13,7 @@ enum AttachmentPositioner {
         let objectBounds = parent.visualBounds(relativeTo: parent)
         let attachmentBounds = attachment.visualBounds(relativeTo: nil)
         let parentScale: SIMD3<Float> = parent.scale(relativeTo: nil)
+        let safeParentScaleY = max(abs(parentScale.y), 0.0001)
 
         let baseLine: Float
         let margin: Float
@@ -48,7 +49,7 @@ enum AttachmentPositioner {
             }
         }
 
-        let attachmentHalfHeight = (attachmentBounds.extents.y / 2) / parentScale.y
+        let attachmentHalfHeight = (attachmentBounds.extents.y / 2) / safeParentScaleY
         
         let yOffset: Float = baseLine + attachmentHalfHeight + margin // 이미지 최상단 + 어태치 먼트 바닥 + 마진(사진 마진/4 - 라인값/2)
         attachment.position = SIMD3<Float>(0, yOffset, 0.01)
@@ -65,6 +66,7 @@ enum AttachmentPositioner {
         let planeBounds = imagePlane.visualBounds(relativeTo: parent)
         let attachmentBounds = attachment.visualBounds(relativeTo: nil)
         let parentScale = parent.scale(relativeTo: nil)
+        let safeParentScaleY = max(abs(parentScale.y), 0.0001)
 
         // planeMargin과 glowCorrection 계산
         let planeMargin = min(planeBounds.extents.x, planeBounds.extents.y)
@@ -75,7 +77,7 @@ enum AttachmentPositioner {
 
         // imagePlane 상단에 위치
         let imagePlaneTop = planeBounds.max.y
-        let attachmentHalfHeight = (attachmentBounds.extents.y / 2) / parentScale.y
+        let attachmentHalfHeight = (attachmentBounds.extents.y / 2) / safeParentScaleY
         let margin = planeMargin/4 - glowCorrection.height/2
 
         let yOffset = imagePlaneTop + attachmentHalfHeight + margin

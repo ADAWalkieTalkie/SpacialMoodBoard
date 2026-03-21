@@ -3,6 +3,10 @@ import CoreGraphics
 
 enum EntityAttachmentSizeDeterminator {
     static let scaleFactor: Float = 1
+    private static let minimumObjectScale: Float = 0.05
+    private static let minimumAttachmentReferenceScale: Float = 0.25
+    private static let fallbackAttachmentScale: Float = 1.0
+    private static let maxDistanceForScaling: Float = 20.0
 
     /// Attachment의 최종 스케일 계산 (모든 보정 포함)
     /// - Parameters:
@@ -17,7 +21,7 @@ enum EntityAttachmentSizeDeterminator {
     ) -> SIMD3<Float> {
         // 1. 엔티티의 월드 좌표 위치
         let entityWorldPosition = entity.position(relativeTo: nil)
-        let entityScale: Float = entity.scale.x
+        let entityScale = attachmentReferenceScale(from: entity.scale.x)
         
         // 2. 거리 기반 스케일 계산
         let distanceScale = calculateScale(
@@ -27,12 +31,12 @@ enum EntityAttachmentSizeDeterminator {
         
         // 3. Volume 모드
         if isVolumeMode {
-            let s = 2 / entityScale
+            let s = sanitizedAttachmentScale(2 / entityScale)
             return SIMD3<Float>(repeating: s)
         } else {
             let immersiveBase: Float = 0.8
             
-            let s = immersiveBase * distanceScale * scaleFactor / entityScale
+            let s = sanitizedAttachmentScale(immersiveBase * distanceScale * scaleFactor / entityScale)
             return SIMD3<Float>(repeating: s)
         }
     }
@@ -56,7 +60,9 @@ enum EntityAttachmentSizeDeterminator {
     ///   - targetPosition: 대상 위치
     /// - Returns: 거리
     private static func distanceCalculation(from headPosition: simd_float3, to targetPosition: simd_float3) -> Float {
-        return simd_distance(headPosition, targetPosition)
+        let distance = simd_distance(headPosition, targetPosition)
+        guard distance.isFinite else { return 1.0 }
+        return distance
     }
 
     /// 거리에 따라 크기 계산
@@ -64,8 +70,24 @@ enum EntityAttachmentSizeDeterminator {
     ///   - distance: 거리
     /// - Returns: 크기 (가까울 때는 최소 1.0 유지, 멀어질 때는 1.1배씩 증가)
     private static func sizeCalculation(from distance: Float) -> Float {
-        let growth = pow(1.1, max(0, distance - 1.0))
+        let clampedDistance = min(max(distance, 0), maxDistanceForScaling)
+        let growth = pow(1.1, max(0, clampedDistance - 1.0))
         return max(1.0, growth)
+    }
+
+    private static func attachmentReferenceScale(from objectScale: Float) -> Float {
+        let safeObjectScale = sanitizedObjectScale(objectScale)
+        return max(safeObjectScale, minimumAttachmentReferenceScale)
+    }
+
+    private static func sanitizedObjectScale(_ objectScale: Float) -> Float {
+        guard objectScale.isFinite else { return 1.0 }
+        return max(abs(objectScale), minimumObjectScale)
+    }
+
+    private static func sanitizedAttachmentScale(_ scale: Float) -> Float {
+        guard scale.isFinite else { return fallbackAttachmentScale }
+        return max(scale, 0.001)
     }
 }
 
@@ -134,4 +156,3 @@ extension EntityAttachmentSizeDeterminator {
         return (CGFloat(wRatio), CGFloat(hRatio))
     }
 }
-

@@ -10,6 +10,8 @@ struct EntityScaleGesture: ViewModifier {
     let onGestureUpdated: (() -> Void)?
     let onGestureEnd: (() -> Void)?
     @State private var initialScale: SIMD3<Float>? = nil
+    private let minObjectScale: Float = 0.05
+    private let maxObjectScale: Float = 6.0
     
     func body(content: Content) -> some View {
         content
@@ -31,7 +33,9 @@ struct EntityScaleGesture: ViewModifier {
                             }
                         }
                         
-                        currentEntity.scale = (initialScale ?? .init(repeating: 1.0)) * Float(value.magnification)
+                        let magnification = sanitizedMagnification(Float(value.magnification))
+                        let baseScale = initialScale ?? .init(repeating: 1.0)
+                        currentEntity.scale = clampedScale(baseScale * magnification)
 
                         onGestureUpdated?()
                     }
@@ -42,13 +46,25 @@ struct EntityScaleGesture: ViewModifier {
                             return
                         }
 
-                        let scaleMultiplier = Float(value.magnification)
+                        let scaleMultiplier = sanitizedMagnification(Float(value.magnification))
                         onScaleUpdate(uuid, scaleMultiplier)
 
                         onGestureEnd?()
                         initialScale = nil
                     }
             )
+    }
+    
+    private func sanitizedMagnification(_ magnification: Float) -> Float {
+        guard magnification.isFinite else { return 1.0 }
+        return max(magnification, 0.001)
+    }
+    
+    private func clampedScale(_ scale: SIMD3<Float>) -> SIMD3<Float> {
+        let x = min(max(scale.x, minObjectScale), maxObjectScale)
+        let y = min(max(scale.y, minObjectScale), maxObjectScale)
+        let z = min(max(scale.z, minObjectScale), maxObjectScale)
+        return SIMD3<Float>(x, y, z)
     }
 }
 

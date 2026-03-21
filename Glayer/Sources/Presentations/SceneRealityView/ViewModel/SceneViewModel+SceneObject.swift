@@ -77,10 +77,22 @@ extension SceneViewModel {
     ///   - scale: 상대적 scale 증가량 (예: 2.0 = 2배 확대)
     func updateObjectScale(id: UUID, scale: Float) {
         guard var scene = appStateManager.selectedScene else { return }
+        let minObjectScale: Float = 0.05
+        let maxObjectScale: Float = 6.0
+        let sanitizedMultiplier: Float = {
+            guard scale.isFinite else { return 1.0 }
+            return max(scale, 0.001)
+        }()
 
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
             if case .image(let imageAttrs) = object.attributes {
-                object.setScale(imageAttrs.scale * scale)
+                let updatedScale = imageAttrs.scale * sanitizedMultiplier
+                let clampedScale = min(max(updatedScale, minObjectScale), maxObjectScale)
+                object.setScale(clampedScale)
+                
+                if let entity = self.entityRepository.getEntity(for: id) {
+                    entity.scale = SIMD3<Float>(repeating: clampedScale)
+                }
             }
         }
         appStateManager.selectScene(scene)
