@@ -203,7 +203,7 @@ extension SceneViewModel {
 
         // SoundVisual이 비동기로 로드되는 경우를 대비해 한 번 더 위치를 보정
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(10))
+            try? await Task.sleep(for: .milliseconds(120))
             guard nameAttachment.parent != nil else { return }
             AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
         }

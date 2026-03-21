@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SoundNameAttachment: View {
     let filename: String
+    @State private var isVisible: Bool = false
     
     var body: some View {
         Text(filename.deletingPathExtension)
@@ -13,6 +14,13 @@ struct SoundNameAttachment: View {
             .padding(.vertical, 6)
             .frame(maxWidth: 128)
             .glassBackgroundEffect(in: Capsule())
+            .opacity(isVisible ? 1.0 : 0.0)
+            .onAppear {
+                isVisible = false
+                withAnimation(.easeOut(duration: 0.2)) {
+                    isVisible = true
+                }
+            }
     }
 }
 
