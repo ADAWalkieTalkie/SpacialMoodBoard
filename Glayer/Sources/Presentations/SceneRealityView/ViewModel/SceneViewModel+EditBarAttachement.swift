@@ -193,6 +193,14 @@ extension SceneViewModel {
         // 6. 위치 설정 (아래에 배치)
         entity.addChild(nameAttachment)
         AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
+
+
+        // SoundVisual이 비동기로 로드되는 경우를 대비해 한 번 더 위치를 보정
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(120))
+            guard nameAttachment.parent != nil else { return }
+            AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
+        }
     }
 
     /// Lock Icon Entity 생성 헬퍼 함수
