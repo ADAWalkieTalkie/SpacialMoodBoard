@@ -23,7 +23,7 @@ struct ObjectPlacementPolicy {
     ///   - minDistance: 다른 오브젝트와의 최소 거리
     init(
            movementBounds: MovementBounds? = nil,
-           minDistance: Float = 0.03
+           minDistance: Float = 0.08
     ) {
         self.movementBounds = movementBounds ?? SceneConstants.defaultMovementBounds
         self.minDistance = minDistance
