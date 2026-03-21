@@ -9,6 +9,12 @@ extension SceneViewModel {
     
     /// Entity에 attachment를 추가하고 타이머 시작
     func addAttachmentAndStartTimer(for entity: ModelEntity, headPosition: SIMD3<Float>) {
+        // 크롭 진행 중(취소/완료 버튼 노출 포함)에는 EditBar를 다시 붙이지 않음
+        let isCropUIVisible =
+            entity.findEntity(named: "cropAttachment") != nil ||
+            entity.findEntity(named: "cropControlAttachment") != nil
+        guard !isCropUIVisible else { return }
+
         guard let objectId = UUID(uuidString: entity.name),
               let sceneObject = sceneObjects.first(where: { $0.id == objectId })
         else { return }

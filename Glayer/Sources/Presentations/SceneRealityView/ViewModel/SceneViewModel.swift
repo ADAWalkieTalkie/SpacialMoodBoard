@@ -146,6 +146,8 @@ final class SceneViewModel {
     func reset() {
         entityRepository.clearAllCaches()
         selectedEntity = nil
+        appliedFloorImageURL = nil
+        currentImmersiveBackground = nil
         stopJoystickMovement()
         boundaryCollisionManager.removeBoundaryWalls()
     }
