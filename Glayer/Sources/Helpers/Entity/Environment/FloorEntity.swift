@@ -111,6 +111,15 @@ class FloorEntity {
         return material
     }
     
+    /// Immersive 모드의 초기 floor에 사용하는 기본 머티리얼
+    /// - Note: 불투명 파이프라인을 유지하고 OpacityComponent로만 투명도를 제어한다.
+    static func createImmersiveInitialMaterial() -> PhysicallyBasedMaterial {
+        var material = PhysicallyBasedMaterial()
+        material.baseColor.tint = .init(.gray)
+        material.faceCulling = .none
+        return material
+    }
+    
     static func applyOutline(floor: ModelEntity) {
         EntityBoundBoxApplier.addBoundAuto(
             to: floor

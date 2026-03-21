@@ -132,6 +132,12 @@ struct SceneRealityView: View {
             if config.enableGestures {
                 viewModel.setupBoundaryWalls(in: rootEntity)
             }
+            
+            // Volume 기본 floor 외형 복원 (모드 전환 후 잔상 방지)
+            if viewModel.floorImageURL == nil {
+                floor.model?.materials = [FloorEntity.createMaterial()]
+                floor.components[OpacityComponent.self] = nil
+            }
 
         // Immersive일 때
         } else if appStateManager.appState.isImmersiveOpen {
@@ -151,6 +157,12 @@ struct SceneRealityView: View {
             // Volume에서 설정된 회전 각도를 Immersive에도 적용
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
             rootEntity.transform.rotation = rotation
+
+            // Immersive 초기 floor 외형: gray, opacity 0.7
+            if viewModel.floorImageURL == nil {
+                floor.model?.materials = [FloorEntity.createImmersiveInitialMaterial()]
+                floor.components[OpacityComponent.self] = .init(opacity: 0.7)
+            }
 
             // 경계 벽면 설정 (제스처가 활성화된 모드: Immersive 및 Volume)
             if config.enableGestures {
