@@ -140,7 +140,7 @@ final class ImageEditorViewModel {
         do {
             let raw = (preferredNames.indices.contains(selectedIndex) ? preferredNames[selectedIndex] : nil)?
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            let base = (raw?.isEmpty == false ? raw! : "Image")
+            let base = (raw?.isEmpty == false ? raw! : String(localized: "asset.default.image"))
             let filename = URL(fileURLWithPath: base).deletingPathExtension().lastPathComponent
             
             let asset = try await assetRepository.addImage(image, filename: filename)

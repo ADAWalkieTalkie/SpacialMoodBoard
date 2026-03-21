@@ -100,3 +100,20 @@
 "guiding.assetPlacement.scale.title" = "缩放";
 "guiding.assetPlacement.scale.description" = "将资源调整到您想要的大小。";
 
+// MARK: - Search
+"search.placeholder" = "搜索";
+
+// MARK: - Accessibility & Toolbar
+"action.lock" = "锁定";
+"toolbar.volumeControl" = "音量控制";
+"toolbar.fullImmersive" = "完全沉浸";
+"toolbar.viewMode" = "视图模式";
+"toolbar.mute" = "静音";
+"toolbar.unmute" = "取消静音";
+"toolbar.minimize" = "最小化";
+"toolbar.dayNight" = "昼/夜";
+
+// MARK: - Asset Defaults
+"asset.default.image" = "图像";
+"asset.default.copy" = "副本";
+"asset.default.untitled" = "无标题";

@@ -99,3 +99,21 @@
 "guiding.assetPlacement.rotate.description" = "에셋을 원하는 각도로 조정합니다.";
 "guiding.assetPlacement.scale.title" = "확대 및 축소하기";
 "guiding.assetPlacement.scale.description" = "에셋을 원하는 스케일로 조정합니다.";
+
+// MARK: - Search
+"search.placeholder" = "검색";
+
+// MARK: - Accessibility & Toolbar
+"action.lock" = "잠금";
+"toolbar.volumeControl" = "볼륨 조절";
+"toolbar.fullImmersive" = "완전 몰입";
+"toolbar.viewMode" = "뷰 모드";
+"toolbar.mute" = "음소거";
+"toolbar.unmute" = "음소거 해제";
+"toolbar.minimize" = "최소화";
+"toolbar.dayNight" = "낮/밤";
+
+// MARK: - Asset Defaults
+"asset.default.image" = "이미지";
+"asset.default.copy" = "복사본";
+"asset.default.untitled" = "무제";

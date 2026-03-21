@@ -48,7 +48,7 @@ final class CircularSearchBar: UISearchBar {
 
 struct VisionSearchBar: UIViewRepresentable {
     @Binding var text: String
-    var placeholder: String = "Search"
+    var placeholder: String = String(localized: "search.placeholder")
     var onSubmit: () -> Void = {}
 
     func makeUIView(context: Context) -> CircularSearchBar {
@@ -76,7 +76,7 @@ struct VisionSearchBar: UIViewRepresentable {
 
 struct CenteredVisionSearchBar: View {
     @Binding var text: String
-    var placeholder = "Search"
+    var placeholder = String(localized: "search.placeholder")
     var onSubmit: () -> Void = {}
     
     var body: some View {
