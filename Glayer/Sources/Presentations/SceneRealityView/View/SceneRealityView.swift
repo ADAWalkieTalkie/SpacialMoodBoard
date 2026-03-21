@@ -110,6 +110,8 @@ struct SceneRealityView: View {
 
         // Volume Window일 때
         if appStateManager.appState.isVolumeOpen {
+            // Floor 엔티티는 모드 간 재사용되므로 Immersive 전용 배경이 남아있지 않도록 정리
+            viewModel.removeImmersiveBackgroundIfNeeded(from: floor)
             
             let humanScaleEntity = await HumanScaleEntity.create()
             floor.addChild(humanScaleEntity)
@@ -225,4 +227,3 @@ struct SceneRealityView: View {
         }
     }
 }
-

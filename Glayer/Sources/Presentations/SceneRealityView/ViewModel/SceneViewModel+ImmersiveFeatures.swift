@@ -161,13 +161,32 @@ extension SceneViewModel {
 
     // MARK: - Immersive 배경 관리
 
+    /// floor에 붙어있는 Immersive 배경 엔티티를 정리
+    /// - Note: floor 엔티티가 모드 전환 간 재사용되므로 Volume 복귀 전에 반드시 정리 필요
+    func removeImmersiveBackgroundIfNeeded(from floor: Entity) {
+        // 추적 중인 배경 참조 제거
+        if let currentImmersiveBackground {
+            currentImmersiveBackground.removeFromParent()
+            self.currentImmersiveBackground = nil
+        }
+
+        // 참조가 유실된 경우를 대비해 이름 기반으로도 정리
+        floor.children
+            .filter { $0.name == "immersiveBackground" }
+            .forEach { $0.removeFromParent() }
+    }
+
     /// Immersive 배경을 현재 시간대에 맞게 로드
     /// - Parameter floor: 배경을 추가할 floor Entity
     func loadImmersiveBackground(on floor: Entity) async {
+        // 중복 로드를 막기 위해 기존 배경을 먼저 정리
+        removeImmersiveBackgroundIfNeeded(from: floor)
+
         let immersiveTime = spacialEnvironment.immersiveTime
         let backgroundName = immersiveTime == .day ? "Immersive" : "ImmersiveNight"
 
         if let immersiveBackground = try? await Entity(named: backgroundName, in: RealityKitContent.realityKitContentBundle) {
+            immersiveBackground.name = "immersiveBackground"
             floor.addChild(immersiveBackground)
             currentImmersiveBackground = immersiveBackground
         }
