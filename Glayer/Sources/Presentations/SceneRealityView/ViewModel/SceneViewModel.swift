@@ -18,6 +18,7 @@ final class SceneViewModel {
 
     // MARK: - Boundary Collision
     let boundaryCollisionManager: BoundaryCollisionManager
+    let placementPolicy: ObjectPlacementPolicy
 
     // MARK: - Initialization
     init(appStateManager: AppStateManager,
@@ -31,14 +32,15 @@ final class SceneViewModel {
         self.sceneObjectRepository = sceneObjectRepository
         self.assetRepository = assetRepository
         self.entityRepository = entityRepository
+        self.placementPolicy = ObjectPlacementPolicy()
         self.createObjectUseCase = CreateObjectUseCase(
             assetRepository: assetRepository,
             sceneObjectRepository: sceneObjectRepository,
-            entityRepository: entityRepository
+            entityRepository: entityRepository,
+            placementPolicy: placementPolicy
         )
         self.boundaryCollisionManager = BoundaryCollisionManager()
     }
-    
     
     // MARK: - State
     var selectedSceneModel: SceneModel?
@@ -48,6 +50,12 @@ final class SceneViewModel {
     var isGestureActive: Bool = false
     func startGesture() {
         isGestureActive = true
+    }
+    func updateGesture() {
+        Task { @MainActor in
+            updateSelectedEntityAttachmentRotation()
+            updateAttachmentScales()
+        }
     }
     func endGesture() {
         isGestureActive = false
@@ -133,12 +141,13 @@ final class SceneViewModel {
     // 볼륨에서 생성하는 위치(immersive의 경우 headAnchor 기반이서 초기 위치 설정 필요 x)
     let defaultRespawnPositionVolume: SIMD3<Float> = SIMD3<Float>(0, -SceneConstants.floorHalfSize + 0.2, -0.3)
     
-    
     // MARK: - Cleanup
 
     func reset() {
         entityRepository.clearAllCaches()
         selectedEntity = nil
+        appliedFloorImageURL = nil
+        currentImmersiveBackground = nil
         stopJoystickMovement()
         boundaryCollisionManager.removeBoundaryWalls()
     }

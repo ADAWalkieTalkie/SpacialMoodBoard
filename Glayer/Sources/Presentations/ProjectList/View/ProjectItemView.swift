@@ -82,10 +82,10 @@ struct ProjectItemView: View {
         .onLongPressGesture(
             minimumDuration: 0.35,
             maximumDistance: 22,
-            pressing: { p in
+            perform: { showRenamePopover = true },
+            onPressingChanged: { p in
                 withAnimation(.easeInOut(duration: 0.12)) { isFlashing = p }
-            },
-            perform: { showRenamePopover = true }
+            }
         )
         .popover(
             isPresented: $showRenamePopover,

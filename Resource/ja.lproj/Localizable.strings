@@ -100,3 +100,20 @@
 "guiding.assetPlacement.scale.title" = "スケール";
 "guiding.assetPlacement.scale.description" = "アセットを希望のサイズに調整します。";
 
+// MARK: - Search
+"search.placeholder" = "検索";
+
+// MARK: - Accessibility & Toolbar
+"action.lock" = "ロック";
+"toolbar.volumeControl" = "音量調整";
+"toolbar.fullImmersive" = "フル没入";
+"toolbar.viewMode" = "表示モード";
+"toolbar.mute" = "ミュート";
+"toolbar.unmute" = "ミュート解除";
+"toolbar.minimize" = "最小化";
+"toolbar.dayNight" = "昼/夜";
+
+// MARK: - Asset Defaults
+"asset.default.image" = "画像";
+"asset.default.copy" = "コピー";
+"asset.default.untitled" = "無題";

@@ -39,30 +39,32 @@ struct LibraryView: View {
         ZStack {
             VStack(spacing: 8) {
                 headerView
-                
-                TabView(selection: $viewModel.assetType) {
-                    LibraryImageTabGridView(
-                        assets: viewModel.filteredAndSorted(type: .image, key: viewModel.searchText),
-                        onAdded: { showAddedToast = true }
-                    )
-                    .tabItem { Label(String(localized: "library.image"), systemImage: "photo.fill") }
-                    .tag(AssetType.image)
-                    
-                    LibrarySoundTabListView(
-                        assets: viewModel.filteredAndSorted(type: .sound, key: viewModel.searchText),
-                        onAdded: { showAddedToast = true }
-                    )
-                    .tabItem {
-                        Label {
-                            Text(String(localized: "library.sound"))
-                        } icon: {
-                            Image(.icBeamNote)
-                                .renderingMode(.template)
+
+                if appStateManager.isLibraryOpen {
+                    TabView(selection: $viewModel.assetType) {
+                        LibraryImageTabGridView(
+                            assets: viewModel.filteredAndSorted(type: .image, key: viewModel.searchText),
+                            onAdded: { showAddedToast = true }
+                        )
+                        .tabItem { Label(String(localized: "library.image"), systemImage: "photo.fill") }
+                        .tag(AssetType.image)
+
+                        LibrarySoundTabListView(
+                            assets: viewModel.filteredAndSorted(type: .sound, key: viewModel.searchText),
+                            onAdded: { showAddedToast = true }
+                        )
+                        .tabItem {
+                            Label {
+                                Text(String(localized: "library.sound"))
+                            } icon: {
+                                Image(.icBeamNote)
+                                    .renderingMode(.template)
+                            }
                         }
+                        .tag(AssetType.sound)
                     }
-                    .tag(AssetType.sound)
+                    .toast(isPresented: $showAddedToast, message: .addToVolume)
                 }
-                .toast(isPresented: $showAddedToast, message: .addToVolume)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.bottom, 20)

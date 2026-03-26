@@ -20,27 +20,24 @@ extension SceneViewModel {
     func addSceneObject(_ object: SceneObject, rootEntity: Entity? = nil) {
         guard var scene = appStateManager.selectedScene else { return }
         
-        // rootEntity가 제공된 경우 UseCase를 통해 객체 생성
-        if let rootEntity = rootEntity {
+        let parentEntity = rootEntity ?? self.rootEntity
+        if let parentEntity {
             do {
-                _ = try createObjectUseCase.execute(
+                var mutableScene = scene
+                let viewMode = userSpatialState.viewMode
+
+                let result = try createObjectUseCase.execute(
                     object: object,
-                    rootEntity: rootEntity,
-                    scene: &scene
+                    rootEntity: parentEntity,
+                    scene: &mutableScene,
+                    viewMode: viewMode
                 )
-                appStateManager.selectScene(scene)
-            } catch CreateObjectError.assetNotFound {
-#if DEBUG
-                print("❌ SceneObject 생성 실패: 에셋을 찾을 수 없음 (assetId: \(object.assetId))")
-#endif
-            } catch CreateObjectError.entityCreationFailed {
-#if DEBUG
-                print("❌ Entity 생성 실패 (objectId: \(object.id))")
-#endif
+
+                appStateManager.selectScene(mutableScene)
+                selectedEntity = result.createdEntity
+
             } catch {
-#if DEBUG
-                print("❌ SceneObject 생성 실패: \(error)")
-#endif
+                print("❌ addSceneObject - Entity 생성 실패: \(error)")
             }
         } else {
             // rootEntity가 없는 경우 SceneObject만 추가 (Entity는 나중에 동기화)
@@ -80,10 +77,22 @@ extension SceneViewModel {
     ///   - scale: 상대적 scale 증가량 (예: 2.0 = 2배 확대)
     func updateObjectScale(id: UUID, scale: Float) {
         guard var scene = appStateManager.selectedScene else { return }
+        let minObjectScale: Float = 0.05
+        let maxObjectScale: Float = 6.0
+        let sanitizedMultiplier: Float = {
+            guard scale.isFinite else { return 1.0 }
+            return max(scale, 0.001)
+        }()
 
         sceneObjectRepository.updateObject(id: id, in: &scene) { object in
             if case .image(let imageAttrs) = object.attributes {
-                object.setScale(imageAttrs.scale * scale)
+                let updatedScale = imageAttrs.scale * sanitizedMultiplier
+                let clampedScale = min(max(updatedScale, minObjectScale), maxObjectScale)
+                object.setScale(clampedScale)
+                
+                if let entity = self.entityRepository.getEntity(for: id) {
+                    entity.scale = SIMD3<Float>(repeating: clampedScale)
+                }
             }
         }
         appStateManager.selectScene(scene)

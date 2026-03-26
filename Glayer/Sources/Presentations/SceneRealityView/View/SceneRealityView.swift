@@ -26,8 +26,17 @@ struct SceneRealityView: View {
                 await setupScene(content: content, rootEntity: rootEntity)
                 content.add(rootEntity)
                 
+                await MainActor.run {
+                    // Volume ↔ Immersive 전환 시 자동으로 멈춘 오디오의 재생 상태를 복원
+                    SceneAudioCoordinator.shared.reassertPlaybackStateAfterSceneTransition()
+                }
+                
                 let newHeadAnchor = AnchorEntity(.head)
                 headAnchor = newHeadAnchor
+                
+                await MainActor.run {
+                    viewModel.rootEntity = rootEntity
+                }
                 
                 if config.useHeadAnchoredToolbar {
                     if let toolbar = attachments.entity(for: "headToolbar") {
@@ -77,9 +86,11 @@ struct SceneRealityView: View {
                     onGestureStart: {
                         viewModel.startGesture()
                     },
+                    onGestureUpdated: {
+                        viewModel.updateGesture()
+                    },
                     onGestureEnd: {
                         viewModel.endGesture()
-                        viewModel.updateAttachmentScales()
                     },
                     onBoundaryCollision: { entity in
                         viewModel.checkBoundaryCollision(for: entity)
@@ -104,6 +115,8 @@ struct SceneRealityView: View {
 
         // Volume Window일 때
         if appStateManager.appState.isVolumeOpen {
+            // Floor 엔티티는 모드 간 재사용되므로 Immersive 전용 배경이 남아있지 않도록 정리
+            viewModel.removeImmersiveBackgroundIfNeeded(from: floor)
             
             let humanScaleEntity = await HumanScaleEntity.create()
             floor.addChild(humanScaleEntity)
@@ -118,6 +131,12 @@ struct SceneRealityView: View {
             // 경계 벽면 설정 (제스처가 활성화된 경우)
             if config.enableGestures {
                 viewModel.setupBoundaryWalls(in: rootEntity)
+            }
+            
+            // Volume 기본 floor 외형 복원 (모드 전환 후 잔상 방지)
+            if viewModel.floorImageURL == nil {
+                floor.model?.materials = [FloorEntity.createMaterial()]
+                floor.components[OpacityComponent.self] = nil
             }
 
         // Immersive일 때
@@ -138,6 +157,12 @@ struct SceneRealityView: View {
             // Volume에서 설정된 회전 각도를 Immersive에도 적용
             let rotation = simd_quatf(angle: viewModel.rotationAngle, axis: [0, 1, 0])
             rootEntity.transform.rotation = rotation
+
+            // Immersive 초기 floor 외형: gray, opacity 0.7
+            if viewModel.floorImageURL == nil {
+                floor.model?.materials = [FloorEntity.createImmersiveInitialMaterial()]
+                floor.components[OpacityComponent.self] = .init(opacity: 0.7)
+            }
 
             // 경계 벽면 설정 (제스처가 활성화된 모드: Immersive 및 Volume)
             if config.enableGestures {
@@ -160,6 +185,13 @@ struct SceneRealityView: View {
         if !viewModel.userSpatialState.viewMode {
             for obj in sceneObjects {
                 if case .image(let img) = obj.attributes, img.lock {
+                    // 현재 lock 상태 재확인 (race condition 방지)
+                    guard let currentObj = viewModel.sceneObjects.first(where: { $0.id == obj.id }),
+                          case .image(let currentImg) = currentObj.attributes,
+                          currentImg.lock else {
+                        continue
+                    }
+
                     if let entity = viewModel.getEntity(for: obj.id) {
                         let hasLockIcon = entity.children.contains { $0.name == "lockIconAttachment" }
                         if !hasLockIcon {
@@ -212,4 +244,3 @@ struct SceneRealityView: View {
         }
     }
 }
-

@@ -94,7 +94,7 @@ extension CropOverlay {
         let verticalCandidate   = max(0, (size.height - padding) / 2)
         
         let L = min(horizontalCandidate, verticalCandidate)
-        return L
+        return L * 0.5
     }
 }
 

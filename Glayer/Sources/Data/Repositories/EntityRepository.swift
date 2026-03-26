@@ -26,7 +26,8 @@ final class EntityRepository: EntityRepositoryInterface {
     func createEntity(
         from sceneObject: SceneObject,
         asset: Asset,
-        rootEntity: Entity
+        rootEntity: Entity,
+        viewMode: Bool
     ) -> ModelEntity? {
         let newEntity: ModelEntity?
 
@@ -34,7 +35,7 @@ final class EntityRepository: EntityRepositoryInterface {
         case .image:
             newEntity = ImageEntity.create(from: sceneObject, with: asset)
         case .audio:
-            newEntity = SoundEntity.create(from: sceneObject, with: asset)
+            newEntity = SoundEntity.create(from: sceneObject, with: asset, initialViewMode: viewMode)
         }
 
         if let entity = newEntity {
@@ -65,7 +66,8 @@ final class EntityRepository: EntityRepositoryInterface {
     func syncEntities(
         sceneObjects: [SceneObject],
         rootEntity: Entity,
-        assetRepository: AssetRepositoryInterface
+        assetRepository: AssetRepositoryInterface,
+        viewMode: Bool
     ) {
         let currentObjectIds = Set(sceneObjects.map { $0.id })
         let existingEntityIds = Set(entityMap.keys)
@@ -80,7 +82,8 @@ final class EntityRepository: EntityRepositoryInterface {
         updateOrCreateEntities(
             sceneObjects: sceneObjects,
             rootEntity: rootEntity,
-            assetRepository: assetRepository
+            assetRepository: assetRepository,
+            viewMode: viewMode
         )
     }
 
@@ -129,7 +132,8 @@ final class EntityRepository: EntityRepositoryInterface {
     private func updateOrCreateEntities(
         sceneObjects: [SceneObject],
         rootEntity: Entity,
-        assetRepository: AssetRepositoryInterface
+        assetRepository: AssetRepositoryInterface,
+        viewMode: Bool
     ) {
         for sceneObject in sceneObjects {
             guard let asset = assetRepository.asset(withId: sceneObject.assetId) else {
@@ -139,9 +143,14 @@ final class EntityRepository: EntityRepositoryInterface {
             if let existingEntity = entityMap[sceneObject.id] {
                 // 기존 엔티티의 위치 업데이트
                 existingEntity.position = sceneObject.position
+
+                if existingEntity.parent !== rootEntity {
+                    existingEntity.removeFromParent()
+                    rootEntity.addChild(existingEntity)
+                }
             } else {
                 // 새로운 엔티티 생성
-                _ = createEntity(from: sceneObject, asset: asset, rootEntity: rootEntity)
+                _ = createEntity(from: sceneObject, asset: asset, rootEntity: rootEntity, viewMode: viewMode)
             }
         }
     }

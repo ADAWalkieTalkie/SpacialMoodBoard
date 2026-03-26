@@ -11,6 +11,7 @@ struct EntityRotationGesture: ViewModifier {
     @State private var lastSnapStep: Int? = nil
   
     let onGestureStart: (() -> Void)?
+    let onGestureUpdated: (() -> Void)?
     let onGestureEnd: (() -> Void)?
     @State private var initialOrientation: simd_quatf? = nil
     
@@ -64,6 +65,8 @@ struct EntityRotationGesture: ViewModifier {
                         let yRotation = simd_quatf(angle: snappedAngle, axis: parentYAxis)
 
                         currentEntity.orientation = yRotation * (initialOrientation ?? simd_quatf(angle: 0, axis: [0, 1, 0]))
+
+                        onGestureUpdated?()
                     }
                     .onEnded { value in
                         guard let uuid = UUID(uuidString: value.entity.name) else {
@@ -75,7 +78,7 @@ struct EntityRotationGesture: ViewModifier {
                         // 최종 rotation을 Euler angles로 변환해서 저장
                         let finalRotation = quaternionToEuler(value.entity.orientation)
                         onRotationUpdate(uuid, finalRotation)
-                        
+
                         onGestureEnd?()
                         initialOrientation = nil
                     }
@@ -90,6 +93,7 @@ extension View {
         onRotationUpdate: @escaping (UUID, SIMD3<Float>) -> Void,
         snapAngleDegrees: Float = 15.0, // 기본값 15도
         onGestureStart: (() -> Void)?,
+        onGestureUpdated: (() -> Void)?,
         onGestureEnd: (() -> Void)?
     ) -> some View {
         self.modifier(EntityRotationGesture(
@@ -97,6 +101,7 @@ extension View {
             onRotationUpdate: onRotationUpdate,
             snapAngleDegrees: snapAngleDegrees,
             onGestureStart: onGestureStart,
+            onGestureUpdated: onGestureUpdated,
             onGestureEnd: onGestureEnd
         ))
     }

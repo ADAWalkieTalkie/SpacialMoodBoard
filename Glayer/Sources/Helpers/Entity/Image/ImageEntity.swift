@@ -22,7 +22,11 @@ struct ImageEntity {
         let imageEntity = ModelEntity()
         imageEntity.name = sceneObject.id.uuidString
         imageEntity.position = sceneObject.position
-        imageEntity.scale = SIMD3<Float>(repeating: imageAttrs.scale)
+        let sanitizedScale: Float = {
+            guard imageAttrs.scale.isFinite else { return 1.0 }
+            return min(max(imageAttrs.scale, 0.05), 6.0)
+        }()
+        imageEntity.scale = SIMD3<Float>(repeating: sanitizedScale)
 
         let size = calculateSize(from: asset, imageAttrs: imageAttrs)
 

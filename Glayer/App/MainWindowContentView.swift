@@ -23,7 +23,6 @@ struct MainWindowContent: View {
         Group {
             if appStateManager.appState.selectedProject != nil {
                 VStack {
-                    if appStateManager.isLibraryOpen {
                         LibraryView(
                             viewModel: LibraryViewModel(
                                 appStateManager: appStateManager,
@@ -42,7 +41,6 @@ struct MainWindowContent: View {
                             }
 
                         }
-                    }
                 }
                 .environment(appStateManager)
                 .task {

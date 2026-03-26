@@ -70,11 +70,15 @@ enum EntityBoundBoxApplier {
         mat.baseColor = .init(texture: .init(tex))
         mat.emissiveColor = .init(texture: .init(tex))
         mat.emissiveIntensity = 1.5
-        mat.blending = .transparent(opacity: 1.0)
+        mat.blending = .transparent(opacity: .init(texture: .init(tex)))
+        // 알파 0에 가까운 영역은 depth에 기록하지 않도록 하여,
+        // 선택 테두리의 빈 공간을 통해 뒤쪽 floor/background가 정상적으로 보이게 한다.
+        mat.opacityThreshold = 0.01
         mat.faceCulling = .none
         
         let bound = ModelEntity(mesh: plane, materials: [mat])
         bound.name = "boundBox"
+        bound.position = SIMD3(0, 0, -0.001)
         
         if isFloor {
             bound.position = SIMD3(0, 0.0001, 0)
@@ -101,7 +105,8 @@ enum EntityBoundBoxApplier {
         mat.baseColor = .init(texture: .init(tex))
         mat.emissiveColor = .init(texture: .init(tex))
         mat.emissiveIntensity = 1.5
-        mat.blending = .transparent(opacity: 1.0)
+        mat.blending = .transparent(opacity: .init(texture: .init(tex)))
+        mat.opacityThreshold = 0.01
         mat.faceCulling = .none
 
         let bound = ModelEntity(mesh: plane, materials: [mat])

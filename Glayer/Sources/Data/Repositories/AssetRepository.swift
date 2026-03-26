@@ -400,7 +400,9 @@ final class AssetRepository: AssetRepositoryInterface {
         ? (src.type == .image ? "png" : "m4a")
         : src.url.pathExtension
         
-        let base = Self.sanitizedBase(newBaseName?.isEmpty == false ? newBaseName! : "Copy")
+        let base = Self.sanitizedBase(
+            newBaseName?.isEmpty == false ? newBaseName! : String(localized: "asset.default.copy")
+        )
         let newFilename: String
         switch src.type {
         case .image:
@@ -482,7 +484,7 @@ final class AssetRepository: AssetRepositoryInterface {
         let bad = CharacterSet(charactersIn: "/:\\?%*|\"<>")
         let cleaned = name.components(separatedBy: bad).joined(separator: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        return cleaned.isEmpty ? "Untitled" : cleaned
+        return cleaned.isEmpty ? String(localized: "asset.default.untitled") : cleaned
     }
     
     // MARK: - Waveform Filling

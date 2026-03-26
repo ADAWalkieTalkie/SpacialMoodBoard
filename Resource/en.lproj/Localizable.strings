@@ -99,3 +99,21 @@
 "guiding.assetPlacement.rotate.description" = "Adjust the asset to the angle you prefer.";
 "guiding.assetPlacement.scale.title" = "Scale";
 "guiding.assetPlacement.scale.description" = "Resize the asset to your desired scale.";
+
+// MARK: - Search
+"search.placeholder" = "Search";
+
+// MARK: - Accessibility & Toolbar
+"action.lock" = "Lock";
+"toolbar.volumeControl" = "Volume Control";
+"toolbar.fullImmersive" = "Full Immersive";
+"toolbar.viewMode" = "View Mode";
+"toolbar.mute" = "Mute";
+"toolbar.unmute" = "Unmute";
+"toolbar.minimize" = "Minimize";
+"toolbar.dayNight" = "Day/Night";
+
+// MARK: - Asset Defaults
+"asset.default.image" = "Image";
+"asset.default.copy" = "Copy";
+"asset.default.untitled" = "Untitled";
