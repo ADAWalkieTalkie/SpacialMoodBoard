@@ -196,15 +196,14 @@ extension SceneViewModel {
         
         nameAttachment.scale = finalScale
         
-        // 6. 위치 설정 (아래에 배치)
-        entity.addChild(nameAttachment)
-        // AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
-
-
-        // SoundVisual이 비동기로 로드되는 경우를 대비해 한 번 더 위치를 보정
+        // SoundVisual이 비동기로 로드되는 경우를 고려해,
+        // 짧은 지연 후 위치를 계산한 뒤 attachment를 추가합니다.
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(120))
-            guard nameAttachment.parent != nil else { return }
+            try? await Task.sleep(for: .milliseconds(50))
+            guard nameAttachment.parent == nil else { return }
+
+            entity.addChild(nameAttachment)
+            // addChild 이후 최종 보정
             AttachmentPositioner.positionAtBottom(nameAttachment, relativeTo: entity)
         }
     }
