@@ -18,6 +18,7 @@ struct GlayerApp: App {
     @State private var deleteAssetUseCase: DeleteAssetUseCase
     @State private var sceneModelFileStorage: SceneModelFileStorage
     @State private var sceneViewModel: SceneViewModel
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     init() {
         do {
